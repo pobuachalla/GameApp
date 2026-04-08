@@ -55,13 +55,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .indic{font-size:10px;font-weight:500;margin-top:1px;}
 /* Player grid */
 .p-row{display:flex;gap:10px;justify-content:center;margin-bottom:10px;}
-.pbtn{width:56px;height:56px;border-radius:50%;border:2px solid var(--bm);background:var(--bg1);color:var(--t1);font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;touch-action:manipulation;transition:transform .1s,background .15s;line-height:1.1;text-align:center;padding:2px;position:relative;font-family:inherit;}
+.pbtn{width:56px;height:56px;border-radius:50%;border:2px solid rgba(255,255,255,0.7);background:rgba(255,255,255,0.92);color:#1a1a18;font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;touch-action:manipulation;transition:transform .1s,background .15s;line-height:1.1;text-align:center;padding:2px;position:relative;font-family:inherit;}
 .pbtn:active{transform:scale(.91);}
-.pbtn.hev{background:var(--bgi);color:var(--ti);border-color:var(--bi);}
-.pbtn.rc{background:var(--bgd)!important;color:var(--td)!important;border-color:var(--bd)!important;opacity:.55!important;cursor:not-allowed!important;pointer-events:none!important;}
+.pbtn.hev{background:rgba(180,212,244,0.95);color:#0c447c;border-color:rgba(55,138,221,0.8);}
+.pbtn.rc{background:rgba(252,235,235,0.92)!important;color:#a32d2d!important;border-color:rgba(226,75,74,0.7)!important;opacity:.55!important;cursor:not-allowed!important;pointer-events:none!important;}
 .pbtn.sub{border-style:dashed;}
 .subdot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:#25D366;border:1px solid var(--bg1);}
-.ydot{position:absolute;top:2px;left:2px;width:8px;height:8px;border-radius:50%;background:#f5c242;border:1px solid var(--bg1);}
+.card-y{position:absolute;top:3px;left:3px;width:5px;height:8px;border-radius:1.5px;background:#f5c242;border:.5px solid rgba(0,0,0,0.25);}
+.card-b{position:absolute;top:3px;left:10px;width:5px;height:8px;border-radius:1.5px;background:#2c2c2a;border:.5px solid rgba(255,255,255,0.2);}
+.card-r{position:absolute;top:3px;left:3px;width:5px;height:8px;border-radius:1.5px;background:#e24b4a;border:.5px solid rgba(0,0,0,0.25);}
 /* Bottom bar */
 .bot-bar{display:flex;align-items:stretch;border-top:.5px solid var(--bm);background:var(--bg1);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom);}
 .bar-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 4px;cursor:pointer;border:none;background:none;color:var(--t2);font-size:10px;font-weight:500;letter-spacing:.04em;touch-action:manipulation;font-family:inherit;}
@@ -78,8 +80,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .back-btn{width:36px;height:36px;border-radius:50%;border:.5px solid var(--bm);background:var(--bg1);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit;}
 .back-btn:active{background:var(--bg2);}
 /* Action btns */
-.abtn{display:block;width:100%;padding:14px;margin-bottom:8px;text-align:left;background:var(--bg1);border:.5px solid var(--b);border-radius:var(--r);color:var(--t1);font-size:15px;cursor:pointer;font-family:inherit;}
+.abtn{display:block;width:100%;padding:14px;margin-bottom:8px;text-align:center;background:var(--bg1);border:.5px solid var(--b);border-radius:var(--r);color:var(--t1);font-size:15px;cursor:pointer;font-family:inherit;}
 .abtn:active{background:var(--bg2);}
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0;}
+.opts-grid .abtn{margin-bottom:0;}
 /* Event log */
 .ev-row{display:flex;gap:10px;padding:7px 0;border-bottom:.5px solid var(--b);font-size:13px;align-items:flex-start;cursor:default;transition:background .1s;}
 .ev-row:last-child{border-bottom:none;}
@@ -107,6 +111,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bo,.badj{background:var(--bg2);color:var(--t2);}
 .bopp{background:var(--bgw);color:var(--tw);}
 .brstr{background:#e1f5ee;color:#0f6e56;}
+.bperiod{background:var(--bgi);color:var(--ti);}
 /* Settings */
 .sinput{width:100%;padding:9px 11px;border:.5px solid var(--bm);border-radius:var(--r);background:var(--bg1);color:var(--t1);font-size:14px;font-family:inherit;}
 .sinput:focus{outline:none;border-color:var(--bi);}
@@ -179,14 +184,86 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
 
-    <!-- Player grid -->
-    <div id="pgrid" style="opacity:.3;pointer-events:none;transition:opacity .2s;padding-bottom:8px;">
-      <div class="p-row"><button class="pbtn" data-s="1" onclick="sel(1)">1</button></div>
-      <div class="p-row"><button class="pbtn" data-s="2" onclick="sel(2)">2</button><button class="pbtn" data-s="3" onclick="sel(3)">3</button><button class="pbtn" data-s="4" onclick="sel(4)">4</button></div>
-      <div class="p-row"><button class="pbtn" data-s="5" onclick="sel(5)">5</button><button class="pbtn" data-s="6" onclick="sel(6)">6</button><button class="pbtn" data-s="7" onclick="sel(7)">7</button></div>
-      <div class="p-row"><button class="pbtn" data-s="8" onclick="sel(8)">8</button><button class="pbtn" data-s="9" onclick="sel(9)">9</button></div>
-      <div class="p-row"><button class="pbtn" data-s="10" onclick="sel(10)">10</button><button class="pbtn" data-s="11" onclick="sel(11)">11</button><button class="pbtn" data-s="12" onclick="sel(12)">12</button></div>
-      <div class="p-row"><button class="pbtn" data-s="13" onclick="sel(13)">13</button><button class="pbtn" data-s="14" onclick="sel(14)">14</button><button class="pbtn" data-s="15" onclick="sel(15)">15</button></div>
+    <!-- Player grid with pitch background -->
+    <div style="position:relative;margin-bottom:8px;">
+      <!-- GAA pitch SVG background — spec per Official Guide Part 2, Rule 1 -->
+      <!-- ViewBox 320×400. Pitch x=10–310 (300px=85m → 3.53px/m), y=10–390 (380px=140m → 2.71px/m) -->
+      <svg id="pitch-svg" viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:10px;" preserveAspectRatio="xMidYMid slice">
+        <!-- Background green -->
+        <rect width="320" height="400" fill="#4a9a38" rx="10"/>
+        <!-- Alternating grass stripes -->
+        <rect x="0" y="10"  width="320" height="44" fill="#52a83f" opacity="0.5"/>
+        <rect x="0" y="98"  width="320" height="44" fill="#52a83f" opacity="0.5"/>
+        <rect x="0" y="186" width="320" height="28" fill="#52a83f" opacity="0.5"/>
+        <rect x="0" y="258" width="320" height="44" fill="#52a83f" opacity="0.5"/>
+        <rect x="0" y="346" width="320" height="44" fill="#52a83f" opacity="0.5"/>
+
+        <!-- Pitch outline -->
+        <rect x="10" y="10" width="300" height="380" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+
+        <!-- 45m lines -->
+        <line x1="10" y1="132" x2="310" y2="132" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/>
+        <line x1="10" y1="268" x2="310" y2="268" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/>
+
+        <!-- 20m lines -->
+        <line x1="10" y1="64" x2="310" y2="64" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
+        <line x1="10" y1="336" x2="310" y2="336" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
+
+        <!-- 13m lines -->
+        <line x1="10" y1="45" x2="310" y2="45" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/>
+        <line x1="10" y1="355" x2="310" y2="355" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/>
+
+        <!-- Midline (dashed) -->
+        <line x1="10" y1="200" x2="310" y2="200" stroke="rgba(255,255,255,0.65)" stroke-width="1.6" stroke-dasharray="12 7"/>
+
+        <!-- Centre throw-in spot -->
+        <circle cx="160" cy="200" r="2.5" fill="rgba(255,255,255,0.6)"/>
+
+        <!-- Large rectangle top (19m × 13m): 19m=67px wide, 13m=35px deep -->
+        <!-- x: 160 ± (19/2)×3.53 = 160±33.5 → 127–193, y: 10–45 -->
+        <rect x="127" y="10" width="66" height="35" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
+        <!-- Large rectangle bottom -->
+        <rect x="127" y="355" width="66" height="35" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
+
+        <!-- Small rectangle top (14m × 4.5m): 14m=49px wide, 4.5m=12px deep -->
+        <!-- x: 160 ± 7×3.53 = 160±24.7 → 135–185 -->
+        <rect x="135" y="10" width="50" height="12" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
+        <!-- Small rectangle bottom -->
+        <rect x="135" y="378" width="50" height="12" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
+
+        <!-- 13m arc: full semicircle centred on 20m midpoint (160,64), rx=46 ry=35, curves into pitch -->
+        <path d="M 114,64 A 46,35 0 0,0 206,64" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+        <!-- 13m arc bottom -->
+        <path d="M 114,336 A 46,35 0 0,1 206,336" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+
+        <!-- 40m arc: portion of 40m circle (centre goal-line midpoint 160,10, rx=141 ry=108)
+             that lies beyond the 20m line. Intersects 20m line at x≈38 and x≈282.
+             Arc curves from (38,64) down through pitch to (282,64). -->
+        <path d="M 38,64 A 141,108 0 0,0 282,64" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/>
+        <!-- 40m arc bottom -->
+        <path d="M 38,336 A 141,108 0 0,1 282,336" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/>
+
+        <!-- Penalty spots (11m = 30px from endline) -->
+        <circle cx="160" cy="40" r="2.5" fill="rgba(255,255,255,0.6)"/>
+        <circle cx="160" cy="360" r="2.5" fill="rgba(255,255,255,0.6)"/>
+
+        <!-- Goal posts: 6.5m apart (23px), centred x=160 → posts at x=149 and x=171 -->
+        <line x1="149" y1="0"   x2="149" y2="12"  stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
+        <line x1="171" y1="0"   x2="171" y2="12"  stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
+        <line x1="147" y1="3"   x2="173" y2="3"   stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
+        <line x1="149" y1="388" x2="149" y2="400" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
+        <line x1="171" y1="388" x2="171" y2="400" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
+        <line x1="147" y1="397" x2="173" y2="397" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
+      </svg>
+
+      <div id="pgrid" style="position:relative;z-index:1;opacity:.3;pointer-events:none;transition:opacity .2s;padding:10px 0 10px;">
+        <div class="p-row"><button class="pbtn" data-s="1" onclick="sel(1)">1</button></div>
+        <div class="p-row"><button class="pbtn" data-s="2" onclick="sel(2)">2</button><button class="pbtn" data-s="3" onclick="sel(3)">3</button><button class="pbtn" data-s="4" onclick="sel(4)">4</button></div>
+        <div class="p-row"><button class="pbtn" data-s="5" onclick="sel(5)">5</button><button class="pbtn" data-s="6" onclick="sel(6)">6</button><button class="pbtn" data-s="7" onclick="sel(7)">7</button></div>
+        <div class="p-row"><button class="pbtn" data-s="8" onclick="sel(8)">8</button><button class="pbtn" data-s="9" onclick="sel(9)">9</button></div>
+        <div class="p-row"><button class="pbtn" data-s="10" onclick="sel(10)">10</button><button class="pbtn" data-s="11" onclick="sel(11)">11</button><button class="pbtn" data-s="12" onclick="sel(12)">12</button></div>
+        <div class="p-row"><button class="pbtn" data-s="13" onclick="sel(13)">13</button><button class="pbtn" data-s="14" onclick="sel(14)">14</button><button class="pbtn" data-s="15" onclick="sel(15)">15</button></div>
+      </div>
     </div>
   </div>
 
@@ -276,7 +353,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 var tRun=false,tStarted=false,tStopped=false,secs=0,tInt=null;
 var selSlot=null,pendAct=null,subOff=null;
 var goals=0,pts=0,og=0,op_=0;
-var evts=[],undos=[],rcarded={},ycarded={},pnames={},slotp={},ubench={},suboff={};
+var evts=[],undos=[],rcarded={},ycarded={},bcarded={},pnames={},slotp={},ubench={},suboff={};
+var playerGoals={},playerPts={};
+var period=1;
 var usN='Donaghmore/Ashbourne',oppN='Opposition',maxB=17;
 for(var i=1;i<=15;i++) slotp[i]=i;
 
@@ -328,10 +407,26 @@ function refBtns(){
   for(var s=1;s<=15;s++){
     var b=document.querySelector('[data-s="'+s+'"]');if(!b)continue;
     var pi=slotp[s],ini=gi(pi);
-    b.textContent='';
-    if(ubench[pi]){var d=document.createElement('span');d.className='subdot';b.appendChild(d);}
-    b.appendChild(document.createTextNode(ini));
-    b.style.fontSize=ini.length>=4?'10px':ini.length===3?'11px':ini.length===2?'13px':'15px';
+    while(b.firstChild)b.removeChild(b.firstChild);
+    b.style.fontSize='';
+    if(ycarded[s]){var cy=document.createElement('span');cy.className='card-y';b.appendChild(cy);}
+    if(bcarded[s]){var cb=document.createElement('span');cb.className='card-b';b.appendChild(cb);}
+    if(rcarded[s]){var cr=document.createElement('span');cr.className='card-r';b.appendChild(cr);}
+    if(ubench[pi]){var sd=document.createElement('span');sd.className='subdot';b.appendChild(sd);}
+    var wrap=document.createElement('span');
+    wrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:0;line-height:1;';
+    var iniSpan=document.createElement('span');
+    iniSpan.textContent=ini;
+    iniSpan.style.fontSize=ini.length>=4?'10px':ini.length===3?'11px':ini.length===2?'12px':'14px';
+    wrap.appendChild(iniSpan);
+    var g=playerGoals[pi]||0,p_=playerPts[pi]||0;
+    if(g>0||p_>0){
+      var sc=document.createElement('span');
+      sc.textContent=g+'-'+p_;
+      sc.style.cssText='font-size:9px;font-weight:400;opacity:0.75;margin-top:1px;';
+      wrap.appendChild(sc);
+    }
+    b.appendChild(wrap);
   }
 }
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
@@ -341,7 +436,8 @@ function syncMeta(){
   document.getElementById('lcnt').textContent=n+' event'+(n!==1?'s':'');
   var b=document.getElementById('lbdg');
   if(n>0){b.textContent=n;b.style.display='inline';}else b.style.display='none';
-  document.getElementById('undobtn').disabled=undos.length===0;
+  var ub=document.getElementById('undobtn');
+  if(ub)ub.disabled=undos.length===0;
 }
 function undoLast(){
   if(!undos.length)return;
@@ -438,8 +534,9 @@ function openScoreModal(side){
     {v:'g-', label:'− Goal',   col:'color:var(--t2);'},
     {v:'p-', label:'− Point',  col:'color:var(--t2);'}
   ];
-  var html='';
+  var html='<div class="opts-grid">';
   opts.forEach(function(o){html+='<button class="abtn" data-v="'+o.v+'" style="'+o.col+'">'+o.label+'</button>';});
+  html+='</div>';
   document.getElementById('mtitle').textContent=name+' — adjust score';
   document.getElementById('mopts').innerHTML=html;
   document.getElementById('modal').style.display='block';
@@ -477,34 +574,162 @@ function adjOpp(t,d,side){
   if(d>0)showRestartModal(side||'opp');
 }
 function timerMain(){
-  if(tStopped||!tStarted){
-    if(tStopped){secs=0;document.getElementById('timer-display').textContent='00:00';document.getElementById('timer-display').classList.remove('overtime');}
-    tStarted=true;tRun=true;tStopped=false;tInt=setInterval(tick,1000);
-    setTBtn('Pause','w');document.getElementById('stopbtn').style.display='';setGrid(true);
-  }else if(tRun){
-    tRun=false;clearInterval(tInt);tInt=null;
-    setTBtn('Resume','i');document.getElementById('stopbtn').style.display='';setGrid(false);
-  }else{
-    tRun=true;tInt=setInterval(tick,1000);
-    setTBtn('Pause','w');document.getElementById('stopbtn').style.display='none';setGrid(true);
+  if(!tStarted){
+    // Initial start
+    startPeriod();
+  } else if(tRun){
+    // Running → do nothing, only Stop is shown
   }
 }
-function stopTimer(){
-  tRun=false;tStarted=false;tStopped=true;clearInterval(tInt);tInt=null;
-  setTBtn('Start','s');document.getElementById('stopbtn').style.display='none';setGrid(false);
+function periodLabel(n){
+  var labels=['1st Half','2nd Half','1st Half ET','2nd Half ET'];
+  return labels[n-1]||('Period '+n);
 }
-function setTBtn(l,t){
-  var m={'s':['var(--bgs)','var(--ts)','var(--bs)'],'w':['var(--bgw)','var(--tw)','var(--bw)'],'i':['var(--bgi)','var(--ti)','var(--bi)']};
-  var b=document.getElementById('tbtn');b.textContent=l;b.style.background=m[t][0];b.style.color=m[t][1];b.style.borderColor=m[t][2];
+function periodBadge(n){
+  var badges=['1H','2H','ET1','ET2'];
+  return badges[n-1]||('P'+n);
+}
+function startPeriod(){
+  secs=0;
+  var td=document.getElementById('timer-display');
+  td.textContent='00:00';td.classList.remove('overtime');
+  tStarted=true;tRun=true;tStopped=false;
+  tInt=setInterval(tick,1000);
+  document.getElementById('tbtn').style.display='none';
+  document.getElementById('stopbtn').style.display='';
+  setGrid(true);
+  var now=new Date();
+  var clockStr=pad(now.getHours())+':'+pad(now.getMinutes());
+  var desc=periodLabel(period)+' started at '+clockStr;
+  addRow('00:00',periodBadge(period),'bperiod',desc);
+  pushUndo(desc,function(){});
+}
+function stopTimer(){
+  tRun=false;tStarted=false;tStopped=true;
+  clearInterval(tInt);tInt=null;
+  document.getElementById('stopbtn').style.display='none';
+  setGrid(false);
+  showStoppedOptions();
+}
+function showStoppedOptions(){
+  var nextLabel=periodLabel(period+1);
+  var html='<div class="opts-grid">'+
+    '<button class="abtn" data-v="next" style="color:var(--ts);border-color:var(--bs);">'+nextLabel+'</button>'+
+    '<button class="abtn" data-v="resume" style="color:var(--ti);border-color:var(--bi);">Resume '+periodLabel(period)+'</button>'+
+    '<button class="abtn" data-v="end" style="color:var(--t2);border-color:var(--bm);">End game</button>'+
+    '</div>';
+  document.getElementById('mtitle').textContent=periodLabel(period)+' ended — what next?';
+  document.getElementById('mopts').innerHTML=html;
+  document.getElementById('modal').style.display='block';
+  // Override cancel to resume
+  document.getElementById('modal').dataset.cancelAction='resume-period';
+  document.getElementById('mopts').querySelectorAll('.abtn').forEach(function(b){
+    b.addEventListener('click',function(){
+      var v=this.getAttribute('data-v');
+      document.getElementById('modal').dataset.cancelAction='';
+      closeMod();
+      if(v==='next'){period++;startPeriod();}
+      else if(v==='resume'){resumePeriod();}
+      else if(v==='end'){endGame();}
+    });
+  });
+}
+function endGame(){
+  var u=goals*3+pts,o=og*3+op_;
+  var result;
+  if(u>o) result='Win';
+  else if(o>u) result='Loss';
+  else result='Draw';
+  var now=new Date();
+  var clockStr=pad(now.getHours())+':'+pad(now.getMinutes());
+  var desc='Game ended at '+clockStr+' — '+usN+' '+goals+'-'+pts+' ('+u+') v '+oppN+' '+og+'-'+op_+' ('+o+') — '+result;
+  addRow(fmt(secs),'END','bperiod',desc);
+  // Show the end game modal (no cancel)
+  document.getElementById('mtitle').textContent='Game over';
+  document.getElementById('mopts').innerHTML=
+    '<p style="font-size:15px;font-weight:500;color:var(--t1);padding:6px 0 4px;">'+usN+'</p>'+
+    '<p style="font-size:32px;font-weight:500;color:var(--t1);padding:0 0 4px;line-height:1;">'+goals+'-'+pts+' <span style="font-size:16px;color:var(--t2);">('+u+')</span></p>'+
+    '<p style="font-size:15px;font-weight:500;color:var(--t1);padding:4px 0 4px;">'+oppN+'</p>'+
+    '<p style="font-size:32px;font-weight:500;color:var(--t1);padding:0 0 16px;line-height:1;">'+og+'-'+op_+' <span style="font-size:16px;color:var(--t2);">('+o+')</span></p>'+
+    '<p style="font-size:18px;font-weight:500;padding:0 0 12px;color:'+(result==='Win'?'var(--ts)':result==='Loss'?'var(--td)':'var(--t2)')+';">'+result+'</p>';
+  document.getElementById('modal').style.display='block';
+  document.getElementById('modal').dataset.cancelAction='dismiss';
+  setGrid(false);
+  // Replace Undo with Reset in the bottom bar
+  var ub=document.getElementById('undobtn');
+  ub.id='resetbtn';
+  ub.disabled=false;
+  ub.classList.remove('danger');
+  ub.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>Reset';
+  ub.onclick=resetMatch;
+}
+function resumePeriod(){
+  tRun=true;tStarted=true;tStopped=false;
+  tInt=setInterval(tick,1000);
+  document.getElementById('tbtn').style.display='none';
+  document.getElementById('stopbtn').style.display='';
+  setGrid(true);
+}
+function resetMatch(){
+  document.getElementById('mtitle').textContent='Reset match?';
+  document.getElementById('mopts').innerHTML=
+    '<p style="font-size:14px;color:var(--t2);padding:4px 0 14px;line-height:1.5;">All scores, events and cards will be cleared. Team and player settings are kept.</p>'+
+    '<button class="abtn" data-v="ok" style="color:var(--td);border-color:var(--bd);">Clear everything and reset</button>';
+  document.getElementById('modal').style.display='block';
+  document.getElementById('mopts').querySelector('.abtn').addEventListener('click',function(){
+    closeMod();doReset();
+  });
+}
+function doReset(){
+  goals=0;pts=0;og=0;op_=0;
+  document.getElementById('gc').textContent=0;
+  document.getElementById('pc').textContent=0;
+  document.getElementById('og').textContent=0;
+  document.getElementById('op').textContent=0;
+  upTot();
+  evts=[];undos=[];
+  var el=document.getElementById('evlog');
+  el.innerHTML='<div id="logempty" style="color:var(--t3);font-size:13px;padding:10px 0;">No events recorded yet</div>';
+  syncMeta();
+  secs=0;tRun=false;tStarted=false;tStopped=false;
+  clearInterval(tInt);tInt=null;
+  period=1;
+  var td=document.getElementById('timer-display');
+  td.textContent='00:00';td.classList.remove('overtime');
+  document.getElementById('tbtn').style.display='';
+  document.getElementById('stopbtn').style.display='none';
+  setGrid(false);
+  rcarded={};ycarded={};bcarded={};
+  playerGoals={};playerPts={};
+  for(var s=1;s<=15;s++){
+    slotp[s]=s;
+    var b=document.querySelector('[data-s="'+s+'"]');
+    if(b){b.classList.remove('hev','sub','rc');}
+  }
+  ubench={};suboff={};
+  refBtns();
+  // Restore Undo button if it was replaced
+  var rb=document.getElementById('resetbtn');
+  if(rb&&rb.id==='resetbtn'&&!rb.classList.contains('bar-btn')){rb=null;}
+  var ub2=rb||document.getElementById('undobtn');
+  if(ub2&&ub2.id==='resetbtn'){
+    ub2.id='undobtn';
+    ub2.classList.add('danger');
+    ub2.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>Undo';
+    ub2.onclick=undoLast;
+    ub2.disabled=true;
+  }
+  toast('Match reset');
 }
 function setGrid(on){var g=document.getElementById('pgrid');g.style.opacity=on?'1':'.3';g.style.pointerEvents=on?'auto':'none';}
 function tick(){secs++;var e=document.getElementById('timer-display');e.textContent=fmt(secs);if(secs>=1800&&!e.classList.contains('overtime'))e.classList.add('overtime');}
 function sel(s){if(!tRun||rcarded[s])return;selSlot=s;showOpts(pl(slotp[s])+' — select action',ACTS,actCb,false);}
 function showOpts(title,opts,handler,rich){
   document.getElementById('mtitle').textContent=title;
-  var html='';
-  if(rich){opts.forEach(function(o){html+='<button class="abtn" data-v="'+o.val+'"><div class="sarow"><span style="font-size:15px;color:var(--t1);">'+o.label+'</span>'+(o.sub?'<span style="font-size:11px;color:var(--t2);">'+o.sub+'</span>':'')+'</div></button>';});}
+  var html='<div class="opts-grid">';
+  if(rich){opts.forEach(function(o){html+='<button class="abtn" data-v="'+o.val+'" style="text-align:left;"><div class="sarow"><span style="font-size:15px;color:var(--t1);">'+o.label+'</span>'+(o.sub?'<span style="font-size:11px;color:var(--t2);">'+o.sub+'</span>':'')+'</div></button>';});}
   else{opts.forEach(function(o){var ex=(o==='Substitution')?' style="border-color:#25D366;color:#1a7a3c;"':'';html+='<button class="abtn" data-v="'+o+'"'+ex+'>'+o+'</button>';});}
+  html+='</div>';
   document.getElementById('mopts').innerHTML=html;
   document.getElementById('modal').style.display='block';
   document.getElementById('mopts').querySelectorAll('.abtn').forEach(function(b){b.addEventListener('click',function(){handler(this.getAttribute('data-v'));});});
@@ -520,11 +745,12 @@ function showRestartModal(side){
   // side='opp' → they shot, we kick out         → "Own Restart"
   var label=side==='us'?"Opposition's Restart":"Own Restart";
   var opts=['Won','Lost','Unclear'];
-  var html='';
+  var html='<div class="opts-grid">';
   opts.forEach(function(o){
     var col=o==='Won'?'color:var(--ts);border-color:var(--bs);':o==='Lost'?'color:var(--td);border-color:var(--bd);':'';
     html+='<button class="abtn" data-v="'+o+'" style="'+col+'">'+o+'</button>';
   });
+  html+='</div>';
   document.getElementById('mtitle').textContent='Restart won?';
   document.getElementById('mopts').innerHTML=html;
   document.getElementById('modal').style.display='block';
@@ -575,35 +801,51 @@ function execSub(bi){
   });
   refBtns();closeMod();
 }
-function closeMod(){document.getElementById('modal').style.display='none';selSlot=null;pendAct=null;subOff=null;}
+function closeMod(){
+  var ca=document.getElementById('modal').dataset.cancelAction||'';
+  document.getElementById('modal').dataset.cancelAction='';
+  document.getElementById('modal').style.display='none';
+  selSlot=null;pendAct=null;subOff=null;
+  if(ca==='resume-period'){resumePeriod();}
+  // 'dismiss' and '' both just close
+}
 function bc(a){if(a==='Goal')return 'bg';if(a==='Point')return 'bp';if(a==='Wide')return 'bw';if(a==='Red Card')return 'br';if(a.indexOf('Card')>=0)return 'bc';return 'bo';}
 function logEv(action,sec){
-  var pg=goals,pp=pts;
-  if(action==='Goal'){goals++;document.getElementById('gc').textContent=goals;}
-  if(action==='Point'){pts++;document.getElementById('pc').textContent=pts;}
-  if(action==='Goal'||action==='Point')upTot();
+  var pg=goals,pp=pts,pPG=0,pPP=0;
+  if(action==='Goal'){goals++;document.getElementById('gc').textContent=goals;pPG=(playerGoals[slotp[selSlot]]||0);playerGoals[slotp[selSlot]]=(pPG)+1;}
+  if(action==='Point'){pts++;document.getElementById('pc').textContent=pts;pPP=(playerPts[slotp[selSlot]]||0);playerPts[slotp[selSlot]]=(pPP)+1;}
+  if(action==='Goal'||action==='Point'){upTot();refBtns();}
   if(action==='Red Card'){
     rcarded[selSlot]=true;
     var rb=document.querySelector('[data-s="'+selSlot+'"]');
-    if(rb){rb.classList.remove('hev','sub');rb.classList.add('rc');}
+    if(rb){rb.classList.remove('hev','sub');rb.classList.add('rc');var cr=document.createElement('span');cr.className='card-r';rb.appendChild(cr);}
   }
   if(action==='Yellow Card'){
     ycarded[selSlot]=(ycarded[selSlot]||0)+1;
     var yb=document.querySelector('[data-s="'+selSlot+'"]');
-    if(yb&&!yb.querySelector('.ydot')){var yd=document.createElement('span');yd.className='ydot';yb.appendChild(yd);}
+    if(yb&&!yb.querySelector('.card-y')){var cy=document.createElement('span');cy.className='card-y';yb.appendChild(cy);}
+  }
+  if(action==='Black Card'){
+    bcarded[selSlot]=(bcarded[selSlot]||0)+1;
+    var bb=document.querySelector('[data-s="'+selSlot+'"]');
+    if(bb&&!bb.querySelector('.card-b')){var cbk=document.createElement('span');cbk.className='card-b';bb.appendChild(cbk);}
   }
   var t=fmt(secs),pidx=slotp[selSlot];
   var desc=pl(pidx)+': '+action+(sec?' · '+sec:'');
   if(action!=='Red Card'){var bn=document.querySelector('[data-s="'+selSlot+'"]');if(bn&&!bn.classList.contains('rc'))bn.classList.add('hev');}
   addRow(t,gi(pidx),bc(action),desc);
-  var cSl=selSlot,cPi=pidx,cA=action,cG=pg,cP=pp;
+  var cSl=selSlot,cPi=pidx,cA=action,cG=pg,cP=pp,cPG=pPG,cPP=pPP;
   pushUndo(desc,function(){
-    if(cA==='Goal'){goals=cG;document.getElementById('gc').textContent=goals;upTot();}
-    if(cA==='Point'){pts=cP;document.getElementById('pc').textContent=pts;upTot();}
-    if(cA==='Red Card'){delete rcarded[cSl];var rb=document.querySelector('[data-s="'+cSl+'"]');if(rb)rb.classList.remove('rc');}
+    if(cA==='Goal'){goals=cG;document.getElementById('gc').textContent=goals;playerGoals[cPi]=cPG;upTot();refBtns();}
+    if(cA==='Point'){pts=cP;document.getElementById('pc').textContent=pts;playerPts[cPi]=cPP;upTot();refBtns();}
+    if(cA==='Red Card'){delete rcarded[cSl];var rb=document.querySelector('[data-s="'+cSl+'"]');if(rb){rb.classList.remove('rc');var rcard=rb.querySelector('.card-r');if(rcard)rcard.remove();}}
     if(cA==='Yellow Card'){
       ycarded[cSl]=(ycarded[cSl]||1)-1;
-      if(ycarded[cSl]<=0){delete ycarded[cSl];var yb=document.querySelector('[data-s="'+cSl+'"]');var yd=yb&&yb.querySelector('.ydot');if(yd)yd.remove();}
+      if(ycarded[cSl]<=0){delete ycarded[cSl];var yb=document.querySelector('[data-s="'+cSl+'"]');var ycard=yb&&yb.querySelector('.card-y');if(ycard)ycard.remove();}
+    }
+    if(cA==='Black Card'){
+      bcarded[cSl]=(bcarded[cSl]||1)-1;
+      if(bcarded[cSl]<=0){delete bcarded[cSl];var bb=document.querySelector('[data-s="'+cSl+'"]');var bcard=bb&&bb.querySelector('.card-b');if(bcard)bcard.remove();}
     }
     var b2=document.querySelector('[data-s="'+cSl+'"]');
     var still=evts.slice(0,evts.length).some(function(e){return e.slot===cSl;});
@@ -680,7 +922,7 @@ function saveSettings(){
   for(var i=1;i<=maxB+2;i++){var inp=document.getElementById('sn'+i);if(inp)pnames[i]=inp.value.trim();}
   refBtns();closeSettings();toast('Settings saved');
 }
-upTot();syncMeta();
+upTot();syncMeta();refBtns();
 </script>
 </body>
 </html>
