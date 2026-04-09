@@ -29,49 +29,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 }
 #app{width:100%;max-width:460px;height:100%;display:flex;flex-direction:column;position:relative;color:var(--t1);}
 .scroll{flex:1;overflow-y:auto;padding:10px 10px 0;}
-/* Timer row */
 .timer-row{display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg2);border-radius:var(--rl);margin-bottom:10px;}
 #timer-display{font-size:44px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-1.5px;line-height:1;flex-shrink:0;color:var(--t1);}
 .timer-btns{display:flex;gap:8px;flex:1;justify-content:flex-end;align-items:center;}
 .t-btn{padding:9px 16px;border-radius:999px;font-size:14px;font-weight:500;cursor:pointer;border-width:1px;border-style:solid;font-family:inherit;touch-action:manipulation;white-space:nowrap;}
-/* Scoreboard island */
 .scoreboard{background:var(--bg1);border-radius:18px;margin-bottom:10px;overflow:hidden;border:1.5px solid var(--bm);box-shadow:0 3px 16px rgba(0,0,0,0.13);}
 .score-inner{display:flex;align-items:stretch;padding:8px 6px 6px;}
-.team-half{flex:1;min-width:0;padding:0 2px;}
 .team-lbl{font-size:10px;font-weight:500;letter-spacing:.05em;color:var(--t2);text-align:center;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.score-cols{display:flex;gap:4px;justify-content:center;}
-.score-col{flex:1;text-align:center;min-width:0;}
-.score-label{font-size:10px;color:var(--t2);letter-spacing:.05em;margin-bottom:2px;}
-.score-ctrl{display:flex;align-items:center;justify-content:center;gap:1px;}
-.sc-btn{width:26px;height:26px;border-radius:50%;border:0.5px solid var(--bm);background:var(--bg1);color:var(--t1);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;flex-shrink:0;font-family:inherit;}
-.sc-btn:active{background:var(--bg2);transform:scale(.93);}
-.sc-val{font-size:22px;font-weight:500;min-width:28px;text-align:center;line-height:1;}
 .div-v{width:.5px;background:var(--b);align-self:stretch;margin:0 4px;flex-shrink:0;}
-.total-bar{display:flex;align-items:stretch;border-top:.5px solid var(--b);margin-top:6px;}
-.total-side{flex:1;padding:6px 8px;display:flex;flex-direction:column;align-items:center;gap:1px;transition:background .25s;min-width:0;}
-.total-lbl{font-size:9px;letter-spacing:.06em;font-weight:500;}
-.total-val{font-size:20px;font-weight:500;line-height:1;}
-.total-div{width:.5px;background:var(--b);}
-.indic{font-size:10px;font-weight:500;margin-top:1px;}
-/* Player grid */
 .p-row{display:flex;gap:10px;justify-content:center;margin-bottom:10px;}
 .pbtn{width:56px;height:56px;border-radius:50%;border:2px solid rgba(255,255,255,0.7);background:rgba(255,255,255,0.92);color:#1a1a18;font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;touch-action:manipulation;transition:transform .1s,background .15s;line-height:1.1;text-align:center;padding:2px;position:relative;font-family:inherit;}
 .pbtn:active{transform:scale(.91);}
 .pbtn.hev{background:rgba(180,212,244,0.95);color:#0c447c;border-color:rgba(55,138,221,0.8);}
 .pbtn.rc{background:rgba(252,235,235,0.92)!important;color:#a32d2d!important;border-color:rgba(226,75,74,0.7)!important;opacity:.55!important;cursor:not-allowed!important;pointer-events:none!important;}
 .pbtn.sub{border-style:dashed;}
-.subdot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:#25D366;border:1px solid var(--bg1);}
+.subdot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:#25D366;border:1px solid rgba(255,255,255,0.8);}
 .card-y{position:absolute;top:3px;left:3px;width:5px;height:8px;border-radius:1.5px;background:#f5c242;border:.5px solid rgba(0,0,0,0.25);}
 .card-b{position:absolute;top:3px;left:10px;width:5px;height:8px;border-radius:1.5px;background:#2c2c2a;border:.5px solid rgba(255,255,255,0.2);}
 .card-r{position:absolute;top:3px;left:3px;width:5px;height:8px;border-radius:1.5px;background:#e24b4a;border:.5px solid rgba(0,0,0,0.25);}
-/* Bottom bar */
 .bot-bar{display:flex;align-items:stretch;border-top:.5px solid var(--bm);background:var(--bg1);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom);}
 .bar-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 4px;cursor:pointer;border:none;background:none;color:var(--t2);font-size:10px;font-weight:500;letter-spacing:.04em;touch-action:manipulation;font-family:inherit;}
 .bar-btn:active{background:var(--bg2);}
 .bar-btn.danger{color:var(--td);}
 .bar-btn:disabled{opacity:.3;cursor:default;}
 .bar-div{width:.5px;background:var(--b);align-self:stretch;margin:8px 0;}
-/* Modals & panels */
 .overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.48);z-index:50;padding:44px 12px 12px;}
 .modal-box{background:var(--bg1);border-radius:var(--rl);border:.5px solid var(--b);padding:14px;max-height:82vh;overflow-y:auto;}
 .full-panel{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:var(--bg1);z-index:60;padding:14px;flex-direction:column;}
@@ -79,12 +60,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .panel-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-shrink:0;}
 .back-btn{width:36px;height:36px;border-radius:50%;border:.5px solid var(--bm);background:var(--bg1);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit;}
 .back-btn:active{background:var(--bg2);}
-/* Action btns */
-.abtn{display:block;width:100%;padding:14px;margin-bottom:8px;text-align:center;background:var(--bg1);border:.5px solid var(--b);border-radius:var(--r);color:var(--t1);font-size:15px;cursor:pointer;font-family:inherit;}
+.abtn{display:block;width:100%;padding:14px;margin-bottom:0;text-align:center;background:var(--bg1);border:.5px solid var(--b);border-radius:var(--r);color:var(--t1);font-size:15px;cursor:pointer;font-family:inherit;}
 .abtn:active{background:var(--bg2);}
-.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0;}
-.opts-grid .abtn{margin-bottom:0;}
-/* Event log */
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .ev-row{display:flex;gap:10px;padding:7px 0;border-bottom:.5px solid var(--b);font-size:13px;align-items:flex-start;cursor:default;transition:background .1s;}
 .ev-row:last-child{border-bottom:none;}
 .ev-row.selected{background:var(--bgi);}
@@ -112,7 +90,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bopp{background:var(--bgw);color:var(--tw);}
 .brstr{background:#e1f5ee;color:#0f6e56;}
 .bperiod{background:var(--bgi);color:var(--ti);}
-/* Settings */
 .sinput{width:100%;padding:9px 11px;border:.5px solid var(--bm);border-radius:var(--r);background:var(--bg1);color:var(--t1);font-size:14px;font-family:inherit;}
 .sinput:focus{outline:none;border-color:var(--bi);}
 .prow{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:.5px solid var(--b);}
@@ -141,7 +118,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app">
   <div class="toast" id="toast"></div>
   <div class="scroll">
-
     <!-- Timer row -->
     <div class="timer-row">
       <div id="timer-display">00:00</div>
@@ -150,15 +126,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button id="stopbtn" class="t-btn" onclick="stopTimer()" style="display:none;background:var(--bgd);color:var(--td);border-color:var(--bd);">Stop</button>
       </div>
     </div>
-
     <!-- Scoreboard -->
     <div class="scoreboard">
       <div class="score-inner" style="align-items:center;gap:8px;padding:10px 8px 10px;">
-        <!-- Us: label above button, score to the right -->
         <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-start;flex:1;min-width:0;">
           <div id="uslbl" class="team-lbl" style="padding-left:2px;">DONAGHMORE/ASHBOURNE</div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <button class="score-adj-btn" onclick="openScoreModal('us')" title="Adjust score">+/−</button>
+            <button class="score-adj-btn" onclick="openScoreModal('us')">+/−</button>
             <div style="display:flex;align-items:baseline;gap:5px;flex-wrap:nowrap;">
               <span id="gc" style="font-size:28px;font-weight:500;color:var(--td);line-height:1;">0</span>
               <span style="font-size:20px;font-weight:300;color:var(--t3);line-height:1;">—</span>
@@ -168,7 +142,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </div>
         </div>
         <div class="div-v" style="height:52px;margin:0;"></div>
-        <!-- Opp: label above button, score to the left -->
         <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;flex:1;min-width:0;">
           <div id="opplbl" class="team-lbl" style="padding-right:2px;">OPPOSITION</div>
           <div style="display:flex;align-items:center;gap:8px;">
@@ -178,76 +151,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <span style="font-size:20px;font-weight:300;color:var(--t3);line-height:1;">—</span>
               <span id="op" style="font-size:28px;font-weight:500;color:var(--ts);line-height:1;">0</span>
             </div>
-            <button class="score-adj-btn" onclick="openScoreModal('opp')" title="Adjust score">+/−</button>
+            <button class="score-adj-btn" onclick="openScoreModal('opp')">+/−</button>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Player grid with pitch background -->
+    <!-- Player grid with pitch -->
     <div style="position:relative;margin-bottom:8px;">
-      <!-- GAA pitch SVG background — spec per Official Guide Part 2, Rule 1 -->
-      <!-- ViewBox 320×400. Pitch x=10–310 (300px=85m → 3.53px/m), y=10–390 (380px=140m → 2.71px/m) -->
-      <svg id="pitch-svg" viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:10px;" preserveAspectRatio="xMidYMid slice">
-        <!-- Background green -->
+      <svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:10px;" preserveAspectRatio="xMidYMid slice">
         <rect width="320" height="400" fill="#4a9a38" rx="10"/>
-        <!-- Alternating grass stripes -->
         <rect x="0" y="10"  width="320" height="44" fill="#52a83f" opacity="0.5"/>
         <rect x="0" y="98"  width="320" height="44" fill="#52a83f" opacity="0.5"/>
         <rect x="0" y="186" width="320" height="28" fill="#52a83f" opacity="0.5"/>
         <rect x="0" y="258" width="320" height="44" fill="#52a83f" opacity="0.5"/>
         <rect x="0" y="346" width="320" height="44" fill="#52a83f" opacity="0.5"/>
-
-        <!-- Pitch outline -->
         <rect x="10" y="10" width="300" height="380" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
-
-        <!-- 45m lines -->
         <line x1="10" y1="132" x2="310" y2="132" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/>
         <line x1="10" y1="268" x2="310" y2="268" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/>
-
-        <!-- 20m lines -->
-        <line x1="10" y1="64" x2="310" y2="64" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
+        <line x1="10" y1="64"  x2="310" y2="64"  stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
         <line x1="10" y1="336" x2="310" y2="336" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
-
-        <!-- 13m lines -->
-        <line x1="10" y1="45" x2="310" y2="45" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/>
-        <line x1="10" y1="355" x2="310" y2="355" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/>
-
-        <!-- Midline (dashed) -->
+        <line x1="10" y1="45"  x2="310" y2="45"  stroke="rgba(255,255,255,0.5)"  stroke-width="1.3"/>
+        <line x1="10" y1="355" x2="310" y2="355" stroke="rgba(255,255,255,0.5)"  stroke-width="1.3"/>
         <line x1="10" y1="200" x2="310" y2="200" stroke="rgba(255,255,255,0.65)" stroke-width="1.6" stroke-dasharray="12 7"/>
-
-        <!-- Centre throw-in spot -->
         <circle cx="160" cy="200" r="2.5" fill="rgba(255,255,255,0.6)"/>
-
-        <!-- Large rectangle top (19m × 13m): 19m=67px wide, 13m=35px deep -->
-        <!-- x: 160 ± (19/2)×3.53 = 160±33.5 → 127–193, y: 10–45 -->
-        <rect x="127" y="10" width="66" height="35" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
-        <!-- Large rectangle bottom -->
+        <rect x="127" y="10"  width="66" height="35" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
         <rect x="127" y="355" width="66" height="35" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
-
-        <!-- Small rectangle top (14m × 4.5m): 14m=49px wide, 4.5m=12px deep -->
-        <!-- x: 160 ± 7×3.53 = 160±24.7 → 135–185 -->
-        <rect x="135" y="10" width="50" height="12" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
-        <!-- Small rectangle bottom -->
+        <rect x="135" y="10"  width="50" height="12" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
         <rect x="135" y="378" width="50" height="12" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
-
-        <!-- 13m arc: full semicircle centred on 20m midpoint (160,64), rx=46 ry=35, curves into pitch -->
-        <path d="M 114,64 A 46,35 0 0,0 206,64" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
-        <!-- 13m arc bottom -->
-        <path d="M 114,336 A 46,35 0 0,1 206,336" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
-
-        <!-- 40m arc: portion of 40m circle (centre goal-line midpoint 160,10, rx=141 ry=108)
-             that lies beyond the 20m line. Intersects 20m line at x≈38 and x≈282.
-             Arc curves from (38,64) down through pitch to (282,64). -->
-        <path d="M 38,64 A 141,108 0 0,0 282,64" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/>
-        <!-- 40m arc bottom -->
+        <path d="M 114,64 A 46,35 0 0,0 206,64"  fill="none" stroke="rgba(255,255,255,0.7)"  stroke-width="1.5"/>
+        <path d="M 114,336 A 46,35 0 0,1 206,336" fill="none" stroke="rgba(255,255,255,0.7)"  stroke-width="1.5"/>
+        <path d="M 38,64 A 141,108 0 0,0 282,64"  fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/>
         <path d="M 38,336 A 141,108 0 0,1 282,336" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/>
-
-        <!-- Penalty spots (11m = 30px from endline) -->
-        <circle cx="160" cy="40" r="2.5" fill="rgba(255,255,255,0.6)"/>
+        <circle cx="160" cy="40"  r="2.5" fill="rgba(255,255,255,0.6)"/>
         <circle cx="160" cy="360" r="2.5" fill="rgba(255,255,255,0.6)"/>
-
-        <!-- Goal posts: 6.5m apart (23px), centred x=160 → posts at x=149 and x=171 -->
         <line x1="149" y1="0"   x2="149" y2="12"  stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
         <line x1="171" y1="0"   x2="171" y2="12"  stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
         <line x1="147" y1="3"   x2="173" y2="3"   stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
@@ -255,12 +191,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <line x1="171" y1="388" x2="171" y2="400" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
         <line x1="147" y1="397" x2="173" y2="397" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
       </svg>
-
       <div id="pgrid" style="position:relative;z-index:1;opacity:.3;pointer-events:none;transition:opacity .2s;padding:10px 0 10px;">
-        <div class="p-row"><button class="pbtn" data-s="1" onclick="sel(1)">1</button></div>
-        <div class="p-row"><button class="pbtn" data-s="2" onclick="sel(2)">2</button><button class="pbtn" data-s="3" onclick="sel(3)">3</button><button class="pbtn" data-s="4" onclick="sel(4)">4</button></div>
-        <div class="p-row"><button class="pbtn" data-s="5" onclick="sel(5)">5</button><button class="pbtn" data-s="6" onclick="sel(6)">6</button><button class="pbtn" data-s="7" onclick="sel(7)">7</button></div>
-        <div class="p-row"><button class="pbtn" data-s="8" onclick="sel(8)">8</button><button class="pbtn" data-s="9" onclick="sel(9)">9</button></div>
+        <div class="p-row"><button class="pbtn" data-s="1"  onclick="sel(1)">1</button></div>
+        <div class="p-row"><button class="pbtn" data-s="2"  onclick="sel(2)">2</button><button class="pbtn" data-s="3"  onclick="sel(3)">3</button><button class="pbtn" data-s="4"  onclick="sel(4)">4</button></div>
+        <div class="p-row"><button class="pbtn" data-s="5"  onclick="sel(5)">5</button><button class="pbtn" data-s="6"  onclick="sel(6)">6</button><button class="pbtn" data-s="7"  onclick="sel(7)">7</button></div>
+        <div class="p-row"><button class="pbtn" data-s="8"  onclick="sel(8)">8</button><button class="pbtn" data-s="9"  onclick="sel(9)">9</button></div>
         <div class="p-row"><button class="pbtn" data-s="10" onclick="sel(10)">10</button><button class="pbtn" data-s="11" onclick="sel(11)">11</button><button class="pbtn" data-s="12" onclick="sel(12)">12</button></div>
         <div class="p-row"><button class="pbtn" data-s="13" onclick="sel(13)">13</button><button class="pbtn" data-s="14" onclick="sel(14)">14</button><button class="pbtn" data-s="15" onclick="sel(15)">15</button></div>
       </div>
@@ -285,12 +220,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </button>
   </div>
 
-  <!-- Action modal -->
+  <!-- Modal -->
   <div id="modal" class="overlay">
     <div class="modal-box">
       <div id="mtitle" style="font-size:14px;font-weight:500;color:var(--t2);margin-bottom:11px;padding-bottom:9px;border-bottom:.5px solid var(--b);"></div>
       <div id="mopts"></div>
-      <button onclick="closeMod()" style="display:block;width:100%;padding:13px;border-radius:var(--r);background:none;border:.5px solid var(--bm);color:var(--t2);font-size:14px;cursor:pointer;margin-top:4px;font-family:inherit;">Cancel</button>
+      <button onclick="closeMod()" style="display:block;width:100%;padding:13px;border-radius:var(--r);background:none;border:.5px solid var(--bm);color:var(--t2);font-size:14px;cursor:pointer;margin-top:8px;font-family:inherit;">Cancel</button>
     </div>
   </div>
 
@@ -350,579 +285,783 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
-var tRun=false,tStarted=false,tStopped=false,secs=0,tInt=null;
-var selSlot=null,pendAct=null,subOff=null;
-var goals=0,pts=0,og=0,op_=0;
-var evts=[],undos=[],rcarded={},ycarded={},bcarded={},pnames={},slotp={},ubench={},suboff={};
-var playerGoals={},playerPts={};
-var period=1;
-var usN='Donaghmore/Ashbourne',oppN='Opposition',maxB=17;
-for(var i=1;i<=15;i++) slotp[i]=i;
+'use strict';
 
-var ACTS=['Goal','Point','Wide','Free','Red Card','Yellow Card','Black Card','Substitution'];
-var SSEC=['From Play','From Free','From Penalty','From 65'];
-var FSEC=['Push','Chop','Steps','Tackle','Pickup'];
-var NS={'Goal':SSEC,'Point':SSEC,'Wide':SSEC,'Free':FSEC};
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+const ACTS  = ['Goal','Point','Wide','Free','Red Card','Yellow Card','Black Card','Substitution'];
+const SSEC  = ['From Play','From Free','From Penalty','From 65'];
+const FSEC  = ['Push','Chop','Steps','Tackle','Pickup'];
+const NS    = {Goal:SSEC,Point:SSEC,Wide:SSEC,Free:FSEC};
+const SAVE_KEY = 'gaa_match_v1';
+const DEFAULT_US = 'Donaghmore/Ashbourne';
 
-function pad(n){return String(n).padStart(2,'0');}
-function fmt(s){return pad(Math.floor(s/60))+':'+pad(s%60);}
-function gn(i){return(pnames[i]||'').trim();}
-function gi(i){
-  var nm=gn(i);if(!nm)return String(i);
-  var p=nm.split(/\s+/),fi=p[0][0].toUpperCase();
-  if(p.length===1)return fi;
-  var surname=p[p.length-1];
-  var surnameKey='';
-  var hasOPrefix=false;
-  if(/^[OÓ]'/i.test(surname)){
-    surnameKey=surname[0].toUpperCase()+surname.substring(2).toUpperCase();
-    hasOPrefix=true;
-  }else if(p.length>=3&&/^[OÓ]$/i.test(p[p.length-2])){
-    surnameKey=p[p.length-2].toUpperCase()+surname.toUpperCase();
-    hasOPrefix=true;
-  }else{
-    surnameKey=surname.toUpperCase();
+// ─── STATE (single source of truth) ──────────────────────────────────────────
+const state = {
+  goals:0, pts:0, og:0, op_:0,
+  period:1, secs:0,
+  tStarted:false, tStopped:false,
+  tWallStart:null, tPausedAt:0,
+  usN:DEFAULT_US, oppN:'Opposition',
+  pnames:{}, slotp:{}, ubench:{}, suboff:{},
+  rcarded:{}, ycarded:{}, bcarded:{},
+  playerGoals:{}, playerPts:{},
+  maxB:17,
+  evts:[],   // {time, desc, badge, cls, slot?, action?}
+};
+for (let i = 1; i <= 15; i++) state.slotp[i] = i;
+
+// ─── SESSION STATE (not persisted) ────────────────────────────────────────────
+let undos   = [];
+let selMode = false;
+let selSlot = null, pendAct = null, subOff = null;
+let tInt    = null;
+let tRun    = false;
+let initialsCache = {};
+
+// ─── DOM CACHE ────────────────────────────────────────────────────────────────
+const el = {};
+function initEl() {
+  ['timer-display','gc','pc','og','op','utotal','ototal','uslbl','opplbl',
+   'evlog','logempty','lcnt','lbdg','toast','modal','mtitle','mopts',
+   'tbtn','stopbtn','pgrid','logpanel','setpanel','seltoggle',
+   'removebar','removelbl','sun','son','pslist','bslist','tpllist','tni'
+  ].forEach(id => { el[id] = document.getElementById(id); });
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+const pad = n => String(n).padStart(2,'0');
+const fmt = s => pad(Math.floor(s/60))+':'+pad(s%60);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const gn  = i => (state.pnames[i]||'').trim();
+const pl  = i => { const n=gn(i); return n ? esc(n)+' (#'+i+')' : '#'+i; };
+
+// ─── INITIALS CACHE ───────────────────────────────────────────────────────────
+function buildInitialsCache() {
+  initialsCache = {};
+  const all = Object.keys(state.pnames).map(Number);
+  all.forEach(i => { initialsCache[i] = computeInitials(i, all); });
+}
+
+function computeInitials(i, all) {
+  const nm = gn(i); if (!nm) return String(i);
+  const p = nm.split(/\s+/), fi = p[0][0].toUpperCase();
+  if (p.length === 1) return fi;
+  const surname = p[p.length-1];
+  let surnameKey = '', hasO = false;
+  if (/^[OÓ]'/i.test(surname)) {
+    surnameKey = surname[0].toUpperCase() + surname.substring(2).toUpperCase(); hasO = true;
+  } else if (p.length >= 3 && /^[OÓ]$/i.test(p[p.length-2])) {
+    surnameKey = p[p.length-2].toUpperCase() + surname.toUpperCase(); hasO = true;
+  } else {
+    surnameKey = surname.toUpperCase();
   }
-  // O/Ó surnames always use at least fi + O + first letter of core (3 chars total)
-  var minEx=hasOPrefix&&surnameKey.length>=2?2:1;
-  var all=[];for(var k in pnames)all.push(parseInt(k));
-  for(var ex=1;ex<=surnameKey.length;ex++){
-    var c=fi+surnameKey.substring(0,ex),cf=false;
-    for(var j=0;j<all.length;j++){
-      var oi=all[j];if(oi===i)continue;
-      var on=gn(oi);if(!on)continue;
-      var op=on.split(/\s+/);if(op.length<2)continue;
-      var oSurname=op[op.length-1],oKey='';
-      if(/^[OÓ]'/i.test(oSurname)){oKey=oSurname[0].toUpperCase()+oSurname.substring(2).toUpperCase();}
-      else if(op.length>=3&&/^[OÓ]$/i.test(op[op.length-2])){oKey=op[op.length-2].toUpperCase()+oSurname.toUpperCase();}
-      else{oKey=oSurname.toUpperCase();}
-      if(op[0][0].toUpperCase()+oKey.substring(0,ex)===c){cf=true;break;}
+  const minEx = hasO && surnameKey.length >= 2 ? 2 : 1;
+  for (let ex = 1; ex <= surnameKey.length; ex++) {
+    const c = fi + surnameKey.substring(0, ex);
+    let clash = false;
+    for (const oi of all) {
+      if (oi === i) continue;
+      const on = gn(oi); if (!on) continue;
+      const op2 = on.split(/\s+/); if (op2.length < 2) continue;
+      const oSn = op2[op2.length-1];
+      let oKey = '';
+      if (/^[OÓ]'/i.test(oSn)) oKey = oSn[0].toUpperCase()+oSn.substring(2).toUpperCase();
+      else if (op2.length>=3 && /^[OÓ]$/i.test(op2[op2.length-2])) oKey = op2[op2.length-2].toUpperCase()+oSn.toUpperCase();
+      else oKey = oSn.toUpperCase();
+      if (op2[0][0].toUpperCase()+oKey.substring(0,ex) === c) { clash=true; break; }
     }
-    if(!cf&&ex>=minEx)return c;
+    if (!clash && ex >= minEx) return c;
   }
-  return fi+surnameKey.substring(0,Math.min(2,surnameKey.length));
+  return fi + surnameKey.substring(0, Math.min(2, surnameKey.length));
 }
-function pl(i){var n=gn(i);return n?n+' (#'+i+')':'#'+i;}
-function refBtns(){
-  for(var s=1;s<=15;s++){
-    var b=document.querySelector('[data-s="'+s+'"]');if(!b)continue;
-    var pi=slotp[s],ini=gi(pi);
-    while(b.firstChild)b.removeChild(b.firstChild);
-    b.style.fontSize='';
-    if(ycarded[s]){var cy=document.createElement('span');cy.className='card-y';b.appendChild(cy);}
-    if(bcarded[s]){var cb=document.createElement('span');cb.className='card-b';b.appendChild(cb);}
-    if(rcarded[s]){var cr=document.createElement('span');cr.className='card-r';b.appendChild(cr);}
-    if(ubench[pi]){var sd=document.createElement('span');sd.className='subdot';b.appendChild(sd);}
-    var wrap=document.createElement('span');
-    wrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:0;line-height:1;';
-    var iniSpan=document.createElement('span');
-    iniSpan.textContent=ini;
-    iniSpan.style.fontSize=ini.length>=4?'10px':ini.length===3?'11px':ini.length===2?'12px':'14px';
-    wrap.appendChild(iniSpan);
-    var g=playerGoals[pi]||0,p_=playerPts[pi]||0;
-    if(g>0||p_>0){
-      var sc=document.createElement('span');
-      sc.textContent=g+'-'+p_;
-      sc.style.cssText='font-size:9px;font-weight:400;opacity:0.75;margin-top:1px;';
-      wrap.appendChild(sc);
-    }
-    b.appendChild(wrap);
+
+const gi = i => initialsCache[i] !== undefined ? initialsCache[i] : String(i);
+
+// ─── PLAYER BUTTON (targeted rebuild) ────────────────────────────────────────
+function refBtn(s) {
+  const b = document.querySelector('[data-s="'+s+'"]'); if (!b) return;
+  const pi = state.slotp[s], ini = gi(pi);
+  while (b.firstChild) b.removeChild(b.firstChild);
+  if (state.ycarded[s]) { const e=document.createElement('span'); e.className='card-y'; b.appendChild(e); }
+  if (state.bcarded[s]) { const e=document.createElement('span'); e.className='card-b'; b.appendChild(e); }
+  if (state.rcarded[s]) { const e=document.createElement('span'); e.className='card-r'; b.appendChild(e); }
+  if (state.ubench[pi]) { const e=document.createElement('span'); e.className='subdot'; b.appendChild(e); }
+  const wrap = document.createElement('span');
+  wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:0;line-height:1;';
+  const iniSpan = document.createElement('span');
+  iniSpan.textContent = ini;
+  iniSpan.style.fontSize = ini.length>=4?'10px':ini.length===3?'11px':ini.length===2?'12px':'14px';
+  wrap.appendChild(iniSpan);
+  const g = state.playerGoals[pi]||0, p_ = state.playerPts[pi]||0;
+  if (g > 0 || p_ > 0) {
+    const sc = document.createElement('span');
+    sc.textContent = g+'-'+p_;
+    sc.style.cssText = 'font-size:9px;font-weight:400;opacity:0.75;margin-top:1px;';
+    wrap.appendChild(sc);
   }
+  b.appendChild(wrap);
 }
-function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
-function tail(){var e=document.getElementById('evlog');e.scrollTop=e.scrollHeight;}
-function syncMeta(){
-  var n=evts.length;
-  document.getElementById('lcnt').textContent=n+' event'+(n!==1?'s':'');
-  var b=document.getElementById('lbdg');
-  if(n>0){b.textContent=n;b.style.display='inline';}else b.style.display='none';
-  var ub=document.getElementById('undobtn');
-  if(ub)ub.disabled=undos.length===0;
+const refAllBtns = () => { for (let s=1; s<=15; s++) refBtn(s); };
+
+// ─── PERSISTENCE ──────────────────────────────────────────────────────────────
+function saveState() {
+  try {
+    const {goals,pts,og,op_,period,secs,tStarted,tStopped,tPausedAt,
+           usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
+           playerGoals,playerPts,maxB,evts} = state;
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      goals,pts,og,op_,period,secs,tStarted,tStopped,tPausedAt,
+      usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
+      playerGoals,playerPts,maxB,evts
+    }));
+  } catch(e) {}
 }
-function undoLast(){
-  if(!undos.length)return;
-  var op=undos.pop();op.revert();
-  evts.pop();
-  // exit sel mode if active
-  if(selMode){selMode=false;document.getElementById('seltoggle').classList.remove('active');document.getElementById('removebar').classList.remove('show');}
-  var rows=document.getElementById('evlog').querySelectorAll('.ev-row');
-  if(rows.length)rows[rows.length-1].remove();
-  if(!evts.length)document.getElementById('logempty').style.display='';
-  syncMeta();toast('Undone: '+op.label);
+
+function loadSavedState() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    Object.assign(state, JSON.parse(raw));
+    return true;
+  } catch(e) { return false; }
 }
-function pushUndo(lbl,fn){undos.push({label:lbl,revert:fn});syncMeta();}
-var selMode=false;
-function toggleSelMode(){
-  selMode=!selMode;
-  var rows=document.getElementById('evlog').querySelectorAll('.ev-row');
-  rows.forEach(function(r){r.classList.toggle('sel-mode',selMode);if(!selMode){r.classList.remove('selected');}});
-  document.getElementById('seltoggle').classList.toggle('active',selMode);
-  if(!selMode){document.getElementById('removebar').classList.remove('show');}
-  updateRemoveBar();
+
+const clearSavedState = () => { try { localStorage.removeItem(SAVE_KEY); } catch(e) {} };
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function toast(m) {
+  el.toast.textContent = m; el.toast.classList.add('show');
+  setTimeout(() => el.toast.classList.remove('show'), 2200);
 }
-function toggleRow(rowEl,idx){
-  if(!selMode)return;
-  rowEl.classList.toggle('selected');
-  var chk=rowEl.querySelector('.ev-check svg');
-  if(chk) chk.style.display=rowEl.classList.contains('selected')?'block':'none';
-  updateRemoveBar();
+
+// ─── SYNC META ────────────────────────────────────────────────────────────────
+function syncMeta() {
+  const n = state.evts.length;
+  el.lcnt.textContent = n+' event'+(n!==1?'s':'');
+  if (n>0) { el.lbdg.textContent=n; el.lbdg.style.display='inline'; } else el.lbdg.style.display='none';
+  const ub = document.getElementById('undobtn');
+  if (ub) ub.disabled = undos.length === 0;
 }
-function updateRemoveBar(){
-  var n=document.getElementById('evlog').querySelectorAll('.ev-row.selected').length;
-  document.getElementById('removelbl').textContent=n+' selected';
-  document.getElementById('removebar').classList.toggle('show',selMode&&n>0);
+
+// ─── TOTALS ───────────────────────────────────────────────────────────────────
+function upTot() {
+  const u = state.goals*3+state.pts, o = state.og*3+state.op_;
+  el.utotal.textContent = '('+u+')';
+  el.ototal.textContent = '('+o+')';
+  const uc = u>o?'var(--ts)':u<o?'var(--td)':'var(--t2)';
+  const oc = o>u?'var(--ts)':o<u?'var(--td)':'var(--t2)';
+  el.utotal.style.color = uc;
+  el.ototal.style.color = oc;
 }
-function clearSelection(){
-  document.getElementById('evlog').querySelectorAll('.ev-row.selected').forEach(function(r){
-    r.classList.remove('selected');
-    var chk=r.querySelector('.ev-check svg');if(chk)chk.style.display='none';
-  });
-  updateRemoveBar();
-}
-function removeSelected(){
-  var rows=Array.from(document.getElementById('evlog').querySelectorAll('.ev-row'));
-  var toRemove=[];
-  rows.forEach(function(r,i){if(r.classList.contains('selected'))toRemove.push(i);});
-  // Remove in reverse so indices stay valid
-  for(var i=toRemove.length-1;i>=0;i--){
-    var idx=toRemove[i];
-    rows[idx].remove();
-    evts.splice(idx,1);
-  }
-  // Clear undo stack since indices are now invalid
-  undos=[];
-  if(!evts.length)document.getElementById('logempty').style.display='';
-  // Exit select mode
-  selMode=false;
-  document.getElementById('seltoggle').classList.remove('active');
-  document.getElementById('removebar').classList.remove('show');
-  syncMeta();
-  toast('Removed '+toRemove.length+' event'+(toRemove.length!==1?'s':''));
-}
-function addRow(time,badge,cls,desc){
-  var idx=evts.length;
-  evts.push({time:time,desc:desc});
-  document.getElementById('logempty').style.display='none';
-  var r=document.createElement('div');
-  r.className='ev-row'+(selMode?' sel-mode':'');
-  r.innerHTML='<div class="ev-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ti)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="ev-time">'+time+'</span><span class="ev-bdg '+cls+'">'+badge+'</span><span style="color:var(--t1);font-size:13px;flex:1;">'+desc+'</span>';
-  r.addEventListener('click',function(){toggleRow(r,idx);});
-  document.getElementById('evlog').appendChild(r);
-  tail();syncMeta();
-}
-function upTot(){
-  var u=goals*3+pts,o=og*3+op_;
-  document.getElementById('utotal').textContent='('+u+')';
-  document.getElementById('ototal').textContent='('+o+')';
-  if(u>o){
-    document.getElementById('utotal').style.color='var(--ts)';
-    document.getElementById('ototal').style.color='var(--td)';
-  }else if(o>u){
-    document.getElementById('utotal').style.color='var(--td)';
-    document.getElementById('ototal').style.color='var(--ts)';
-  }else{
-    document.getElementById('utotal').style.color='var(--t2)';
-    document.getElementById('ototal').style.color='var(--t2)';
-  }
-}
-function openScoreModal(side){
-  var isUs=side==='us';
-  var name=isUs?usN:oppN;
-  var opts=[
-    {v:'g+', label:'+ Goal',   col:'color:var(--td);border-color:var(--bd);'},
-    {v:'p+', label:'+ Point',  col:'color:var(--ts);border-color:var(--bs);'},
-    {v:'g-', label:'− Goal',   col:'color:var(--t2);'},
-    {v:'p-', label:'− Point',  col:'color:var(--t2);'}
-  ];
-  var html='<div class="opts-grid">';
-  opts.forEach(function(o){html+='<button class="abtn" data-v="'+o.v+'" style="'+o.col+'">'+o.label+'</button>';});
-  html+='</div>';
-  document.getElementById('mtitle').textContent=name+' — adjust score';
-  document.getElementById('mopts').innerHTML=html;
-  document.getElementById('modal').style.display='block';
-  document.getElementById('mopts').querySelectorAll('.abtn').forEach(function(b){
-    b.addEventListener('click',function(){
-      var v=this.getAttribute('data-v');
-      closeMod();
-      var t=v[0],d=(v[1]==='+'?1:-1);
-      if(isUs)adjUs(t,d,side);
-      else adjOpp(t,d,side);
-    });
-  });
-}
-function adjUs(t,d,side){
-  var prev=(t==='g'?goals:pts),nxt=Math.max(0,prev+d);if(nxt===prev)return;
-  if(t==='g'){goals=nxt;document.getElementById('gc').textContent=goals;}
-  else{pts=nxt;document.getElementById('pc').textContent=pts;}
-  upTot();
-  var desc=usN+': '+(t==='g'?'Goal':'Point')+' '+(d>0?'added':'removed');
-  addRow(fmt(secs),'ADJ','badj',desc);
-  var ct=t,cp=prev;
-  pushUndo(desc,function(){if(ct==='g'){goals=cp;document.getElementById('gc').textContent=goals;}else{pts=cp;document.getElementById('pc').textContent=pts;}upTot();});
-  if(d>0)showRestartModal(side||'us');
-}
-function adjOpp(t,d,side){
-  var prev=(t==='g'?og:op_),nxt=Math.max(0,prev+d);if(nxt===prev)return;
-  var type;
-  if(t==='g'){og=nxt;document.getElementById('og').textContent=og;type='Goal';}
-  else{op_=nxt;document.getElementById('op').textContent=op_;type='Point';}
-  upTot();
-  var desc=oppN+': '+type+' '+(nxt>prev?'added':'removed');
-  addRow(fmt(secs),'OPP','bopp',desc);
-  var ct=t,cp=prev;
-  pushUndo(desc,function(){if(ct==='g'){og=cp;document.getElementById('og').textContent=og;}else{op_=cp;document.getElementById('op').textContent=op_;}upTot();});
-  if(d>0)showRestartModal(side||'opp');
-}
-function timerMain(){
-  if(!tStarted){
-    // Initial start
-    startPeriod();
-  } else if(tRun){
-    // Running → do nothing, only Stop is shown
-  }
-}
-function periodLabel(n){
-  var labels=['1st Half','2nd Half','1st Half ET','2nd Half ET'];
-  return labels[n-1]||('Period '+n);
-}
-function periodBadge(n){
-  var badges=['1H','2H','ET1','ET2'];
-  return badges[n-1]||('P'+n);
-}
-function startPeriod(){
-  secs=0;
-  var td=document.getElementById('timer-display');
-  td.textContent='00:00';td.classList.remove('overtime');
-  tStarted=true;tRun=true;tStopped=false;
-  tInt=setInterval(tick,1000);
-  document.getElementById('tbtn').style.display='none';
-  document.getElementById('stopbtn').style.display='';
+
+// ─── TIMER ────────────────────────────────────────────────────────────────────
+const periodLabel = n => ['1st Half','2nd Half','1st Half ET','2nd Half ET'][n-1] || ('Period '+n);
+const periodBadge = n => ['1H','2H','ET1','ET2'][n-1] || ('P'+n);
+
+function timerMain() { if (!state.tStarted) startPeriod(); }
+
+function startPeriod() {
+  state.secs = 0;
+  state.tWallStart = Date.now();
+  state.tPausedAt  = 0;
+  state.tStarted   = true;
+  state.tStopped   = false;
+  tRun = true;
+  tInt = setInterval(tick, 500);
+  el['timer-display'].textContent = '00:00';
+  el['timer-display'].classList.remove('overtime');
+  el.tbtn.style.display   = 'none';
+  el.stopbtn.style.display = '';
   setGrid(true);
-  var now=new Date();
-  var clockStr=pad(now.getHours())+':'+pad(now.getMinutes());
-  var desc=periodLabel(period)+' started at '+clockStr;
-  addRow('00:00',periodBadge(period),'bperiod',desc);
-  pushUndo(desc,function(){});
+  const now = new Date();
+  const clockStr = pad(now.getHours())+':'+pad(now.getMinutes());
+  const desc = periodLabel(state.period)+' started at '+clockStr;
+  addRow('00:00', periodBadge(state.period), 'bperiod', desc);
+  pushUndo(desc, ()=>{});
 }
-function stopTimer(){
-  tRun=false;tStarted=false;tStopped=true;
-  clearInterval(tInt);tInt=null;
-  document.getElementById('stopbtn').style.display='none';
+
+function resumePeriod() {
+  // Rebase wall clock so elapsed time is continuous from tPausedAt
+  state.tWallStart = Date.now() - state.tPausedAt * 1000;
+  state.tStarted   = true;
+  state.tStopped   = false;
+  tRun = true;
+  tInt = setInterval(tick, 500);
+  el.tbtn.style.display    = 'none';
+  el.stopbtn.style.display = '';
+  setGrid(true);
+}
+
+function stopTimer() {
+  if (state.tWallStart) {
+    state.tPausedAt = Math.floor((Date.now() - state.tWallStart) / 1000);
+    state.secs      = state.tPausedAt;
+  }
+  clearInterval(tInt); tInt = null;
+  tRun = false; state.tStarted = false; state.tStopped = true;
+  el.stopbtn.style.display = 'none';
   setGrid(false);
+  saveState();
   showStoppedOptions();
 }
-function showStoppedOptions(){
-  var nextLabel=periodLabel(period+1);
-  var html='<div class="opts-grid">'+
-    '<button class="abtn" data-v="next" style="color:var(--ts);border-color:var(--bs);">'+nextLabel+'</button>'+
-    '<button class="abtn" data-v="resume" style="color:var(--ti);border-color:var(--bi);">Resume '+periodLabel(period)+'</button>'+
-    '<button class="abtn" data-v="end" style="color:var(--t2);border-color:var(--bm);">End game</button>'+
-    '</div>';
-  document.getElementById('mtitle').textContent=periodLabel(period)+' ended — what next?';
-  document.getElementById('mopts').innerHTML=html;
-  document.getElementById('modal').style.display='block';
-  // Override cancel to resume
-  document.getElementById('modal').dataset.cancelAction='resume-period';
-  document.getElementById('mopts').querySelectorAll('.abtn').forEach(function(b){
-    b.addEventListener('click',function(){
-      var v=this.getAttribute('data-v');
-      document.getElementById('modal').dataset.cancelAction='';
-      closeMod();
-      if(v==='next'){period++;startPeriod();}
-      else if(v==='resume'){resumePeriod();}
-      else if(v==='end'){endGame();}
-    });
-  });
+
+function tick() {
+  const elapsed = Math.floor((Date.now() - state.tWallStart) / 1000);
+  state.secs = elapsed;
+  const td = el['timer-display'];
+  td.textContent = fmt(elapsed);
+  if (elapsed >= 1800 && !td.classList.contains('overtime')) td.classList.add('overtime');
+  if (elapsed % 30 === 0) saveState();
 }
-function endGame(){
-  var u=goals*3+pts,o=og*3+op_;
-  var result;
-  if(u>o) result='Win';
-  else if(o>u) result='Loss';
-  else result='Draw';
-  var now=new Date();
-  var clockStr=pad(now.getHours())+':'+pad(now.getMinutes());
-  var desc='Game ended at '+clockStr+' — '+usN+' '+goals+'-'+pts+' ('+u+') v '+oppN+' '+og+'-'+op_+' ('+o+') — '+result;
-  addRow(fmt(secs),'END','bperiod',desc);
-  // Show the end game modal (no cancel)
-  document.getElementById('mtitle').textContent='Game over';
-  document.getElementById('mopts').innerHTML=
-    '<p style="font-size:15px;font-weight:500;color:var(--t1);padding:6px 0 4px;">'+usN+'</p>'+
-    '<p style="font-size:32px;font-weight:500;color:var(--t1);padding:0 0 4px;line-height:1;">'+goals+'-'+pts+' <span style="font-size:16px;color:var(--t2);">('+u+')</span></p>'+
-    '<p style="font-size:15px;font-weight:500;color:var(--t1);padding:4px 0 4px;">'+oppN+'</p>'+
-    '<p style="font-size:32px;font-weight:500;color:var(--t1);padding:0 0 16px;line-height:1;">'+og+'-'+op_+' <span style="font-size:16px;color:var(--t2);">('+o+')</span></p>'+
-    '<p style="font-size:18px;font-weight:500;padding:0 0 12px;color:'+(result==='Win'?'var(--ts)':result==='Loss'?'var(--td)':'var(--t2)')+';">'+result+'</p>';
-  document.getElementById('modal').style.display='block';
-  document.getElementById('modal').dataset.cancelAction='dismiss';
+
+function setGrid(on) {
+  el.pgrid.style.opacity       = on ? '1' : '.3';
+  el.pgrid.style.pointerEvents = on ? 'auto' : 'none';
+}
+
+// ─── STOPPED OPTIONS ──────────────────────────────────────────────────────────
+function showStoppedOptions() {
+  const nextLabel = periodLabel(state.period+1);
+  el.mtitle.textContent = periodLabel(state.period)+' ended — what next?';
+  el.mopts.innerHTML = '<div class="opts-grid">'
+    +'<button class="abtn" data-v="next"   style="color:var(--ts);border-color:var(--bs);">'+esc(nextLabel)+'</button>'
+    +'<button class="abtn" data-v="resume" style="color:var(--ti);border-color:var(--bi);">Resume '+esc(periodLabel(state.period))+'</button>'
+    +'<button class="abtn" data-v="end"    style="color:var(--t2);border-color:var(--bm);">End game</button>'
+    +'</div>';
+  el.modal.style.display = 'block';
+  el.modal.dataset.cancelAction = 'resume-period';
+  el.mopts.querySelectorAll('.abtn').forEach(b => b.addEventListener('click', function(){
+    const v = this.getAttribute('data-v');
+    el.modal.dataset.cancelAction = '';
+    closeMod();
+    if      (v==='next')   { state.period++; startPeriod(); }
+    else if (v==='resume') resumePeriod();
+    else if (v==='end')    endGame();
+  }));
+}
+
+// ─── END GAME ─────────────────────────────────────────────────────────────────
+function endGame() {
+  const u = state.goals*3+state.pts, o = state.og*3+state.op_;
+  const result = u>o?'Win':o>u?'Loss':'Draw';
+  const now = new Date();
+  const clockStr = pad(now.getHours())+':'+pad(now.getMinutes());
+  const desc = 'Game ended at '+clockStr+' — '+state.usN+' '+state.goals+'-'+state.pts+' ('+u+') v '+state.oppN+' '+state.og+'-'+state.op_+' ('+o+') — '+result;
+  addRow(fmt(state.secs), 'END', 'bperiod', desc);
+  el.mtitle.textContent = 'Game over';
+  el.mopts.innerHTML =
+    '<p style="font-size:15px;font-weight:500;color:var(--t1);padding:6px 0 4px;">'+esc(state.usN)+'</p>'
+   +'<p style="font-size:32px;font-weight:500;color:var(--t1);padding:0 0 4px;line-height:1;">'+state.goals+'-'+state.pts+' <span style="font-size:16px;color:var(--t2);">('+u+')</span></p>'
+   +'<p style="font-size:15px;font-weight:500;color:var(--t1);padding:4px 0;">'+esc(state.oppN)+'</p>'
+   +'<p style="font-size:32px;font-weight:500;color:var(--t1);padding:0 0 16px;line-height:1;">'+state.og+'-'+state.op_+' <span style="font-size:16px;color:var(--t2);">('+o+')</span></p>'
+   +'<p style="font-size:18px;font-weight:500;padding:0 0 12px;color:'+(result==='Win'?'var(--ts)':result==='Loss'?'var(--td)':'var(--t2)')+';">'+result+'</p>';
+  el.modal.style.display = 'block';
+  el.modal.dataset.cancelAction = 'dismiss';
   setGrid(false);
-  // Replace Undo with Reset in the bottom bar
-  var ub=document.getElementById('undobtn');
-  ub.id='resetbtn';
-  ub.disabled=false;
-  ub.classList.remove('danger');
-  ub.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>Reset';
-  ub.onclick=resetMatch;
+  const ub = document.getElementById('undobtn');
+  if (ub) {
+    ub.id='resetbtn'; ub.disabled=false; ub.classList.remove('danger');
+    ub.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>Reset';
+    ub.onclick=resetMatch;
+  }
 }
-function resumePeriod(){
-  tRun=true;tStarted=true;tStopped=false;
-  tInt=setInterval(tick,1000);
-  document.getElementById('tbtn').style.display='none';
-  document.getElementById('stopbtn').style.display='';
-  setGrid(true);
+
+// ─── RESET ────────────────────────────────────────────────────────────────────
+function resetMatch() {
+  el.mtitle.textContent = 'Reset match?';
+  el.mopts.innerHTML = '<p style="font-size:14px;color:var(--t2);padding:4px 0 14px;line-height:1.5;">All scores, events and cards will be cleared. Team and player settings are kept.</p>'
+    +'<button class="abtn" style="color:var(--td);border-color:var(--bd);">Clear everything and reset</button>';
+  el.modal.style.display = 'block';
+  el.mopts.querySelector('.abtn').addEventListener('click', () => { closeMod(); doReset(); });
 }
-function resetMatch(){
-  document.getElementById('mtitle').textContent='Reset match?';
-  document.getElementById('mopts').innerHTML=
-    '<p style="font-size:14px;color:var(--t2);padding:4px 0 14px;line-height:1.5;">All scores, events and cards will be cleared. Team and player settings are kept.</p>'+
-    '<button class="abtn" data-v="ok" style="color:var(--td);border-color:var(--bd);">Clear everything and reset</button>';
-  document.getElementById('modal').style.display='block';
-  document.getElementById('mopts').querySelector('.abtn').addEventListener('click',function(){
-    closeMod();doReset();
-  });
-}
-function doReset(){
-  goals=0;pts=0;og=0;op_=0;
-  document.getElementById('gc').textContent=0;
-  document.getElementById('pc').textContent=0;
-  document.getElementById('og').textContent=0;
-  document.getElementById('op').textContent=0;
+
+function doReset() {
+  state.goals=0; state.pts=0; state.og=0; state.op_=0;
+  el.gc.textContent=0; el.pc.textContent=0; el.og.textContent=0; el.op.textContent=0;
   upTot();
-  evts=[];undos=[];
-  var el=document.getElementById('evlog');
-  el.innerHTML='<div id="logempty" style="color:var(--t3);font-size:13px;padding:10px 0;">No events recorded yet</div>';
+  state.evts=[]; undos=[];
+  el.evlog.innerHTML = '<div id="logempty" style="color:var(--t3);font-size:13px;padding:10px 0;">No events recorded yet</div>';
+  el.logempty = document.getElementById('logempty');
   syncMeta();
-  secs=0;tRun=false;tStarted=false;tStopped=false;
-  clearInterval(tInt);tInt=null;
-  period=1;
-  var td=document.getElementById('timer-display');
-  td.textContent='00:00';td.classList.remove('overtime');
-  document.getElementById('tbtn').style.display='';
-  document.getElementById('stopbtn').style.display='none';
+  state.secs=0; state.tStarted=false; state.tStopped=false;
+  state.tWallStart=null; state.tPausedAt=0;
+  clearInterval(tInt); tInt=null; tRun=false;
+  state.period=1;
+  el['timer-display'].textContent='00:00';
+  el['timer-display'].classList.remove('overtime');
+  el.tbtn.style.display=''; el.stopbtn.style.display='none';
   setGrid(false);
-  rcarded={};ycarded={};bcarded={};
-  playerGoals={};playerPts={};
-  for(var s=1;s<=15;s++){
-    slotp[s]=s;
-    var b=document.querySelector('[data-s="'+s+'"]');
-    if(b){b.classList.remove('hev','sub','rc');}
+  state.rcarded={}; state.ycarded={}; state.bcarded={};
+  state.playerGoals={}; state.playerPts={};
+  for (let s=1; s<=15; s++) {
+    state.slotp[s]=s;
+    const b=document.querySelector('[data-s="'+s+'"]');
+    if (b) b.className='pbtn';
   }
-  ubench={};suboff={};
-  refBtns();
-  // Restore Undo button if it was replaced
-  var rb=document.getElementById('resetbtn');
-  if(rb&&rb.id==='resetbtn'&&!rb.classList.contains('bar-btn')){rb=null;}
-  var ub2=rb||document.getElementById('undobtn');
-  if(ub2&&ub2.id==='resetbtn'){
-    ub2.id='undobtn';
-    ub2.classList.add('danger');
-    ub2.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>Undo';
-    ub2.onclick=undoLast;
-    ub2.disabled=true;
+  state.ubench={}; state.suboff={};
+  const rb = document.getElementById('resetbtn');
+  if (rb) {
+    rb.id='undobtn'; rb.classList.add('danger');
+    rb.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>Undo';
+    rb.onclick=undoLast; rb.disabled=true;
   }
+  refAllBtns();
+  clearSavedState();
   toast('Match reset');
 }
-function setGrid(on){var g=document.getElementById('pgrid');g.style.opacity=on?'1':'.3';g.style.pointerEvents=on?'auto':'none';}
-function tick(){secs++;var e=document.getElementById('timer-display');e.textContent=fmt(secs);if(secs>=1800&&!e.classList.contains('overtime'))e.classList.add('overtime');}
-function sel(s){if(!tRun||rcarded[s])return;selSlot=s;showOpts(pl(slotp[s])+' — select action',ACTS,actCb,false);}
-function showOpts(title,opts,handler,rich){
-  document.getElementById('mtitle').textContent=title;
-  var html='<div class="opts-grid">';
-  if(rich){opts.forEach(function(o){html+='<button class="abtn" data-v="'+o.val+'" style="text-align:left;"><div class="sarow"><span style="font-size:15px;color:var(--t1);">'+o.label+'</span>'+(o.sub?'<span style="font-size:11px;color:var(--t2);">'+o.sub+'</span>':'')+'</div></button>';});}
-  else{opts.forEach(function(o){var ex=(o==='Substitution')?' style="border-color:#25D366;color:#1a7a3c;"':'';html+='<button class="abtn" data-v="'+o+'"'+ex+'>'+o+'</button>';});}
-  html+='</div>';
-  document.getElementById('mopts').innerHTML=html;
-  document.getElementById('modal').style.display='block';
-  document.getElementById('mopts').querySelectorAll('.abtn').forEach(function(b){b.addEventListener('click',function(){handler(this.getAttribute('data-v'));});});
-}
-function actCb(a){
-  if(a==='Substitution'){subOff=selSlot;pickSubOn();return;}
-  pendAct=a;var sec=NS[a];
-  if(sec){var t={'Goal':'Goal — how scored?','Point':'Point — how scored?','Wide':'Wide — how attempted?','Free':'Free — reason?'};showOpts(t[a],sec,secCb,false);}
-  else{logEv(a,null);closeMod();}
-}
-function showRestartModal(side){
-  // side='us'  → we shot, opposition kicks out → "Opposition's Restart"
-  // side='opp' → they shot, we kick out         → "Own Restart"
-  var label=side==='us'?"Opposition's Restart":"Own Restart";
-  var opts=['Won','Lost','Unclear'];
-  var html='<div class="opts-grid">';
-  opts.forEach(function(o){
-    var col=o==='Won'?'color:var(--ts);border-color:var(--bs);':o==='Lost'?'color:var(--td);border-color:var(--bd);':'';
-    html+='<button class="abtn" data-v="'+o+'" style="'+col+'">'+o+'</button>';
-  });
-  html+='</div>';
-  document.getElementById('mtitle').textContent='Restart won?';
-  document.getElementById('mopts').innerHTML=html;
-  document.getElementById('modal').style.display='block';
-  document.getElementById('mopts').querySelectorAll('.abtn').forEach(function(b){
-    b.addEventListener('click',function(){
-      var result=this.getAttribute('data-v');
-      closeMod();
-      var desc=label+': '+result;
-      addRow(fmt(secs),'RSTR','brstr',desc);
-      pushUndo(desc,function(){});
+
+// ─── MODAL ────────────────────────────────────────────────────────────────────
+function showOpts(title, opts, handler, rich) {
+  el.mtitle.textContent = title;
+  let html = '<div class="opts-grid">';
+  if (rich) {
+    opts.forEach(o => html += '<button class="abtn" data-v="'+esc(String(o.val))+'" style="text-align:left;"><div class="sarow"><span style="font-size:15px;color:var(--t1);">'+esc(o.label)+'</span>'+(o.sub?'<span style="font-size:11px;color:var(--t2);">'+esc(o.sub)+'</span>':'')+'</div></button>');
+  } else {
+    opts.forEach(o => {
+      const sty = o==='Substitution' ? ' style="border-color:#25D366;color:#1a7a3c;"' : '';
+      html += '<button class="abtn" data-v="'+esc(o)+'"'+sty+'>'+esc(o)+'</button>';
     });
+  }
+  html += '</div>';
+  el.mopts.innerHTML = html;
+  el.modal.style.display = 'block';
+  el.mopts.querySelectorAll('.abtn').forEach(b => b.addEventListener('click', function(){ handler(this.getAttribute('data-v')); }));
+}
+
+function closeMod() {
+  const ca = el.modal.dataset.cancelAction || '';
+  el.modal.dataset.cancelAction = '';
+  el.modal.style.display = 'none';
+  selSlot=null; pendAct=null; subOff=null;
+  if (ca==='resume-period') resumePeriod();
+}
+
+// ─── SCORE ADJUST ─────────────────────────────────────────────────────────────
+function openScoreModal(side) {
+  const isUs = side==='us';
+  const name = isUs ? state.usN : state.oppN;
+  el.mtitle.textContent = esc(name)+' — adjust score';
+  el.mopts.innerHTML = '<div class="opts-grid">'
+    +'<button class="abtn" data-v="g+" style="color:var(--td);border-color:var(--bd);">+ Goal</button>'
+    +'<button class="abtn" data-v="p+" style="color:var(--ts);border-color:var(--bs);">+ Point</button>'
+    +'<button class="abtn" data-v="g-" style="color:var(--t2);">− Goal</button>'
+    +'<button class="abtn" data-v="p-" style="color:var(--t2);">− Point</button>'
+    +'</div>';
+  el.modal.style.display = 'block';
+  el.mopts.querySelectorAll('.abtn').forEach(b => b.addEventListener('click', function(){
+    const v = this.getAttribute('data-v');
+    closeMod();
+    if (isUs) adjUs(v[0], v[1]==='+'?1:-1, side);
+    else      adjOpp(v[0], v[1]==='+'?1:-1, side);
+  }));
+}
+
+function adjUs(t, d, side) {
+  const prev = t==='g' ? state.goals : state.pts;
+  const nxt  = Math.max(0, prev+d); if (nxt===prev) return;
+  if (t==='g') { state.goals=nxt; el.gc.textContent=state.goals; }
+  else          { state.pts=nxt;   el.pc.textContent=state.pts; }
+  upTot();
+  const desc = state.usN+': '+(t==='g'?'Goal':'Point')+' '+(d>0?'added':'removed');
+  addRow(fmt(state.secs),'ADJ','badj',desc);
+  const ct=t,cp=prev;
+  pushUndo(desc,()=>{ if(ct==='g'){state.goals=cp;el.gc.textContent=state.goals;}else{state.pts=cp;el.pc.textContent=state.pts;} upTot(); });
+  if (d>0) showRestartModal(side||'us');
+}
+
+function adjOpp(t, d, side) {
+  const prev = t==='g' ? state.og : state.op_;
+  const nxt  = Math.max(0, prev+d); if (nxt===prev) return;
+  let type;
+  if (t==='g') { state.og=nxt;  el.og.textContent=state.og;   type='Goal'; }
+  else          { state.op_=nxt; el.op.textContent=state.op_;  type='Point'; }
+  upTot();
+  const desc = state.oppN+': '+type+' '+(nxt>prev?'added':'removed');
+  addRow(fmt(state.secs),'OPP','bopp',desc);
+  const ct=t,cp=prev;
+  pushUndo(desc,()=>{ if(ct==='g'){state.og=cp;el.og.textContent=state.og;}else{state.op_=cp;el.op.textContent=state.op_;} upTot(); });
+  if (d>0) showRestartModal(side||'opp');
+}
+
+// ─── RESTART ──────────────────────────────────────────────────────────────────
+function showRestartModal(side) {
+  const label = side==='us' ? "Opposition's Restart" : "Own Restart";
+  el.mtitle.textContent = 'Restart won?';
+  el.mopts.innerHTML = '<div class="opts-grid">'
+    +'<button class="abtn" data-v="Won"     style="color:var(--ts);border-color:var(--bs);">Won</button>'
+    +'<button class="abtn" data-v="Lost"    style="color:var(--td);border-color:var(--bd);">Lost</button>'
+    +'<button class="abtn" data-v="Unclear">Unclear</button>'
+    +'</div>';
+  el.modal.style.display = 'block';
+  el.mopts.querySelectorAll('.abtn').forEach(b => b.addEventListener('click', function(){
+    const result = this.getAttribute('data-v');
+    closeMod();
+    const desc = label+': '+result;
+    addRow(fmt(state.secs),'RSTR','brstr',desc);
+    pushUndo(desc,()=>{});
+  }));
+}
+
+// ─── EVENT LOG ────────────────────────────────────────────────────────────────
+const tail = () => { el.evlog.scrollTop = el.evlog.scrollHeight; };
+
+function addRow(time, badge, cls, desc) {
+  state.evts.push({time, badge, cls, desc});
+  el.logempty.style.display = 'none';
+  const r = document.createElement('div');
+  r.className = 'ev-row'+(selMode?' sel-mode':'');
+  r.dataset.evIdx = state.evts.length - 1;
+  r.innerHTML = '<div class="ev-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ti)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"/></svg></div>'
+    +'<span class="ev-time">'+time+'</span>'
+    +'<span class="ev-bdg '+cls+'">'+esc(badge)+'</span>'
+    +'<span style="color:var(--t1);font-size:13px;flex:1;">'+esc(desc)+'</span>';
+  r.addEventListener('click', () => toggleRow(r));
+  el.evlog.appendChild(r);
+  tail(); syncMeta(); saveState();
+}
+
+// ─── UNDO ─────────────────────────────────────────────────────────────────────
+function pushUndo(lbl, fn) { undos.push({label:lbl, revert:fn}); syncMeta(); }
+
+function undoLast() {
+  if (!undos.length) return;
+  const op = undos.pop(); op.revert();
+  state.evts.pop();
+  if (selMode) {
+    selMode = false;
+    el.seltoggle.classList.remove('active');
+    el.removebar.classList.remove('show');
+  }
+  const rows = el.evlog.querySelectorAll('.ev-row');
+  if (rows.length) rows[rows.length-1].remove();
+  if (!state.evts.length) el.logempty.style.display='';
+  syncMeta(); saveState(); toast('Undone: '+op.label);
+}
+
+// ─── SELECTION ────────────────────────────────────────────────────────────────
+function toggleSelMode() {
+  selMode = !selMode;
+  el.evlog.querySelectorAll('.ev-row').forEach(r => {
+    r.classList.toggle('sel-mode', selMode);
+    if (!selMode) r.classList.remove('selected');
+  });
+  el.seltoggle.classList.toggle('active', selMode);
+  if (!selMode) el.removebar.classList.remove('show');
+  updateRemoveBar();
+}
+
+function toggleRow(rowEl) {
+  if (!selMode) return;
+  rowEl.classList.toggle('selected');
+  const chk = rowEl.querySelector('.ev-check svg');
+  if (chk) chk.style.display = rowEl.classList.contains('selected') ? 'block' : 'none';
+  updateRemoveBar();
+}
+
+function updateRemoveBar() {
+  const n = el.evlog.querySelectorAll('.ev-row.selected').length;
+  el.removelbl.textContent = n+' selected';
+  el.removebar.classList.toggle('show', selMode && n>0);
+}
+
+function clearSelection() {
+  el.evlog.querySelectorAll('.ev-row.selected').forEach(r => {
+    r.classList.remove('selected');
+    const chk = r.querySelector('.ev-check svg'); if (chk) chk.style.display='none';
+  });
+  updateRemoveBar();
+}
+
+function removeSelected() {
+  const rows = Array.from(el.evlog.querySelectorAll('.ev-row'));
+  const toRemove = rows.map((r,i) => r.classList.contains('selected')?i:-1).filter(i=>i>=0);
+  for (let i=toRemove.length-1; i>=0; i--) { rows[toRemove[i]].remove(); state.evts.splice(toRemove[i],1); }
+  undos = [];
+  if (!state.evts.length) el.logempty.style.display='';
+  selMode=false; el.seltoggle.classList.remove('active'); el.removebar.classList.remove('show');
+  syncMeta(); saveState();
+  toast('Removed '+toRemove.length+' event'+(toRemove.length!==1?'s':''));
+}
+
+// ─── PLAYER ACTIONS ───────────────────────────────────────────────────────────
+function sel(s) {
+  if (!tRun || state.rcarded[s]) return;
+  selSlot = s;
+  showOpts(pl(state.slotp[s])+' — select action', ACTS, actCb, false);
+}
+
+function actCb(a) {
+  if (a==='Substitution') { subOff=selSlot; pickSubOn(); return; }
+  pendAct = a;
+  const sec = NS[a];
+  if (sec) {
+    const titles = {Goal:'Goal — how scored?',Point:'Point — how scored?',Wide:'Wide — how attempted?',Free:'Free — reason?'};
+    showOpts(titles[a], sec, secCb, false);
+  } else { logEv(a,null); closeMod(); }
+}
+
+function secCb(s) {
+  const act = pendAct;
+  logEv(pendAct, s);
+  closeMod();
+  if (act==='Goal'||act==='Point'||act==='Wide') showRestartModal('us');
+}
+
+function badgeCls(a) {
+  if(a==='Goal')return 'bg'; if(a==='Point')return 'bp'; if(a==='Wide')return 'bw';
+  if(a==='Red Card')return 'br'; if(a.indexOf('Card')>=0)return 'bc'; return 'bo';
+}
+
+function logEv(action, sec) {
+  const slot = selSlot, pi = state.slotp[slot];
+  const prevG  = state.goals, prevP = state.pts;
+  const prevPG = state.playerGoals[pi]||0, prevPP = state.playerPts[pi]||0;
+
+  if (action==='Goal')  { state.goals++; el.gc.textContent=state.goals; state.playerGoals[pi]=prevPG+1; }
+  if (action==='Point') { state.pts++;   el.pc.textContent=state.pts;   state.playerPts[pi]=prevPP+1;   }
+  if (action==='Goal'||action==='Point') { upTot(); refBtn(slot); }
+
+  if (action==='Red Card') {
+    state.rcarded[slot]=true;
+    const b=document.querySelector('[data-s="'+slot+'"]');
+    if(b){ b.classList.remove('hev','sub'); b.classList.add('rc'); const e=document.createElement('span'); e.className='card-r'; b.appendChild(e); }
+  }
+  if (action==='Yellow Card') {
+    state.ycarded[slot]=(state.ycarded[slot]||0)+1;
+    const b=document.querySelector('[data-s="'+slot+'"]');
+    if(b&&!b.querySelector('.card-y')){ const e=document.createElement('span'); e.className='card-y'; b.appendChild(e); }
+  }
+  if (action==='Black Card') {
+    state.bcarded[slot]=(state.bcarded[slot]||0)+1;
+    const b=document.querySelector('[data-s="'+slot+'"]');
+    if(b&&!b.querySelector('.card-b')){ const e=document.createElement('span'); e.className='card-b'; b.appendChild(e); }
+  }
+
+  const desc = pl(pi)+': '+action+(sec?' · '+sec:'');
+  if (action!=='Red Card') {
+    const b=document.querySelector('[data-s="'+slot+'"]');
+    if(b&&!b.classList.contains('rc')) b.classList.add('hev');
+  }
+  addRow(fmt(state.secs), gi(pi), badgeCls(action), desc);
+  // Tag the event with slot/action for accurate undo hev check
+  const ev = state.evts[state.evts.length-1];
+  ev.slot=slot; ev.action=action;
+
+  pushUndo(desc, () => {
+    if (action==='Goal')  { state.goals=prevG; el.gc.textContent=state.goals; state.playerGoals[pi]=prevPG; upTot(); refBtn(slot); }
+    if (action==='Point') { state.pts=prevP;   el.pc.textContent=state.pts;   state.playerPts[pi]=prevPP;   upTot(); refBtn(slot); }
+    if (action==='Red Card') {
+      delete state.rcarded[slot];
+      const b=document.querySelector('[data-s="'+slot+'"]');
+      if(b){ b.classList.remove('rc'); const c=b.querySelector('.card-r'); if(c)c.remove(); }
+    }
+    if (action==='Yellow Card') {
+      state.ycarded[slot]=(state.ycarded[slot]||1)-1;
+      if(state.ycarded[slot]<=0){ delete state.ycarded[slot]; const b=document.querySelector('[data-s="'+slot+'"]'); const c=b&&b.querySelector('.card-y'); if(c)c.remove(); }
+    }
+    if (action==='Black Card') {
+      state.bcarded[slot]=(state.bcarded[slot]||1)-1;
+      if(state.bcarded[slot]<=0){ delete state.bcarded[slot]; const b=document.querySelector('[data-s="'+slot+'"]'); const c=b&&b.querySelector('.card-b'); if(c)c.remove(); }
+    }
+    const b2=document.querySelector('[data-s="'+slot+'"]');
+    const still=state.evts.some(e=>e.slot===slot);
+    if(b2){ if(still)b2.classList.add('hev'); else b2.classList.remove('hev'); }
   });
 }
-function secCb(s){
-  var act=pendAct;
-  logEv(pendAct,s);
-  closeMod();
-  if(act==='Goal'||act==='Point'||act==='Wide'){showRestartModal('us');}
-}
-function pickSubOn(){
-  var used={};for(var s=1;s<=15;s++)used[slotp[s]]=true;
-  var isGK=(subOff===1),avail=[];
-  for(var idx=16;idx<=maxB+5;idx++){
-    if(used[idx])continue;var n=gn(idx);if(!n&&idx>maxB)continue;
-    var gks=(idx===16);if(isGK&&!gks)continue;if(!isGK&&gks)continue;
+
+// ─── SUBSTITUTION ─────────────────────────────────────────────────────────────
+function pickSubOn() {
+  const used={};
+  for (let s=1; s<=15; s++) used[state.slotp[s]]=true;
+  const isGK = subOff===1, avail=[];
+  for (let idx=16; idx<=state.maxB+5; idx++) {
+    if(used[idx])continue;
+    const n=gn(idx); if(!n&&idx>state.maxB)continue;
+    const gks=idx===16; if(isGK&&!gks)continue; if(!isGK&&gks)continue;
     avail.push({val:String(idx),label:(n||'#'+idx),sub:gks?'Sub GK':'Outfield sub'});
   }
-  for(var pidx in suboff){
-    pidx=parseInt(pidx);if(used[pidx])continue;
-    if(isGK!==(suboff[pidx]===1))continue;if(rcarded[suboff[pidx]])continue;
+  for (let pidx in state.suboff) {
+    pidx=parseInt(pidx); if(used[pidx])continue;
+    if(isGK!==(state.suboff[pidx]===1))continue;
+    if(state.rcarded[state.suboff[pidx]])continue;
     avail.push({val:String(pidx),label:(gn(pidx)||'#'+pidx),sub:'Previously subbed off'});
   }
-  if(!avail.length){document.getElementById('mtitle').textContent='No subs available';document.getElementById('mopts').innerHTML='<p style="color:var(--t2);font-size:14px;padding:8px 0 4px;">No players available.</p>';return;}
-  showOpts('Who comes on?',avail,function(v){execSub(parseInt(v));},true);
+  if (!avail.length) {
+    el.mtitle.textContent='No subs available';
+    el.mopts.innerHTML='<p style="color:var(--t2);font-size:14px;padding:8px 0 4px;">No players available.</p>';
+    return;
+  }
+  showOpts('Who comes on?', avail, v => execSub(parseInt(v)), true);
 }
-function execSub(bi){
-  var sl=subOff,out=slotp[sl];
-  suboff[out]=sl;slotp[sl]=bi;ubench[bi]=true;
-  if(suboff[bi])delete suboff[bi];
-  var t=fmt(secs),desc='Sub: '+pl(out)+' off / '+pl(bi)+' on (pos '+sl+')';
-  var b=document.querySelector('[data-s="'+sl+'"]');if(b)b.classList.add('sub');
-  addRow(t,'SUB','bs',desc);
-  var cs=sl,co=out,ci=bi;
-  pushUndo(desc,function(){
-    slotp[cs]=co;delete suboff[co];delete ubench[ci];suboff[ci]=cs;
-    var b2=document.querySelector('[data-s="'+cs+'"]');if(b2){b2.classList.remove('sub');if(ubench[co])b2.classList.add('sub');}
-    refBtns();
+
+function execSub(bi) {
+  const sl=subOff, out=state.slotp[sl];
+  state.suboff[out]=sl; state.slotp[sl]=bi; state.ubench[bi]=true;
+  if(state.suboff[bi])delete state.suboff[bi];
+  const desc='Sub: '+pl(out)+' off / '+pl(bi)+' on (pos '+sl+')';
+  const btn=document.querySelector('[data-s="'+sl+'"]'); if(btn)btn.classList.add('sub');
+  addRow(fmt(state.secs),'SUB','bs',desc);
+  const ev=state.evts[state.evts.length-1]; ev.slot=sl; ev.action='sub';
+  const cs=sl,co=out,ci=bi;
+  pushUndo(desc,()=>{
+    state.slotp[cs]=co; delete state.suboff[co]; delete state.ubench[ci]; state.suboff[ci]=cs;
+    const b2=document.querySelector('[data-s="'+cs+'"]');
+    if(b2){ b2.classList.remove('sub'); if(state.ubench[co])b2.classList.add('sub'); }
+    refBtn(cs);
   });
-  refBtns();closeMod();
+  refBtn(sl); closeMod();
 }
-function closeMod(){
-  var ca=document.getElementById('modal').dataset.cancelAction||'';
-  document.getElementById('modal').dataset.cancelAction='';
-  document.getElementById('modal').style.display='none';
-  selSlot=null;pendAct=null;subOff=null;
-  if(ca==='resume-period'){resumePeriod();}
-  // 'dismiss' and '' both just close
-}
-function bc(a){if(a==='Goal')return 'bg';if(a==='Point')return 'bp';if(a==='Wide')return 'bw';if(a==='Red Card')return 'br';if(a.indexOf('Card')>=0)return 'bc';return 'bo';}
-function logEv(action,sec){
-  var pg=goals,pp=pts,pPG=0,pPP=0;
-  if(action==='Goal'){goals++;document.getElementById('gc').textContent=goals;pPG=(playerGoals[slotp[selSlot]]||0);playerGoals[slotp[selSlot]]=(pPG)+1;}
-  if(action==='Point'){pts++;document.getElementById('pc').textContent=pts;pPP=(playerPts[slotp[selSlot]]||0);playerPts[slotp[selSlot]]=(pPP)+1;}
-  if(action==='Goal'||action==='Point'){upTot();refBtns();}
-  if(action==='Red Card'){
-    rcarded[selSlot]=true;
-    var rb=document.querySelector('[data-s="'+selSlot+'"]');
-    if(rb){rb.classList.remove('hev','sub');rb.classList.add('rc');var cr=document.createElement('span');cr.className='card-r';rb.appendChild(cr);}
-  }
-  if(action==='Yellow Card'){
-    ycarded[selSlot]=(ycarded[selSlot]||0)+1;
-    var yb=document.querySelector('[data-s="'+selSlot+'"]');
-    if(yb&&!yb.querySelector('.card-y')){var cy=document.createElement('span');cy.className='card-y';yb.appendChild(cy);}
-  }
-  if(action==='Black Card'){
-    bcarded[selSlot]=(bcarded[selSlot]||0)+1;
-    var bb=document.querySelector('[data-s="'+selSlot+'"]');
-    if(bb&&!bb.querySelector('.card-b')){var cbk=document.createElement('span');cbk.className='card-b';bb.appendChild(cbk);}
-  }
-  var t=fmt(secs),pidx=slotp[selSlot];
-  var desc=pl(pidx)+': '+action+(sec?' · '+sec:'');
-  if(action!=='Red Card'){var bn=document.querySelector('[data-s="'+selSlot+'"]');if(bn&&!bn.classList.contains('rc'))bn.classList.add('hev');}
-  addRow(t,gi(pidx),bc(action),desc);
-  var cSl=selSlot,cPi=pidx,cA=action,cG=pg,cP=pp,cPG=pPG,cPP=pPP;
-  pushUndo(desc,function(){
-    if(cA==='Goal'){goals=cG;document.getElementById('gc').textContent=goals;playerGoals[cPi]=cPG;upTot();refBtns();}
-    if(cA==='Point'){pts=cP;document.getElementById('pc').textContent=pts;playerPts[cPi]=cPP;upTot();refBtns();}
-    if(cA==='Red Card'){delete rcarded[cSl];var rb=document.querySelector('[data-s="'+cSl+'"]');if(rb){rb.classList.remove('rc');var rcard=rb.querySelector('.card-r');if(rcard)rcard.remove();}}
-    if(cA==='Yellow Card'){
-      ycarded[cSl]=(ycarded[cSl]||1)-1;
-      if(ycarded[cSl]<=0){delete ycarded[cSl];var yb=document.querySelector('[data-s="'+cSl+'"]');var ycard=yb&&yb.querySelector('.card-y');if(ycard)ycard.remove();}
-    }
-    if(cA==='Black Card'){
-      bcarded[cSl]=(bcarded[cSl]||1)-1;
-      if(bcarded[cSl]<=0){delete bcarded[cSl];var bb=document.querySelector('[data-s="'+cSl+'"]');var bcard=bb&&bb.querySelector('.card-b');if(bcard)bcard.remove();}
-    }
-    var b2=document.querySelector('[data-s="'+cSl+'"]');
-    var still=evts.slice(0,evts.length).some(function(e){return e.slot===cSl;});
-    if(b2){if(still)b2.classList.add('hev');else b2.classList.remove('hev');}
-  });
-}
-function shareWA(){
-  var u=goals*3+pts,o=og*3+op_;
-  var sl='*'+usN+': '+goals+'-'+pts+' ('+u+') v '+oppN+': '+og+'-'+op_+' ('+o+')*';
-  var lines=[sl,'*Time: '+fmt(secs)+'*',''];
-  for(var i=0;i<evts.length;i++)lines.push(evts[i].time+'  '+evts[i].desc);
+
+// ─── SHARE ────────────────────────────────────────────────────────────────────
+function shareWA() {
+  const u=state.goals*3+state.pts, o=state.og*3+state.op_;
+  const lines=['*'+state.usN+': '+state.goals+'-'+state.pts+' ('+u+') v '+state.oppN+': '+state.og+'-'+state.op_+' ('+o+')*','*Time: '+fmt(state.secs)+'*',''];
+  state.evts.forEach(e => lines.push(e.time+'  '+e.desc));
   window.open('https://wa.me/?text='+encodeURIComponent(lines.join('\n')),'_blank');
 }
-function openLog(){document.getElementById('logpanel').classList.add('open');tail();}
-function closeLog(){document.getElementById('logpanel').classList.remove('open');}
-function saveTpl(){
-  var name=document.getElementById('tni').value.trim();
-  if(!name){toast('Enter a template name');return;}
-  var data={usName:document.getElementById('sun').value.trim()||usN,playerNames:{}};
-  for(var i=1;i<=maxB+2;i++){var inp=document.getElementById('sn'+i);if(inp&&inp.value.trim())data.playerNames[i]=inp.value.trim();}
-  try{localStorage.setItem('tpl:'+name,JSON.stringify(data));toast('Saved "'+name+'"');document.getElementById('tni').value='';renderTpls();}
-  catch(e){toast('Save failed');}
+
+// ─── LOG PANEL ────────────────────────────────────────────────────────────────
+function openLog()  { el.logpanel.classList.add('open');    tail(); }
+function closeLog() { el.logpanel.classList.remove('open'); }
+
+// ─── TEMPLATES ────────────────────────────────────────────────────────────────
+function saveTpl() {
+  const name = el.tni.value.trim(); if(!name){toast('Enter a template name');return;}
+  const data = {usName:el.sun.value.trim()||state.usN, playerNames:{}};
+  for(let i=1;i<=state.maxB+2;i++){const inp=document.getElementById('sn'+i);if(inp&&inp.value.trim())data.playerNames[i]=inp.value.trim();}
+  try{localStorage.setItem('tpl:'+name,JSON.stringify(data));toast('Saved "'+name+'"');el.tni.value='';renderTpls();}catch(e){toast('Save failed');}
 }
-function loadTpl(name){
+
+function loadTpl(name) {
   try{
-    var raw=localStorage.getItem('tpl:'+name);if(!raw)return;
-    var data=JSON.parse(raw);
-    if(data.usName)document.getElementById('sun').value=data.usName;
-    if(data.playerNames){for(var i=1;i<=20;i++){var inp=document.getElementById('sn'+i);if(inp)inp.value=data.playerNames[i]||'';}}
+    const raw=localStorage.getItem('tpl:'+name); if(!raw)return;
+    const data=JSON.parse(raw);
+    if(data.usName)el.sun.value=data.usName;
+    state.maxB=17; // reset so stale slots don't accumulate
+    if(data.playerNames){
+      for(let i=1;i<=30;i++){
+        const inp=document.getElementById('sn'+i); if(inp)inp.value=data.playerNames[i]||'';
+        if(data.playerNames[i]&&i>=state.maxB)state.maxB=i+1;
+      }
+    }
     toast('Loaded "'+name+'"');
   }catch(e){toast('Load failed');}
 }
+
 function delTpl(name){try{localStorage.removeItem('tpl:'+name);renderTpls();toast('Deleted');}catch(e){}}
+
 function renderTpls(){
-  var el=document.getElementById('tpllist');
-  var keys=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.startsWith('tpl:'))keys.push(k);}
-  if(!keys.length){el.innerHTML='<div style="font-size:13px;color:var(--t3);padding:4px 0;">No saved templates</div>';return;}
-  var html='';
-  keys.forEach(function(k){var n=k.replace('tpl:','');html+='<div class="tplrow"><span style="flex:1;font-size:14px;">'+n+'</span><button class="tplbtn load" onclick="loadTpl(\''+n+'\')">Load</button><button class="tplbtn del" onclick="delTpl(\''+n+'\')">Delete</button></div>';});
-  el.innerHTML=html;
+  const keys=[];
+  for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('tpl:'))keys.push(k);}
+  if(!keys.length){el.tpllist.innerHTML='<div style="font-size:13px;color:var(--t3);padding:4px 0;">No saved templates</div>';return;}
+  el.tpllist.innerHTML=keys.map(k=>{
+    const n=k.replace('tpl:','');
+    return '<div class="tplrow"><span style="flex:1;font-size:14px;">'+esc(n)+'</span><button class="tplbtn load" onclick="loadTpl(\''+esc(n)+'\')">Load</button><button class="tplbtn del" onclick="delTpl(\''+esc(n)+'\')">Delete</button></div>';
+  }).join('');
 }
+
+// ─── SETTINGS ─────────────────────────────────────────────────────────────────
 function openSettings(){
-  document.getElementById('sun').value=usN;
-  document.getElementById('son').value=oppN==='Opposition'?'':oppN;
-  var list=document.getElementById('pslist');list.innerHTML='';
-  for(var i=1;i<=15;i++){
-    var row=document.createElement('div');row.className='prow';
-    row.innerHTML='<div class="pbadge'+(i===1?' gk':'')+'">'+i+'</div><input class="sinput" id="sn'+i+'" type="text" placeholder="'+(i===1?'Goalkeeper':'Player '+i)+'" maxlength="30" value="'+(gn(i)||'')+'">';
-    list.appendChild(row);
+  el.sun.value=state.usN;
+  el.son.value=state.oppN==='Opposition'?'':state.oppN;
+  el.pslist.innerHTML='';
+  for(let i=1;i<=15;i++){
+    const row=document.createElement('div'); row.className='prow';
+    row.innerHTML='<div class="pbadge'+(i===1?' gk':'')+'">'+i+'</div><input class="sinput" id="sn'+i+'" type="text" placeholder="'+(i===1?'Goalkeeper':'Player '+i)+'" maxlength="30" value="'+esc(gn(i)||'')+'">';
+    el.pslist.appendChild(row);
   }
-  renderBench();renderTpls();
-  document.getElementById('setpanel').classList.add('open');
+  renderBench(); renderTpls();
+  el.setpanel.classList.add('open');
 }
-function closeSettings(){document.getElementById('setpanel').classList.remove('open');}
+
+function closeSettings(){el.setpanel.classList.remove('open');}
+
 function renderBench(){
-  var bl=document.getElementById('bslist');bl.innerHTML='';
-  for(var i=16;i<=maxB;i++)addBRow(bl,i);
+  el.bslist.innerHTML='';
+  for(let i=16;i<=state.maxB;i++) addBRow(el.bslist,i);
 }
+
 function addBRow(c,idx){
-  var row=document.createElement('div');row.className='prow';row.id='br'+idx;
-  var lbl=idx===16?'Sub GK':'Sub #'+idx;
-  row.innerHTML='<div class="pbadge sub">'+idx+'</div><input class="sinput" id="sn'+idx+'" type="text" placeholder="'+lbl+'" maxlength="30" value="'+(gn(idx)||'')+'">';
+  const row=document.createElement('div'); row.className='prow'; row.id='br'+idx;
+  row.innerHTML='<div class="pbadge sub">'+idx+'</div><input class="sinput" id="sn'+idx+'" type="text" placeholder="'+(idx===16?'Sub GK':'Sub #'+idx)+'" maxlength="30" value="'+esc(gn(idx)||'')+'">';
   c.appendChild(row);
   document.getElementById('sn'+idx).addEventListener('input',function(){
-    var ti=parseInt(this.id.replace('sn',''));
-    if(this.value.trim()&&ti>=maxB){maxB=ti+1;var bl=document.getElementById('bslist');if(!document.getElementById('br'+maxB))addBRow(bl,maxB);}
+    const ti=parseInt(this.id.replace('sn',''));
+    if(this.value.trim()&&ti>=state.maxB){
+      state.maxB=ti+1;
+      if(!document.getElementById('br'+state.maxB)) addBRow(el.bslist,state.maxB);
+    }
   });
 }
+
 function saveSettings(){
-  usN=document.getElementById('sun').value.trim()||'Donaghmore/Ashbourne';
-  oppN=document.getElementById('son').value.trim()||'Opposition';
-  document.getElementById('uslbl').textContent=usN.toUpperCase();
-  document.getElementById('opplbl').textContent=oppN.toUpperCase();
-  for(var i=1;i<=maxB+2;i++){var inp=document.getElementById('sn'+i);if(inp)pnames[i]=inp.value.trim();}
-  refBtns();closeSettings();toast('Settings saved');
+  state.usN  = el.sun.value.trim()||DEFAULT_US;
+  state.oppN = el.son.value.trim()||'Opposition';
+  el.uslbl.textContent=state.usN.toUpperCase();
+  el.opplbl.textContent=state.oppN.toUpperCase();
+  for(let i=1;i<=state.maxB+2;i++){const inp=document.getElementById('sn'+i);if(inp)state.pnames[i]=inp.value.trim();}
+  buildInitialsCache();
+  refAllBtns();
+  closeSettings();
+  saveState();
+  toast('Settings saved');
 }
-upTot();syncMeta();refBtns();
+
+// ─── RESTORE UI FROM PERSISTED STATE ─────────────────────────────────────────
+function restoreUI() {
+  el.gc.textContent=state.goals; el.pc.textContent=state.pts;
+  el.og.textContent=state.og;    el.op.textContent=state.op_;
+  upTot();
+  el.uslbl.textContent=state.usN.toUpperCase();
+  el.opplbl.textContent=state.oppN.toUpperCase();
+  el['timer-display'].textContent=fmt(state.secs);
+  if(state.secs>=1800) el['timer-display'].classList.add('overtime');
+  // If was running when page closed, resume in paused state at recorded time
+  if(state.tStarted || state.tStopped) {
+    el.tbtn.style.display='none';
+    el.stopbtn.style.display='';
+    state.tStarted=false; // require explicit resume
+  }
+  // Rebuild event log DOM from stored events
+  state.evts.forEach(e => {
+    const r=document.createElement('div'); r.className='ev-row';
+    r.innerHTML='<div class="ev-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ti)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"/></svg></div>'
+      +'<span class="ev-time">'+e.time+'</span>'
+      +'<span class="ev-bdg '+(e.cls||'bo')+'">'+esc(e.badge||'')+'</span>'
+      +'<span style="color:var(--t1);font-size:13px;flex:1;">'+esc(e.desc||'')+'</span>';
+    r.addEventListener('click',()=>toggleRow(r));
+    el.evlog.appendChild(r);
+  });
+  if(state.evts.length) el.logempty.style.display='none';
+  // Apply slot/card/sub classes
+  const slotsWithEvts=new Set(state.evts.filter(e=>e.slot&&e.action&&e.action!=='sub').map(e=>e.slot));
+  for(let s=1;s<=15;s++){
+    const b=document.querySelector('[data-s="'+s+'"]'); if(!b) continue;
+    if(state.rcarded[s])        b.classList.add('rc');
+    else if(slotsWithEvts.has(s)) b.classList.add('hev');
+    if(state.ubench[state.slotp[s]]) b.classList.add('sub');
+  }
+  buildInitialsCache();
+  refAllBtns();
+  syncMeta();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+function init() {
+  initEl();
+  const restored = loadSavedState();
+  if (restored) {
+    restoreUI();
+    toast('Match restored');
+  } else {
+    buildInitialsCache();
+    refAllBtns();
+    upTot();
+    syncMeta();
+  }
+}
+
+init();
 </script>
 </body>
 </html>
