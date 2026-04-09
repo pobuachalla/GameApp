@@ -123,18 +123,49 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sport-toggle{flex:1;padding:12px 14px;border-radius:var(--r);border:.5px solid var(--bm);background:var(--bg1);color:var(--t2);font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .2s;}
 .sport-toggle.active{background:var(--bgi);color:var(--ti);border-color:var(--bi);}
 .sport-toggle:active{opacity:.85;}
+.timer-card{background:var(--bg1);border-radius:var(--rl);border:1.5px solid var(--bm);padding:14px 14px 12px;margin-bottom:10px;display:flex;flex-direction:column;gap:10px;}
+.timer-meta{display:flex;align-items:center;gap:8px;}
+.period-badge{font-size:11px;font-weight:600;letter-spacing:.06em;padding:3px 10px;border-radius:999px;background:var(--bgi);color:var(--ti);text-transform:uppercase;}
+.period-badge.halftime{background:var(--bgw);color:var(--tw);}
+.period-badge.fulltime{background:var(--bg3);color:var(--t2);}
+.status-chip{font-size:11px;font-weight:500;padding:3px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;}
+.status-chip.running{background:var(--bgs);color:var(--ts);}
+.status-chip.paused{background:var(--bgw);color:var(--tw);}
+#timer-display{font-size:52px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-2px;line-height:1;color:var(--t1);}
+#timer-display.muted{color:var(--t2);}
+.timer-body{display:flex;align-items:center;gap:12px;}
+.timer-actions{flex:1;display:flex;flex-direction:row;gap:8px;min-width:0;}
+.timer-primary-btn{flex:1;min-height:52px;border-radius:var(--rl);font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;touch-action:manipulation;transition:opacity .1s,transform .1s;}
+.timer-primary-btn:active{opacity:.85;transform:scale(.98);}
+.timer-primary-btn.green{background:var(--bgs);color:var(--ts);border:1.5px solid var(--bs);}
+.timer-primary-btn.amber{background:var(--bgw);color:var(--tw);border:1.5px solid var(--bw);}
+.timer-primary-btn.blue{background:var(--bgi);color:var(--ti);border:1.5px solid var(--bi);}
+.timer-secondary-btn{flex:0 0 auto;padding:0 16px;min-height:44px;border-radius:999px;border:1.5px solid var(--bm);background:none;color:var(--t2);font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;touch-action:manipulation;}
+.timer-secondary-btn:active{background:var(--bg2);}
 </style>
 </head>
 <body>
 <div id="app">
   <div class="toast" id="toast"></div>
   <div class="scroll">
-    <!-- Timer row -->
-    <div class="timer-row">
-      <div id="timer-display">00:00</div>
-      <div class="timer-btns">
-        <button id="tbtn" class="t-btn" onclick="timerMain()" style="background:var(--bgs);color:var(--ts);border-color:var(--bs);">Start</button>
-        <button id="stopbtn" class="t-btn" onclick="stopTimer()" style="display:none;background:var(--bgd);color:var(--td);border-color:var(--bd);">Stop</button>
+    <!-- Timer card -->
+    <div class="timer-card" id="timer-card">
+      <div class="timer-meta">
+        <span class="period-badge" id="period-badge">1st Half</span>
+        <span class="status-chip" id="status-chip" style="display:none;"></span>
+      </div>
+      <div class="timer-body">
+        <div id="timer-display">00:00</div>
+        <div class="timer-actions">
+          <button class="timer-primary-btn green" id="timer-primary-btn" onclick="timerPrimaryAction()">
+            <i class="fas fa-play" id="timer-primary-icon" aria-hidden="true"></i>
+            <span id="timer-primary-label">Start Match</span>
+          </button>
+          <button class="timer-secondary-btn" id="timer-secondary-btn" style="visibility:hidden;" onclick="timerSecondaryAction()">
+            <i class="fas fa-hourglass-half" id="timer-secondary-icon" aria-hidden="true"></i>
+            <span id="timer-secondary-label">End Half</span>
+          </button>
+        </div>
       </div>
     </div>
     <!-- Scoreboard -->
@@ -315,6 +346,7 @@ const DEFAULT_US = 'Donaghmore/Ashbourne';
 const state = {
   goals:0, pts:0, og:0, op_:0,
   period:1, secs:0,
+  matchState:'PRE_MATCH',
   tStarted:false, tStopped:false,
   tWallStart:null, tPausedAt:0,
   usN:DEFAULT_US, oppN:'Opposition',
@@ -342,7 +374,8 @@ const el = {};
 function initEl() {
   ['timer-display','gc','pc','og','op','utotal','ototal','uslbl','opplbl',
    'evlog','logempty','lcnt','lbdg','toast','modal','mtitle','mopts',
-   'tbtn','stopbtn','pgrid','logpanel','setpanel','seltoggle',
+   'period-badge','status-chip','timer-primary-btn','timer-secondary-btn',
+   'pgrid','logpanel','setpanel','seltoggle',
    'removebar','removelbl','sun','son','pslist','bslist','tpllist','tni'
   ].forEach(id => { el[id] = document.getElementById(id); });
 }
@@ -428,11 +461,11 @@ function saveState() {
   if (saveStateTimeoutId) clearTimeout(saveStateTimeoutId);
   saveStateTimeoutId = setTimeout(() => {
     try {
-      const {goals,pts,og,op_,period,secs,tStarted,tStopped,tPausedAt,tWallStart,
+      const {goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
              usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
              playerGoals,playerPts,maxB,evts,sport} = state;
       localStorage.setItem(SAVE_KEY, JSON.stringify({
-        goals,pts,og,op_,period,secs,tStarted,tStopped,tPausedAt,tWallStart,
+        goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
         usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
         playerGoals,playerPts,maxB,evts,sport
       }));
@@ -455,11 +488,11 @@ const clearSavedState = () => { try { localStorage.removeItem(SAVE_KEY); } catch
 function saveStateImmediate() {
   if (saveStateTimeoutId) { clearTimeout(saveStateTimeoutId); saveStateTimeoutId = null; }
   try {
-    const {goals,pts,og,op_,period,secs,tStarted,tStopped,tPausedAt,tWallStart,
+    const {goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
            usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
            playerGoals,playerPts,maxB,evts,sport} = state;
     localStorage.setItem(SAVE_KEY, JSON.stringify({
-      goals,pts,og,op_,period,secs,tStarted,tStopped,tPausedAt,tWallStart,
+      goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
       usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
       playerGoals,playerPts,maxB,evts,sport
     }));
@@ -502,67 +535,241 @@ function upTot() {
   el.ototal.style.color = oc;
 }
 
-// ─── TIMER ────────────────────────────────────────────────────────────────────
+// ─── MATCH STATE MACHINE ──────────────────────────────────────────────────────
 const periodLabel = n => ['1st Half','2nd Half','1st Half ET','2nd Half ET'][n-1] || ('Period '+n);
 const periodBadge = n => ['1H','2H','ET1','ET2'][n-1] || ('P'+n);
 
-function timerMain() { 
-  if (state.tStopped) resumePeriod(); 
-  else if (!state.tStarted) startPeriod(); 
+const VALID_TRANSITIONS = {
+  PRE_MATCH:            ['RUNNING_FIRST_HALF'],
+  RUNNING_FIRST_HALF:   ['PAUSED_FIRST_HALF','HALF_TIME'],
+  PAUSED_FIRST_HALF:    ['RUNNING_FIRST_HALF','HALF_TIME'],
+  HALF_TIME:            ['RUNNING_SECOND_HALF'],
+  RUNNING_SECOND_HALF:  ['PAUSED_SECOND_HALF','FULL_TIME'],
+  PAUSED_SECOND_HALF:   ['RUNNING_SECOND_HALF','FULL_TIME'],
+  FULL_TIME:            [],
+};
+
+function transition(newState) {
+  const allowed = VALID_TRANSITIONS[state.matchState];
+  if (!allowed || !allowed.includes(newState)) return;
+  const prev = state.matchState;
+  state.matchState = newState;
+  applyStateEffects(prev, newState);
+  renderTimerUI();
+  saveState();
 }
 
-function setTimerButtonLabel() {
-  el.tbtn.textContent = 'Start '+periodLabel(state.period);
-}
-
-function startPeriod() {
-  state.secs = 0;
-  state.tWallStart = Date.now();
-  state.tPausedAt  = 0;
-  state.tStarted   = true;
-  state.tStopped   = false;
-  tRun = true;
-  if (tInt) clearInterval(tInt);
-  tInt = setInterval(tick, 500);
-  el['timer-display'].textContent = '00:00';
-  el['timer-display'].classList.remove('overtime');
-  el.tbtn.style.display   = 'none';
-  el.stopbtn.style.display = '';
-  setGrid(true);
+function applyStateEffects(prev, next) {
   const now = new Date();
   const clockStr = pad(now.getHours())+':'+pad(now.getMinutes());
-  const desc = periodLabel(state.period)+' started at '+clockStr;
-  addRow('00:00', periodBadge(state.period), 'bperiod', desc);
-  pushUndo(desc, ()=>{});
-}
 
-function resumePeriod() {
-  // Rebase wall clock so elapsed time is continuous from tPausedAt
-  state.tWallStart = Date.now() - state.tPausedAt * 1000;
-  state.tStarted   = true;
-  state.tStopped   = false;
-  tRun = true;
-  if (tInt) clearInterval(tInt);
-  tInt = setInterval(tick, 500);
-  el.tbtn.style.display    = 'none';
-  el.stopbtn.style.display = '';
-  setGrid(true);
-}
+  switch (next) {
+    case 'RUNNING_FIRST_HALF':
+      if (prev === 'PRE_MATCH') {
+        state.period = 1;
+        state.secs = 0;
+        state.tWallStart = Date.now();
+        state.tPausedAt = 0;
+        tRun = true;
+        startInterval();
+        el['timer-display'].textContent = '00:00';
+        el['timer-display'].classList.remove('overtime','muted');
+        addRow('00:00','1H','bperiod','1st Half started at '+clockStr);
+        pushUndo('1st Half started',()=>{});
+        setGrid(true);
+      } else {
+        state.tWallStart = Date.now() - state.tPausedAt * 1000;
+        tRun = true;
+        startInterval();
+        el['timer-display'].classList.remove('muted');
+        setGrid(true);
+      }
+      break;
 
-function stopTimer() {
-  if (state.tWallStart) {
-    state.tPausedAt = Math.floor((Date.now() - state.tWallStart) / 1000);
-    state.secs      = state.tPausedAt;
+    case 'PAUSED_FIRST_HALF':
+      if (state.tWallStart) {
+        state.tPausedAt = Math.floor((Date.now() - state.tWallStart) / 1000);
+        state.secs = state.tPausedAt;
+      }
+      tRun = false;
+      stopInterval();
+      break;
+
+    case 'HALF_TIME':
+      if (state.tWallStart) {
+        state.tPausedAt = Math.floor((Date.now() - state.tWallStart) / 1000);
+        state.secs = state.tPausedAt;
+      }
+      tRun = false;
+      stopInterval();
+      state.tWallStart = null;
+      el['timer-display'].classList.add('muted');
+      el['timer-display'].classList.remove('overtime');
+      addRow(fmt(state.secs),'1H','bperiod','1st Half ended at '+clockStr);
+      pushUndo('1st Half ended',()=>{});
+      setGrid(false);
+      break;
+
+    case 'RUNNING_SECOND_HALF':
+      if (prev === 'HALF_TIME') {
+        state.period = 2;
+        state.secs = 0;
+        state.tWallStart = Date.now();
+        state.tPausedAt = 0;
+        tRun = true;
+        startInterval();
+        el['timer-display'].textContent = '00:00';
+        el['timer-display'].classList.remove('overtime','muted');
+        addRow('00:00','2H','bperiod','2nd Half started at '+clockStr);
+        pushUndo('2nd Half started',()=>{});
+        setGrid(true);
+      } else {
+        state.tWallStart = Date.now() - state.tPausedAt * 1000;
+        tRun = true;
+        startInterval();
+        el['timer-display'].classList.remove('muted');
+        setGrid(true);
+      }
+      break;
+
+    case 'PAUSED_SECOND_HALF':
+      if (state.tWallStart) {
+        state.tPausedAt = Math.floor((Date.now() - state.tWallStart) / 1000);
+        state.secs = state.tPausedAt;
+      }
+      tRun = false;
+      stopInterval();
+      break;
+
+    case 'FULL_TIME':
+      if (state.tWallStart) {
+        state.tPausedAt = Math.floor((Date.now() - state.tWallStart) / 1000);
+        state.secs = state.tPausedAt;
+      }
+      tRun = false;
+      stopInterval();
+      state.tWallStart = null;
+      el['timer-display'].classList.add('muted');
+      setGrid(false);
+      showFullTimeResult();
+      break;
   }
-  clearInterval(tInt); tInt = null;
-  tRun = false; state.tStarted = false; state.tStopped = true;
-  el.stopbtn.style.display = 'none';
-  setGrid(false);
-  saveState();
-  showStoppedOptions();
+}
+
+function renderTimerUI() {
+  const s = state.matchState;
+  const isRunning = s==='RUNNING_FIRST_HALF' || s==='RUNNING_SECOND_HALF';
+  const isPaused  = s==='PAUSED_FIRST_HALF'  || s==='PAUSED_SECOND_HALF';
+  const inFirst   = s==='RUNNING_FIRST_HALF' || s==='PAUSED_FIRST_HALF';
+  const inSecond  = s==='RUNNING_SECOND_HALF'|| s==='PAUSED_SECOND_HALF';
+
+  // Period badge
+  const pb = el['period-badge'];
+  pb.classList.remove('halftime','fulltime');
+  if      (s==='HALF_TIME')  { pb.textContent='Half-Time'; pb.classList.add('halftime'); }
+  else if (s==='FULL_TIME')  { pb.textContent='Full-Time'; pb.classList.add('fulltime'); }
+  else if (inSecond)         { pb.textContent='2nd Half'; }
+  else                       { pb.textContent='1st Half'; }
+
+  // Status chip
+  const sc = el['status-chip'];
+  if (isRunning) {
+    sc.style.display='';
+    sc.className='status-chip running';
+    sc.innerHTML='<i class="fas fa-clock" aria-hidden="true"></i> Running';
+  } else if (isPaused) {
+    sc.style.display='';
+    sc.className='status-chip paused';
+    sc.innerHTML='<i class="fas fa-circle-pause" aria-hidden="true"></i> Paused';
+  } else {
+    sc.style.display='none';
+  }
+
+  // Primary button
+  const primBtn = el['timer-primary-btn'];
+  const primIcon = document.getElementById('timer-primary-icon');
+  const primLbl  = document.getElementById('timer-primary-label');
+  const primMap  = {
+    PRE_MATCH:           {label:'Start Match',    icon:'fa-play',    cls:'green'},
+    RUNNING_FIRST_HALF:  {label:'Pause',          icon:'fa-pause',   cls:'amber'},
+    PAUSED_FIRST_HALF:   {label:'Resume',         icon:'fa-play',    cls:'blue'},
+    HALF_TIME:           {label:'Start 2nd Half', icon:'fa-forward', cls:'green'},
+    RUNNING_SECOND_HALF: {label:'Pause',          icon:'fa-pause',   cls:'amber'},
+    PAUSED_SECOND_HALF:  {label:'Resume',         icon:'fa-play',    cls:'blue'},
+  };
+  const pc = primMap[s];
+  if (pc) {
+    primBtn.style.display='';
+    primBtn.className='timer-primary-btn '+pc.cls;
+    primIcon.className='fas '+pc.icon;
+    primLbl.textContent=pc.label;
+  } else {
+    primBtn.style.display='none';
+  }
+
+  // Secondary button
+  const secBtn  = el['timer-secondary-btn'];
+  const secIcon = document.getElementById('timer-secondary-icon');
+  const secLbl  = document.getElementById('timer-secondary-label');
+  if (inFirst) {
+    secBtn.style.visibility='';
+    secIcon.className='fas fa-hourglass-half';
+    secLbl.textContent='End Half';
+  } else if (inSecond) {
+    secBtn.style.visibility='';
+    secIcon.className='fas fa-flag-checkered';
+    secLbl.textContent='End Match';
+  } else {
+    secBtn.style.visibility='hidden';
+  }
+}
+
+function timerPrimaryAction() {
+  switch (state.matchState) {
+    case 'PRE_MATCH':           transition('RUNNING_FIRST_HALF');  break;
+    case 'RUNNING_FIRST_HALF':  transition('PAUSED_FIRST_HALF');   break;
+    case 'PAUSED_FIRST_HALF':   transition('RUNNING_FIRST_HALF');  break;
+    case 'HALF_TIME':           transition('RUNNING_SECOND_HALF'); break;
+    case 'RUNNING_SECOND_HALF': transition('PAUSED_SECOND_HALF');  break;
+    case 'PAUSED_SECOND_HALF':  transition('RUNNING_SECOND_HALF'); break;
+  }
+}
+
+function timerSecondaryAction() {
+  const s = state.matchState;
+  if (s==='RUNNING_FIRST_HALF' || s==='PAUSED_FIRST_HALF')   handleEndHalf();
+  else if (s==='RUNNING_SECOND_HALF' || s==='PAUSED_SECOND_HALF') handleEndMatch();
+}
+
+function handleEndHalf() {
+  el.mtitle.textContent = 'End First Half?';
+  el.mopts.innerHTML =
+    '<p style="font-size:14px;color:var(--t2);padding:4px 0 14px;line-height:1.5;">Start half-time and stop the timer.</p>'
+   +'<button class="abtn confirm-action-btn" style="font-weight:600;border-color:var(--bm);"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i> Confirm End Half</button>';
+  el.modal.style.display = 'block';
+  el.mopts.querySelector('.confirm-action-btn').addEventListener('click', () => { closeMod(); transition('HALF_TIME'); });
+}
+
+function handleEndMatch() {
+  el.mtitle.textContent = 'End Match?';
+  el.mopts.innerHTML =
+    '<p style="font-size:14px;color:var(--t2);padding:4px 0 14px;line-height:1.5;">Mark the game as full-time and stop the timer.</p>'
+   +'<button class="abtn confirm-action-btn" style="font-weight:600;border-color:var(--bm);"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i> Confirm End Match</button>';
+  el.modal.style.display = 'block';
+  el.mopts.querySelector('.confirm-action-btn').addEventListener('click', () => { closeMod(); transition('FULL_TIME'); });
+}
+
+function startInterval() {
+  stopInterval();
+  tInt = setInterval(tick, 500);
+}
+
+function stopInterval() {
+  if (tInt) { clearInterval(tInt); tInt = null; }
 }
 
 function tick() {
+  if (!state.tWallStart) return;
   const elapsed = Math.floor((Date.now() - state.tWallStart) / 1000);
   state.secs = elapsed;
   const td = el['timer-display'];
@@ -576,50 +783,15 @@ function setGrid(on) {
   el.pgrid.style.pointerEvents = on ? 'auto' : 'none';
 }
 
-// ─── STOPPED OPTIONS ──────────────────────────────────────────────────────────
-function showStoppedOptions() {
-  const nextLabel = periodLabel(state.period+1);
-  el.mtitle.textContent = periodLabel(state.period)+' ended — what next?';
-  el.mopts.innerHTML = '<div class="opts-grid">'
-    +'<button class="abtn" data-v="next"   style="color:var(--ts);border-color:var(--bs);">'+esc(nextLabel)+'</button>'
-    +'<button class="abtn" data-v="resume" style="color:var(--ti);border-color:var(--bi);">Resume '+esc(periodLabel(state.period))+'</button>'
-    +'<button class="abtn" data-v="end"    style="grid-column:1 / -1;color:var(--t2);border-color:var(--bm);background:var(--bg3);">End game</button>'
-    +'</div>';
-  el.modal.style.display = 'block';
-  el.modal.dataset.cancelAction = 'resume-period';
-  modalHandlerRef = (v) => {
-    el.modal.dataset.cancelAction = '';
-    closeMod();
-    if      (v==='next')   {
-      state.period++;
-      state.secs = 0;
-      state.tWallStart = null;
-      state.tPausedAt = 0;
-      state.tStarted = false;
-      state.tStopped = false;
-      el['timer-display'].textContent = '00:00';
-      el['timer-display'].classList.remove('overtime');
-      el.tbtn.style.display = '';
-      el.stopbtn.style.display = 'none';
-      setTimerButtonLabel();
-      setGrid(false);
-      saveState();
-    }
-    else if (v==='resume') resumePeriod();
-    else if (v==='end')    endGame();
-  };
-  el.mopts.addEventListener('click', handleModalClick);
-}
-
-// ─── END GAME ─────────────────────────────────────────────────────────────────
-function endGame() {
+// ─── FULL TIME RESULT ─────────────────────────────────────────────────────────
+function showFullTimeResult() {
   const u = state.goals*3+state.pts, o = state.og*3+state.op_;
   const result = u>o?'Win':o>u?'Loss':'Draw';
   const now = new Date();
   const clockStr = pad(now.getHours())+':'+pad(now.getMinutes());
-  const desc = 'Game ended at '+clockStr+' — '+state.usN+' '+state.goals+'-'+state.pts+' ('+u+') v '+state.oppN+' '+state.og+'-'+state.op_+' ('+o+') — '+result;
-  addRow(fmt(state.secs), 'END', 'bperiod', desc);
-  el.mtitle.textContent = 'Game over';
+  const desc = 'Match ended at '+clockStr+' — '+state.usN+' '+state.goals+'-'+state.pts+' ('+u+') v '+state.oppN+' '+state.og+'-'+state.op_+' ('+o+') — '+result;
+  addRow(fmt(state.secs),'END','bperiod',desc);
+  el.mtitle.textContent = 'Full Time';
   el.mopts.innerHTML =
     '<p style="font-size:15px;font-weight:500;color:var(--t1);padding:6px 0 4px;">'+esc(state.usN)+'</p>'
    +'<p style="font-size:32px;font-weight:500;color:var(--t1);padding:0 0 4px;line-height:1;">'+state.goals+'-'+state.pts+' <span style="font-size:16px;color:var(--t2);">('+u+')</span></p>'
@@ -628,10 +800,8 @@ function endGame() {
    +'<p style="font-size:18px;font-weight:500;padding:0 0 12px;color:'+(result==='Win'?'var(--ts)':result==='Loss'?'var(--td)':'var(--t2)')+';">'+result+'</p>';
   el.modal.style.display = 'block';
   el.modal.dataset.cancelAction = 'dismiss';
-  // Change cancel button to Okay for game over
   const cancelBtn = el.modal.querySelector('button[onclick="closeMod()"]');
   if (cancelBtn) cancelBtn.textContent = 'Okay';
-  setGrid(false);
   const ub = document.getElementById('undobtn');
   if (ub) {
     ub.id='resetbtn'; ub.disabled=false; ub.classList.remove('danger');
@@ -659,12 +829,12 @@ function doReset() {
   syncMeta();
   state.secs=0; state.tStarted=false; state.tStopped=false;
   state.tWallStart=null; state.tPausedAt=0;
-  clearInterval(tInt); tInt=null; tRun=false;
+  state.matchState='PRE_MATCH';
+  stopInterval(); tRun=false;
   state.period=1;
   el['timer-display'].textContent='00:00';
-  el['timer-display'].classList.remove('overtime');
-  el.tbtn.style.display=''; el.stopbtn.style.display='none';
-  setTimerButtonLabel();
+  el['timer-display'].classList.remove('overtime','muted');
+  renderTimerUI();
   setGrid(false);
   state.rcarded={}; state.ycarded={}; state.bcarded={};
   state.playerGoals={}; state.playerPts={};
@@ -743,7 +913,6 @@ function closeMod() {
   // Reset cancel button text
   const cancelBtn = el.modal.querySelector('button[onclick="closeMod()"]');
   if (cancelBtn) cancelBtn.textContent = 'Cancel';
-  if (ca==='resume-period') resumePeriod();
 }
 
 // ─── SCORE ADJUST ─────────────────────────────────────────────────────────────
@@ -1209,27 +1378,42 @@ function restoreUI() {
   upTot();
   el.uslbl.textContent=state.usN.toUpperCase();
   el.opplbl.textContent=state.oppN.toUpperCase();
-  el['timer-display'].textContent=fmt(state.secs);
-  if(state.secs>=1800) el['timer-display'].classList.add('overtime');
-  setTimerButtonLabel();
-  // If was running when page closed, restore into paused state so the user can resume
-  if(state.tStarted || state.tStopped) {
-    const wasRunning = state.tStarted;
-    if (wasRunning && state.tWallStart) {
-      // Compute true elapsed using saved wall-clock anchor — handles stale secs from infrequent saves
+  // Backwards compat: derive matchState from legacy flags if not in saved data
+  if (!state.matchState || state.matchState === 'PRE_MATCH') {
+    const lastBadge = state.evts.length ? state.evts[state.evts.length-1].badge : null;
+    if (lastBadge === 'END') {
+      state.matchState = 'FULL_TIME';
+    } else if ((state.tStarted || state.tStopped) && state.period >= 2) {
+      state.matchState = 'PAUSED_SECOND_HALF';
+    } else if ((state.tStarted || state.tStopped) && state.period === 1) {
+      state.matchState = 'PAUSED_FIRST_HALF';
+    } else if (state.period >= 2 && !state.tStarted && !state.tStopped) {
+      state.matchState = 'HALF_TIME';
+    }
+  }
+  // If running state was saved, compute true elapsed and restore as paused
+  if (state.matchState === 'RUNNING_FIRST_HALF' || state.matchState === 'RUNNING_SECOND_HALF') {
+    if (state.tWallStart) {
       const trueElapsed = Math.floor((Date.now() - state.tWallStart) / 1000);
       state.secs = trueElapsed;
       state.tPausedAt = trueElapsed;
-    } else if (wasRunning) {
+    } else {
       state.tPausedAt = state.secs;
     }
-    el['timer-display'].textContent = fmt(state.secs);
-    if (state.secs >= 1800) el['timer-display'].classList.add('overtime');
-    el.tbtn.textContent = 'Resume '+periodLabel(state.period);
-    el.tbtn.style.display='';
-    el.stopbtn.style.display='none';
-    state.tStarted=false;
-    state.tStopped=true;
+    state.matchState = state.matchState === 'RUNNING_FIRST_HALF' ? 'PAUSED_FIRST_HALF' : 'PAUSED_SECOND_HALF';
+    state.tWallStart = null;
+  }
+  el['timer-display'].textContent=fmt(state.secs);
+  if(state.secs>=1800) el['timer-display'].classList.add('overtime');
+  renderTimerUI();
+  // Show the full-time result modal on restore if match ended
+  if (state.matchState === 'FULL_TIME') {
+    const ub = document.getElementById('undobtn');
+    if (ub && ub.id === 'undobtn') {
+      ub.id='resetbtn'; ub.disabled=false; ub.classList.remove('danger');
+      ub.innerHTML='<i class="fas fa-arrows-rotate" aria-hidden="true"></i>Reset';
+      ub.onclick=resetMatch;
+    }
   }
   // Rebuild event log DOM from stored events
   state.evts.forEach(e => {
