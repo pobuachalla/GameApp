@@ -64,8 +64,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .panel-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-shrink:0;}
 .back-btn{width:36px;height:36px;border-radius:50%;border:.5px solid var(--bm);background:var(--bg1);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit;}
 .back-btn:active{background:var(--bg2);}
-.abtn{display:block;width:100%;padding:14px;margin-bottom:0;text-align:center;background:var(--bg1);border:.5px solid var(--b);border-radius:999px;color:var(--t1);font-size:15px;cursor:pointer;font-family:inherit;}
-.abtn i{margin-right:8px;font-size:1em;}
+.abtn{display:inline-flex;width:100%;padding:14px;margin-bottom:0;text-align:center;align-items:center;justify-content:center;gap:10px;background:var(--bg1);border:.5px solid var(--b);border-radius:999px;color:var(--t1);font-size:15px;cursor:pointer;font-family:inherit;}
+.abtn i{font-size:1em;display:inline-flex;align-items:center;justify-content:center;}
 .abtn:active{background:var(--bg2);}
 .score-btn-goal{background:rgba(29,191,51,0.12);color:#1DBF33;border-color:rgba(29,191,51,0.3);}
 .score-btn-point{background:#F5FAF6;color:#1a1a18;border-color:rgba(0,0,0,0.08);}
@@ -428,11 +428,11 @@ function saveState() {
   if (saveStateTimeoutId) clearTimeout(saveStateTimeoutId);
   saveStateTimeoutId = setTimeout(() => {
     try {
-      const {goals,pts,og,op_,period,secs,tStarted,tStopped,tPausedAt,
+      const {goals,pts,og,op_,period,secs,tStarted,tStopped,tPausedAt,tWallStart,
              usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
              playerGoals,playerPts,maxB,evts,sport} = state;
       localStorage.setItem(SAVE_KEY, JSON.stringify({
-        goals,pts,og,op_,period,secs,tStarted,tStopped,tPausedAt,
+        goals,pts,og,op_,period,secs,tStarted,tStopped,tPausedAt,tWallStart,
         usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
         playerGoals,playerPts,maxB,evts,sport
       }));
@@ -451,6 +451,30 @@ function loadSavedState() {
 }
 
 const clearSavedState = () => { try { localStorage.removeItem(SAVE_KEY); } catch(e) {} };
+
+function saveStateImmediate() {
+  if (saveStateTimeoutId) { clearTimeout(saveStateTimeoutId); saveStateTimeoutId = null; }
+  try {
+    const {goals,pts,og,op_,period,secs,tStarted,tStopped,tPausedAt,tWallStart,
+           usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
+           playerGoals,playerPts,maxB,evts,sport} = state;
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      goals,pts,og,op_,period,secs,tStarted,tStopped,tPausedAt,tWallStart,
+      usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
+      playerGoals,playerPts,maxB,evts,sport
+    }));
+  } catch(e) {}
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    // Flush current secs if timer is running so reload gets accurate time
+    if (tRun && state.tWallStart) {
+      state.secs = Math.floor((Date.now() - state.tWallStart) / 1000);
+    }
+    saveStateImmediate();
+  }
+});
 
 // ─── TOAST ────────────────────────────────────────────────────────────────────
 function toast(m) {
@@ -685,6 +709,10 @@ function showOpts(title, opts, handler, rich) {
         icon = '<i class="far fa-flag fa-beat-fade"></i>';
           } else if (o==='Wide') {
         icon = '<i class="fa-solid fa-exclamation fa-beat"></i>';
+      } else if (o==='Won' || o==='Win') {
+        icon = '<i class="fas fa-thumbs-up" style="color:#1DBF33;"></i>';
+      } else if (o==='Lost' || o==='Loss') {
+        icon = '<i class="fas fa-thumbs-down" style="color:#D64141;"></i>';
       } else if (o==='Substitution') {
         icon = '<i class="fas fa-people-arrows"></i>';
       } else if (o==='Red Card') {
@@ -832,9 +860,9 @@ function showRestartModal(side) {
   const label = side==='us' ? "Opposition's Restart" : "Own Restart";
   el.mtitle.textContent = 'Restart won?';
   el.mopts.innerHTML = '<div class="opts-grid">'
-    +'<button class="abtn" data-v="Won"     style="color:var(--ts);border-color:var(--bs);">Won</button>'
-    +'<button class="abtn" data-v="Lost"    style="color:var(--td);border-color:var(--bd);">Lost</button>'
-    +'<button class="abtn" data-v="Unclear">Unclear</button>'
+    +'<button class="abtn" data-v="Won"     style="color:var(--ts);border-color:var(--bs);"><i class="fas fa-thumbs-up" style="color:#1DBF33;"></i>Won</button>'
+    +'<button class="abtn" data-v="Lost"    style="color:var(--td);border-color:var(--bd);"><i class="fas fa-thumbs-down" style="color:#D64141;"></i>Lost</button>'
+    +'<button class="abtn" data-v="Unclear" style="grid-column:1 / -1;">Unclear</button>'
     +'</div>';
   el.modal.style.display = 'block';
   modalHandlerRef = (result) => {
@@ -1166,7 +1194,7 @@ function saveSettings(){
   saveState();
   toast('Settings saved');
 }
-
+ 
 function setSport(sport) {
   document.querySelectorAll('.sport-toggle').forEach(b => {
     b.classList.toggle('active', b.dataset.sport === sport);
@@ -1187,14 +1215,21 @@ function restoreUI() {
   // If was running when page closed, restore into paused state so the user can resume
   if(state.tStarted || state.tStopped) {
     const wasRunning = state.tStarted;
+    if (wasRunning && state.tWallStart) {
+      // Compute true elapsed using saved wall-clock anchor — handles stale secs from infrequent saves
+      const trueElapsed = Math.floor((Date.now() - state.tWallStart) / 1000);
+      state.secs = trueElapsed;
+      state.tPausedAt = trueElapsed;
+    } else if (wasRunning) {
+      state.tPausedAt = state.secs;
+    }
+    el['timer-display'].textContent = fmt(state.secs);
+    if (state.secs >= 1800) el['timer-display'].classList.add('overtime');
     el.tbtn.textContent = 'Resume '+periodLabel(state.period);
     el.tbtn.style.display='';
     el.stopbtn.style.display='none';
     state.tStarted=false;
     state.tStopped=true;
-    if (wasRunning) {
-      state.tPausedAt = state.secs; // Freeze at current elapsed time
-    }
   }
   // Rebuild event log DOM from stored events
   state.evts.forEach(e => {
