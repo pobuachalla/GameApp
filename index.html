@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>GAA Match Tracker</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#4a9a38">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;overflow:hidden;}
@@ -28,7 +31,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   }
 }
 #app{width:100%;max-width:460px;height:100%;display:flex;flex-direction:column;position:relative;color:var(--t1);}
-.scroll{flex:1;overflow-y:auto;padding:10px 10px 0;}
+.scroll{flex:1;overflow-y:auto;padding:10px 10px 0;display:flex;flex-direction:column;}
 .timer-row{display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg2);border-radius:var(--rl);margin-bottom:10px;}
 #timer-display{font-size:44px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-1.5px;line-height:1;flex-shrink:0;color:var(--t1);}
 .timer-btns{display:flex;gap:8px;flex:1;justify-content:flex-end;align-items:center;}
@@ -37,7 +40,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .score-inner{display:flex;align-items:stretch;padding:8px 6px 6px;}
 .team-lbl{font-size:10px;font-weight:500;letter-spacing:.05em;color:var(--t2);text-align:center;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .div-v{width:.5px;background:var(--b);align-self:stretch;margin:0 4px;flex-shrink:0;}
-.p-row{display:flex;gap:10px;justify-content:center;margin-bottom:10px;}
+.p-row{display:flex;gap:10px;justify-content:space-around;margin-bottom:10px;}
 .pbtn{width:56px;height:56px;border-radius:50%;border:2px solid rgba(255,255,255,0.7);background:rgba(255,255,255,0.92);color:#1a1a18;font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;touch-action:manipulation;transition:transform .1s,background .15s;line-height:1.1;text-align:center;padding:2px;position:relative;font-family:inherit;}
 .pbtn:active{transform:scale(.91);}
 .pbtn.hev{background:rgba(180,212,244,0.95);color:#0c447c;border-color:rgba(55,138,221,0.8);}
@@ -47,8 +50,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card-y{position:absolute;top:3px;left:3px;width:5px;height:8px;border-radius:1.5px;background:#f5c242;border:.5px solid rgba(0,0,0,0.25);}
 .card-b{position:absolute;top:3px;left:10px;width:5px;height:8px;border-radius:1.5px;background:#2c2c2a;border:.5px solid rgba(255,255,255,0.2);}
 .card-r{position:absolute;top:3px;left:3px;width:5px;height:8px;border-radius:1.5px;background:#e24b4a;border:.5px solid rgba(0,0,0,0.25);}
-.bot-bar{display:flex;align-items:stretch;border-top:.5px solid var(--bm);background:var(--bg1);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom);}
-.bar-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 4px;cursor:pointer;border:none;background:none;color:var(--t2);font-size:10px;font-weight:500;letter-spacing:.04em;touch-action:manipulation;font-family:inherit;}
+.bot-bar{display:flex;align-items:stretch;border-top:.5px solid var(--bm);background:var(--bg1);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom);border-radius:var(--rl) var(--rl) 0 0;margin:10px 10px 0;}
+.bar-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:14px 8px;cursor:pointer;border:none;background:none;color:var(--t2);font-size:10px;font-weight:500;letter-spacing:.04em;touch-action:manipulation;font-family:inherit;}
 .bar-btn:active{background:var(--bg2);}
 .bar-btn.danger{color:var(--td);}
 .bar-btn:disabled{opacity:.3;cursor:default;}
@@ -112,6 +115,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .score-adj-btn:active{background:var(--bg2);transform:scale(.93);}
 @keyframes flash-red{0%,100%{opacity:1}50%{opacity:.2}}
 .overtime{animation:flash-red 1s ease-in-out infinite;color:#E24B4A;}
+.sport-toggle{flex:1;padding:12px 14px;border-radius:var(--r);border:.5px solid var(--bm);background:var(--bg1);color:var(--t2);font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .2s;}
+.sport-toggle.active{background:var(--bgi);color:var(--ti);border-color:var(--bi);}
+.sport-toggle:active{opacity:.85;}
 </style>
 </head>
 <body>
@@ -157,7 +163,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
     <!-- Player grid with pitch -->
-    <div style="position:relative;margin-bottom:8px;">
+    <div style="position:relative;flex:1;">
       <svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:10px;" preserveAspectRatio="xMidYMid slice">
         <rect width="320" height="400" fill="#4a9a38" rx="10"/>
         <rect x="0" y="10"  width="320" height="44" fill="#52a83f" opacity="0.5"/>
@@ -191,7 +197,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <line x1="171" y1="388" x2="171" y2="400" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
         <line x1="147" y1="397" x2="173" y2="397" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
       </svg>
-      <div id="pgrid" style="position:relative;z-index:1;opacity:.3;pointer-events:none;transition:opacity .2s;padding:10px 0 10px;">
+      <div id="pgrid" style="position:relative;z-index:1;opacity:.3;pointer-events:none;transition:opacity .2s;padding:10px 0 10px;height:100%;display:flex;flex-direction:column;justify-content:space-around;">
         <div class="p-row"><button class="pbtn" data-s="1"  onclick="sel(1)">1</button></div>
         <div class="p-row"><button class="pbtn" data-s="2"  onclick="sel(2)">2</button><button class="pbtn" data-s="3"  onclick="sel(3)">3</button><button class="pbtn" data-s="4"  onclick="sel(4)">4</button></div>
         <div class="p-row"><button class="pbtn" data-s="5"  onclick="sel(5)">5</button><button class="pbtn" data-s="6"  onclick="sel(6)">6</button><button class="pbtn" data-s="7"  onclick="sel(7)">7</button></div>
@@ -215,7 +221,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </button>
     <div class="bar-div"></div>
     <button class="bar-btn danger" id="undobtn" onclick="undoLast()" disabled>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 14 3 9 10 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H3"/></svg>
       Undo
     </button>
   </div>
@@ -270,6 +276,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div style="flex:1;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Us</div><input class="sinput" id="sun" type="text" placeholder="e.g. Kilkenny" maxlength="24"></div>
         <div style="flex:1;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Opposition</div><input class="sinput" id="son" type="text" placeholder="e.g. Tipperary" maxlength="24"></div>
       </div>
+      <div class="stitle">SPORT</div>
+      <div style="display:flex;gap:8px;">
+        <button type="button" class="sport-toggle active" data-sport="hurling" onclick="setSport('hurling')">Hurling</button>
+        <button type="button" class="sport-toggle" data-sport="football" onclick="setSport('football')">Football</button>
+      </div>
       <div class="stitle">TEMPLATES</div>
       <div style="display:flex;gap:8px;margin-bottom:8px;">
         <input class="sinput" id="tni" type="text" placeholder="Template name" maxlength="30" style="flex:1;">
@@ -288,10 +299,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 'use strict';
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
-const ACTS  = ['Goal','Point','Wide','Free','Red Card','Yellow Card','Black Card','Substitution'];
+const ACTS  = ['Goal','Point','2 Point','Wide','Free','Red Card','Yellow Card','Black Card','Substitution'];
 const SSEC  = ['From Play','From Free','From Penalty','From 65'];
-const FSEC  = ['Push','Chop','Steps','Tackle','Pickup'];
-const NS    = {Goal:SSEC,Point:SSEC,Wide:SSEC,Free:FSEC};
+const FSEC  = ['Push','Chop','Steps','Tackle','Pickup','Throw'];
+const NS    = {Goal:SSEC,Point:SSEC,'2 Point':SSEC,Wide:SSEC,Free:FSEC};
 const SAVE_KEY = 'gaa_match_v1';
 const DEFAULT_US = 'Donaghmore/Ashbourne';
 
@@ -307,6 +318,7 @@ const state = {
   playerGoals:{}, playerPts:{},
   maxB:17,
   evts:[],   // {time, desc, badge, cls, slot?, action?}
+  sport:'hurling', // 'hurling' or 'football'
 };
 for (let i = 1; i <= 15; i++) state.slotp[i] = i;
 
@@ -314,8 +326,10 @@ for (let i = 1; i <= 15; i++) state.slotp[i] = i;
 let undos   = [];
 let selMode = false;
 let selSlot = null, pendAct = null, subOff = null;
+let pendScoreAdj = null; // {type, d, side} for pending score adjustment
 let tInt    = null;
 let tRun    = false;
+let modalHandlerRef = null;
 let initialsCache = {};
 
 // ─── DOM CACHE ────────────────────────────────────────────────────────────────
@@ -404,17 +418,22 @@ function refBtn(s) {
 const refAllBtns = () => { for (let s=1; s<=15; s++) refBtn(s); };
 
 // ─── PERSISTENCE ──────────────────────────────────────────────────────────────
+let saveStateTimeoutId = null;
 function saveState() {
-  try {
-    const {goals,pts,og,op_,period,secs,tStarted,tStopped,tPausedAt,
-           usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
-           playerGoals,playerPts,maxB,evts} = state;
-    localStorage.setItem(SAVE_KEY, JSON.stringify({
-      goals,pts,og,op_,period,secs,tStarted,tStopped,tPausedAt,
-      usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
-      playerGoals,playerPts,maxB,evts
-    }));
-  } catch(e) {}
+  if (saveStateTimeoutId) clearTimeout(saveStateTimeoutId);
+  saveStateTimeoutId = setTimeout(() => {
+    try {
+      const {goals,pts,og,op_,period,secs,tStarted,tStopped,tPausedAt,
+             usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
+             playerGoals,playerPts,maxB,evts,sport} = state;
+      localStorage.setItem(SAVE_KEY, JSON.stringify({
+        goals,pts,og,op_,period,secs,tStarted,tStopped,tPausedAt,
+        usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
+        playerGoals,playerPts,maxB,evts,sport
+      }));
+    } catch(e) {}
+    saveStateTimeoutId = null;
+  }, 500);
 }
 
 function loadSavedState() {
@@ -460,6 +479,10 @@ const periodBadge = n => ['1H','2H','ET1','ET2'][n-1] || ('P'+n);
 
 function timerMain() { if (!state.tStarted) startPeriod(); }
 
+function setTimerButtonLabel() {
+  el.tbtn.textContent = 'Start '+periodLabel(state.period);
+}
+
 function startPeriod() {
   state.secs = 0;
   state.tWallStart = Date.now();
@@ -467,6 +490,7 @@ function startPeriod() {
   state.tStarted   = true;
   state.tStopped   = false;
   tRun = true;
+  if (tInt) clearInterval(tInt);
   tInt = setInterval(tick, 500);
   el['timer-display'].textContent = '00:00';
   el['timer-display'].classList.remove('overtime');
@@ -486,6 +510,7 @@ function resumePeriod() {
   state.tStarted   = true;
   state.tStopped   = false;
   tRun = true;
+  if (tInt) clearInterval(tInt);
   tInt = setInterval(tick, 500);
   el.tbtn.style.display    = 'none';
   el.stopbtn.style.display = '';
@@ -530,14 +555,28 @@ function showStoppedOptions() {
     +'</div>';
   el.modal.style.display = 'block';
   el.modal.dataset.cancelAction = 'resume-period';
-  el.mopts.querySelectorAll('.abtn').forEach(b => b.addEventListener('click', function(){
-    const v = this.getAttribute('data-v');
+  modalHandlerRef = (v) => {
     el.modal.dataset.cancelAction = '';
     closeMod();
-    if      (v==='next')   { state.period++; startPeriod(); }
+    if      (v==='next')   {
+      state.period++;
+      state.secs = 0;
+      state.tWallStart = null;
+      state.tPausedAt = 0;
+      state.tStarted = false;
+      state.tStopped = false;
+      el['timer-display'].textContent = '00:00';
+      el['timer-display'].classList.remove('overtime');
+      el.tbtn.style.display = '';
+      el.stopbtn.style.display = 'none';
+      setTimerButtonLabel();
+      setGrid(false);
+      saveState();
+    }
     else if (v==='resume') resumePeriod();
     else if (v==='end')    endGame();
-  }));
+  };
+  el.mopts.addEventListener('click', handleModalClick);
 }
 
 // ─── END GAME ─────────────────────────────────────────────────────────────────
@@ -590,6 +629,7 @@ function doReset() {
   el['timer-display'].textContent='00:00';
   el['timer-display'].classList.remove('overtime');
   el.tbtn.style.display=''; el.stopbtn.style.display='none';
+  setTimerButtonLabel();
   setGrid(false);
   state.rcarded={}; state.ycarded={}; state.bcarded={};
   state.playerGoals={}; state.playerPts={};
@@ -602,7 +642,7 @@ function doReset() {
   const rb = document.getElementById('resetbtn');
   if (rb) {
     rb.id='undobtn'; rb.classList.add('danger');
-    rb.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>Undo';
+    rb.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 14 3 9 10 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H3"/></svg>Undo';
     rb.onclick=undoLast; rb.disabled=true;
   }
   refAllBtns();
@@ -611,6 +651,13 @@ function doReset() {
 }
 
 // ─── MODAL ────────────────────────────────────────────────────────────────────
+function handleModalClick(e) {
+  const btn = e.target.closest('.abtn');
+  if (btn && modalHandlerRef) {
+    modalHandlerRef(btn.getAttribute('data-v'));
+  }
+}
+
 function showOpts(title, opts, handler, rich) {
   el.mtitle.textContent = title;
   let html = '<div class="opts-grid">';
@@ -625,13 +672,16 @@ function showOpts(title, opts, handler, rich) {
   html += '</div>';
   el.mopts.innerHTML = html;
   el.modal.style.display = 'block';
-  el.mopts.querySelectorAll('.abtn').forEach(b => b.addEventListener('click', function(){ handler(this.getAttribute('data-v')); }));
+  modalHandlerRef = (v) => { handler(v); };
+  el.mopts.addEventListener('click', handleModalClick);
 }
 
 function closeMod() {
   const ca = el.modal.dataset.cancelAction || '';
   el.modal.dataset.cancelAction = '';
   el.modal.style.display = 'none';
+  modalHandlerRef = null;
+  el.mopts.removeEventListener('click', handleModalClick);
   selSlot=null; pendAct=null; subOff=null;
   if (ca==='resume-period') resumePeriod();
 }
@@ -641,46 +691,108 @@ function openScoreModal(side) {
   const isUs = side==='us';
   const name = isUs ? state.usN : state.oppN;
   el.mtitle.textContent = esc(name)+' — adjust score';
-  el.mopts.innerHTML = '<div class="opts-grid">'
-    +'<button class="abtn" data-v="g+" style="color:var(--td);border-color:var(--bd);">+ Goal</button>'
-    +'<button class="abtn" data-v="p+" style="color:var(--ts);border-color:var(--bs);">+ Point</button>'
-    +'<button class="abtn" data-v="g-" style="color:var(--t2);">− Goal</button>'
-    +'<button class="abtn" data-v="p-" style="color:var(--t2);">− Point</button>'
-    +'</div>';
+  let html = '<div class="opts-grid">';
+  html += '<button class="abtn" data-v="g+" style="color:var(--td);border-color:var(--bd);">+ Goal</button>';
+  html += '<button class="abtn" data-v="g-" style="color:var(--t2);">− Goal</button>';
+  if (state.sport==='football') {
+    html += '<button class="abtn" data-v="f+" style="color:#c77dff;border-color:#c77dff;">+ 2 Point</button>';
+    html += '<button class="abtn" data-v="f-" style="color:var(--t2);">− 2 Point</button>';
+  }
+  html += '<button class="abtn" data-v="p+" style="color:var(--ts);border-color:var(--bs);">+ Point</button>';
+  html += '<button class="abtn" data-v="p-" style="color:var(--t2);">− Point</button>';
+  html += '<button class="abtn" data-v="w+" style="grid-column:1 / -1;color:var(--tw);border-color:var(--bw);">+ Wide</button>';
+  html += '</div>';
+  el.mopts.innerHTML = html;
   el.modal.style.display = 'block';
-  el.mopts.querySelectorAll('.abtn').forEach(b => b.addEventListener('click', function(){
-    const v = this.getAttribute('data-v');
+  modalHandlerRef = (v) => {
     closeMod();
-    if (isUs) adjUs(v[0], v[1]==='+'?1:-1, side);
-    else      adjOpp(v[0], v[1]==='+'?1:-1, side);
-  }));
+    if (v==='w+') return showRestartModal(side);
+    if (v.endsWith('-')) {
+      if (v.startsWith('f')) { adjFootball(-2, side, null); }
+      else { if (isUs) adjUs(v[0], -1, side, null); else adjOpp(v[0], -1, side, null); }
+    } else {
+      pendScoreAdj = {type: v[0], d: v.startsWith('f') ? 2 : 1, isFb: v.startsWith('f'), side};
+      showScoreHowModal(side);
+    }
+  };
+  el.mopts.addEventListener('click', handleModalClick);
 }
 
-function adjUs(t, d, side) {
+function showScoreHowModal(side) {
+  const isFb = pendScoreAdj.isFb;
+  el.mtitle.textContent = 'How scored?';
+  let opts;
+  if (isFb) {
+    opts = ['From Play', 'From Free'];
+  } else {
+    const from65label = state.sport==='football' ? 'From 45' : 'From 65';
+    opts = ['From Play', 'From Free', from65label, 'From Penalty'];
+  }
+  let html = '<div class="opts-grid">';
+  opts.forEach(o => {
+    html += '<button class="abtn" data-v="'+esc(o)+'">'+esc(o)+'</button>';
+  });
+  html += '</div>';
+  el.mopts.innerHTML = html;
+  el.modal.style.display = 'block';
+  modalHandlerRef = (how) => {
+    closeMod();
+    completeScoreAdj(how);
+  };
+  el.mopts.addEventListener('click', handleModalClick);
+}
+
+function completeScoreAdj(how) {
+  const {type, d, isFb, side} = pendScoreAdj;
+  if (isFb) { adjFootball(d, side, how); }
+  else { if (side==='us') adjUs(type, d, side, how); else adjOpp(type, d, side, how); }
+  pendScoreAdj = null;
+}
+
+function adjUs(t, d, side, how) {
   const prev = t==='g' ? state.goals : state.pts;
   const nxt  = Math.max(0, prev+d); if (nxt===prev) return;
   if (t==='g') { state.goals=nxt; el.gc.textContent=state.goals; }
   else          { state.pts=nxt;   el.pc.textContent=state.pts; }
   upTot();
-  const desc = state.usN+': '+(t==='g'?'Goal':'Point')+' '+(d>0?'added':'removed');
+  const type = t==='g'?'Goal':'Point';
+  let desc = state.usN+': '+type+' '+(d>0?'added':'removed');
+  if (how && d>0) desc += ' · '+how;
   addRow(fmt(state.secs),'ADJ','badj',desc);
   const ct=t,cp=prev;
   pushUndo(desc,()=>{ if(ct==='g'){state.goals=cp;el.gc.textContent=state.goals;}else{state.pts=cp;el.pc.textContent=state.pts;} upTot(); });
   if (d>0) showRestartModal(side||'us');
 }
 
-function adjOpp(t, d, side) {
+function adjOpp(t, d, side, how) {
   const prev = t==='g' ? state.og : state.op_;
   const nxt  = Math.max(0, prev+d); if (nxt===prev) return;
   let type;
   if (t==='g') { state.og=nxt;  el.og.textContent=state.og;   type='Goal'; }
   else          { state.op_=nxt; el.op.textContent=state.op_;  type='Point'; }
   upTot();
-  const desc = state.oppN+': '+type+' '+(nxt>prev?'added':'removed');
+  let desc = state.oppN+': '+type+' '+(nxt>prev?'added':'removed');
+  if (how && nxt>prev) desc += ' · '+how;
   addRow(fmt(state.secs),'OPP','bopp',desc);
   const ct=t,cp=prev;
   pushUndo(desc,()=>{ if(ct==='g'){state.og=cp;el.og.textContent=state.og;}else{state.op_=cp;el.op.textContent=state.op_;} upTot(); });
   if (d>0) showRestartModal(side||'opp');
+}
+
+function adjFootball(d, side, how) {
+  const isUs = side==='us';
+  const prev = isUs ? state.pts : state.op_;
+  const nxt  = Math.max(0, prev+d); if (nxt===prev) return;
+  if (isUs) { state.pts=nxt; el.pc.textContent=state.pts; }
+  else      { state.op_=nxt; el.op.textContent=state.op_; }
+  upTot();
+  const team = isUs ? state.usN : state.oppN;
+  let desc = team+': 2 Point '+(d>0?'added':'removed');
+  if (how && d>0) desc += ' · '+how;
+  addRow(fmt(state.secs),'ADJ','badj',desc);
+  const cp=prev;
+  pushUndo(desc,()=>{ if(isUs){state.pts=cp;el.pc.textContent=state.pts;}else{state.op_=cp;el.op.textContent=state.op_;} upTot(); });
+  if (d>0) showRestartModal(side||'us');
 }
 
 // ─── RESTART ──────────────────────────────────────────────────────────────────
@@ -693,13 +805,13 @@ function showRestartModal(side) {
     +'<button class="abtn" data-v="Unclear">Unclear</button>'
     +'</div>';
   el.modal.style.display = 'block';
-  el.mopts.querySelectorAll('.abtn').forEach(b => b.addEventListener('click', function(){
-    const result = this.getAttribute('data-v');
+  modalHandlerRef = (result) => {
     closeMod();
     const desc = label+': '+result;
     addRow(fmt(state.secs),'RSTR','brstr',desc);
     pushUndo(desc,()=>{});
-  }));
+  };
+  el.mopts.addEventListener('click', handleModalClick);
 }
 
 // ─── EVENT LOG ────────────────────────────────────────────────────────────────
@@ -787,15 +899,24 @@ function removeSelected() {
 function sel(s) {
   if (!tRun || state.rcarded[s]) return;
   selSlot = s;
-  showOpts(pl(state.slotp[s])+' — select action', ACTS, actCb, false);
+  const acts = state.sport==='football' ? ACTS : ACTS.filter(a => a !== '2 Point');
+  showOpts(pl(state.slotp[s])+' — select action', acts, actCb, false);
 }
 
 function actCb(a) {
   if (a==='Substitution') { subOff=selSlot; pickSubOn(); return; }
   pendAct = a;
-  const sec = NS[a];
+  let sec = NS[a];
   if (sec) {
-    const titles = {Goal:'Goal — how scored?',Point:'Point — how scored?',Wide:'Wide — how attempted?',Free:'Free — reason?'};
+    // For 2 Point, restrict to From Play and From Free only
+    if (a==='2 Point') {
+      sec = ['From Play', 'From Free'];
+    } else {
+      // Convert From 65 to From 45 for Football for other scoring actions
+      const from65 = state.sport==='football' ? 'From 45' : 'From 65';
+      sec = sec.map(o => o==='From 65' ? from65 : o);
+    }
+    const titles = {Goal:'Goal — how scored?',Point:'Point — how scored?','2 Point':'2 Point — how scored?',Wide:'Wide — how attempted?',Free:'Free — reason?'};
     showOpts(titles[a], sec, secCb, false);
   } else { logEv(a,null); closeMod(); }
 }
@@ -804,11 +925,11 @@ function secCb(s) {
   const act = pendAct;
   logEv(pendAct, s);
   closeMod();
-  if (act==='Goal'||act==='Point'||act==='Wide') showRestartModal('us');
+  if (act==='Goal'||act==='Point'||act==='2 Point'||act==='Wide') showRestartModal('us');
 }
 
 function badgeCls(a) {
-  if(a==='Goal')return 'bg'; if(a==='Point')return 'bp'; if(a==='Wide')return 'bw';
+  if(a==='Goal')return 'bg'; if(a==='Point')return 'bp'; if(a==='2 Point')return 'bp'; if(a==='Wide')return 'bw';
   if(a==='Red Card')return 'br'; if(a.indexOf('Card')>=0)return 'bc'; return 'bo';
 }
 
@@ -819,7 +940,8 @@ function logEv(action, sec) {
 
   if (action==='Goal')  { state.goals++; el.gc.textContent=state.goals; state.playerGoals[pi]=prevPG+1; }
   if (action==='Point') { state.pts++;   el.pc.textContent=state.pts;   state.playerPts[pi]=prevPP+1;   }
-  if (action==='Goal'||action==='Point') { upTot(); refBtn(slot); }
+  if (action==='2 Point') { state.pts+=2; el.pc.textContent=state.pts;   state.playerPts[pi]=prevPP+2;   }
+  if (action==='Goal'||action==='Point'||action==='2 Point') { upTot(); refBtn(slot); }
 
   if (action==='Red Card') {
     state.rcarded[slot]=true;
@@ -850,6 +972,7 @@ function logEv(action, sec) {
   pushUndo(desc, () => {
     if (action==='Goal')  { state.goals=prevG; el.gc.textContent=state.goals; state.playerGoals[pi]=prevPG; upTot(); refBtn(slot); }
     if (action==='Point') { state.pts=prevP;   el.pc.textContent=state.pts;   state.playerPts[pi]=prevPP;   upTot(); refBtn(slot); }
+    if (action==='2 Point') { state.pts=prevP;   el.pc.textContent=state.pts;   state.playerPts[pi]=prevPP;   upTot(); refBtn(slot); }
     if (action==='Red Card') {
       delete state.rcarded[slot];
       const b=document.querySelector('[data-s="'+slot+'"]');
@@ -964,6 +1087,9 @@ function renderTpls(){
 function openSettings(){
   el.sun.value=state.usN;
   el.son.value=state.oppN==='Opposition'?'':state.oppN;
+  document.querySelectorAll('.sport-toggle').forEach(b => {
+    b.classList.toggle('active', b.dataset.sport === state.sport);
+  });
   el.pslist.innerHTML='';
   for(let i=1;i<=15;i++){
     const row=document.createElement('div'); row.className='prow';
@@ -997,6 +1123,8 @@ function addBRow(c,idx){
 function saveSettings(){
   state.usN  = el.sun.value.trim()||DEFAULT_US;
   state.oppN = el.son.value.trim()||'Opposition';
+  const activeSport = document.querySelector('.sport-toggle.active');
+  if (activeSport) state.sport = activeSport.dataset.sport;
   el.uslbl.textContent=state.usN.toUpperCase();
   el.opplbl.textContent=state.oppN.toUpperCase();
   for(let i=1;i<=state.maxB+2;i++){const inp=document.getElementById('sn'+i);if(inp)state.pnames[i]=inp.value.trim();}
@@ -1005,6 +1133,13 @@ function saveSettings(){
   closeSettings();
   saveState();
   toast('Settings saved');
+}
+
+function setSport(sport) {
+  document.querySelectorAll('.sport-toggle').forEach(b => {
+    b.classList.toggle('active', b.dataset.sport === sport);
+  });
+  state.sport = sport;
 }
 
 // ─── RESTORE UI FROM PERSISTED STATE ─────────────────────────────────────────
@@ -1016,6 +1151,7 @@ function restoreUI() {
   el.opplbl.textContent=state.oppN.toUpperCase();
   el['timer-display'].textContent=fmt(state.secs);
   if(state.secs>=1800) el['timer-display'].classList.add('overtime');
+  setTimerButtonLabel();
   // If was running when page closed, resume in paused state at recorded time
   if(state.tStarted || state.tStopped) {
     el.tbtn.style.display='none';
