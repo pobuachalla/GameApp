@@ -6,6 +6,7 @@
 <title>GAA Match Tracker</title>
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <meta name="theme-color" content="#4a9a38">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -63,8 +64,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .panel-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-shrink:0;}
 .back-btn{width:36px;height:36px;border-radius:50%;border:.5px solid var(--bm);background:var(--bg1);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit;}
 .back-btn:active{background:var(--bg2);}
-.abtn{display:block;width:100%;padding:14px;margin-bottom:0;text-align:center;background:var(--bg1);border:.5px solid var(--b);border-radius:var(--r);color:var(--t1);font-size:15px;cursor:pointer;font-family:inherit;}
+.abtn{display:block;width:100%;padding:14px;margin-bottom:0;text-align:center;background:var(--bg1);border:.5px solid var(--b);border-radius:999px;color:var(--t1);font-size:15px;cursor:pointer;font-family:inherit;}
+.abtn i{margin-right:8px;font-size:1em;}
 .abtn:active{background:var(--bg2);}
+.score-btn-goal{background:rgba(29,191,51,0.12);color:#1DBF33;border-color:rgba(29,191,51,0.3);}
+.score-btn-point{background:#F5FAF6;color:#1a1a18;border-color:rgba(0,0,0,0.08);}
+.score-btn-2p{background:rgba(245,139,39,0.14);color:#F58B27;border-color:rgba(245,139,39,0.35);}
 .opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .ev-row{display:flex;gap:10px;padding:7px 0;border-bottom:.5px solid var(--b);font-size:13px;align-items:flex-start;cursor:default;transition:background .1s;}
 .ev-row:last-child{border-bottom:none;}
@@ -211,17 +216,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- Bottom bar -->
   <div class="bot-bar">
     <button class="bar-btn" onclick="openSettings()">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <i class="fas fa-sliders" aria-hidden="true"></i>
       Setup
     </button>
     <div class="bar-div"></div>
     <button class="bar-btn" onclick="openLog()">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      <i class="fas fa-chart-simple" aria-hidden="true"></i>
       Log<span id="lbdg" style="display:none;font-size:9px;background:var(--bgi);color:var(--ti);border-radius:999px;padding:1px 5px;margin-left:3px;vertical-align:middle;"></span>
     </button>
     <div class="bar-div"></div>
     <button class="bar-btn danger" id="undobtn" onclick="undoLast()" disabled>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 14 3 9 10 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H3"/></svg>
+      <i class="fas fa-rotate-left" aria-hidden="true"></i>
       Undo
     </button>
   </div>
@@ -596,11 +601,14 @@ function endGame() {
    +'<p style="font-size:18px;font-weight:500;padding:0 0 12px;color:'+(result==='Win'?'var(--ts)':result==='Loss'?'var(--td)':'var(--t2)')+';">'+result+'</p>';
   el.modal.style.display = 'block';
   el.modal.dataset.cancelAction = 'dismiss';
+  // Change cancel button to Okay for game over
+  const cancelBtn = el.modal.querySelector('button[onclick="closeMod()"]');
+  if (cancelBtn) cancelBtn.textContent = 'Okay';
   setGrid(false);
   const ub = document.getElementById('undobtn');
   if (ub) {
     ub.id='resetbtn'; ub.disabled=false; ub.classList.remove('danger');
-    ub.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>Reset';
+    ub.innerHTML='<i class="fas fa-arrows-rotate" aria-hidden="true"></i>Reset';
     ub.onclick=resetMatch;
   }
 }
@@ -666,7 +674,11 @@ function showOpts(title, opts, handler, rich) {
   } else {
     opts.forEach(o => {
       const sty = o==='Substitution' ? ' style="border-color:#25D366;color:#1a7a3c;"' : '';
-      html += '<button class="abtn" data-v="'+esc(o)+'"'+sty+'>'+esc(o)+'</button>';
+      const cls = o==='Goal' ? ' score-btn-goal' : o==='Point' ? ' score-btn-point' : o==='2 Point' ? ' score-btn-2p' : '';
+      const hasIcon = ['Goal', 'Point', '2 Point'].includes(o);
+      const iconCls = o==='Point' ? 'far' : 'fas';
+      const icon = hasIcon ? '<i class="'+iconCls+' fa-flag fa-beat-fade"></i>' : '';
+      html += '<button class="abtn'+cls+'" data-v="'+esc(o)+'"'+sty+'>'+icon+esc(o)+'</button>';
     });
   }
   html += '</div>';
@@ -683,6 +695,9 @@ function closeMod() {
   modalHandlerRef = null;
   el.mopts.removeEventListener('click', handleModalClick);
   selSlot=null; pendAct=null; subOff=null;
+  // Reset cancel button text
+  const cancelBtn = el.modal.querySelector('button[onclick="closeMod()"]');
+  if (cancelBtn) cancelBtn.textContent = 'Cancel';
   if (ca==='resume-period') resumePeriod();
 }
 
@@ -692,13 +707,13 @@ function openScoreModal(side) {
   const name = isUs ? state.usN : state.oppN;
   el.mtitle.textContent = esc(name)+' — adjust score';
   let html = '<div class="opts-grid">';
-  html += '<button class="abtn" data-v="g+" style="color:var(--td);border-color:var(--bd);">+ Goal</button>';
+  html += '<button class="abtn score-btn-goal" data-v="g+"><i class="fas fa-flag fa-beat-fade"></i>+ Goal</button>';
   html += '<button class="abtn" data-v="g-" style="color:var(--t2);">− Goal</button>';
   if (state.sport==='football') {
-    html += '<button class="abtn" data-v="f+" style="color:#c77dff;border-color:#c77dff;">+ 2 Point</button>';
+    html += '<button class="abtn score-btn-2p" data-v="f+"><i class="fas fa-flag fa-beat-fade"></i>+ 2 Point</button>';
     html += '<button class="abtn" data-v="f-" style="color:var(--t2);">− 2 Point</button>';
   }
-  html += '<button class="abtn" data-v="p+" style="color:var(--ts);border-color:var(--bs);">+ Point</button>';
+  html += '<button class="abtn score-btn-point" data-v="p+"><i class="far fa-flag fa-beat-fade"></i>+ Point</button>';
   html += '<button class="abtn" data-v="p-" style="color:var(--t2);">− Point</button>';
   html += '<button class="abtn" data-v="w+" style="grid-column:1 / -1;color:var(--tw);border-color:var(--bw);">+ Wide</button>';
   html += '</div>';
