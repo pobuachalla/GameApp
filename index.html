@@ -482,7 +482,10 @@ function upTot() {
 const periodLabel = n => ['1st Half','2nd Half','1st Half ET','2nd Half ET'][n-1] || ('Period '+n);
 const periodBadge = n => ['1H','2H','ET1','ET2'][n-1] || ('P'+n);
 
-function timerMain() { if (!state.tStarted) startPeriod(); }
+function timerMain() { 
+  if (state.tStopped) resumePeriod(); 
+  else if (!state.tStarted) startPeriod(); 
+}
 
 function setTimerButtonLabel() {
   el.tbtn.textContent = 'Start '+periodLabel(state.period);
@@ -556,7 +559,7 @@ function showStoppedOptions() {
   el.mopts.innerHTML = '<div class="opts-grid">'
     +'<button class="abtn" data-v="next"   style="color:var(--ts);border-color:var(--bs);">'+esc(nextLabel)+'</button>'
     +'<button class="abtn" data-v="resume" style="color:var(--ti);border-color:var(--bi);">Resume '+esc(periodLabel(state.period))+'</button>'
-    +'<button class="abtn" data-v="end"    style="color:var(--t2);border-color:var(--bm);">End game</button>'
+    +'<button class="abtn" data-v="end"    style="grid-column:1 / -1;color:var(--t2);border-color:var(--bm);background:var(--bg3);">End game</button>'
     +'</div>';
   el.modal.style.display = 'block';
   el.modal.dataset.cancelAction = 'resume-period';
@@ -650,7 +653,7 @@ function doReset() {
   const rb = document.getElementById('resetbtn');
   if (rb) {
     rb.id='undobtn'; rb.classList.add('danger');
-    rb.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 14 3 9 10 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H3"/></svg>Undo';
+    rb.innerHTML='<i class="fas fa-rotate-left" aria-hidden="true"></i>Undo';
     rb.onclick=undoLast; rb.disabled=true;
   }
   refAllBtns();
@@ -673,12 +676,26 @@ function showOpts(title, opts, handler, rich) {
     opts.forEach(o => html += '<button class="abtn" data-v="'+esc(String(o.val))+'" style="text-align:left;"><div class="sarow"><span style="font-size:15px;color:var(--t1);">'+esc(o.label)+'</span>'+(o.sub?'<span style="font-size:11px;color:var(--t2);">'+esc(o.sub)+'</span>':'')+'</div></button>');
   } else {
     opts.forEach(o => {
-      const sty = o==='Substitution' ? ' style="border-color:#25D366;color:#1a7a3c;"' : '';
-      const cls = o==='Goal' ? ' score-btn-goal' : o==='Point' ? ' score-btn-point' : o==='2 Point' ? ' score-btn-2p' : '';
-      const hasIcon = ['Goal', 'Point', '2 Point'].includes(o);
-      const iconCls = o==='Point' ? 'far' : 'fas';
-      const icon = hasIcon ? '<i class="'+iconCls+' fa-flag fa-beat-fade"></i>' : '';
-      html += '<button class="abtn'+cls+'" data-v="'+esc(o)+'"'+sty+'>'+icon+esc(o)+'</button>';
+      const extraCls = o==='Substitution' ? ' sub-btn' : '';
+      const cls = o==='Goal' ? ' score-btn-goal' : o==='Point' ? ' score-btn-point' : o==='2 Point' ? ' score-btn-2p' : o==='Red Card' ? ' card-btn-red' : o==='Yellow Card' ? ' card-btn-yellow' : o==='Black Card' ? ' card-btn-black' : '';
+      let icon = '';
+      if (o==='Goal' || o==='2 Point') {
+        icon = '<i class="fas fa-flag fa-beat-fade"></i>';
+      } else if (o==='Point') {
+        icon = '<i class="far fa-flag fa-beat-fade"></i>';
+          } else if (o==='Wide') {
+        icon = '<i class="fa-solid fa-exclamation fa-beat"></i>';
+      } else if (o==='Substitution') {
+        icon = '<i class="fas fa-people-arrows"></i>';
+      } else if (o==='Red Card') {
+        icon = '<i class="fas fa-mobile" style="color:rgba(163,45,74,0.9);"></i>';
+      } else if (o==='Yellow Card') {
+        icon = '<i class="fas fa-mobile" style="color:rgba(176,126,15,0.9);"></i>';
+      } else if (o==='Black Card') {
+        icon = '<i class="fas fa-mobile" style="color:rgba(44,44,42,0.9);"></i>';
+      }
+      const classAttr = 'abtn'+cls+extraCls;
+      html += '<button class="'+classAttr+'" data-v="'+esc(o)+'">'+icon+esc(o)+'</button>';
     });
   }
   html += '</div>';
@@ -715,7 +732,7 @@ function openScoreModal(side) {
   }
   html += '<button class="abtn score-btn-point" data-v="p+"><i class="far fa-flag fa-beat-fade"></i>+ Point</button>';
   html += '<button class="abtn" data-v="p-" style="color:var(--t2);">− Point</button>';
-  html += '<button class="abtn" data-v="w+" style="grid-column:1 / -1;color:var(--tw);border-color:var(--bw);">+ Wide</button>';
+  html += '<button class="abtn" data-v="w+" style="grid-column:1 / -1;color:var(--tw);border-color:var(--bw);"><i class="fas fa-solid fa-exclamation fa-beat"></i>Wide</button>';
   html += '</div>';
   el.mopts.innerHTML = html;
   el.modal.style.display = 'block';
@@ -1167,11 +1184,17 @@ function restoreUI() {
   el['timer-display'].textContent=fmt(state.secs);
   if(state.secs>=1800) el['timer-display'].classList.add('overtime');
   setTimerButtonLabel();
-  // If was running when page closed, resume in paused state at recorded time
+  // If was running when page closed, restore into paused state so the user can resume
   if(state.tStarted || state.tStopped) {
-    el.tbtn.style.display='none';
-    el.stopbtn.style.display='';
-    state.tStarted=false; // require explicit resume
+    const wasRunning = state.tStarted;
+    el.tbtn.textContent = 'Resume '+periodLabel(state.period);
+    el.tbtn.style.display='';
+    el.stopbtn.style.display='none';
+    state.tStarted=false;
+    state.tStopped=true;
+    if (wasRunning) {
+      state.tPausedAt = state.secs; // Freeze at current elapsed time
+    }
   }
   // Rebuild event log DOM from stored events
   state.evts.forEach(e => {
