@@ -140,7 +140,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .timer-primary-btn.green{background:var(--bgs);color:var(--ts);border:1.5px solid var(--bs);}
 .timer-primary-btn.amber{background:var(--bgw);color:var(--tw);border:1.5px solid var(--bw);}
 .timer-primary-btn.blue{background:var(--bgi);color:var(--ti);border:1.5px solid var(--bi);}
-.timer-secondary-btn{flex:0 0 auto;padding:0 16px;min-height:44px;border-radius:999px;border:1.5px solid var(--bm);background:none;color:var(--t2);font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;touch-action:manipulation;}
+.timer-secondary-btn{flex:0 0 auto;padding:0 12px;min-height:44px;border-radius:999px;border:1.5px solid var(--bm);background:none;color:var(--t2);font-size:12px;font-weight:500;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;touch-action:manipulation;}
 .timer-secondary-btn:active{background:var(--bg2);}
 </style>
 </head>
@@ -159,7 +159,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="timer-actions">
           <button class="timer-primary-btn green" id="timer-primary-btn" onclick="timerPrimaryAction()">
             <i class="fas fa-play" id="timer-primary-icon" aria-hidden="true"></i>
-            <span id="timer-primary-label">Start Match</span>
           </button>
           <button class="timer-secondary-btn" id="timer-secondary-btn" style="visibility:hidden;" onclick="timerSecondaryAction()">
             <i class="fas fa-hourglass-half" id="timer-secondary-icon" aria-hidden="true"></i>
@@ -688,21 +687,19 @@ function renderTimerUI() {
   // Primary button
   const primBtn = el['timer-primary-btn'];
   const primIcon = document.getElementById('timer-primary-icon');
-  const primLbl  = document.getElementById('timer-primary-label');
   const primMap  = {
-    PRE_MATCH:           {label:'Start Match',    icon:'fa-play',    cls:'green'},
-    RUNNING_FIRST_HALF:  {label:'Pause',          icon:'fa-pause',   cls:'amber'},
-    PAUSED_FIRST_HALF:   {label:'Resume',         icon:'fa-play',    cls:'blue'},
-    HALF_TIME:           {label:'Start 2nd Half', icon:'fa-forward', cls:'green'},
-    RUNNING_SECOND_HALF: {label:'Pause',          icon:'fa-pause',   cls:'amber'},
-    PAUSED_SECOND_HALF:  {label:'Resume',         icon:'fa-play',    cls:'blue'},
+    PRE_MATCH:           {icon:'fa-play',    cls:'green'},
+    RUNNING_FIRST_HALF:  {icon:'fa-pause',   cls:'amber'},
+    PAUSED_FIRST_HALF:   {icon:'fa-play',    cls:'blue'},
+    HALF_TIME:           {icon:'fa-forward', cls:'green'},
+    RUNNING_SECOND_HALF: {icon:'fa-pause',   cls:'amber'},
+    PAUSED_SECOND_HALF:  {icon:'fa-play',    cls:'blue'},
   };
   const pc = primMap[s];
   if (pc) {
     primBtn.style.display='';
     primBtn.className='timer-primary-btn '+pc.cls;
     primIcon.className='fas '+pc.icon;
-    primLbl.textContent=pc.label;
   } else {
     primBtn.style.display='none';
   }
