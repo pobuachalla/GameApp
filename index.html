@@ -7,27 +7,27 @@
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<meta name="theme-color" content="#4a9a38">
+<meta name="theme-color" content="#4C9A3A">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;overflow:hidden;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1efe8;display:flex;justify-content:center;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F4F5F2;display:flex;justify-content:center;}
 :root{
-  --bg1:#fff;--bg2:#f1efe8;--bg3:#e8e6df;
-  --bgi:#e6f1fb;--bgd:#fcebeb;--bgs:#eaf3de;--bgw:#faeeda;
-  --t1:#1a1a18;--t2:#5f5e5a;--t3:#888780;
-  --ti:#0c447c;--td:#a32d2d;--ts:#3b6d11;--tw:#854f0b;
-  --b:rgba(0,0,0,0.12);--bm:rgba(0,0,0,0.22);
-  --bi:#378add;--bd:#e24b4a;--bs:#639922;--bw:#ef9f27;
+  --bg1:#FFFFFF;--bg2:#F4F5F2;--bg3:#E2E4DE;
+  --bgi:#e6f1fb;--bgd:#F8D7D7;--bgs:#DFF3E3;--bgw:#FFF1D6;
+  --t1:#1F1F1F;--t2:#6B6F66;--t3:#9A9E99;
+  --ti:#0c447c;--td:#991B1B;--ts:#2E7D32;--tw:#B45309;
+  --b:rgba(0,0,0,0.10);--bm:rgba(0,0,0,0.18);
+  --bi:#378add;--bd:#C62828;--bs:#2E7D32;--bw:#F59E0B;
   --r:8px;--rl:12px;
 }
 @media(prefers-color-scheme:dark){
   body{background:#1a1a18;}
   :root{
     --bg1:#2c2c2a;--bg2:#222220;--bg3:#1a1a18;
-    --bgi:#042c53;--bgd:#501313;--bgs:#173404;--bgw:#412402;
-    --t1:#f0ede6;--t2:#b4b2a9;--t3:#888780;
-    --ti:#85b7eb;--td:#f09595;--ts:#97c459;--tw:#ef9f27;
+    --bgi:#042c53;--bgd:#3d0e0e;--bgs:#0d2e12;--bgw:#3a1e00;
+    --t1:#f0ede6;--t2:#9A9E99;--t3:#6B6F66;
+    --ti:#85b7eb;--td:#f09595;--ts:#6abf69;--tw:#ffb74d;
     --b:rgba(255,255,255,0.1);--bm:rgba(255,255,255,0.2);
   }
 }
@@ -48,9 +48,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .pbtn.rc{background:rgba(252,235,235,0.92)!important;color:#a32d2d!important;border-color:rgba(226,75,74,0.7)!important;opacity:.55!important;cursor:not-allowed!important;pointer-events:none!important;}
 .pbtn.sub{border-style:dashed;}
 .subdot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:#25D366;border:1px solid rgba(255,255,255,0.8);}
-.card-y{position:absolute;top:3px;left:3px;width:5px;height:8px;border-radius:1.5px;background:#f5c242;border:.5px solid rgba(0,0,0,0.25);}
+.card-y{position:absolute;top:3px;left:3px;width:5px;height:8px;border-radius:1.5px;background:#FDD835;border:.5px solid rgba(0,0,0,0.2);}
 .card-b{position:absolute;top:3px;left:10px;width:5px;height:8px;border-radius:1.5px;background:#2c2c2a;border:.5px solid rgba(255,255,255,0.2);}
-.card-r{position:absolute;top:3px;left:3px;width:5px;height:8px;border-radius:1.5px;background:#e24b4a;border:.5px solid rgba(0,0,0,0.25);}
+.card-r{position:absolute;top:3px;left:3px;width:5px;height:8px;border-radius:1.5px;background:#E53935;border:.5px solid rgba(0,0,0,0.2);}
 .bot-bar{display:flex;align-items:stretch;border-top:.5px solid var(--bm);background:var(--bg1);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom);border-radius:var(--rl) var(--rl) 0 0;margin:10px 10px 0;}
 .bar-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:14px 8px;cursor:pointer;border:none;background:none;color:var(--t2);font-size:10px;font-weight:500;letter-spacing:.04em;touch-action:manipulation;font-family:inherit;}
 .bar-btn:active{background:var(--bg2);}
@@ -67,10 +67,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .abtn{display:inline-flex;width:100%;padding:14px;margin-bottom:0;text-align:center;align-items:center;justify-content:center;gap:10px;background:var(--bg1);border:.5px solid var(--b);border-radius:999px;color:var(--t1);font-size:15px;cursor:pointer;font-family:inherit;}
 .abtn i{font-size:1em;display:inline-flex;align-items:center;justify-content:center;}
 .abtn:active{background:var(--bg2);}
-.score-btn-goal{background:rgba(29,191,51,0.12);color:#1DBF33;border-color:rgba(29,191,51,0.3);}
-.score-btn-point{background:#F5FAF6;color:#1a1a18;border-color:rgba(0,0,0,0.08);}
-.score-btn-2p{background:rgba(245,139,39,0.14);color:#F58B27;border-color:rgba(245,139,39,0.35);}
+.score-btn-goal{background:#DFF3E3;color:#2E7D32;border-color:rgba(46,125,50,0.3);}
+.score-btn-point{background:#FFFFFF;color:#1F1F1F;border-color:#C8CAC4;}
+.score-btn-2p{background:#FFF1D6;color:#D97706;border-color:rgba(217,119,6,0.35);}
 .opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.action-group{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.action-group:last-child{margin-bottom:0;}
+.action-group-label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t2);padding:0 2px;}
+.action-btn-wide{background:#F4F5F2;color:#4A4A4A;border-color:#C8CAC4;}
+.action-btn-neutral{background:var(--bg2);color:var(--t2);border-color:var(--b);}
+.action-btn-red{background:#FFEBEE;color:#E53935;border-color:rgba(229,57,53,0.25);}
+.action-btn-yellow{background:#FFFDE7;color:#F9A825;border-color:rgba(249,168,37,0.3);}
+.action-btn-black{background:#F4F5F2;color:#2c2c2a;border-color:#C8CAC4;}
+.action-btn-sub{background:#F0FAF2;color:#2E7D32;border-color:rgba(46,125,50,0.25);}
 .ev-row{display:flex;gap:10px;padding:7px 0;border-bottom:.5px solid var(--b);font-size:13px;align-items:flex-start;cursor:default;transition:background .1s;}
 .ev-row:last-child{border-bottom:none;}
 .ev-row.selected{background:var(--bgi);}
@@ -88,11 +97,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .remove-bar-btn:active{opacity:.85;}
 .sel-toggle{padding:6px 14px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;border:.5px solid var(--bm);background:none;color:var(--t2);font-family:inherit;touch-action:manipulation;}
 .sel-toggle.active{background:var(--bgi);color:var(--ti);border-color:var(--bi);}
-.bg{background:var(--bgd);color:var(--td);}
-.bp{background:var(--bgs);color:var(--ts);}
-.bw{background:var(--bgw);color:var(--tw);}
-.bc{background:var(--bgi);color:var(--ti);}
-.br{background:var(--bgd);color:var(--td);}
+.bg{background:#DFF3E3;color:#2E7D32;}
+.bp{background:#FFFFFF;color:#1F1F1F;border:1px solid #C8CAC4;}
+.bw{background:#EBEBEB;color:#4A4A4A;}
+.bc{background:#FFF9E6;color:#8A6A00;}
+.br{background:#FFEBEE;color:#E53935;}
+.by{background:#FFFDE7;color:#F9A825;}
 .bs{background:#e8f8ed;color:#1a7a3c;}
 .bo,.badj{background:var(--bg2);color:var(--t2);}
 .bopp{background:var(--bgw);color:var(--tw);}
@@ -120,28 +130,46 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .score-adj-btn:active{background:var(--bg2);transform:scale(.93);}
 @keyframes flash-red{0%,100%{opacity:1}50%{opacity:.2}}
 .overtime{animation:flash-red 1s ease-in-out infinite;color:#E24B4A;}
-.sport-toggle{flex:1;padding:12px 14px;border-radius:var(--r);border:.5px solid var(--bm);background:var(--bg1);color:var(--t2);font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .2s;}
-.sport-toggle.active{background:var(--bgi);color:var(--ti);border-color:var(--bi);}
-.sport-toggle:active{opacity:.85;}
+.gaa-toggle-wrap{display:block;width:100%;position:relative;cursor:pointer;user-select:none;}
+.gaa-toggle-wrap input{display:none;}
+.gaa-toggle-track{width:100%;height:52px;border-radius:var(--rl);background:var(--bg3);border:1.5px solid var(--bm);display:flex;align-items:center;position:relative;overflow:hidden;}
+.gaa-toggle-label{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;font-size:14px;font-weight:600;color:var(--t2);position:relative;z-index:1;pointer-events:none;transition:color .25s;}
+.gaa-toggle-knob{position:absolute;top:4px;bottom:4px;width:calc(50% - 4px);left:4px;border-radius:calc(var(--rl) - 2px);display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;box-shadow:0 1px 6px rgba(0,0,0,.18);transition:left .25s,background .25s;z-index:0;}
+.gaa-toggle-wrap input:checked + .gaa-toggle-track .gaa-toggle-knob{left:50%;}
+/* Sport knob colours */
+.sport-knob-hurling{background:#F9A825;}
+.sport-knob-football{background:#2E7D32;}
+/* Size knob */
+.size-knob{background:#2E7D32;font-size:15px;font-weight:700;}
+/* Active label contrast */
+.gaa-toggle-wrap input:not(:checked) + .gaa-toggle-track .gaa-toggle-label:nth-child(1){color:var(--t1);}
+.gaa-toggle-wrap input:checked + .gaa-toggle-track .gaa-toggle-label:nth-child(2){color:var(--t1);}
+.setup-save-btn{padding:9px 18px;border-radius:var(--rl);background:#2E7D32;color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;touch-action:manipulation;}
+.setup-save-btn:active{opacity:.85;}
+.setup-secondary-btn{padding:9px 14px;border-radius:var(--rl);background:var(--bg2);color:var(--t2);border:1.5px solid var(--bm);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:inherit;touch-action:manipulation;}
+.setup-secondary-btn:active{background:var(--bg3);}
 .timer-card{background:var(--bg1);border-radius:var(--rl);border:1.5px solid var(--bm);padding:14px 14px 12px;margin-bottom:10px;display:flex;flex-direction:column;gap:10px;}
 .timer-meta{display:flex;align-items:center;gap:8px;}
-.period-badge{font-size:11px;font-weight:600;letter-spacing:.06em;padding:3px 10px;border-radius:999px;background:var(--bgi);color:var(--ti);text-transform:uppercase;}
-.period-badge.halftime{background:var(--bgw);color:var(--tw);}
-.period-badge.fulltime{background:var(--bg3);color:var(--t2);}
+.period-badge{font-size:11px;font-weight:600;letter-spacing:.06em;padding:3px 10px;border-radius:999px;background:#DFF3E3;color:#2E7D32;text-transform:uppercase;}
+.period-badge.halftime{background:#F3E8C8;color:#8A6A00;}
+.period-badge.fulltime{background:#F8D7D7;color:#991B1B;}
 .status-chip{font-size:11px;font-weight:500;padding:3px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;}
-.status-chip.running{background:var(--bgs);color:var(--ts);}
-.status-chip.paused{background:var(--bgw);color:var(--tw);}
-#timer-display{font-size:52px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-2px;line-height:1;color:var(--t1);}
+.status-chip.running{background:#DFF3E3;color:#2E7D32;}
+.status-chip.paused{background:#FFF1D6;color:#B45309;}
+.status-chip.halftime{background:#F3E8C8;color:#8A6A00;}
+.status-chip.fulltime{background:#F8D7D7;color:#991B1B;}
+#timer-display{flex:1;text-align:center;font-size:52px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-2px;line-height:1;color:var(--t1);}
 #timer-display.muted{color:var(--t2);}
-.timer-body{display:flex;align-items:center;gap:12px;}
-.timer-actions{flex:1;display:flex;flex-direction:row;gap:8px;min-width:0;}
-.timer-primary-btn{flex:1;min-height:52px;border-radius:var(--rl);font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;touch-action:manipulation;transition:opacity .1s,transform .1s;}
+.timer-body{display:flex;align-items:center;gap:10px;}
+.timer-primary-btn{flex:0 0 88px;min-height:52px;border-radius:var(--rl);font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;touch-action:manipulation;transition:opacity .1s,transform .1s;}
 .timer-primary-btn:active{opacity:.85;transform:scale(.98);}
-.timer-primary-btn.green{background:var(--bgs);color:var(--ts);border:1.5px solid var(--bs);}
-.timer-primary-btn.amber{background:var(--bgw);color:var(--tw);border:1.5px solid var(--bw);}
-.timer-primary-btn.blue{background:var(--bgi);color:var(--ti);border:1.5px solid var(--bi);}
-.timer-secondary-btn{flex:0 0 auto;padding:0 12px;min-height:44px;border-radius:999px;border:1.5px solid var(--bm);background:none;color:var(--t2);font-size:12px;font-weight:500;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;touch-action:manipulation;}
-.timer-secondary-btn:active{background:var(--bg2);}
+.timer-primary-btn.green{background:#2E7D32;color:#fff;border:1.5px solid #2E7D32;}
+.timer-primary-btn.amber{background:#F59E0B;color:#fff;border:1.5px solid #F59E0B;}
+.timer-primary-btn.blue{background:#2E7D32;color:#fff;border:1.5px solid #2E7D32;}
+.timer-secondary-btn{flex:0 0 88px;min-height:52px;border-radius:var(--rl);border:1.5px solid var(--bm);background:var(--bg2);color:var(--t2);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;touch-action:manipulation;transition:opacity .1s,transform .1s;}
+.timer-secondary-btn.end-half{background:#D97706;color:#fff;border-color:#D97706;}
+.timer-secondary-btn.end-match{background:#C62828;color:#fff;border-color:#C62828;}
+.timer-secondary-btn:active{opacity:.85;transform:scale(.98);}
 </style>
 </head>
 <body>
@@ -155,16 +183,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <span class="status-chip" id="status-chip" style="display:none;"></span>
       </div>
       <div class="timer-body">
+        <button class="timer-primary-btn green" id="timer-primary-btn" onclick="timerPrimaryAction()">
+          <i class="fas fa-play" id="timer-primary-icon" aria-hidden="true"></i>
+        </button>
         <div id="timer-display">00:00</div>
-        <div class="timer-actions">
-          <button class="timer-primary-btn green" id="timer-primary-btn" onclick="timerPrimaryAction()">
-            <i class="fas fa-play" id="timer-primary-icon" aria-hidden="true"></i>
-          </button>
-          <button class="timer-secondary-btn" id="timer-secondary-btn" style="visibility:hidden;" onclick="timerSecondaryAction()">
-            <i class="fas fa-hourglass-half" id="timer-secondary-icon" aria-hidden="true"></i>
-            <span id="timer-secondary-label">End Half</span>
-          </button>
-        </div>
+        <button class="timer-secondary-btn" id="timer-secondary-btn" style="visibility:hidden;" onclick="timerSecondaryAction()">
+          <i class="fas fa-hourglass-half" id="timer-secondary-icon" aria-hidden="true"></i>
+          <span id="timer-secondary-label">End Half</span>
+        </button>
       </div>
     </div>
     <!-- Scoreboard -->
@@ -173,11 +199,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-start;flex:1;min-width:0;">
           <div id="uslbl" class="team-lbl" style="padding-left:2px;">DONAGHMORE/ASHBOURNE</div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <button class="score-adj-btn" onclick="openScoreModal('us')">+/−</button>
+            <button class="score-adj-btn" onclick="openScoreModal('us')"><i class="fa-regular fa-pen-to-square"></i></button>
             <div style="display:flex;align-items:baseline;gap:5px;flex-wrap:nowrap;">
-              <span id="gc" style="font-size:28px;font-weight:500;color:var(--td);line-height:1;">0</span>
+              <span id="gc" style="font-size:28px;font-weight:500;color:#2E7D32;line-height:1;">0</span>
               <span style="font-size:20px;font-weight:300;color:var(--t3);line-height:1;">—</span>
-              <span id="pc" style="font-size:28px;font-weight:500;color:var(--ts);line-height:1;">0</span>
+              <span id="pc" style="font-size:28px;font-weight:500;color:#1F1F1F;line-height:1;">0</span>
               <span id="utotal" style="font-size:14px;font-weight:500;color:var(--t2);line-height:1;">(0)</span>
             </div>
           </div>
@@ -188,11 +214,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div style="display:flex;align-items:center;gap:8px;">
             <div style="display:flex;align-items:baseline;gap:5px;flex-wrap:nowrap;">
               <span id="ototal" style="font-size:14px;font-weight:500;color:var(--t2);line-height:1;">(0)</span>
-              <span id="og" style="font-size:28px;font-weight:500;color:var(--td);line-height:1;">0</span>
+              <span id="og" style="font-size:28px;font-weight:500;color:#2E7D32;line-height:1;">0</span>
               <span style="font-size:20px;font-weight:300;color:var(--t3);line-height:1;">—</span>
-              <span id="op" style="font-size:28px;font-weight:500;color:var(--ts);line-height:1;">0</span>
+              <span id="op" style="font-size:28px;font-weight:500;color:#1F1F1F;line-height:1;">0</span>
             </div>
-            <button class="score-adj-btn" onclick="openScoreModal('opp')">+/−</button>
+            <button class="score-adj-btn" onclick="openScoreModal('opp')"><i class="fa-regular fa-pen-to-square"></i></button>
           </div>
         </div>
       </div>
@@ -200,7 +226,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <!-- Player grid with pitch -->
     <div style="position:relative;flex:1;">
       <svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:10px;" preserveAspectRatio="xMidYMid slice">
-        <rect width="320" height="400" fill="#4a9a38" rx="10"/>
+        <rect width="320" height="400" fill="#4C9A3A" rx="10"/>
         <rect x="0" y="10"  width="320" height="44" fill="#52a83f" opacity="0.5"/>
         <rect x="0" y="98"  width="320" height="44" fill="#52a83f" opacity="0.5"/>
         <rect x="0" y="186" width="320" height="28" fill="#52a83f" opacity="0.5"/>
@@ -232,14 +258,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <line x1="171" y1="388" x2="171" y2="400" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
         <line x1="147" y1="397" x2="173" y2="397" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
       </svg>
-      <div id="pgrid" style="position:relative;z-index:1;opacity:.3;pointer-events:none;transition:opacity .2s;padding:10px 0 10px;height:100%;display:flex;flex-direction:column;justify-content:space-around;">
-        <div class="p-row"><button class="pbtn" data-s="1"  onclick="sel(1)">1</button></div>
-        <div class="p-row"><button class="pbtn" data-s="2"  onclick="sel(2)">2</button><button class="pbtn" data-s="3"  onclick="sel(3)">3</button><button class="pbtn" data-s="4"  onclick="sel(4)">4</button></div>
-        <div class="p-row"><button class="pbtn" data-s="5"  onclick="sel(5)">5</button><button class="pbtn" data-s="6"  onclick="sel(6)">6</button><button class="pbtn" data-s="7"  onclick="sel(7)">7</button></div>
-        <div class="p-row"><button class="pbtn" data-s="8"  onclick="sel(8)">8</button><button class="pbtn" data-s="9"  onclick="sel(9)">9</button></div>
-        <div class="p-row"><button class="pbtn" data-s="10" onclick="sel(10)">10</button><button class="pbtn" data-s="11" onclick="sel(11)">11</button><button class="pbtn" data-s="12" onclick="sel(12)">12</button></div>
-        <div class="p-row"><button class="pbtn" data-s="13" onclick="sel(13)">13</button><button class="pbtn" data-s="14" onclick="sel(14)">14</button><button class="pbtn" data-s="15" onclick="sel(15)">15</button></div>
-      </div>
+      <div id="pgrid" style="position:relative;z-index:1;opacity:.3;pointer-events:none;transition:opacity .2s;padding:10px 0 10px;height:100%;display:flex;flex-direction:column;justify-content:space-around;"></div>
     </div>
   </div>
 
@@ -303,7 +322,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="panel-hdr">
       <button class="back-btn" onclick="closeSettings()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div style="font-size:17px;font-weight:500;flex:1;">Setup</div>
-      <button onclick="saveSettings()" style="padding:7px 18px;border-radius:999px;background:var(--bgi);color:var(--ti);border:.5px solid var(--bi);font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Save</button>
+      <button onclick="saveSettings()" class="setup-save-btn">Save</button>
     </div>
     <div style="flex:1;overflow-y:auto;">
       <div class="stitle">TEAM NAMES</div>
@@ -312,17 +331,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div style="flex:1;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Opposition</div><input class="sinput" id="son" type="text" placeholder="e.g. Tipperary" maxlength="24"></div>
       </div>
       <div class="stitle">SPORT</div>
-      <div style="display:flex;gap:8px;">
-        <button type="button" class="sport-toggle active" data-sport="hurling" onclick="setSport('hurling')">Hurling</button>
-        <button type="button" class="sport-toggle" data-sport="football" onclick="setSport('football')">Football</button>
-      </div>
+      <label class="gaa-toggle-wrap">
+        <input type="checkbox" id="sport-chk" onchange="onSportToggle(this.checked)">
+        <div class="gaa-toggle-track">
+          <span class="gaa-toggle-knob sport-knob-hurling" id="sport-knob"><i class="fa-solid fa-baseball" id="sport-knob-icon"></i></span>
+        </div>
+      </label>
+      <div class="stitle">TEAM SIZE</div>
+      <label class="gaa-toggle-wrap">
+        <input type="checkbox" id="size-chk" onchange="onSizeToggle(this.checked)">
+        <div class="gaa-toggle-track">
+          <span class="gaa-toggle-knob size-knob" id="size-knob"><span id="size-knob-num">15</span></span>
+        </div>
+      </label>
       <div class="stitle">TEMPLATES</div>
       <div style="display:flex;gap:8px;margin-bottom:8px;">
         <input class="sinput" id="tni" type="text" placeholder="Template name" maxlength="30" style="flex:1;">
-        <button onclick="saveTpl()" style="padding:9px 14px;border-radius:var(--r);background:var(--bgs);color:var(--ts);border:.5px solid var(--bs);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:inherit;">Save squad</button>
+        <button onclick="saveTpl()" class="setup-secondary-btn">Save squad</button>
       </div>
       <div id="tpllist"><div style="font-size:13px;color:var(--t3);padding:4px 0;">No saved templates</div></div>
-      <div class="stitle">STARTING XV</div>
+      <div class="stitle" id="starting-lbl">STARTING XV</div>
       <div id="pslist"></div>
       <div class="stitle">BENCH</div>
       <div id="bslist"></div>
@@ -355,6 +383,7 @@ const state = {
   maxB:17,
   evts:[],   // {time, desc, badge, cls, slot?, action?}
   sport:'hurling', // 'hurling' or 'football'
+  teamSize:15,     // 15 or 13
 };
 for (let i = 1; i <= 15; i++) state.slotp[i] = i;
 
@@ -375,7 +404,7 @@ function initEl() {
    'evlog','logempty','lcnt','lbdg','toast','modal','mtitle','mopts',
    'period-badge','status-chip','timer-primary-btn','timer-secondary-btn',
    'pgrid','logpanel','setpanel','seltoggle',
-   'removebar','removelbl','sun','son','pslist','bslist','tpllist','tni'
+   'removebar','removelbl','sun','son','pslist','bslist','tpllist','tni','starting-lbl'
   ].forEach(id => { el[id] = document.getElementById(id); });
 }
 
@@ -452,7 +481,7 @@ function refBtn(s) {
   }
   b.appendChild(wrap);
 }
-const refAllBtns = () => { for (let s=1; s<=15; s++) refBtn(s); };
+const refAllBtns = () => { const sz=state.teamSize||15; for (let s=1; s<=sz; s++) refBtn(s); };
 
 // ─── PERSISTENCE ──────────────────────────────────────────────────────────────
 let saveStateTimeoutId = null;
@@ -462,11 +491,11 @@ function saveState() {
     try {
       const {goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
              usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
-             playerGoals,playerPts,maxB,evts,sport} = state;
+             playerGoals,playerPts,maxB,evts,sport,teamSize} = state;
       localStorage.setItem(SAVE_KEY, JSON.stringify({
         goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
         usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
-        playerGoals,playerPts,maxB,evts,sport
+        playerGoals,playerPts,maxB,evts,sport,teamSize
       }));
     } catch(e) {}
     saveStateTimeoutId = null;
@@ -489,11 +518,11 @@ function saveStateImmediate() {
   try {
     const {goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
            usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
-           playerGoals,playerPts,maxB,evts,sport} = state;
+           playerGoals,playerPts,maxB,evts,sport,teamSize} = state;
     localStorage.setItem(SAVE_KEY, JSON.stringify({
       goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
       usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
-      playerGoals,playerPts,maxB,evts,sport
+      playerGoals,playerPts,maxB,evts,sport,teamSize
     }));
   } catch(e) {}
 }
@@ -710,14 +739,17 @@ function renderTimerUI() {
   const secLbl  = document.getElementById('timer-secondary-label');
   if (inFirst) {
     secBtn.style.visibility='';
+    secBtn.className='timer-secondary-btn end-half';
     secIcon.className='fas fa-hourglass-half';
     secLbl.textContent='End Half';
   } else if (inSecond) {
     secBtn.style.visibility='';
+    secBtn.className='timer-secondary-btn end-match';
     secIcon.className='fas fa-flag-checkered';
     secLbl.textContent='End Match';
   } else {
     secBtn.style.visibility='hidden';
+    secBtn.className='timer-secondary-btn';
   }
 }
 
@@ -835,11 +867,9 @@ function doReset() {
   setGrid(false);
   state.rcarded={}; state.ycarded={}; state.bcarded={};
   state.playerGoals={}; state.playerPts={};
-  for (let s=1; s<=15; s++) {
-    state.slotp[s]=s;
-    const b=document.querySelector('[data-s="'+s+'"]');
-    if (b) b.className='pbtn';
-  }
+  const sz = state.teamSize || 15;
+  for (let s=1; s<=sz; s++) state.slotp[s]=s;
+  renderPGrid();
   state.ubench={}; state.suboff={};
   const rb = document.getElementById('resetbtn');
   if (rb) {
@@ -860,40 +890,57 @@ function handleModalClick(e) {
   }
 }
 
+const ACTION_GROUPS = [
+  {label:'Scores',    items:['Goal','Point','2 Point','Wide']},
+  {label:'Discipline',items:['Free','Yellow Card','Black Card','Red Card']},
+  {label:'Personnel', items:['Substitution']},
+];
+const ACTION_META = {
+  'Goal':        {cls:'score-btn-goal', icon:'<i class="fas fa-flag fa-beat-fade"></i>'},
+  'Point':       {cls:'score-btn-point',icon:'<i class="far fa-flag fa-beat-fade"></i>'},
+  '2 Point':     {cls:'score-btn-2p',   icon:'<i class="fas fa-flag fa-beat-fade"></i>'},
+  'Wide':        {cls:'action-btn-wide',icon:'<i class="fa-solid fa-child-reaching"></i>'},
+  'Free':        {cls:'action-btn-neutral',icon:'<i class="fas fa-whistle"></i>'},
+  'Red Card':    {cls:'action-btn-red',   icon:'<i class="fas fa-square" style="color:#E53935;"></i>'},
+  'Yellow Card': {cls:'action-btn-yellow',icon:'<i class="fas fa-square" style="color:#FDD835;"></i>'},
+  'Black Card':  {cls:'action-btn-black', icon:'<i class="fas fa-square" style="color:#2c2c2a;"></i>'},
+  'Substitution':{cls:'action-btn-sub',   icon:'<i class="fas fa-people-arrows"></i>'},
+};
+
 function showOpts(title, opts, handler, rich) {
   el.mtitle.textContent = title;
-  let html = '<div class="opts-grid">';
+  let html = '';
   if (rich) {
+    html += '<div class="opts-grid">';
     opts.forEach(o => html += '<button class="abtn" data-v="'+esc(String(o.val))+'" style="text-align:left;"><div class="sarow"><span style="font-size:15px;color:var(--t1);">'+esc(o.label)+'</span>'+(o.sub?'<span style="font-size:11px;color:var(--t2);">'+esc(o.sub)+'</span>':'')+'</div></button>');
+    html += '</div>';
   } else {
-    opts.forEach(o => {
-      const extraCls = o==='Substitution' ? ' sub-btn' : '';
-      const cls = o==='Goal' ? ' score-btn-goal' : o==='Point' ? ' score-btn-point' : o==='2 Point' ? ' score-btn-2p' : o==='Red Card' ? ' card-btn-red' : o==='Yellow Card' ? ' card-btn-yellow' : o==='Black Card' ? ' card-btn-black' : '';
-      let icon = '';
-      if (o==='Goal' || o==='2 Point') {
-        icon = '<i class="fas fa-flag fa-beat-fade"></i>';
-      } else if (o==='Point') {
-        icon = '<i class="far fa-flag fa-beat-fade"></i>';
-          } else if (o==='Wide') {
-        icon = '<i class="fa-solid fa-exclamation fa-beat"></i>';
-      } else if (o==='Won' || o==='Win') {
-        icon = '<i class="fas fa-thumbs-up" style="color:#1DBF33;"></i>';
-      } else if (o==='Lost' || o==='Loss') {
-        icon = '<i class="fas fa-thumbs-down" style="color:#D64141;"></i>';
-      } else if (o==='Substitution') {
-        icon = '<i class="fas fa-people-arrows"></i>';
-      } else if (o==='Red Card') {
-        icon = '<i class="fas fa-mobile" style="color:rgba(163,45,74,0.9);"></i>';
-      } else if (o==='Yellow Card') {
-        icon = '<i class="fas fa-mobile" style="color:rgba(176,126,15,0.9);"></i>';
-      } else if (o==='Black Card') {
-        icon = '<i class="fas fa-mobile" style="color:rgba(44,44,42,0.9);"></i>';
-      }
-      const classAttr = 'abtn'+cls+extraCls;
-      html += '<button class="'+classAttr+'" data-v="'+esc(o)+'">'+icon+esc(o)+'</button>';
+    const optsSet = new Set(opts);
+    const rendered = new Set();
+    ACTION_GROUPS.forEach(group => {
+      const groupItems = group.items.filter(i => optsSet.has(i));
+      if (!groupItems.length) return;
+      html += '<div class="action-group"><div class="action-group-label">'+group.label+'</div><div class="opts-grid">';
+      groupItems.forEach(o => {
+        rendered.add(o);
+        const meta = ACTION_META[o] || {cls:'', icon:''};
+        html += '<button class="abtn '+meta.cls+'" data-v="'+esc(o)+'">'+meta.icon+esc(o)+'</button>';
+      });
+      html += '</div></div>';
     });
+    // Fallback for any opts not in groups (e.g. Won/Lost/result screens)
+    const ungrouped = opts.filter(o => !rendered.has(o));
+    if (ungrouped.length) {
+      html += '<div class="opts-grid">';
+      ungrouped.forEach(o => {
+        let icon = '';
+        if (o==='Won'||o==='Win')   icon = '<i class="fas fa-thumbs-up" style="color:#2E7D32;"></i>';
+        if (o==='Lost'||o==='Loss') icon = '<i class="fas fa-thumbs-down" style="color:#E53935;"></i>';
+        html += '<button class="abtn" data-v="'+esc(o)+'">'+icon+esc(o)+'</button>';
+      });
+      html += '</div>';
+    }
   }
-  html += '</div>';
   el.mopts.innerHTML = html;
   el.modal.style.display = 'block';
   modalHandlerRef = (v) => { handler(v); };
@@ -917,17 +964,17 @@ function openScoreModal(side) {
   const isUs = side==='us';
   const name = isUs ? state.usN : state.oppN;
   el.mtitle.textContent = esc(name)+' — adjust score';
-  let html = '<div class="opts-grid">';
+  let html = '<div class="action-group"><div class="action-group-label">Scores</div><div class="opts-grid">';
   html += '<button class="abtn score-btn-goal" data-v="g+"><i class="fas fa-flag fa-beat-fade"></i>+ Goal</button>';
-  html += '<button class="abtn" data-v="g-" style="color:var(--t2);">− Goal</button>';
+  html += '<button class="abtn action-btn-neutral" data-v="g-">− Goal</button>';
   if (state.sport==='football') {
     html += '<button class="abtn score-btn-2p" data-v="f+"><i class="fas fa-flag fa-beat-fade"></i>+ 2 Point</button>';
-    html += '<button class="abtn" data-v="f-" style="color:var(--t2);">− 2 Point</button>';
+    html += '<button class="abtn action-btn-neutral" data-v="f-">− 2 Point</button>';
   }
   html += '<button class="abtn score-btn-point" data-v="p+"><i class="far fa-flag fa-beat-fade"></i>+ Point</button>';
-  html += '<button class="abtn" data-v="p-" style="color:var(--t2);">− Point</button>';
-  html += '<button class="abtn" data-v="w+" style="grid-column:1 / -1;color:var(--tw);border-color:var(--bw);"><i class="fas fa-solid fa-exclamation fa-beat"></i>Wide</button>';
-  html += '</div>';
+  html += '<button class="abtn action-btn-neutral" data-v="p-">− Point</button>';
+  html += '<button class="abtn action-btn-wide" data-v="w+" style="grid-column:1 / -1;"><i class="fa-solid fa-child-reaching"></i>Wide</button>';
+  html += '</div></div>';
   el.mopts.innerHTML = html;
   el.modal.style.display = 'block';
   modalHandlerRef = (v) => {
@@ -1156,7 +1203,7 @@ function secCb(s) {
 
 function badgeCls(a) {
   if(a==='Goal')return 'bg'; if(a==='Point')return 'bp'; if(a==='2 Point')return 'bp'; if(a==='Wide')return 'bw';
-  if(a==='Red Card')return 'br'; if(a.indexOf('Card')>=0)return 'bc'; return 'bo';
+  if(a==='Red Card')return 'br'; if(a==='Yellow Card')return 'by'; if(a.indexOf('Card')>=0)return 'bc'; return 'bo';
 }
 
 function logEv(action, sec) {
@@ -1221,7 +1268,7 @@ function logEv(action, sec) {
 // ─── SUBSTITUTION ─────────────────────────────────────────────────────────────
 function pickSubOn() {
   const used={};
-  for (let s=1; s<=15; s++) used[state.slotp[s]]=true;
+  const sz=state.teamSize||15; for (let s=1; s<=sz; s++) used[state.slotp[s]]=true;
   const isGK = subOff===1, avail=[];
   for (let idx=16; idx<=state.maxB+5; idx++) {
     if(used[idx])continue;
@@ -1313,11 +1360,16 @@ function renderTpls(){
 function openSettings(){
   el.sun.value=state.usN;
   el.son.value=state.oppN==='Opposition'?'':state.oppN;
-  document.querySelectorAll('.sport-toggle').forEach(b => {
-    b.classList.toggle('active', b.dataset.sport === state.sport);
-  });
+  const isFootball = state.sport === 'football';
+  const is13 = state.teamSize === 13;
+  document.getElementById('sport-chk').checked = isFootball;
+  document.getElementById('size-chk').checked = is13;
+  updateSportKnob(isFootball);
+  updateSizeKnob(is13);
+  el['starting-lbl'].textContent = 'STARTING '+(state.teamSize||15);
   el.pslist.innerHTML='';
-  for(let i=1;i<=15;i++){
+  const sz = state.teamSize || 15;
+  for(let i=1;i<=sz;i++){
     const row=document.createElement('div'); row.className='prow';
     row.innerHTML='<div class="pbadge'+(i===1?' gk':'')+'">'+i+'</div><input class="sinput" id="sn'+i+'" type="text" placeholder="'+(i===1?'Goalkeeper':'Player '+i)+'" maxlength="30" value="'+esc(gn(i)||'')+'">';
     el.pslist.appendChild(row);
@@ -1349,8 +1401,6 @@ function addBRow(c,idx){
 function saveSettings(){
   state.usN  = el.sun.value.trim()||DEFAULT_US;
   state.oppN = el.son.value.trim()||'Opposition';
-  const activeSport = document.querySelector('.sport-toggle.active');
-  if (activeSport) state.sport = activeSport.dataset.sport;
   el.uslbl.textContent=state.usN.toUpperCase();
   el.opplbl.textContent=state.oppN.toUpperCase();
   for(let i=1;i<=state.maxB+2;i++){const inp=document.getElementById('sn'+i);if(inp)state.pnames[i]=inp.value.trim();}
@@ -1361,11 +1411,51 @@ function saveSettings(){
   toast('Settings saved');
 }
  
-function setSport(sport) {
-  document.querySelectorAll('.sport-toggle').forEach(b => {
-    b.classList.toggle('active', b.dataset.sport === sport);
-  });
-  state.sport = sport;
+function updateSportKnob(isFootball) {
+  const knob = document.getElementById('sport-knob');
+  const icon = document.getElementById('sport-knob-icon');
+  if (!knob) return;
+  knob.className = 'gaa-toggle-knob ' + (isFootball ? 'sport-knob-football' : 'sport-knob-hurling');
+  icon.className = isFootball ? 'fa-solid fa-volleyball' : 'fa-solid fa-baseball';
+}
+function onSportToggle(checked) {
+  state.sport = checked ? 'football' : 'hurling';
+  updateSportKnob(checked);
+}
+
+const GRID_LAYOUTS = {
+  15: [[1],[2,3,4],[5,6,7],[8,9],[10,11,12],[13,14,15]],
+  13: [[1],[2,3],[4,5,6],[7,8],[9,10,11],[12,13]],
+};
+
+function renderPGrid() {
+  const layout = GRID_LAYOUTS[state.teamSize] || GRID_LAYOUTS[15];
+  el.pgrid.innerHTML = layout.map(row =>
+    '<div class="p-row">'+row.map(s =>
+      '<button class="pbtn" data-s="'+s+'" onclick="sel('+s+')">'+s+'</button>'
+    ).join('')+'</div>'
+  ).join('');
+  // Re-apply card/sub/hev classes
+  refAllBtns();
+}
+
+function updateSizeKnob(is13) {
+  const num = document.getElementById('size-knob-num');
+  if (num) num.textContent = is13 ? '13' : '15';
+}
+function onSizeToggle(checked) {
+  const size = checked ? 13 : 15;
+  state.teamSize = size;
+  el['starting-lbl'].textContent = 'STARTING ' + size;
+  updateSizeKnob(checked);
+  renderPGrid();
+  // Rebuild player list in settings panel
+  el.pslist.innerHTML='';
+  for(let i=1;i<=size;i++){
+    const row=document.createElement('div'); row.className='prow';
+    row.innerHTML='<div class="pbadge'+(i===1?' gk':'')+'">'+i+'</div><input class="sinput" id="sn'+i+'" type="text" placeholder="'+(i===1?'Goalkeeper':'Player '+i)+'" maxlength="30" value="'+esc(gn(i)||'')+'">';
+    el.pslist.appendChild(row);
+  }
 }
 
 // ─── RESTORE UI FROM PERSISTED STATE ─────────────────────────────────────────
@@ -1425,7 +1515,8 @@ function restoreUI() {
   if(state.evts.length) el.logempty.style.display='none';
   // Apply slot/card/sub classes
   const slotsWithEvts=new Set(state.evts.filter(e=>e.slot&&e.action&&e.action!=='sub').map(e=>e.slot));
-  for(let s=1;s<=15;s++){
+  const teamSz=state.teamSize||15;
+  for(let s=1;s<=teamSz;s++){
     const b=document.querySelector('[data-s="'+s+'"]'); if(!b) continue;
     if(state.rcarded[s])        b.classList.add('rc');
     else if(slotsWithEvts.has(s)) b.classList.add('hev');
@@ -1440,6 +1531,7 @@ function restoreUI() {
 function init() {
   initEl();
   const restored = loadSavedState();
+  renderPGrid();
   if (restored) {
     restoreUI();
     toast('Match restored');
