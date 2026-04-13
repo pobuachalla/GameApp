@@ -175,6 +175,61 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .timer-secondary-btn.end-half{background:#D97706;color:#fff;border-color:#D97706;}
 .timer-secondary-btn.end-match{background:#C62828;color:#fff;border-color:#C62828;}
 .timer-secondary-btn:active{opacity:.85;transform:scale(.98);}
+/* ── Stats panel ──────────────────────────────────────────────────────────── */
+.stats-overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.42);z-index:70;}
+.stats-overlay.open{display:block;}
+.stats-panel{position:absolute;left:0;right:0;bottom:0;background:var(--bg1);border-radius:18px 18px 0 0;z-index:71;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);max-height:86%;display:flex;flex-direction:column;}
+.stats-panel.open{transform:translateY(0);}
+.stats-handle{width:40px;height:4px;background:var(--bm);border-radius:2px;margin:12px auto 4px;flex-shrink:0;cursor:pointer;}
+.stats-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 14px 10px;flex-shrink:0;border-bottom:.5px solid var(--b);}
+.stats-scroll{flex:1;overflow-y:auto;padding:0 14px 32px;}
+.stat-section{margin-top:16px;}
+.stat-section-title{font-size:11px;font-weight:600;color:var(--t2);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;}
+.stat-card{background:var(--bg2);border-radius:var(--rl);padding:12px 14px;margin-bottom:6px;}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:.5px solid var(--b);}
+.stat-row:last-child{border-bottom:none;}
+.stat-lbl{font-size:13px;color:var(--t2);}
+.stat-val{font-size:14px;font-weight:600;color:var(--t1);}
+.stat-big{font-size:28px;font-weight:700;color:var(--ts);text-align:center;padding:10px 0 2px;line-height:1;}
+.stat-big-sub{font-size:12px;color:var(--t2);text-align:center;padding-bottom:8px;}
+.stat-sub-hdr{font-size:12px;font-weight:600;color:var(--t2);margin:10px 0 4px;}
+.stat-prow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:.5px solid var(--b);}
+.stat-prow:last-child{border-bottom:none;}
+.stat-pname{font-size:13px;color:var(--t1);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.stat-ptags{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;}
+.stat-tag{font-size:11px;padding:2px 7px;border-radius:5px;font-weight:500;}
+.stat-tag.green{background:#DFF3E3;color:#2E7D32;}
+.stat-tag.red{background:#F8D7D7;color:#991B1B;}
+.stat-tag.yellow{background:#FFF1D6;color:#B45309;}
+.stat-tag.grey{background:var(--bg3);color:var(--t2);border:.5px solid var(--b);}
+.stat-tag.black{background:#e8e8e8;color:#333;}
+.disc-chip{display:inline-flex;width:11px;height:15px;border-radius:2px;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.18);}
+.disc-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:.5px solid var(--b);}
+.disc-row:last-child{border-bottom:none;}
+.disc-chips{display:flex;gap:3px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
+.momentum-card{background:var(--bg2);border-radius:var(--rl);padding:14px 14px 10px;margin-bottom:6px;}
+.momentum-bar{height:12px;border-radius:6px;overflow:hidden;display:flex;background:var(--bg3);}
+.momentum-us{background:#2E7D32;transition:width .5s cubic-bezier(.4,0,.2,1);min-width:4px;}
+.momentum-opp{background:#6B6F66;flex:1;min-width:4px;}
+.momentum-feet{display:flex;justify-content:space-between;align-items:flex-start;margin-top:10px;}
+.momentum-team{display:flex;flex-direction:column;gap:2px;max-width:45%;}
+.momentum-team.right{align-items:flex-end;}
+.momentum-name{font-size:12px;font-weight:600;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;}
+.momentum-pct{font-size:20px;font-weight:700;line-height:1;}
+.momentum-basis{font-size:10px;color:var(--t3);text-align:center;margin-top:8px;letter-spacing:.02em;}
+.stat-attempt-bar{height:10px;border-radius:5px;overflow:hidden;display:flex;margin:12px 0 6px;background:var(--bg3);}
+.stat-attempt-seg{height:100%;}
+.stat-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.stat-legend-item{font-size:10px;color:var(--t2);display:flex;align-items:center;gap:3px;}
+.stat-legend-dot{width:8px;height:8px;border-radius:2px;display:inline-block;flex-shrink:0;}
+.stat-ring-wrap{display:flex;align-items:center;gap:16px;padding:6px 0 8px;}
+.stat-ring{width:68px;height:68px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.stat-ring-inner{width:46px;height:46px;border-radius:50%;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;}
+.stat-ring-pct{font-size:14px;font-weight:700;color:var(--t1);line-height:1;}
+.stat-ring-lbl{font-size:9px;color:var(--t2);letter-spacing:.03em;}
+.stat-split-bar{height:8px;border-radius:4px;overflow:hidden;display:flex;margin:6px 0 4px;background:#F8D7D7;}
+.stat-split-won{background:#2E7D32;min-width:0;transition:width .4s;}
+.stat-split-labels{display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px;}
 </style>
 </head>
 <body>
@@ -279,6 +334,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       Log<span id="lbdg" style="display:none;font-size:9px;background:var(--bgi);color:var(--ti);border-radius:999px;padding:1px 5px;margin-left:3px;vertical-align:middle;"></span>
     </button>
     <div class="bar-div"></div>
+    <button class="bar-btn" onclick="openStats()">
+      <i class="fas fa-percent" aria-hidden="true"></i>
+      Stats
+    </button>
+    <div class="bar-div"></div>
     <button class="bar-btn danger" id="undobtn" onclick="undoLast()" disabled>
       <i class="fas fa-rotate-left" aria-hidden="true"></i>
       Undo
@@ -320,6 +380,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </button>
       </div>
     </div>
+  </div>
+
+  <!-- Stats panel -->
+  <div id="statsoverlay" class="stats-overlay" onclick="closeStats()"></div>
+  <div id="statspanel" class="stats-panel">
+    <div class="stats-handle" onclick="closeStats()"></div>
+    <div class="stats-hdr">
+      <div style="font-size:17px;font-weight:600;color:var(--t1);">Stats</div>
+      <button class="back-btn" onclick="closeStats()"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="stats-scroll" id="stats-content"></div>
   </div>
 
   <!-- Settings panel -->
@@ -738,11 +809,11 @@ function renderTimerUI() {
   };
   const pc = primMap[s];
   if (pc) {
-    primBtn.style.display='';
+    primBtn.style.visibility='';
     primBtn.className='timer-primary-btn '+pc.cls;
     primIcon.className='fas '+pc.icon;
   } else {
-    primBtn.style.display='none';
+    primBtn.style.visibility='hidden';
   }
 
   // Secondary button
@@ -990,9 +1061,10 @@ function showOpts(title, opts, handler, rich) {
       html += '<div class="opts-grid">';
       ungrouped.forEach(o => {
         let icon = '';
-        if (o==='Won'||o==='Win')   icon = '<i class="fas fa-thumbs-up" style="color:#2E7D32;"></i>';
-        if (o==='Lost'||o==='Loss') icon = '<i class="fas fa-thumbs-down" style="color:#E53935;"></i>';
-        html += '<button class="abtn" data-v="'+esc(o)+'">'+icon+esc(o)+'</button>';
+        let btnStyle = '';
+        if (o==='Won'||o==='Win')   { icon = '<i class="fas fa-thumbs-up"></i>';   btnStyle = 'background:#2E7D32;color:#fff;border-color:#2E7D32;'; }
+        if (o==='Lost'||o==='Loss') { icon = '<i class="fas fa-thumbs-down"></i>'; btnStyle = 'background:#C62828;color:#fff;border-color:#C62828;'; }
+        html += '<button class="abtn" data-v="'+esc(o)+'" style="'+btnStyle+'">'+icon+esc(o)+'</button>';
       });
       html += '</div>';
     }
@@ -1129,8 +1201,8 @@ function showRestartModal(side) {
   const label = side==='us' ? "Opposition's Restart" : "Own Restart";
   el.mtitle.textContent = 'Restart won?';
   el.mopts.innerHTML = '<div class="opts-grid">'
-    +'<button class="abtn" data-v="Won"     style="color:var(--ts);border-color:var(--bs);"><i class="fas fa-thumbs-up" style="color:#1DBF33;"></i>Won</button>'
-    +'<button class="abtn" data-v="Lost"    style="color:var(--td);border-color:var(--bd);"><i class="fas fa-thumbs-down" style="color:#D64141;"></i>Lost</button>'
+    +'<button class="abtn" data-v="Won"     style="background:#2E7D32;color:#fff;border-color:#2E7D32;"><i class="fas fa-thumbs-up"></i>Won</button>'
+    +'<button class="abtn" data-v="Lost"    style="background:#C62828;color:#fff;border-color:#C62828;"><i class="fas fa-thumbs-down"></i>Lost</button>'
     +'<button class="abtn" data-v="Unclear" style="grid-column:1 / -1;">Unclear</button>'
     +'</div>';
   el.modal.style.display = 'block';
@@ -1607,6 +1679,226 @@ function init() {
 }
 
 init();
+
+// ─── STATS PANEL ──────────────────────────────────────────────────────────────
+function openStats() {
+  renderStats();
+  document.getElementById('statsoverlay').classList.add('open');
+  document.getElementById('statspanel').classList.add('open');
+}
+
+function closeStats() {
+  document.getElementById('statsoverlay').classList.remove('open');
+  document.getElementById('statspanel').classList.remove('open');
+}
+
+function renderStats() {
+  document.getElementById('stats-content').innerHTML = buildStatsHTML();
+}
+
+function buildStatsHTML() {
+  const PLACED = new Set(['From Free','From Penalty','From 65','From 45']);
+
+  let goalCount=0, ptCount=0, twoPtCount=0, wideCount=0;
+  let placedGoals=0, placedPts=0, placedTwoPts=0, placedWides=0;
+  let ownWon=0, ownLost=0, ownUnclear=0;
+  let oppWon=0, oppLost=0, oppUnclear=0;
+  const pstats = {};
+
+  state.evts.forEach(ev => {
+    // Restart events
+    if (ev.badge === 'RSTR') {
+      const d = ev.desc || '';
+      const won = d.includes(': Won'), lost = d.includes(': Lost');
+      if (d.startsWith('Own Restart')) {
+        if (won) ownWon++; else if (lost) ownLost++; else ownUnclear++;
+      } else if (d.startsWith("Opposition")) {
+        if (won) oppWon++; else if (lost) oppLost++; else oppUnclear++;
+      }
+      return;
+    }
+    if (!ev.action || !ev.slot) return;
+    const pi = state.slotp[ev.slot];
+    if (!pi) return;
+    const placed = PLACED.has(ev.sec);
+    if (!pstats[pi]) pstats[pi] = {name:pl(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0};
+    const ps = pstats[pi];
+    if (ev.action === 'Goal')     { goalCount++;   placed ? (placedGoals++,  ps.gPlaced++) : ps.gPlay++; }
+    else if (ev.action === 'Point')    { ptCount++;    placed ? (placedPts++,   ps.pPlaced++) : ps.pPlay++; }
+    else if (ev.action === '2 Point')  { twoPtCount++; placed ? (placedTwoPts++,ps.pPlaced+=2) : ps.pPlay+=2; }
+    else if (ev.action === 'Wide')     { wideCount++;  ps.wides++; if (placed) placedWides++; }
+    else if (ev.action === 'Yellow Card') ps.yc++;
+    else if (ev.action === 'Red Card')   ps.rc++;
+    else if (ev.action === 'Black Card') ps.bc++;
+  });
+
+  const totalScoreActions = goalCount + ptCount + twoPtCount;
+  const totalAttempts = totalScoreActions + wideCount;
+  const scorePct = totalAttempts > 0 ? Math.round(totalScoreActions / totalAttempts * 100) : 0;
+  const totalPts = goalCount*3 + ptCount + twoPtCount*2;
+  const displayPts = ptCount + twoPtCount*2;
+
+  const placedScoreCount = placedGoals + placedPts + placedTwoPts;
+  const placedAttempts = placedScoreCount + placedWides;
+  const placedPct = placedAttempts > 0 ? Math.round(placedScoreCount / placedAttempts * 100) : 0;
+
+  const ownTotal = ownWon + ownLost + ownUnclear;
+  const oppTotal = oppWon + oppLost + oppUnclear;
+
+  if (!totalAttempts && !ownTotal && !oppTotal && !state.og && !state.op_) {
+    return '<div style="text-align:center;padding:48px 0 20px;font-size:14px;color:var(--t2);">No stats to show yet<br><span style="font-size:12px;">Start recording events to see stats here.</span></div>';
+  }
+
+  // ── Momentum calculation ──
+  // Positive event values: score pts (our) + restarts won by us
+  // Opposition: score pts (opp) + restarts won by them
+  const usMom  = (state.goals*3 + state.pts)  + (ownWon  + oppWon)  * 2;
+  const oppMom = (state.og*3   + state.op_)   + (ownLost + oppLost) * 2;
+  const momTotal = usMom + oppMom;
+  const usPct  = momTotal > 0 ? Math.round(usMom  / momTotal * 100) : 50;
+  const oppPct = momTotal > 0 ? 100 - usPct : 50;
+  const dominant = usPct > oppPct ? state.usN : usPct < oppPct ? state.oppN : null;
+
+  let h = '';
+
+  // ── Momentum bar ──
+  h += '<div class="stat-section"><div class="stat-section-title">Momentum</div>';
+  h += '<div class="momentum-card">';
+  h += '<div class="momentum-bar">';
+  h += '<div class="momentum-us" style="width:'+usPct+'%"></div>';
+  h += '<div class="momentum-opp"></div>';
+  h += '</div>';
+  h += '<div class="momentum-feet">';
+  h += '<div class="momentum-team">';
+  h += '<span class="momentum-name" style="color:#2E7D32;">'+esc(state.usN)+'</span>';
+  h += '<span class="momentum-pct" style="color:#2E7D32;">'+usPct+'%</span>';
+  h += '</div>';
+  h += '<div class="momentum-team right">';
+  h += '<span class="momentum-name">'+esc(state.oppN)+'</span>';
+  h += '<span class="momentum-pct" style="color:#6B6F66;">'+oppPct+'%</span>';
+  h += '</div>';
+  h += '</div>';
+  const basisNote = (ownTotal+oppTotal > 0) ? 'Scores + restarts won' : 'Based on scores';
+  const domNote = dominant ? ' &mdash; '+esc(dominant)+' dominant' : '';
+  h += '<div class="momentum-basis">'+basisNote+domNote+'</div>';
+  h += '</div></div>';
+
+  // ── Scoring ──
+  h += '<div class="stat-section"><div class="stat-section-title">Scoring</div><div class="stat-card">';
+  h += '<div class="stat-big">'+goalCount+'-'+displayPts+' <span style="font-size:15px;font-weight:500;color:var(--t2);">('+totalPts+'pts)</span></div>';
+  h += '<div class="stat-big-sub">'+totalScoreActions+' score'+(totalScoreActions!==1?'s':'')+' from '+totalAttempts+' attempt'+(totalAttempts!==1?'s':'')+' &mdash; '+scorePct+'% conversion</div>';
+  // Stacked attempt bar: goals | 2pts | points | wides (bg)
+  if (totalAttempts > 0) {
+    const bt = totalAttempts;
+    const gw = goalCount/bt*100, tw = twoPtCount/bt*100, pw = ptCount/bt*100;
+    h += '<div class="stat-attempt-bar">';
+    if (gw > 0) h += '<div class="stat-attempt-seg" style="width:'+gw+'%;background:#2E7D32;"></div>';
+    if (tw > 0) h += '<div class="stat-attempt-seg" style="width:'+tw+'%;background:#D97706;"></div>';
+    if (pw > 0) h += '<div class="stat-attempt-seg" style="width:'+pw+'%;background:#C8CAC4;"></div>';
+    h += '</div>';
+    h += '<div class="stat-legend">';
+    if (goalCount > 0)  h += '<span class="stat-legend-item"><span class="stat-legend-dot" style="background:#2E7D32;"></span>'+goalCount+' goal'+(goalCount!==1?'s':'')+'</span>';
+    if (twoPtCount > 0) h += '<span class="stat-legend-item"><span class="stat-legend-dot" style="background:#D97706;"></span>'+twoPtCount+' 2-ptr'+(twoPtCount!==1?'s':'')+'</span>';
+    if (ptCount > 0)    h += '<span class="stat-legend-item"><span class="stat-legend-dot" style="background:#C8CAC4;border:.5px solid var(--b);"></span>'+ptCount+' point'+(ptCount!==1?'s':'')+'</span>';
+    if (wideCount > 0)  h += '<span class="stat-legend-item"><span class="stat-legend-dot" style="background:#9E9E9E;"></span>'+wideCount+' wide'+(wideCount!==1?'s':'')+'</span>';
+    h += '</div>';
+  }
+  h += '</div></div>';
+
+  // ── Placed balls ──
+  h += '<div class="stat-section"><div class="stat-section-title">Placed Balls</div><div class="stat-card">';
+  if (placedAttempts === 0) {
+    h += '<div style="font-size:13px;color:var(--t2);padding:4px 0;">No placed ball attempts recorded</div>';
+  } else {
+    const ringGrad = 'conic-gradient(#2E7D32 '+placedPct+'%, var(--bg3) 0%)';
+    h += '<div class="stat-ring-wrap">';
+    h += '<div class="stat-ring" style="background:'+ringGrad+';">';
+    h += '<div class="stat-ring-inner"><div class="stat-ring-pct">'+placedPct+'%</div><div class="stat-ring-lbl">conv.</div></div>';
+    h += '</div>';
+    h += '<div style="flex:1;">';
+    h += '<div style="font-size:16px;font-weight:700;color:#2E7D32;line-height:1.2;">'+placedScoreCount+' converted</div>';
+    h += '<div style="font-size:12px;color:var(--t2);margin-top:2px;">from '+placedAttempts+' attempt'+(placedAttempts!==1?'s':'')+'</div>';
+    if (placedWides > 0) h += '<div style="font-size:12px;color:var(--t2);margin-top:6px;">'+placedWides+' placed ball wide'+(placedWides!==1?'s':'')+'</div>';
+    h += '</div>';
+    h += '</div>';
+  }
+  h += '</div></div>';
+
+  // ── Restarts ──
+  const rstLabel = state.sport === 'hurling' ? 'Puck Out' : 'Kickout';
+  h += '<div class="stat-section"><div class="stat-section-title">Restarts</div><div class="stat-card">';
+
+  function rstBlock(label, won, lost, unclear, total) {
+    let out = '<div class="stat-sub-hdr" style="margin-top:0;">'+label+'</div>';
+    if (total === 0) {
+      out += '<div style="font-size:13px;color:var(--t3);padding:2px 0 10px;">None recorded</div>';
+    } else {
+      const pct = Math.round(won / total * 100);
+      out += '<div class="stat-split-bar"><div class="stat-split-won" style="width:'+pct+'%"></div></div>';
+      out += '<div class="stat-split-labels">';
+      out += '<span style="color:#2E7D32;font-weight:600;">'+won+' won <span style="font-weight:400;">('+pct+'%)</span></span>';
+      out += '<span style="color:#C62828;font-weight:600;">'+lost+' lost'+(unclear?' <span style="font-weight:400;color:var(--t2);">+'+unclear+' unclear</span>':'')+'</span>';
+      out += '</div>';
+    }
+    return out;
+  }
+
+  h += rstBlock('Own '+rstLabel+'s', ownWon, ownLost, ownUnclear, ownTotal);
+  h += '<div style="border-top:.5px solid var(--b);margin:6px 0 10px;"></div>';
+  h += rstBlock('Opposition '+rstLabel+'s', oppWon, oppLost, oppUnclear, oppTotal);
+  h += '</div></div>';
+
+  // ── Player breakdown ──
+  const scorers = Object.values(pstats).filter(p =>
+    p.gPlay+p.gPlaced+p.pPlay+p.pPlaced+p.wides > 0
+  ).sort((a,b) => {
+    const ta = (a.gPlay+a.gPlaced)*3+(a.pPlay+a.pPlaced);
+    const tb = (b.gPlay+b.gPlaced)*3+(b.pPlay+b.pPlaced);
+    return tb !== ta ? tb - ta : a.name.localeCompare(b.name);
+  });
+
+  const disciplined = Object.values(pstats).filter(p =>
+    p.yc+p.bc+p.rc > 0
+  ).sort((a,b) =>
+    (b.rc*100 + b.bc*10 + b.yc) - (a.rc*100 + a.bc*10 + a.yc) || a.name.localeCompare(b.name)
+  );
+
+  if (scorers.length > 0 || disciplined.length > 0) {
+    h += '<div class="stat-section"><div class="stat-section-title">Player Breakdown</div>';
+
+    if (scorers.length > 0) {
+      h += '<div class="stat-sub-hdr" style="margin-top:0;">Scoring</div>';
+      h += '<div class="stat-card">';
+      scorers.forEach(p => {
+        const g = p.gPlay+p.gPlaced, pts = p.pPlay+p.pPlaced, total = g*3+pts;
+        h += '<div class="stat-prow"><div class="stat-pname">'+esc(p.name)+'</div>';
+        h += '<div class="stat-ptags">';
+        if (g > 0 || pts > 0) h += '<span class="stat-tag green">'+g+'-'+pts+' ('+total+')</span>';
+        if (p.wides > 0) h += '<span class="stat-tag grey">'+p.wides+' wide'+(p.wides!==1?'s':'')+'</span>';
+        h += '</div></div>';
+      });
+      h += '</div>';
+    }
+
+    if (disciplined.length > 0) {
+      h += '<div class="stat-sub-hdr">Discipline</div>';
+      h += '<div class="stat-card">';
+      disciplined.forEach(p => {
+        h += '<div class="disc-row"><div class="stat-pname">'+esc(p.name)+'</div>';
+        h += '<div class="disc-chips">';
+        for (let i=0; i<p.yc; i++) h += '<span class="disc-chip" style="background:#FDD835;" title="Yellow Card"></span>';
+        for (let i=0; i<p.bc; i++) h += '<span class="disc-chip" style="background:#2c2c2a;" title="Black Card"></span>';
+        for (let i=0; i<p.rc; i++) h += '<span class="disc-chip" style="background:#E53935;" title="Red Card"></span>';
+        h += '</div></div>';
+      });
+      h += '</div>';
+    }
+
+    h += '</div>';
+  }
+
+  return h;
+}
 </script>
 </body>
 </html>
