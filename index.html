@@ -176,6 +176,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .timer-secondary-btn.end-match{background:#C62828;color:#fff;border-color:#C62828;}
 .timer-secondary-btn:active{opacity:.85;transform:scale(.98);}
 /* ── Stats panel ──────────────────────────────────────────────────────────── */
+.drw-overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.42);z-index:70;}
+.drw-overlay.open{display:block;}
+.drw-panel{position:absolute;left:0;right:0;bottom:0;background:var(--bg1);border-radius:18px 18px 0 0;z-index:71;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);max-height:90%;display:flex;flex-direction:column;}
+.drw-panel.open{transform:translateY(0);}
+.drw-handle{width:40px;height:4px;background:var(--bm);border-radius:2px;margin:12px auto 4px;flex-shrink:0;cursor:pointer;}
+.drw-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 14px 10px;flex-shrink:0;border-bottom:.5px solid var(--b);}
+.drw-scroll{flex:1;overflow-y:auto;padding:14px 14px 32px;}
 .stats-overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.42);z-index:70;}
 .stats-overlay.open{display:block;}
 .stats-panel{position:absolute;left:0;right:0;bottom:0;background:var(--bg1);border-radius:18px 18px 0 0;z-index:71;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);max-height:86%;display:flex;flex-direction:column;}
@@ -376,14 +383,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 
   <!-- Log panel -->
-  <div id="logpanel" class="full-panel">
-    <div class="panel-hdr">
-      <button class="back-btn" onclick="closeLog()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <div style="font-size:17px;font-weight:500;flex:1;">Event log</div>
-      <span id="lcnt" style="font-size:12px;color:var(--t3);margin-right:8px;">0 events</span>
-      <button id="seltoggle" class="sel-toggle" onclick="toggleSelMode()">Select</button>
+  <div id="logovly" class="drw-overlay" onclick="closeLog()"></div>
+  <div id="logpanel" class="drw-panel">
+    <div class="drw-handle" onclick="closeLog()"></div>
+    <div class="drw-hdr">
+      <div style="font-size:17px;font-weight:600;color:var(--t1);">Event log <span id="lcnt" style="font-size:12px;font-weight:400;color:var(--t3);"></span></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button id="seltoggle" class="sel-toggle" onclick="toggleSelMode()">Select</button>
+        <button class="back-btn" onclick="closeLog()"><i class="fas fa-xmark"></i></button>
+      </div>
     </div>
-    <div style="flex:1;min-height:0;border:.5px solid var(--b);border-radius:var(--rl);overflow:hidden;display:flex;flex-direction:column;">
+    <div style="flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;">
       <div id="evlog" style="padding:4px 13px;overflow-y:auto;flex:1;">
         <div id="logempty" style="color:var(--t3);font-size:13px;padding:10px 0;">No events recorded yet</div>
       </div>
@@ -428,13 +438,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 
   <!-- Settings panel -->
-  <div id="setpanel" class="full-panel">
-    <div class="panel-hdr">
-      <button class="back-btn" onclick="closeSettings()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <div style="font-size:17px;font-weight:500;flex:1;">Setup</div>
-      <button onclick="saveSettings()" class="setup-save-btn">Save</button>
+  <div id="setovly" class="drw-overlay" onclick="closeSettings()"></div>
+  <div id="setpanel" class="drw-panel">
+    <div class="drw-handle" onclick="closeSettings()"></div>
+    <div class="drw-hdr">
+      <div style="font-size:17px;font-weight:600;color:var(--t1);">Setup</div>
+      <button class="back-btn" onclick="closeSettings()"><i class="fas fa-xmark"></i></button>
     </div>
-    <div style="flex:1;overflow-y:auto;">
+    <div class="drw-scroll">
       <div class="stitle">TEAM NAMES</div>
       <div style="display:flex;gap:8px;">
         <div style="flex:1;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Us</div><input class="sinput" id="sun" type="text" placeholder="e.g. Kilkenny" maxlength="24"></div>
@@ -491,12 +502,10 @@ const state = {
   goals:0, pts:0, og:0, op_:0,
   period:1, secs:0,
   matchState:'PRE_MATCH',
-  tStarted:false, tStopped:false,
   tWallStart:null, tPausedAt:0,
   usN:DEFAULT_US, oppN:'Opposition',
   pnames:{}, slotp:{}, ubench:{}, suboff:{},
   rcarded:{}, ycarded:{}, bcarded:{},
-  playerGoals:{}, playerPts:{},
   maxB:17,
   evts:[],   // {time, desc, badge, cls, slot?, action?}
   sport:'hurling', // 'hurling' or 'football'
@@ -531,7 +540,7 @@ const pad = n => String(n).padStart(2,'0');
 const fmt = s => pad(Math.floor(s/60))+':'+pad(s%60);
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const gn  = i => (state.pnames[i]||'').trim();
-const pl  = i => { const n=gn(i); return n ? esc(n)+' (#'+i+')' : '#'+i; };
+const pl  = i => { const n=gn(i); return n ? n+' (#'+i+')' : '#'+i; };
 
 // ─── INITIALS CACHE ───────────────────────────────────────────────────────────
 function buildInitialsCache() {
@@ -575,6 +584,18 @@ function computeInitials(i, all) {
 
 const gi = i => initialsCache[i] !== undefined ? initialsCache[i] : String(i);
 
+// ─── PLAYER SCORE (derived from evts) ────────────────────────────────────────
+function playerScore(pi) {
+  let g = 0, p = 0;
+  for (const ev of state.evts) {
+    if (!ev.action || ev.slot == null || state.slotp[ev.slot] !== pi) continue;
+    if (ev.action === 'Goal') g++;
+    else if (ev.action === 'Point') p++;
+    else if (ev.action === '2 Point') p += 2;
+  }
+  return {g, p};
+}
+
 // ─── PLAYER BUTTON (targeted rebuild) ────────────────────────────────────────
 function refBtn(s) {
   const b = document.querySelector('[data-s="'+s+'"]'); if (!b) return;
@@ -592,7 +613,7 @@ function refBtn(s) {
   iniSpan.style.fontSize = ini.length>=4?'10px':ini.length===3?'11px':ini.length===2?'12px':'14px';
   iniSpan.style.color = '#2E7D32';
   wrap.appendChild(iniSpan);
-  const g = state.playerGoals[pi]||0, p_ = state.playerPts[pi]||0;
+  const {g, p: p_} = playerScore(pi);
   if (g > 0 || p_ > 0) {
     const sc = document.createElement('span');
     sc.textContent = g+'-'+p_;
@@ -605,19 +626,20 @@ const refAllBtns = () => { const sz=state.teamSize||15; for (let s=1; s<=sz; s++
 
 // ─── PERSISTENCE ──────────────────────────────────────────────────────────────
 let saveStateTimeoutId = null;
+
+function serializeState() {
+  const {goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
+         usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
+         maxB,evts,sport,teamSize,captain} = state;
+  return {goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
+          usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
+          maxB,evts,sport,teamSize,captain};
+}
+
 function saveState() {
   if (saveStateTimeoutId) clearTimeout(saveStateTimeoutId);
   saveStateTimeoutId = setTimeout(() => {
-    try {
-      const {goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
-             usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
-             playerGoals,playerPts,maxB,evts,sport,teamSize,captain} = state;
-      localStorage.setItem(SAVE_KEY, JSON.stringify({
-        goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
-        usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
-        playerGoals,playerPts,maxB,evts,sport,teamSize,captain
-      }));
-    } catch(e) {}
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(serializeState())); } catch(e) {}
     saveStateTimeoutId = null;
   }, 500);
 }
@@ -635,16 +657,7 @@ const clearSavedState = () => { try { localStorage.removeItem(SAVE_KEY); } catch
 
 function saveStateImmediate() {
   if (saveStateTimeoutId) { clearTimeout(saveStateTimeoutId); saveStateTimeoutId = null; }
-  try {
-    const {goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
-           usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
-           playerGoals,playerPts,maxB,evts,sport,teamSize} = state;
-    localStorage.setItem(SAVE_KEY, JSON.stringify({
-      goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
-      usN,oppN,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
-      playerGoals,playerPts,maxB,evts,sport,teamSize
-    }));
-  } catch(e) {}
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(serializeState())); } catch(e) {}
 }
 
 document.addEventListener('visibilitychange', () => {
@@ -1020,7 +1033,7 @@ function doReset() {
   el.evlog.innerHTML = '<div id="logempty" style="color:var(--t3);font-size:13px;padding:10px 0;">No events recorded yet</div>';
   el.logempty = document.getElementById('logempty');
   syncMeta();
-  state.secs=0; state.tStarted=false; state.tStopped=false;
+  state.secs=0;
   state.tWallStart=null; state.tPausedAt=0;
   state.matchState='PRE_MATCH';
   stopInterval(); tRun=false;
@@ -1030,11 +1043,10 @@ function doReset() {
   renderTimerUI();
   setGrid(false);
   state.rcarded={}; state.ycarded={}; state.bcarded={};
-  state.playerGoals={}; state.playerPts={};
   const sz = state.teamSize || 15;
   for (let s=1; s<=sz; s++) state.slotp[s]=s;
   renderPGrid();
-  state.ubench={}; state.suboff={};
+  state.ubench={}; state.suboff={}; state.maxB=17;
   const rb = document.getElementById('resetbtn');
   if (rb) {
     rb.id='undobtn'; rb.classList.add('danger');
@@ -1374,11 +1386,10 @@ function badgeCls(a) {
 function logEv(action, sec) {
   const slot = selSlot, pi = state.slotp[slot];
   const prevG  = state.goals, prevP = state.pts;
-  const prevPG = state.playerGoals[pi]||0, prevPP = state.playerPts[pi]||0;
 
-  if (action==='Goal')  { state.goals++; el.gc.textContent=state.goals; state.playerGoals[pi]=prevPG+1; }
-  if (action==='Point') { state.pts++;   el.pc.textContent=state.pts;   state.playerPts[pi]=prevPP+1;   }
-  if (action==='2 Point') { state.pts+=2; el.pc.textContent=state.pts;   state.playerPts[pi]=prevPP+2;   }
+  if (action==='Goal')  { state.goals++; el.gc.textContent=state.goals; }
+  if (action==='Point') { state.pts++;   el.pc.textContent=state.pts;   }
+  if (action==='2 Point') { state.pts+=2; el.pc.textContent=state.pts;  }
   if (action==='Goal'||action==='Point'||action==='2 Point') { upTot(); refBtn(slot); }
 
   if (action==='Red Card') {
@@ -1408,9 +1419,9 @@ function logEv(action, sec) {
   ev.slot=slot; ev.action=action; ev.sec=sec||null;
 
   pushUndo(desc, () => {
-    if (action==='Goal')  { state.goals=prevG; el.gc.textContent=state.goals; state.playerGoals[pi]=prevPG; upTot(); refBtn(slot); }
-    if (action==='Point') { state.pts=prevP;   el.pc.textContent=state.pts;   state.playerPts[pi]=prevPP;   upTot(); refBtn(slot); }
-    if (action==='2 Point') { state.pts=prevP;   el.pc.textContent=state.pts;   state.playerPts[pi]=prevPP;   upTot(); refBtn(slot); }
+    if (action==='Goal')  { state.goals=prevG; el.gc.textContent=state.goals; upTot(); refBtn(slot); }
+    if (action==='Point') { state.pts=prevP;   el.pc.textContent=state.pts;   upTot(); refBtn(slot); }
+    if (action==='2 Point') { state.pts=prevP;   el.pc.textContent=state.pts;  upTot(); refBtn(slot); }
     if (action==='Red Card') {
       delete state.rcarded[slot];
       const b=document.querySelector('[data-s="'+slot+'"]');
@@ -1482,8 +1493,8 @@ function shareWA() {
 }
 
 // ─── LOG PANEL ────────────────────────────────────────────────────────────────
-function openLog()  { el.logpanel.classList.add('open');    tail(); }
-function closeLog() { el.logpanel.classList.remove('open'); }
+function openLog()  { document.getElementById('logovly').classList.add('open'); el.logpanel.classList.add('open'); tail(); }
+function closeLog() { document.getElementById('logovly').classList.remove('open'); el.logpanel.classList.remove('open'); }
 
 // ─── TEMPLATES ────────────────────────────────────────────────────────────────
 function saveTpl() {
@@ -1543,10 +1554,11 @@ function openSettings(){
   const sz = state.teamSize || 15;
   for(let i=1;i<=sz;i++) el.pslist.appendChild(buildPlayerRow(i));
   renderBench(); renderTpls();
+  document.getElementById('setovly').classList.add('open');
   el.setpanel.classList.add('open');
 }
 
-function closeSettings(){el.setpanel.classList.remove('open');}
+function closeSettings(){ flushSettings(); document.getElementById('setovly').classList.remove('open'); el.setpanel.classList.remove('open'); }
 
 function renderBench(){
   el.bslist.innerHTML='';
@@ -1566,7 +1578,7 @@ function addBRow(c,idx){
   });
 }
 
-function saveSettings(){
+function flushSettings() {
   state.usN  = el.sun.value.trim()||DEFAULT_US;
   state.oppN = el.son.value.trim()||'Opposition';
   el.uslbl.textContent=state.usN.toUpperCase();
@@ -1574,13 +1586,13 @@ function saveSettings(){
   for(let i=1;i<=state.maxB+2;i++){const inp=document.getElementById('sn'+i);if(inp)state.pnames[i]=inp.value.trim();}
   buildInitialsCache();
   refAllBtns();
-  closeSettings();
   saveState();
-  toast('Settings saved');
 }
- 
+
 function onSportToggle(checked) {
+  flushSettings();
   state.sport = checked ? 'football' : 'hurling';
+  saveState();
 }
 
 const GRID_LAYOUTS = {
@@ -1609,6 +1621,7 @@ function setCaptain(slot) {
     b.querySelector('i').className = 'fa-regular ' + (isCap ? 'fa-copyright' : 'fa-circle');
   });
   refAllBtns();
+  saveState();
 }
 
 function buildPlayerRow(i) {
@@ -1621,6 +1634,7 @@ function buildPlayerRow(i) {
 }
 
 function onSizeToggle(checked) {
+  flushSettings();
   const size = checked ? 13 : 15;
   state.teamSize = size;
   el['starting-lbl'].textContent = 'STARTING ' + size;
@@ -1628,6 +1642,7 @@ function onSizeToggle(checked) {
   // Rebuild player list in settings panel
   el.pslist.innerHTML='';
   for(let i=1;i<=size;i++) el.pslist.appendChild(buildPlayerRow(i));
+  saveState();
 }
 
 // ─── RESTORE UI FROM PERSISTED STATE ─────────────────────────────────────────
@@ -1637,17 +1652,19 @@ function restoreUI() {
   upTot();
   el.uslbl.textContent=state.usN.toUpperCase();
   el.opplbl.textContent=state.oppN.toUpperCase();
-  // Backwards compat: derive matchState from legacy flags if not in saved data
+  // Backwards compat: derive matchState from event badges if not set in saved data
   if (!state.matchState || state.matchState === 'PRE_MATCH') {
     const lastBadge = state.evts.length ? state.evts[state.evts.length-1].badge : null;
+    const hasBadge = b => state.evts.some(e => e.badge === b);
     if (lastBadge === 'END') {
       state.matchState = 'FULL_TIME';
-    } else if ((state.tStarted || state.tStopped) && state.period >= 2) {
+    } else if (hasBadge('2H')) {
       state.matchState = 'PAUSED_SECOND_HALF';
-    } else if ((state.tStarted || state.tStopped) && state.period === 1) {
-      state.matchState = 'PAUSED_FIRST_HALF';
-    } else if (state.period >= 2 && !state.tStarted && !state.tStopped) {
-      state.matchState = 'HALF_TIME';
+    } else if (hasBadge('1H')) {
+      // Has a 1H event — if 2nd half started it would have been caught above
+      // Check if it's after half-time (second '1H' badge is end of first half)
+      const h1Events = state.evts.filter(e => e.badge === '1H');
+      state.matchState = h1Events.length >= 2 ? 'HALF_TIME' : 'PAUSED_FIRST_HALF';
     }
   }
   // If running state was saved, compute true elapsed and restore as paused
@@ -1783,6 +1800,22 @@ function renderLayout() {
   document.getElementById('layout-content').innerHTML = h;
 }
 
+// ─── STATS HELPERS ────────────────────────────────────────────────────────────
+function rstBlock(label, won, lost, unclear, total) {
+  let out = '<div class="stat-sub-hdr" style="margin-top:0;">'+label+'</div>';
+  if (total === 0) {
+    out += '<div style="font-size:13px;color:var(--t3);padding:2px 0 10px;">None recorded</div>';
+  } else {
+    const pct = Math.round(won / total * 100);
+    out += '<div class="stat-split-bar"><div class="stat-split-won" style="width:'+pct+'%"></div></div>';
+    out += '<div class="stat-split-labels">';
+    out += '<span style="color:#2E7D32;font-weight:600;">'+won+' won <span style="font-weight:400;">('+pct+'%)</span></span>';
+    out += '<span style="color:#C62828;font-weight:600;">'+lost+' lost'+(unclear?' <span style="font-weight:400;color:var(--t2);">+'+unclear+' unclear</span>':'')+'</span>';
+    out += '</div>';
+  }
+  return out;
+}
+
 // ─── STATS PANEL ──────────────────────────────────────────────────────────────
 function openStats() {
   renderStats();
@@ -1800,7 +1833,6 @@ function renderStats() {
 }
 
 function buildStatsHTML() {
-  const PLACED = new Set(['From Free','From Penalty','From 65','From 45']);
 
   let goalCount=0, ptCount=0, twoPtCount=0, wideCount=0;
   let placedGoals=0, placedPts=0, placedTwoPts=0, placedWides=0;
@@ -1823,7 +1855,7 @@ function buildStatsHTML() {
     if (!ev.action || !ev.slot) return;
     const pi = state.slotp[ev.slot];
     if (!pi) return;
-    const placed = PLACED.has(ev.sec);
+    const placed = PLACED_BALL.has(ev.sec);
     if (!pstats[pi]) pstats[pi] = {name:pl(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0};
     const ps = pstats[pi];
     if (ev.action === 'Goal')     { goalCount++;   placed ? (placedGoals++,  ps.gPlaced++) : ps.gPlay++; }
@@ -1930,21 +1962,6 @@ function buildStatsHTML() {
   // ── Restarts ──
   const rstLabel = state.sport === 'hurling' ? 'Puck Out' : 'Kickout';
   h += '<div class="stat-section"><div class="stat-section-title">Restarts</div><div class="stat-card">';
-
-  function rstBlock(label, won, lost, unclear, total) {
-    let out = '<div class="stat-sub-hdr" style="margin-top:0;">'+label+'</div>';
-    if (total === 0) {
-      out += '<div style="font-size:13px;color:var(--t3);padding:2px 0 10px;">None recorded</div>';
-    } else {
-      const pct = Math.round(won / total * 100);
-      out += '<div class="stat-split-bar"><div class="stat-split-won" style="width:'+pct+'%"></div></div>';
-      out += '<div class="stat-split-labels">';
-      out += '<span style="color:#2E7D32;font-weight:600;">'+won+' won <span style="font-weight:400;">('+pct+'%)</span></span>';
-      out += '<span style="color:#C62828;font-weight:600;">'+lost+' lost'+(unclear?' <span style="font-weight:400;color:var(--t2);">+'+unclear+' unclear</span>':'')+'</span>';
-      out += '</div>';
-    }
-    return out;
-  }
 
   h += rstBlock('Own '+rstLabel+'s', ownWon, ownLost, ownUnclear, ownTotal);
   h += '<div style="border-top:.5px solid var(--b);margin:6px 0 10px;"></div>';
