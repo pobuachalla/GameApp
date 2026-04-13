@@ -679,13 +679,38 @@ function saveStateImmediate() {
 
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') {
-    // Flush current secs if timer is running so reload gets accurate time
     if (tRun && state.tWallStart) {
       state.secs = Math.floor((Date.now() - state.tWallStart) / 1000);
     }
     saveStateImmediate();
+    // Stop interval while screen is off — tWallStart keeps time accurately
+    if (tRun) stopInterval();
+  } else {
+    // Screen back on — resync display immediately then restart interval
+    if (tRun) { tick(); startInterval(); }
+    reacquireWakeLock();
   }
 });
+
+// ─── SCREEN WAKE LOCK ─────────────────────────────────────────────────────────
+let wakeLock = null;
+
+async function acquireWakeLock() {
+  if (!('wakeLock' in navigator)) return;
+  try {
+    wakeLock = await navigator.wakeLock.request('screen');
+  } catch(e) {}
+}
+
+function releaseWakeLock() {
+  if (wakeLock) { wakeLock.release(); wakeLock = null; }
+}
+
+// Re-acquire after visibility returns (OS releases wake lock when screen sleeps)
+async function reacquireWakeLock() {
+  if (!tRun || wakeLock) return;
+  await acquireWakeLock();
+}
 
 // ─── TOAST ────────────────────────────────────────────────────────────────────
 function toast(m) {
@@ -941,11 +966,13 @@ function handleEndMatch() {
 
 function startInterval() {
   stopInterval();
-  tInt = setInterval(tick, 500);
+  tInt = setInterval(tick, 1000);
+  acquireWakeLock();
 }
 
 function stopInterval() {
   if (tInt) { clearInterval(tInt); tInt = null; }
+  releaseWakeLock();
 }
 
 function tick() {
