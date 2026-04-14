@@ -523,9 +523,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 'use strict';
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
-const ACTS  = ['Goal','Point','2 Point','Wide','Free','Red Card','Yellow Card','Black Card','Substitution'];
+const ACTS  = ['Goal','Point','2 Point','Wide','Free','Advanced','Red Card','Yellow Card','Black Card','Substitution'];
 const SSEC  = ['From Play','From Free','From Penalty','From 65'];
-const FSEC  = ['Push','Chop','Steps','Tackle','Pickup','Throw'];
+const FSEC  = ['Push','Chop','Steps','Tackle','Pickup','Throw','Other'];
 const NS    = {Goal:SSEC,Point:SSEC,'2 Point':SSEC,Wide:SSEC,Free:FSEC};
 const SAVE_KEY = 'gaa_match_v1';
 const DEFAULT_US = 'Donaghmore/Ashbourne';
@@ -1129,7 +1129,7 @@ function handleModalClick(e) {
 
 const ACTION_GROUPS = [
   {label:'Scores',    items:['Goal','Point','2 Point','Wide']},
-  {label:'Discipline',items:['Free','Yellow Card','Black Card','Red Card']},
+  {label:'Discipline',items:['Free','Advanced','Yellow Card','Black Card','Red Card']},
   {label:'Personnel', items:['Substitution']},
 ];
 const ACTION_META = {
@@ -1138,6 +1138,7 @@ const ACTION_META = {
   '2 Point':     {cls:'score-btn-2p',   icon:'<i class="fas fa-flag fa-beat-fade"></i>'},
   'Wide':        {cls:'action-btn-wide',icon:'<i class="fa-solid fa-child-reaching"></i>'},
   'Free':        {cls:'action-btn-neutral',icon:'<i class="fas fa-whistle"></i>'},
+  'Advanced':    {cls:'action-btn-neutral',icon:'<i class="fas fa-forward-step"></i>'},
   'Red Card':    {cls:'action-btn-red',   icon:'<i class="fas fa-square" style="color:#E53935;"></i>'},
   'Yellow Card': {cls:'action-btn-yellow',icon:'<i class="fas fa-square" style="color:#FDD835;"></i>'},
   'Black Card':  {cls:'action-btn-black', icon:'<i class="fas fa-square" style="color:#2c2c2a;"></i>'},
@@ -1426,6 +1427,8 @@ function actCb(a) {
       // Convert From 65 to From 45 for Football for other scoring actions
       const from65 = state.sport==='football' ? 'From 45' : 'From 65';
       sec = sec.map(o => o==='From 65' ? from65 : o);
+      // Chop is not a football foul
+      if (a==='Free' && state.sport==='football') sec = sec.filter(o => o !== 'Chop');
     }
     const titles = {Goal:'Goal — how scored?',Point:'Point — how scored?','2 Point':'2 Point — how scored?',Wide:'Wide — how attempted?',Free:'Free — reason?'};
     showOpts(titles[a], sec, secCb, false);
