@@ -1576,10 +1576,17 @@ function loadTpl(name) {
     if(data.usName)el.sun.value=data.usName;
     state.maxB=17; // reset so stale slots don't accumulate
     if(data.playerNames){
-      for(let i=1;i<=30;i++){
-        const inp=document.getElementById('sn'+i); if(inp)inp.value=data.playerNames[i]||'';
-        if(data.playerNames[i]&&i>=state.maxB)state.maxB=i+1;
+      // Update starting players via DOM (always rendered)
+      for(let i=1;i<=15;i++){
+        state.pnames[i]=data.playerNames[i]||'';
+        const inp=document.getElementById('sn'+i); if(inp)inp.value=state.pnames[i];
       }
+      // Update bench slots in state and compute correct maxB before re-rendering
+      for(let i=16;i<=30;i++){
+        state.pnames[i]=data.playerNames[i]||'';
+        if(state.pnames[i]&&i>=state.maxB)state.maxB=i+1;
+      }
+      renderBench();
     }
     if('captain' in data) {
       state.captain = data.captain;
@@ -1628,6 +1635,8 @@ function openSettings(){
 function closeSettings(){ flushSettings(); document.getElementById('setovly').classList.remove('open'); el.setpanel.classList.remove('open'); }
 
 function renderBench(){
+  // Ensure maxB reflects all named bench slots in case of any desync
+  for(let i=16;i<=30;i++){ if(state.pnames[i])state.maxB=Math.max(state.maxB,i+1); }
   el.bslist.innerHTML='';
   for(let i=16;i<=state.maxB;i++) addBRow(el.bslist,i);
 }
