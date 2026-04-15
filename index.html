@@ -670,10 +670,10 @@ let saveStateTimeoutId = null;
 function serializeState() {
   const {goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
          usN,oppN,location,referee,matchNotes,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
-         maxB,evts,sport,teamSize,captain} = state;
+         maxB,evts,sport,teamSize,captain,startSlotp,startCaptain} = state;
   return {goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
           usN,oppN,location,referee,matchNotes,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
-          maxB,evts,sport,teamSize,captain};
+          maxB,evts,sport,teamSize,captain,startSlotp,startCaptain};
 }
 
 function saveState() {
@@ -796,6 +796,8 @@ function applyStateEffects(prev, next) {
         state.secs = 0;
         state.tWallStart = Date.now();
         state.tPausedAt = 0;
+        state.startSlotp   = Object.assign({}, state.slotp);
+        state.startCaptain = state.captain;
         tRun = true;
         startInterval();
         el['timer-display'].textContent = '00:00';
@@ -1225,7 +1227,18 @@ function openScoreModal(side) {
   el.modal.style.display = 'block';
   modalHandlerRef = (v) => {
     closeMod();
-    if (v==='w+') return showRestartModal(side);
+    if (v==='w+') {
+      const wTeam = isUs ? state.usN : state.oppN;
+      const wBadge = isUs ? 'ADJ' : 'OPP';
+      const wCls   = isUs ? 'badj' : 'bopp';
+      const wDesc  = wTeam + ': Wide';
+      addRow(fmt(state.secs), wBadge, wCls, wDesc);
+      const wEv = state.evts[state.evts.length - 1];
+      wEv.action = 'Wide';
+      wEv.side = side;
+      pushUndo(wDesc, () => {});
+      return showRestartModal(side);
+    }
     if (v.endsWith('-')) {
       if (v.startsWith('f')) { adjFootball(-2, side, null); }
       else { if (isUs) adjUs(v[0], -1, side, null); else adjOpp(v[0], -1, side, null); }
@@ -1911,7 +1924,7 @@ function buildTimelineHTML() {
   const toSecs = s => { const p=(s||'0:00').split(':'); return parseInt(p[0]||0)*60+(parseInt(p[1]||0)); };
   let usG=0,usP=0,oppG=0,oppP=0,halfSecs=0,inH2=false;
   const data = [{secs:0,us:0,opp:0}];
-  const subs=[], reds=[], blacks=[];
+  const subs=[], reds=[], blacks=[], markers=[];
 
   state.evts.forEach(ev => {
     let t = toSecs(ev.time);
@@ -1919,27 +1932,31 @@ function buildTimelineHTML() {
     if (ev.badge==='2H') { inH2=true; return; }
     if (inH2) t += halfSecs;
     const prevUs=usG*3+usP, prevOpp=oppG*3+oppP;
-    if      (ev.action==='Goal')       usG++;
-    else if (ev.action==='Point')      usP++;
-    else if (ev.action==='2 Point')    usP+=2;
+    let mType=null, mTeam='us';
+    if      (ev.action==='Goal')       { usG++; mType='Goal'; mTeam='us'; }
+    else if (ev.action==='Point')      { usP++; mType='Point'; mTeam='us'; }
+    else if (ev.action==='2 Point')    { usP+=2; mType='2 Point'; mTeam='us'; }
+    else if (ev.action==='Wide')       { mType='Wide'; mTeam=(ev.badge==='OPP')?'opp':'us'; }
     else if (ev.badge==='OPP') {
       const d=ev.desc||'';
-      if      (d.includes('Goal added'))     oppG++;
-      else if (d.includes('2 Point added'))  oppP+=2;
-      else if (d.includes('Point added'))    oppP++;
+      if      (d.includes('Goal added'))     { oppG++; mType='Goal'; mTeam='opp'; }
+      else if (d.includes('2 Point added'))  { oppP+=2; mType='2 Point'; mTeam='opp'; }
+      else if (d.includes('Point added'))    { oppP++; mType='Point'; mTeam='opp'; }
       else if (d.includes('Goal removed'))   oppG=Math.max(0,oppG-1);
       else if (d.includes('Point removed'))  oppP=Math.max(0,oppP-1);
     } else if (ev.badge==='ADJ') {
       const d=ev.desc||'';
-      if      (d.includes('Goal added'))     usG++;
-      else if (d.includes('Point added'))    usP++;
+      if      (d.includes('Goal added'))     { usG++; mType='Goal'; mTeam='us'; }
+      else if (d.includes('2 Point added'))  { usP+=2; mType='2 Point'; mTeam='us'; }
+      else if (d.includes('Point added'))    { usP++; mType='Point'; mTeam='us'; }
       else if (d.includes('Goal removed'))   usG=Math.max(0,usG-1);
       else if (d.includes('Point removed'))  usP=Math.max(0,usP-1);
     } else if (ev.action==='sub')        { subs.push({secs:t}); }
       else if (ev.action==='Red Card')   { reds.push({secs:t}); }
       else if (ev.action==='Black Card') { blacks.push({secs:t}); }
     const curUs=usG*3+usP, curOpp=oppG*3+oppP;
-    if (curUs!==prevUs||curOpp!==prevOpp) data.push({secs:t,us:curUs,opp:curOpp});
+    if (mType) markers.push({secs:t, team:mTeam, type:mType, usScore:curUs, oppScore:curOpp});
+    if (curUs!==prevUs||curOpp!==prevOpp||mType==='Wide') data.push({secs:t,us:curUs,opp:curOpp});
   });
 
   if (data.length < 2) return '';
@@ -1972,6 +1989,13 @@ function buildTimelineHTML() {
   blacks.forEach(e => { const sx=x(e.secs); svg+=`<line x1="${sx}" y1="${PT}" x2="${sx}" y2="${PT+ch}" stroke="#2c2c2a" stroke-width="1.5" stroke-dasharray="2 2"/>`; });
   svg+=`<polyline points="${oppLine}" fill="none" stroke="#C62828" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
   svg+=`<polyline points="${usLine}"  fill="none" stroke="#2E7D32" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  markers.forEach(m => {
+    const cx=x(m.secs), cy=y(m.team==='us'?m.usScore:m.oppScore);
+    if      (m.type==='Goal')    svg+=`<circle cx="${cx}" cy="${cy}" r="3.5" fill="#2E7D32" stroke="#fff" stroke-width="1.2"/>`;
+    else if (m.type==='2 Point') svg+=`<circle cx="${cx}" cy="${cy}" r="3"   fill="#F59E0B" stroke="#fff" stroke-width="1.2"/>`;
+    else if (m.type==='Point')   svg+=`<circle cx="${cx}" cy="${cy}" r="3"   fill="#fff"    stroke="#9A9E99" stroke-width="1.2"/>`;
+    else if (m.type==='Wide')    svg+=`<circle cx="${cx}" cy="${cy}" r="2"   fill="#9E9E9E" stroke="none"/>`;
+  });
   svg+='</svg>';
 
   let h='<div class="stat-section"><div class="stat-section-title">Score Timeline</div><div class="stat-card" style="padding:10px 8px 8px;">';
@@ -1986,17 +2010,17 @@ function buildTimelineHTML() {
   return h;
 }
 
-// ─── SUBSTITUTION IMPACT ──────────────────────────────────────────────────────
-function buildSubImpactHTML() {
+// ─── SUBSTITUTIONS TABLE ──────────────────────────────────────────────────────
+function buildSubTableHTML() {
   const hasSubs = state.evts.some(ev=>ev.action==='sub');
   if (!hasSubs) return '';
 
   let usG=0,usP=0,oppG=0,oppP=0;
   const scoreAt=[];
   state.evts.forEach(ev => {
-    if      (ev.action==='Goal')       usG++;
-    else if (ev.action==='Point')      usP++;
-    else if (ev.action==='2 Point')    usP+=2;
+    if      (ev.action==='Goal')      usG++;
+    else if (ev.action==='Point')     usP++;
+    else if (ev.action==='2 Point')   usP+=2;
     else if (ev.badge==='OPP') {
       const d=ev.desc||'';
       if      (d.includes('Goal added'))    oppG++;
@@ -2007,6 +2031,7 @@ function buildSubImpactHTML() {
     } else if (ev.badge==='ADJ') {
       const d=ev.desc||'';
       if      (d.includes('Goal added'))   usG++;
+      else if (d.includes('2 Point added'))usP+=2;
       else if (d.includes('Point added'))  usP++;
       else if (d.includes('Goal removed')) usG=Math.max(0,usG-1);
       else if (d.includes('Point removed'))usP=Math.max(0,usP-1);
@@ -2015,26 +2040,41 @@ function buildSubImpactHTML() {
   });
 
   const fUsG=usG,fUsP=usP,fOppG=oppG,fOppP=oppP;
-  let h='<div class="stat-section"><div class="stat-section-title">Substitution Impact</div><div class="stat-card">';
+
+  let h='<div class="stat-section"><div class="stat-section-title">Substitutions</div><div class="stat-card" style="padding:0;overflow:hidden;">';
+  // Header row
+  h+='<div style="display:flex;align-items:center;padding:7px 12px;background:var(--bg3);border-bottom:.5px solid var(--b);gap:6px;">';
+  h+='<span style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);min-width:38px;">Time</span>';
+  h+='<span style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);flex:1;">On</span>';
+  h+='<span style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);flex:1;">Off</span>';
+  h+='<span style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);min-width:60px;text-align:right;">Score</span>';
+  h+='</div>';
+
   state.evts.forEach((ev,i)=>{
     if (ev.action!=='sub') return;
     const at=scoreAt[i]||{usG:0,usP:0,oppG:0,oppP:0};
     const aUG=fUsG-at.usG, aUP=fUsP-at.usP, aOG=fOppG-at.oppG, aOP=fOppP-at.oppP;
-    const m=ev.desc.match(/Sub: (.+) off \/ (.+) on \(pos/);
-    const offName=m?m[1]:'?', onName=m?m[2]:'?';
-    h+='<div class="stat-row" style="flex-direction:column;align-items:flex-start;gap:3px;padding:9px 0;">';
-    h+='<div style="display:flex;width:100%;align-items:center;gap:6px;">';
-    h+='<span style="font-size:13px;color:var(--t1);font-weight:500;">'+esc(onName)+'</span>';
-    h+='<span style="font-size:11px;color:var(--t3);margin-left:auto;">'+ev.time+'</span>';
+    const m=ev.desc.match(/Sub: (.+) off \/ (.+) on \(pos (\d+)\)/);
+    const offName=m?m[1]:'?', onName=m?m[2]:'?', pos=m?m[3]:'';
+    const scoreNow=at.usG+'-'+at.usP+' v '+at.oppG+'-'+at.oppP;
+    const afterUs='+'+aUG+'-'+aUP, afterOpp='+'+aOG+'-'+aOP;
+    h+='<div style="display:flex;align-items:flex-start;padding:8px 12px;border-bottom:.5px solid var(--b);gap:6px;">';
+    h+='<span style="font-size:12px;color:var(--t3);min-width:38px;padding-top:1px;">'+ev.time+'</span>';
+    h+='<div style="flex:1;min-width:0;">';
+    h+='<div style="font-size:13px;font-weight:500;color:var(--t1);">'+esc(onName)+'</div>';
+    if (pos) h+='<div style="font-size:10px;color:var(--t3);">Pos '+pos+'</div>';
     h+='</div>';
-    h+='<div style="font-size:11px;color:var(--t2);">off for '+esc(offName)+'</div>';
-    h+='<div style="display:flex;gap:12px;margin-top:2px;">';
-    h+='<span style="font-size:11px;color:var(--t3);">Score on: '+at.usG+'-'+at.usP+' v '+at.oppG+'-'+at.oppP+'</span>';
-    h+='<span style="font-size:11px;color:var(--t2);">After: <span style="color:#2E7D32;font-weight:600;">+'+aUG+'-'+aUP+'</span> <span style="color:var(--t3);">/</span> <span style="color:#C62828;font-weight:600;">+'+aOG+'-'+aOP+'</span></span>';
+    h+='<div style="flex:1;min-width:0;">';
+    h+='<div style="font-size:13px;color:var(--t2);">'+esc(offName)+'</div>';
+    h+='</div>';
+    h+='<div style="min-width:60px;text-align:right;">';
+    h+='<div style="font-size:11px;color:var(--t3);">'+scoreNow+'</div>';
+    h+='<div style="font-size:10px;color:var(--t3);margin-top:2px;"><span style="color:#2E7D32;">'+afterUs+'</span> / <span style="color:#C62828;">'+afterOpp+'</span></div>';
     h+='</div>';
     h+='</div>';
   });
-  h+='<div style="font-size:11px;color:var(--t3);padding:4px 0 2px;">Goals-pts scored after each sub ('+esc(state.usN)+' / '+esc(state.oppN)+')</div>';
+
+  h+='<div style="padding:7px 12px;font-size:10px;color:var(--t3);">After = goals-pts scored from sub on ('+esc(state.usN)+' / '+esc(state.oppN)+')</div>';
   h+='</div></div>';
   return h;
 }
@@ -2213,14 +2253,15 @@ function buildStatsHTML() {
   h += '<div class="stat-section"><div class="stat-section-title">Scoring</div><div class="stat-card">';
   h += '<div class="stat-big">'+goalCount+'-'+displayPts+' <span style="font-size:15px;font-weight:500;color:var(--t2);">('+totalPts+'pts)</span></div>';
   h += '<div class="stat-big-sub">'+totalScoreActions+' score'+(totalScoreActions!==1?'s':'')+' from '+totalAttempts+' attempt'+(totalAttempts!==1?'s':'')+' &mdash; '+scorePct+'% conversion</div>';
-  // Stacked attempt bar: goals | 2pts | points | wides (bg)
+  // Stacked attempt bar: goals | 2pts | points | wides
   if (totalAttempts > 0) {
     const bt = totalAttempts;
-    const gw = goalCount/bt*100, tw = twoPtCount/bt*100, pw = ptCount/bt*100;
+    const gw = goalCount/bt*100, tw = twoPtCount/bt*100, pw = ptCount/bt*100, ww = wideCount/bt*100;
     h += '<div class="stat-attempt-bar">';
     if (gw > 0) h += '<div class="stat-attempt-seg" style="width:'+gw+'%;background:#2E7D32;"></div>';
     if (tw > 0) h += '<div class="stat-attempt-seg" style="width:'+tw+'%;background:#D97706;"></div>';
     if (pw > 0) h += '<div class="stat-attempt-seg" style="width:'+pw+'%;background:#C8CAC4;"></div>';
+    if (ww > 0) h += '<div class="stat-attempt-seg" style="width:'+ww+'%;background:#9E9E9E;"></div>';
     h += '</div>';
     h += '<div class="stat-legend">';
     if (goalCount > 0)  h += '<span class="stat-legend-item"><span class="stat-legend-dot" style="background:#2E7D32;"></span>'+goalCount+' goal'+(goalCount!==1?'s':'')+'</span>';
@@ -2308,7 +2349,7 @@ function buildStatsHTML() {
     h += '</div>';
   }
 
-  h += buildSubImpactHTML();
+  h += buildSubTableHTML();
 
   return h;
 }
@@ -2318,7 +2359,7 @@ function buildPrintTimelineHTML() {
   const toSecs = s => { const p=(s||'0:00').split(':'); return parseInt(p[0]||0)*60+(parseInt(p[1]||0)); };
   let usG=0,usP=0,oppG=0,oppP=0,halfSecs=0,inH2=false;
   const data = [{secs:0,us:0,opp:0}];
-  const subs=[], reds=[], blacks=[];
+  const subs=[], reds=[], blacks=[], markers=[];
 
   state.evts.forEach(ev => {
     let t = toSecs(ev.time);
@@ -2326,27 +2367,31 @@ function buildPrintTimelineHTML() {
     if (ev.badge==='2H') { inH2=true; return; }
     if (inH2) t += halfSecs;
     const prevUs=usG*3+usP, prevOpp=oppG*3+oppP;
-    if      (ev.action==='Goal')      usG++;
-    else if (ev.action==='Point')     usP++;
-    else if (ev.action==='2 Point')   usP+=2;
+    let mType=null, mTeam='us';
+    if      (ev.action==='Goal')      { usG++; mType='Goal'; mTeam='us'; }
+    else if (ev.action==='Point')     { usP++; mType='Point'; mTeam='us'; }
+    else if (ev.action==='2 Point')   { usP+=2; mType='2 Point'; mTeam='us'; }
+    else if (ev.action==='Wide')      { mType='Wide'; mTeam=(ev.badge==='OPP')?'opp':'us'; }
     else if (ev.badge==='OPP') {
       const d=ev.desc||'';
-      if      (d.includes('Goal added'))     oppG++;
-      else if (d.includes('2 Point added'))  oppP+=2;
-      else if (d.includes('Point added'))    oppP++;
+      if      (d.includes('Goal added'))     { oppG++; mType='Goal'; mTeam='opp'; }
+      else if (d.includes('2 Point added'))  { oppP+=2; mType='2 Point'; mTeam='opp'; }
+      else if (d.includes('Point added'))    { oppP++; mType='Point'; mTeam='opp'; }
       else if (d.includes('Goal removed'))   oppG=Math.max(0,oppG-1);
       else if (d.includes('Point removed'))  oppP=Math.max(0,oppP-1);
     } else if (ev.badge==='ADJ') {
       const d=ev.desc||'';
-      if      (d.includes('Goal added'))   usG++;
-      else if (d.includes('Point added'))  usP++;
-      else if (d.includes('Goal removed')) usG=Math.max(0,usG-1);
-      else if (d.includes('Point removed'))usP=Math.max(0,usP-1);
+      if      (d.includes('Goal added'))     { usG++; mType='Goal'; mTeam='us'; }
+      else if (d.includes('2 Point added'))  { usP+=2; mType='2 Point'; mTeam='us'; }
+      else if (d.includes('Point added'))    { usP++; mType='Point'; mTeam='us'; }
+      else if (d.includes('Goal removed'))   usG=Math.max(0,usG-1);
+      else if (d.includes('Point removed'))  usP=Math.max(0,usP-1);
     } else if (ev.action==='sub')        { subs.push({secs:t}); }
       else if (ev.action==='Red Card')   { reds.push({secs:t}); }
       else if (ev.action==='Black Card') { blacks.push({secs:t}); }
     const curUs=usG*3+usP, curOpp=oppG*3+oppP;
-    if (curUs!==prevUs||curOpp!==prevOpp) data.push({secs:t,us:curUs,opp:curOpp});
+    if (mType) markers.push({secs:t, team:mTeam, type:mType, usScore:curUs, oppScore:curOpp});
+    if (curUs!==prevUs||curOpp!==prevOpp||mType==='Wide') data.push({secs:t,us:curUs,opp:curOpp});
   });
 
   if (data.length < 2) return '';
@@ -2378,6 +2423,13 @@ function buildPrintTimelineHTML() {
   blacks.forEach(e => { const sx=x(e.secs); svg+=`<line x1="${sx}" y1="${PT}" x2="${sx}" y2="${PT+ch}" stroke="#2c2c2a" stroke-width="1.5" stroke-dasharray="2 2"/>`; });
   svg+=`<polyline points="${oppLine}" fill="none" stroke="#C62828" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
   svg+=`<polyline points="${usLine}"  fill="none" stroke="#2E7D32" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  markers.forEach(m => {
+    const cx=x(m.secs), cy=y(m.team==='us'?m.usScore:m.oppScore);
+    if      (m.type==='Goal')    svg+=`<circle cx="${cx}" cy="${cy}" r="4"   fill="#2E7D32" stroke="#fff" stroke-width="1.5"/>`;
+    else if (m.type==='2 Point') svg+=`<circle cx="${cx}" cy="${cy}" r="3.5" fill="#F59E0B" stroke="#fff" stroke-width="1.5"/>`;
+    else if (m.type==='Point')   svg+=`<circle cx="${cx}" cy="${cy}" r="3.5" fill="#fff"    stroke="#9A9E99" stroke-width="1.5"/>`;
+    else if (m.type==='Wide')    svg+=`<circle cx="${cx}" cy="${cy}" r="2.5" fill="#9E9E9E" stroke="none"/>`;
+  });
   svg+='</svg>';
 
   let h=svg;
@@ -2394,6 +2446,10 @@ function buildPrintTimelineHTML() {
 function buildPrintLineupHTML() {
   const layout = GRID_LAYOUTS[state.teamSize] || GRID_LAYOUTS[15];
   const prTitle = (text) => '<div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#1F1F1F;margin-bottom:10px;padding:3px 0 3px 9px;border-left:3px solid #2E7D32;">'+text+'</div>';
+
+  // Use the lineup as it was at kick-off (startSlotp) if available, otherwise current
+  const snapSlotp   = state.startSlotp   || state.slotp;
+  const snapCaptain = state.startSlotp   ? state.startCaptain : state.captain;
 
   // Shirt SVG inline — avoids Font Awesome dependency in print
   const shirt = (num, bg, numColor, size) => {
@@ -2413,9 +2469,9 @@ function buildPrintLineupHTML() {
   layout.forEach(row => {
     formation += '<div style="display:flex;gap:10px;">';
     row.forEach(slot => {
-      const pi = state.slotp ? (state.slotp[slot] || slot) : slot;
+      const pi = snapSlotp ? (snapSlotp[slot] || slot) : slot;
       const name = gn(pi) || '';
-      const isCap = state.captain === slot;
+      const isCap = snapCaptain === slot;
       const isGK = slot === 1;
       const bg = isGK ? '#FDD835' : '#2E7D32';
       const numCol = isGK ? '#2E7D32' : '#ffffff';
@@ -2467,7 +2523,7 @@ function buildPrintLineupHTML() {
   let h = '<div style="display:flex;gap:24px;align-items:flex-start;margin-bottom:28px;">';
   // Left: lineup
   h += '<div style="flex:0 0 auto;">';
-  h += prTitle('Line-up — '+esc(state.usN));
+  h += prTitle('Starting Line-up — '+esc(state.usN));
   h += formation;
   h += '</div>';
   // Right: notes
@@ -2578,6 +2634,30 @@ function buildPrintHTML() {
     h += '</div>';
   }
 
+  // Momentum
+  const usMom  = (state.goals*3 + state.pts)  + (ownWon  + oppWon)  * 2;
+  const oppMom = (state.og*3   + state.op_)   + (ownLost + oppLost) * 2;
+  const momTotal = usMom + oppMom;
+  if (momTotal > 0) {
+    const usPct  = Math.round(usMom  / momTotal * 100);
+    const oppPct = 100 - usPct;
+    const dominant = usPct > oppPct ? state.usN : usPct < oppPct ? state.oppN : null;
+    h += '<div class="pr-section">';
+    h += '<div class="pr-section-title">Momentum</div>';
+    h += '<div class="pr-card">';
+    // split bar
+    h += '<div style="height:10px;border-radius:5px;overflow:hidden;display:flex;margin-bottom:8px;">';
+    h += '<div style="width:'+usPct+'%;background:#2E7D32;"></div>';
+    h += '<div style="flex:1;background:#C62828;"></div>';
+    h += '</div>';
+    h += '<div style="display:flex;justify-content:space-between;font-size:13px;">';
+    h += '<span style="color:#2E7D32;font-weight:600;">'+esc(state.usN)+' <span style="font-weight:400;">'+usPct+'%</span></span>';
+    h += '<span style="color:#C62828;font-weight:600;">'+esc(state.oppN)+' <span style="font-weight:400;">'+oppPct+'%</span></span>';
+    h += '</div>';
+    if (dominant) h += '<div style="font-size:11px;color:#6B6F66;margin-top:4px;">'+esc(dominant)+' dominant &mdash; based on scores + restarts won</div>';
+    h += '</div></div>';
+  }
+
   // Scoring
   h += '<div class="pr-section">';
   h += '<div class="pr-section-title">Scoring</div>';
@@ -2610,12 +2690,12 @@ function buildPrintHTML() {
     h += '<div class="pr-section-title">Restarts</div>';
     h += '<div class="pr-card">';
     if (ownTotal > 0) {
-      const pct=ownTotal>0?Math.round(ownWon/ownTotal*100):0;
-      h+='<div class="pr-row"><span>Own '+rstLabel+'s</span><span>'+ownWon+' won / '+ownLost+' lost — <strong>'+pct+'%</strong></span></div>';
+      const pct=Math.round(ownWon/ownTotal*100);
+      h+='<div class="pr-row"><span>Own '+rstLabel+'s</span><span>'+ownWon+' won / '+ownLost+' lost'+(ownUnclear?' / '+ownUnclear+' unclear':'')+' — <strong>'+pct+'%</strong></span></div>';
     }
     if (oppTotal > 0) {
-      const pct=oppTotal>0?Math.round(oppWon/oppTotal*100):0;
-      h+='<div class="pr-row"><span>Opposition '+rstLabel+'s</span><span>'+oppWon+' won / '+oppLost+' lost — <strong>'+pct+'%</strong></span></div>';
+      const pct=Math.round(oppWon/oppTotal*100);
+      h+='<div class="pr-row"><span>Opposition '+rstLabel+'s</span><span>'+oppWon+' won / '+oppLost+' lost'+(oppUnclear?' / '+oppUnclear+' unclear':'')+' — <strong>'+pct+'%</strong></span></div>';
     }
     h += '</div></div>';
   }
@@ -2634,6 +2714,65 @@ function buildPrintHTML() {
       if (p.wides > 0) h += '<span class="pr-tag-grey">'+p.wides+' wide'+(p.wides!==1?'s':'')+'</span>';
       h += '</span></div>';
     });
+    h += '</div></div>';
+  }
+
+  // Substitutions
+  const subEvts = state.evts.filter(ev => ev.action === 'sub');
+  if (subEvts.length > 0) {
+    // rebuild scoreAt for print context
+    let psUsG=0,psUsP=0,psOppG=0,psOppP=0;
+    const psScoreAt=[];
+    state.evts.forEach(ev => {
+      if      (ev.action==='Goal')      psUsG++;
+      else if (ev.action==='Point')     psUsP++;
+      else if (ev.action==='2 Point')   psUsP+=2;
+      else if (ev.badge==='OPP') {
+        const d=ev.desc||'';
+        if      (d.includes('Goal added'))    psOppG++;
+        else if (d.includes('2 Point added')) psOppP+=2;
+        else if (d.includes('Point added'))   psOppP++;
+        else if (d.includes('Goal removed'))  psOppG=Math.max(0,psOppG-1);
+        else if (d.includes('Point removed')) psOppP=Math.max(0,psOppP-1);
+      } else if (ev.badge==='ADJ') {
+        const d=ev.desc||'';
+        if      (d.includes('Goal added'))   psUsG++;
+        else if (d.includes('2 Point added'))psUsP+=2;
+        else if (d.includes('Point added'))  psUsP++;
+        else if (d.includes('Goal removed')) psUsG=Math.max(0,psUsG-1);
+        else if (d.includes('Point removed'))psUsP=Math.max(0,psUsP-1);
+      }
+      psScoreAt.push({usG:psUsG,usP:psUsP,oppG:psOppG,oppP:psOppP});
+    });
+    const fPsUsG=psUsG,fPsUsP=psUsP,fPsOppG=psOppG,fPsOppP=psOppP;
+
+    h += '<div class="pr-section">';
+    h += '<div class="pr-section-title">Substitutions</div>';
+    h += '<div class="pr-card" style="padding:0;overflow:hidden;">';
+    // header
+    h += '<div style="display:flex;align-items:center;padding:6px 14px;background:#E8EAE5;border-bottom:1px solid #E2E4DE;gap:8px;">';
+    h += '<span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;min-width:42px;">Time</span>';
+    h += '<span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;flex:1;">On</span>';
+    h += '<span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;flex:1;">Off</span>';
+    h += '<span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;min-width:72px;text-align:right;">Score / After</span>';
+    h += '</div>';
+    state.evts.forEach((ev,i) => {
+      if (ev.action !== 'sub') return;
+      const at = psScoreAt[i] || {usG:0,usP:0,oppG:0,oppP:0};
+      const aUG=fPsUsG-at.usG, aUP=fPsUsP-at.usP, aOG=fPsOppG-at.oppG, aOP=fPsOppP-at.oppP;
+      const m = ev.desc.match(/Sub: (.+) off \/ (.+) on \(pos (\d+)\)/);
+      const offName=m?m[1]:'?', onName=m?m[2]:'?', pos=m?m[3]:'';
+      h += '<div style="display:flex;align-items:flex-start;padding:7px 14px;border-bottom:1px solid #E2E4DE;gap:8px;font-size:13px;">';
+      h += '<span style="min-width:42px;color:#6B6F66;padding-top:1px;">'+ev.time+'</span>';
+      h += '<div style="flex:1;"><div style="font-weight:600;color:#1F1F1F;">'+esc(onName)+'</div>'+(pos?'<div style="font-size:10px;color:#9A9E99;">Pos '+pos+'</div>':'')+'</div>';
+      h += '<div style="flex:1;color:#4A4A4A;">'+esc(offName)+'</div>';
+      h += '<div style="min-width:72px;text-align:right;">';
+      h += '<div style="font-size:11px;color:#6B6F66;">'+at.usG+'-'+at.usP+' v '+at.oppG+'-'+at.oppP+'</div>';
+      h += '<div style="font-size:10px;color:#9A9E99;margin-top:1px;"><span style="color:#2E7D32;">+'+aUG+'-'+aUP+'</span> / <span style="color:#C62828;">+'+aOG+'-'+aOP+'</span></div>';
+      h += '</div>';
+      h += '</div>';
+    });
+    h += '<div style="padding:6px 14px;font-size:10px;color:#9A9E99;">After = goals-pts scored from sub on ('+esc(state.usN)+' / '+esc(state.oppN)+')</div>';
     h += '</div></div>';
   }
 
