@@ -2907,7 +2907,7 @@ function buildPrintLineupHTML() {
 
   let h = '<div style="display:flex;gap:24px;align-items:flex-start;margin-bottom:28px;">';
   // Left: lineup
-  h += '<div style="flex:0 0 auto;">';
+  h += '<div style="flex:1;min-width:0;">';
   h += prTitle('Starting Line-up — '+esc(state.usN));
   h += formation;
   h += '</div>';
