@@ -71,9 +71,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .action-group-label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t2);padding:0 2px;}
 .action-btn-wide{background:#F4F5F2;color:#4A4A4A;border-color:#C8CAC4;}
 .action-btn-neutral{background:var(--bg2);color:var(--t2);border-color:var(--b);}
-.action-btn-red{background:#FFEBEE;color:#E53935;border-color:rgba(229,57,53,0.25);}
-.action-btn-yellow{background:#FFFDE7;color:#F9A825;border-color:rgba(249,168,37,0.3);}
-.action-btn-black{background:#F4F5F2;color:#2c2c2a;border-color:#C8CAC4;}
+.action-btn-red{background:#E53935;color:#fff;border-color:#C62828;}
+.action-btn-yellow{background:#FDD835;color:#1a1a18;border-color:rgba(0,0,0,0.15);}
+.action-btn-black{background:#2c2c2a;color:#fff;border-color:#1a1a18;}
 .action-btn-sub{background:#F0FAF2;color:#2E7D32;border-color:rgba(46,125,50,0.25);}
 .action-btn-turnover-won{background:#2E7D32;color:#fff;border-color:#2E7D32;}
 .action-btn-turnover-lost{background:#C62828;color:#fff;border-color:#C62828;}
@@ -271,14 +271,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .layout-sub-shirt{font-size:32px;color:#9E9E9E;line-height:1;}
 .layout-sub-num{position:absolute;top:9px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;color:#fff;pointer-events:none;line-height:1;}
 .layout-sub-name{font-size:9px;color:var(--t2);text-align:center;line-height:1.3;word-break:break-word;max-width:52px;}
+@page{margin:1.5cm 2cm;}
 @media print{
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   html,body{height:auto!important;overflow:visible!important;}
   body{background:#fff;display:block;}
   #app{display:none!important;}
   #print-area{display:block!important;}
-  #print-area .pr-section{page-break-inside:avoid;}
-  #print-area .pr-card{page-break-inside:avoid;}
+  #print-area .pr-hdr{margin-bottom:20px;}
+  #print-area .pr-section{page-break-inside:avoid;break-inside:avoid;}
+  #print-area .pr-card{page-break-inside:avoid;break-inside:avoid;}
+  #print-area .pr-row{page-break-inside:avoid;break-inside:avoid;}
+  #print-area .pr-break{page-break-before:always;break-before:page;padding-top:0;margin-top:0!important;}
+  #print-area .pr-section-flow{page-break-inside:auto!important;break-inside:auto!important;}
+  #print-area .pr-section-flow .pr-card{page-break-inside:auto!important;break-inside:auto!important;}
 }
 #print-area{display:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:680px;margin:0 auto;padding:24px;color:#1F1F1F;background:#fff;}
 #print-area .pr-hdr{text-align:center;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #2E7D32;}
@@ -532,7 +538,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 'use strict';
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
-const ACTS  = ['Goal','Point','2 Point','Wide','Free','Advanced','Red Card','Yellow Card','Black Card','Substitution','Turnover Won','Turnover Lost'];
+const ACTS  = ['Goal','Point','2 Point','Wide','Free','Advanced','Card','Substitution','Turnover Won','Turnover Lost'];
 const SSEC  = ['From Play','From Free','From Penalty','From 65'];
 const FSEC  = ['Push','Chop','Steps','Tackle','Pickup','Throw','Other'];
 const NS    = {Goal:SSEC,Point:SSEC,'2 Point':SSEC,Wide:SSEC,Free:FSEC};
@@ -540,7 +546,7 @@ const SAVE_KEY = 'gaa_match_v1';
 const DEFAULT_US = 'Donaghmore/Ashbourne';
 
 // ─── PITCH SVG (single source of truth, injected wherever needed) ─────────────
-const PITCH_SVG_INNER = `<rect width="320" height="400" fill="#4C9A3A" rx="10"/><rect x="0" y="10" width="320" height="44" fill="#52a83f" opacity="0.5"/><rect x="0" y="98" width="320" height="44" fill="#52a83f" opacity="0.5"/><rect x="0" y="186" width="320" height="28" fill="#52a83f" opacity="0.5"/><rect x="0" y="258" width="320" height="44" fill="#52a83f" opacity="0.5"/><rect x="0" y="346" width="320" height="44" fill="#52a83f" opacity="0.5"/><rect x="10" y="10" width="300" height="380" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"/><line x1="10" y1="132" x2="310" y2="132" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><line x1="10" y1="268" x2="310" y2="268" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><line x1="10" y1="64" x2="310" y2="64" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><line x1="10" y1="336" x2="310" y2="336" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><line x1="10" y1="45" x2="310" y2="45" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/><line x1="10" y1="355" x2="310" y2="355" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/><line x1="10" y1="200" x2="310" y2="200" stroke="rgba(255,255,255,0.65)" stroke-width="1.6" stroke-dasharray="12 7"/><circle cx="160" cy="200" r="2.5" fill="rgba(255,255,255,0.6)"/><rect x="127" y="10" width="66" height="35" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><rect x="127" y="355" width="66" height="35" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><rect x="135" y="10" width="50" height="12" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><rect x="135" y="378" width="50" height="12" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><path d="M 114,64 A 46,35 0 0,0 206,64" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><path d="M 114,336 A 46,35 0 0,1 206,336" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><path d="M 38,64 A 141,108 0 0,0 282,64" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><path d="M 38,336 A 141,108 0 0,1 282,336" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><circle cx="160" cy="40" r="2.5" fill="rgba(255,255,255,0.6)"/><circle cx="160" cy="360" r="2.5" fill="rgba(255,255,255,0.6)"/><line x1="149" y1="0" x2="149" y2="12" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="171" y1="0" x2="171" y2="12" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="147" y1="3" x2="173" y2="3" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="149" y1="388" x2="149" y2="400" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="171" y1="388" x2="171" y2="400" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="147" y1="397" x2="173" y2="397" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>`;
+const PITCH_SVG_INNER = `<rect width="320" height="400" fill="#4C9A3A" rx="10"/><rect x="0" y="10" width="320" height="44" fill="#52a83f" opacity="0.5"/><rect x="0" y="98" width="320" height="44" fill="#52a83f" opacity="0.5"/><rect x="0" y="186" width="320" height="28" fill="#52a83f" opacity="0.5"/><rect x="0" y="258" width="320" height="44" fill="#52a83f" opacity="0.5"/><rect x="0" y="346" width="320" height="44" fill="#52a83f" opacity="0.5"/><rect x="10" y="10" width="300" height="380" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"/><line x1="10" y1="132" x2="310" y2="132" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><line x1="10" y1="268" x2="310" y2="268" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><line x1="10" y1="64" x2="310" y2="64" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><line x1="10" y1="336" x2="310" y2="336" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><line x1="10" y1="45" x2="310" y2="45" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/><line x1="10" y1="355" x2="310" y2="355" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/><line x1="10" y1="200" x2="310" y2="200" stroke="rgba(255,255,255,0.65)" stroke-width="1.6" stroke-dasharray="12 12"/><line x1="10" y1="185" x2="310" y2="185" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/><line x1="10" y1="215" x2="310" y2="215" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/><circle cx="160" cy="200" r="2.5" fill="rgba(255,255,255,0.6)"/><rect x="127" y="10" width="66" height="35" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><rect x="127" y="355" width="66" height="35" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><rect x="135" y="10" width="50" height="12" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><rect x="135" y="378" width="50" height="12" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><path d="M 114,64 A 46,35 0 0,0 206,64" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><path d="M 114,336 A 46,35 0 0,1 206,336" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><path d="M 38,64 A 141,108 0 0,0 282,64" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><path d="M 38,336 A 141,108 0 0,1 282,336" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><circle cx="160" cy="40" r="2.5" fill="rgba(255,255,255,0.6)"/><circle cx="160" cy="360" r="2.5" fill="rgba(255,255,255,0.6)"/><line x1="149" y1="0" x2="149" y2="12" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="171" y1="0" x2="171" y2="12" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="147" y1="3" x2="173" y2="3" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="149" y1="388" x2="149" y2="400" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="171" y1="388" x2="171" y2="400" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="147" y1="397" x2="173" y2="397" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>`;
 
 // ─── ZONE GRID CONSTANTS ──────────────────────────────────────────────────────
 // 5 cols × 7 rows = 35 cells. At min 320px viewport (292px SVG width) cells
@@ -581,7 +587,7 @@ let pendScoreAdj = null; // {type, d, side} for pending score adjustment
 let pendActSaved = null, pendSecVal = null, pendSlotSaved = null;
 let zoneSelectedId = null, zoneSelectedCoords = null;
 // Shot map filter state
-let shotMapTeamFilter = 'all', shotMapHalfFilter = 'all';
+let shotMapTeamFilter = 'all', shotMapHalfFilter = 'all', shotMapPlayerFilter = 'all';
 let tInt    = null;
 let tRun    = false;
 let modalHandlerRef = null;
@@ -1162,7 +1168,7 @@ function handleModalClick(e) {
 const ACTION_GROUPS = [
   {label:'Scores',    items:['Goal','Point','2 Point','Wide']},
   {label:'Possession',items:['Turnover Won','Turnover Lost']},
-  {label:'Discipline',items:['Free','Advanced','Yellow Card','Black Card','Red Card']},
+  {label:'Discipline',items:['Free','Advanced','Card','Yellow Card','Black Card','Red Card']},
   {label:'Personnel', items:['Substitution']},
 ];
 const ACTION_META = {
@@ -1172,9 +1178,10 @@ const ACTION_META = {
   'Wide':        {cls:'action-btn-wide',icon:'<i class="fa-solid fa-child-reaching"></i>'},
   'Free':        {cls:'action-btn-neutral',icon:'<i class="fas fa-whistle"></i>'},
   'Advanced':    {cls:'action-btn-neutral',icon:'<i class="fas fa-forward-step"></i>'},
-  'Red Card':    {cls:'action-btn-red',   icon:'<i class="fas fa-square" style="color:#E53935;"></i>'},
-  'Yellow Card': {cls:'action-btn-yellow',icon:'<i class="fas fa-square" style="color:#FDD835;"></i>'},
-  'Black Card':  {cls:'action-btn-black', icon:'<i class="fas fa-square" style="color:#2c2c2a;"></i>'},
+  'Card':        {cls:'action-btn-neutral',icon:'<span style="display:inline-flex;gap:2px;align-items:center;"><i class="fas fa-square" style="font-size:10px;color:#FDD835;"></i><i class="fas fa-square" style="font-size:10px;color:#2c2c2a;"></i><i class="fas fa-square" style="font-size:10px;color:#E53935;"></i></span>'},
+  'Red Card':    {cls:'action-btn-red',   icon:''},
+  'Yellow Card': {cls:'action-btn-yellow',icon:''},
+  'Black Card':  {cls:'action-btn-black', icon:''},
   'Substitution':  {cls:'action-btn-sub',          icon:'<i class="fas fa-people-arrows"></i>'},
   'Turnover Won':  {cls:'action-btn-turnover-won',  icon:'<i class="fas fa-turn-up"></i>'},
   'Turnover Lost': {cls:'action-btn-turnover-lost', icon:'<i class="fas fa-turn-down"></i>'},
@@ -1463,6 +1470,15 @@ function sel(s) {
 
 function actCb(a) {
   if (a==='Substitution') { subOff=selSlot; pickSubOn(); return; }
+  if (a==='Card') {
+    showOpts('Card — colour?', ['Yellow Card','Black Card','Red Card'], colour => { logEv(colour, null); closeMod(); }, false);
+    return;
+  }
+  if (a==='Advanced') {
+    const advOpts = state.sport==='football' ? ['Dissent','Ball Handover','Sideline'] : ['Dissent','Sideline'];
+    showOpts('Advanced — reason?', advOpts, sub => { logEv('Advanced', sub); closeMod(); }, false);
+    return;
+  }
   pendAct = a;
   let sec = NS[a];
   if (sec) {
@@ -1508,17 +1524,22 @@ function showZonePicker() {
 
   // Preselect cell based on how the shot was taken
   zoneSelectedId     = getZonePreselect(sec);
-  zoneSelectedCoords = zoneSelectedId ? getZoneCellCoords(zoneSelectedId) : null;
+  zoneSelectedCoords = getZonePreselectCoords(sec) || (zoneSelectedId ? getZoneCellCoords(zoneSelectedId) : null);
 
   document.getElementById('zone-pitch-wrap').innerHTML = buildZoneSVG(zoneSelectedId);
   document.getElementById('zonepanel').classList.add('open');
 }
 
 function getZonePreselect(sec) {
-  // '45 (hurling) or '45 (football) → attacking 45m line, centre col
-  if (sec === 'From 65' || sec === 'From 45') return 'z-5-2';
-  // Penalty → penalty spot (bottom goal, centre)
+  if (sec === 'From 65') return 'z-3-2';   // cell containing y=215 (65m line, attacking side of centre)
+  if (sec === 'From 45') return 'z-4-2';   // cell containing y=268 (45m line)
   if (sec === 'From Penalty') return 'z-6-2';
+  return null;
+}
+
+function getZonePreselectCoords(sec) {
+  if (sec === 'From 65') return { x: 0.5, y: parseFloat((215/400).toFixed(4)) };
+  if (sec === 'From 45') return { x: 0.5, y: parseFloat((268/400).toFixed(4)) };
   return null;
 }
 
@@ -2622,13 +2643,24 @@ function buildShotMapHTML() {
   state.evts.forEach(ev => {
     if (ev.badge === '1H') { if ((ev.desc||'').includes('ended')) inH2 = true; return; }
     if (!shotActs.has(ev.action) || !ev.zone) return;
-    shots.push({ action: ev.action, zone: ev.zone, team: ev.slot != null ? 'us' : 'opp', half: inH2 ? 'h2' : 'h1' });
+    const pi = ev.slot != null ? state.slotp[ev.slot] : null;
+    shots.push({ action: ev.action, zone: ev.zone, team: ev.slot != null ? 'us' : 'opp', half: inH2 ? 'h2' : 'h1', slot: ev.slot != null ? ev.slot : null, pi });
   });
 
   if (shots.length === 0) return '';
 
+  // Players (our team) who have at least one attempt, ordered by player index
+  const seenPi = new Set();
+  const playerList = [];
+  shots.forEach(s => { if (s.pi != null && !seenPi.has(s.pi)) { seenPi.add(s.pi); playerList.push(s.pi); } });
+  playerList.sort((a,b) => a - b);
+
+  // Validate player filter is still relevant; reset to 'all' if player no longer has shots
+  if (shotMapPlayerFilter !== 'all' && !seenPi.has(Number(shotMapPlayerFilter))) shotMapPlayerFilter = 'all';
+
   const filtered = shots.filter(s => {
     if (shotMapHalfFilter !== 'all' && s.half !== shotMapHalfFilter) return false;
+    if (shotMapPlayerFilter !== 'all' && String(s.pi) !== String(shotMapPlayerFilter)) return false;
     return true;
   });
 
@@ -2641,9 +2673,15 @@ function buildShotMapHTML() {
     const cx = (baseCx + jitter(i * 2.1 + 1, 14)).toFixed(1);
     const cy = (baseCy + jitter(i * 2.1 + 2, 14)).toFixed(1);
     const isScore = s.action !== 'Wide';
-    const r = s.action === 'Goal' ? 9 : 5;
+    const isGoal = s.action === 'Goal';
+    const r = isGoal ? 9 : 6;
     const fill = isScore ? '#2E7D32' : '#C62828';
     dots += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" opacity="0.82" stroke="white" stroke-width="1.2"/>`;
+    if (s.pi != null) {
+      const ini = esc(gi(s.pi));
+      const fs = isGoal ? 7 : (ini.length >= 4 ? 4.5 : 5.5);
+      dots += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="${fs}" font-weight="700" fill="white" font-family="-apple-system,BlinkMacSystemFont,sans-serif" style="pointer-events:none;">${ini}</text>`;
+    }
   });
 
   const svg = `<svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:8px;" preserveAspectRatio="xMidYMid meet">${PITCH_SVG_INNER}${dots}</svg>`;
@@ -2658,12 +2696,19 @@ function buildShotMapHTML() {
 
   const pct = (n,d) => d>0 ? Math.round(n/d*100)+'%' : '—';
   const hChip = (val,label) => `<button class="zone-chip${shotMapHalfFilter===val?' active':''}" onclick="setShotMapFilter('half','${val}')">${label}</button>`;
+  const pChip = (val,label) => `<button class="zone-chip${String(shotMapPlayerFilter)===String(val)?' active':''}" onclick="setShotMapFilter('player','${val}')">${label}</button>`;
 
   let h = '<div id="shot-map-section" class="stat-section">';
   h += '<div class="stat-section-title">Shot Map</div>';
-  h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">';
+  h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">';
   h += hChip('all','Full Match')+hChip('h1','H1')+hChip('h2','H2');
   h += '</div>';
+  if (playerList.length > 0) {
+    h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">';
+    h += pChip('all','All');
+    playerList.forEach(pi => { h += pChip(pi, esc(gi(pi))); });
+    h += '</div>';
+  }
   h += `<div style="border-radius:8px;overflow:hidden;margin-bottom:8px;">${svg}</div>`;
   h += '<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;font-size:12px;color:var(--t2);align-items:center;">';
   h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#2E7D32" opacity=".82"/></svg>Score</span>';
@@ -2689,6 +2734,7 @@ function buildShotMapHTML() {
 
 function setShotMapFilter(key, val) {
   if (key === 'half') shotMapHalfFilter = val;
+  if (key === 'player') shotMapPlayerFilter = val;
   const section = document.getElementById('shot-map-section');
   if (section) section.outerHTML = buildShotMapHTML();
 }
@@ -2968,10 +3014,10 @@ function buildPrintHTML() {
 
   h += buildPrintLineupHTML();
 
-  // Score timeline
+  // Score timeline — forced page break so lineup fills page 1 cleanly
   const timelineHTML = buildPrintTimelineHTML();
   if (timelineHTML) {
-    h += '<div class="pr-section">';
+    h += '<div class="pr-section pr-break">';
     h += '<div class="pr-section-title">Score Timeline</div>';
     h += '<div class="pr-card">'+timelineHTML+'</div>';
     h += '</div>';
@@ -3074,7 +3120,7 @@ function buildPrintHTML() {
 
   // Player breakdown
   if (scorers.length > 0) {
-    h += '<div class="pr-section">';
+    h += '<div class="pr-section pr-section-flow">';
     h += '<div class="pr-section-title">Player Scoring</div>';
     h += '<div class="pr-card">';
     scorers.forEach(p => {
@@ -3118,7 +3164,7 @@ function buildPrintHTML() {
     });
     const fPsUsG=psUsG,fPsUsP=psUsP,fPsOppG=psOppG,fPsOppP=psOppP;
 
-    h += '<div class="pr-section">';
+    h += '<div class="pr-section pr-section-flow">';
     h += '<div class="pr-section-title">Substitutions</div>';
     h += '<div class="pr-card" style="padding:0;overflow:hidden;">';
     // header
@@ -3134,7 +3180,7 @@ function buildPrintHTML() {
       const aUG=fPsUsG-at.usG, aUP=fPsUsP-at.usP, aOG=fPsOppG-at.oppG, aOP=fPsOppP-at.oppP;
       const m = ev.desc.match(/Sub: (.+) off \/ (.+) on \(pos (\d+)\)/);
       const offName=m?m[1]:'?', onName=m?m[2]:'?', pos=m?m[3]:'';
-      h += '<div style="display:flex;align-items:flex-start;padding:7px 14px;border-bottom:1px solid #E2E4DE;gap:8px;font-size:13px;">';
+      h += '<div class="pr-row" style="display:flex;align-items:flex-start;padding:7px 14px;border-bottom:1px solid #E2E4DE;gap:8px;font-size:13px;">';
       h += '<span style="min-width:42px;color:#6B6F66;padding-top:1px;">'+ev.time+'</span>';
       h += '<div style="flex:1;"><div style="font-weight:600;color:#1F1F1F;">'+esc(onName)+'</div>'+(pos?'<div style="font-size:10px;color:#9A9E99;">Pos '+pos+'</div>':'')+'</div>';
       h += '<div style="flex:1;color:#4A4A4A;">'+esc(offName)+'</div>';
@@ -3195,7 +3241,8 @@ function buildPrintShotMapHTML() {
   state.evts.forEach(ev => {
     if (ev.badge === '1H') { if ((ev.desc||'').includes('ended')) inH2 = true; return; }
     if (!shotActs.has(ev.action) || !ev.zone) return;
-    shots.push({ action: ev.action, zone: ev.zone, half: inH2 ? 'h2' : 'h1' });
+    const pi = ev.slot != null ? state.slotp[ev.slot] : null;
+    shots.push({ action: ev.action, zone: ev.zone, half: inH2 ? 'h2' : 'h1', pi });
   });
   if (shots.length === 0) return '';
 
@@ -3204,9 +3251,15 @@ function buildPrintShotMapHTML() {
   shots.forEach((s, i) => {
     const cx = (ZPX + s.zone.coords.x * ZPW + jitter(i * 2.1 + 1, 14)).toFixed(1);
     const cy = (ZPY + s.zone.coords.y * ZPH + jitter(i * 2.1 + 2, 14)).toFixed(1);
-    const r = s.action === 'Goal' ? 9 : 5;
+    const isGoal = s.action === 'Goal';
+    const r = isGoal ? 9 : 6;
     const fill = s.action !== 'Wide' ? '#2E7D32' : '#C62828';
     dots += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" opacity="0.82" stroke="white" stroke-width="1.2"/>`;
+    if (s.pi != null) {
+      const ini = esc(gi(s.pi));
+      const fs = isGoal ? 7 : (ini.length >= 4 ? 4.5 : 5.5);
+      dots += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="${fs}" font-weight="700" fill="white" font-family="-apple-system,BlinkMacSystemFont,sans-serif" style="pointer-events:none;">${ini}</text>`;
+    }
   });
 
   const thirds = { att:{shots:0,scores:0}, mid:{shots:0,scores:0}, def:{shots:0,scores:0} };
@@ -3218,7 +3271,7 @@ function buildPrintShotMapHTML() {
   });
   const pct = (n,d) => d>0 ? Math.round(n/d*100)+'%' : '—';
 
-  let h = '<div class="pr-section">';
+  let h = '<div class="pr-section pr-break">';
   h += '<div class="pr-section-title">Shot Map</div>';
   h += '<div class="pr-card" style="padding:0;overflow:hidden;">';
   h += `<svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;" preserveAspectRatio="xMidYMid meet">${PITCH_SVG_INNER}${dots}</svg>`;
