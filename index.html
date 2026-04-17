@@ -75,6 +75,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .action-btn-yellow{background:#FFFDE7;color:#F9A825;border-color:rgba(249,168,37,0.3);}
 .action-btn-black{background:#F4F5F2;color:#2c2c2a;border-color:#C8CAC4;}
 .action-btn-sub{background:#F0FAF2;color:#2E7D32;border-color:rgba(46,125,50,0.25);}
+.action-btn-turnover-won{background:#2E7D32;color:#fff;border-color:#2E7D32;}
+.action-btn-turnover-lost{background:#C62828;color:#fff;border-color:#C62828;}
+/* Shot-location toggle */
+.gaa-toggle-opt.sl-opt{font-size:13px;font-weight:700;color:var(--t3);}
+.gaa-toggle-wrap input:not(:checked) + .gaa-toggle-track .gaa-toggle-opt.sl-opt:nth-of-type(1){color:#fff;}
+.gaa-toggle-wrap input:checked     + .gaa-toggle-track .gaa-toggle-opt.sl-opt:nth-of-type(2){color:#fff;}
+/* Zone picker */
+.zone-chip{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:500;cursor:pointer;border:.5px solid var(--bm);background:var(--bg2);color:var(--t2);font-family:inherit;touch-action:manipulation;}
+.zone-chip.active{background:var(--bgi);color:var(--ti);border-color:var(--bi);}
+.zone-chip:active{opacity:.75;}
 .ev-row{display:flex;gap:10px;padding:7px 0;border-bottom:.5px solid var(--b);font-size:13px;align-items:flex-start;cursor:default;transition:background .1s;}
 .ev-row:last-child{border-bottom:none;}
 .ev-row.selected{background:var(--bgi);}
@@ -336,39 +346,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <!-- Player grid with pitch -->
     <div style="position:relative;flex:1;">
-      <svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:10px;" preserveAspectRatio="xMidYMid slice">
-        <rect width="320" height="400" fill="#4C9A3A" rx="10"/>
-        <rect x="0" y="10"  width="320" height="44" fill="#52a83f" opacity="0.5"/>
-        <rect x="0" y="98"  width="320" height="44" fill="#52a83f" opacity="0.5"/>
-        <rect x="0" y="186" width="320" height="28" fill="#52a83f" opacity="0.5"/>
-        <rect x="0" y="258" width="320" height="44" fill="#52a83f" opacity="0.5"/>
-        <rect x="0" y="346" width="320" height="44" fill="#52a83f" opacity="0.5"/>
-        <rect x="10" y="10" width="300" height="380" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
-        <line x1="10" y1="132" x2="310" y2="132" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/>
-        <line x1="10" y1="268" x2="310" y2="268" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/>
-        <line x1="10" y1="64"  x2="310" y2="64"  stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
-        <line x1="10" y1="336" x2="310" y2="336" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
-        <line x1="10" y1="45"  x2="310" y2="45"  stroke="rgba(255,255,255,0.5)"  stroke-width="1.3"/>
-        <line x1="10" y1="355" x2="310" y2="355" stroke="rgba(255,255,255,0.5)"  stroke-width="1.3"/>
-        <line x1="10" y1="200" x2="310" y2="200" stroke="rgba(255,255,255,0.65)" stroke-width="1.6" stroke-dasharray="12 7"/>
-        <circle cx="160" cy="200" r="2.5" fill="rgba(255,255,255,0.6)"/>
-        <rect x="127" y="10"  width="66" height="35" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
-        <rect x="127" y="355" width="66" height="35" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
-        <rect x="135" y="10"  width="50" height="12" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
-        <rect x="135" y="378" width="50" height="12" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/>
-        <path d="M 114,64 A 46,35 0 0,0 206,64"  fill="none" stroke="rgba(255,255,255,0.7)"  stroke-width="1.5"/>
-        <path d="M 114,336 A 46,35 0 0,1 206,336" fill="none" stroke="rgba(255,255,255,0.7)"  stroke-width="1.5"/>
-        <path d="M 38,64 A 141,108 0 0,0 282,64"  fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/>
-        <path d="M 38,336 A 141,108 0 0,1 282,336" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/>
-        <circle cx="160" cy="40"  r="2.5" fill="rgba(255,255,255,0.6)"/>
-        <circle cx="160" cy="360" r="2.5" fill="rgba(255,255,255,0.6)"/>
-        <line x1="149" y1="0"   x2="149" y2="12"  stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
-        <line x1="171" y1="0"   x2="171" y2="12"  stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
-        <line x1="147" y1="3"   x2="173" y2="3"   stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
-        <line x1="149" y1="388" x2="149" y2="400" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
-        <line x1="171" y1="388" x2="171" y2="400" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
-        <line x1="147" y1="397" x2="173" y2="397" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>
-      </svg>
+      <div id="pitch-main-host" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:10px;overflow:hidden;"></div>
       <div id="pgrid" style="position:relative;z-index:1;opacity:.3;pointer-events:none;transition:opacity .2s;padding:10px 0 10px;height:100%;display:flex;flex-direction:column;justify-content:space-around;"></div>
     </div>
   </div>
@@ -507,6 +485,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <span class="gaa-toggle-knob" id="size-knob"></span>
         </div>
       </label>
+      <div style="border-top:.5px solid var(--b);margin-top:14px;padding-top:12px;display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <i id="shotloc-icon" class="fas fa-toggle-off" style="font-size:26px;color:var(--t3);cursor:pointer;touch-action:manipulation;" onclick="onShotLocToggle()"></i>
+        <span style="font-size:12px;color:var(--t2);">Shot location tracking</span>
+      </div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.4;margin-bottom:2px;">Tag where scores and wides were taken from</div>
       <div class="stitle">TEMPLATES</div>
       <div style="display:flex;gap:8px;margin-bottom:8px;">
         <input class="sinput" id="tni" type="text" placeholder="Template name" maxlength="30" style="flex:1;">
@@ -522,6 +505,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div id="bslist"></div>
     </div>
   </div>
+
+  <!-- Zone picker panel -->
+  <div id="zonepanel" class="full-panel" style="padding:0;">
+    <div class="panel-hdr" style="padding:14px 14px 10px;flex-shrink:0;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:17px;font-weight:500;color:var(--t1);">Tag shot location</div>
+        <div id="zone-ctx" style="font-size:12px;color:var(--t2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+      </div>
+    </div>
+    <div id="zone-pitch-wrap" style="flex:1;min-height:0;padding:0 10px;display:flex;align-items:stretch;"></div>
+    <div style="display:flex;gap:10px;padding:12px 14px;padding-bottom:max(16px,env(safe-area-inset-bottom));flex-shrink:0;">
+      <button onclick="skipZone()" style="flex:1;padding:14px;border-radius:var(--rl);border:1.5px solid var(--bm);background:var(--bg2);color:var(--t2);font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;touch-action:manipulation;">Skip</button>
+      <button onclick="confirmZone()" style="flex:2;padding:14px;border-radius:var(--rl);background:#2E7D32;color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;touch-action:manipulation;">Select</button>
+    </div>
+  </div>
 </div>
 
 <div id="print-area"></div>
@@ -530,12 +528,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 'use strict';
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
-const ACTS  = ['Goal','Point','2 Point','Wide','Free','Advanced','Red Card','Yellow Card','Black Card','Substitution'];
+const ACTS  = ['Goal','Point','2 Point','Wide','Free','Advanced','Red Card','Yellow Card','Black Card','Substitution','Turnover Won','Turnover Lost'];
 const SSEC  = ['From Play','From Free','From Penalty','From 65'];
 const FSEC  = ['Push','Chop','Steps','Tackle','Pickup','Throw','Other'];
 const NS    = {Goal:SSEC,Point:SSEC,'2 Point':SSEC,Wide:SSEC,Free:FSEC};
 const SAVE_KEY = 'gaa_match_v1';
 const DEFAULT_US = 'Donaghmore/Ashbourne';
+
+// ─── PITCH SVG (single source of truth, injected wherever needed) ─────────────
+const PITCH_SVG_INNER = `<rect width="320" height="400" fill="#4C9A3A" rx="10"/><rect x="0" y="10" width="320" height="44" fill="#52a83f" opacity="0.5"/><rect x="0" y="98" width="320" height="44" fill="#52a83f" opacity="0.5"/><rect x="0" y="186" width="320" height="28" fill="#52a83f" opacity="0.5"/><rect x="0" y="258" width="320" height="44" fill="#52a83f" opacity="0.5"/><rect x="0" y="346" width="320" height="44" fill="#52a83f" opacity="0.5"/><rect x="10" y="10" width="300" height="380" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"/><line x1="10" y1="132" x2="310" y2="132" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><line x1="10" y1="268" x2="310" y2="268" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><line x1="10" y1="64" x2="310" y2="64" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><line x1="10" y1="336" x2="310" y2="336" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><line x1="10" y1="45" x2="310" y2="45" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/><line x1="10" y1="355" x2="310" y2="355" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/><line x1="10" y1="200" x2="310" y2="200" stroke="rgba(255,255,255,0.65)" stroke-width="1.6" stroke-dasharray="12 7"/><circle cx="160" cy="200" r="2.5" fill="rgba(255,255,255,0.6)"/><rect x="127" y="10" width="66" height="35" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><rect x="127" y="355" width="66" height="35" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><rect x="135" y="10" width="50" height="12" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><rect x="135" y="378" width="50" height="12" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><path d="M 114,64 A 46,35 0 0,0 206,64" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><path d="M 114,336 A 46,35 0 0,1 206,336" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><path d="M 38,64 A 141,108 0 0,0 282,64" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><path d="M 38,336 A 141,108 0 0,1 282,336" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><circle cx="160" cy="40" r="2.5" fill="rgba(255,255,255,0.6)"/><circle cx="160" cy="360" r="2.5" fill="rgba(255,255,255,0.6)"/><line x1="149" y1="0" x2="149" y2="12" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="171" y1="0" x2="171" y2="12" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="147" y1="3" x2="173" y2="3" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="149" y1="388" x2="149" y2="400" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="171" y1="388" x2="171" y2="400" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="147" y1="397" x2="173" y2="397" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>`;
+
+// ─── ZONE GRID CONSTANTS ──────────────────────────────────────────────────────
+// 5 cols × 7 rows = 35 cells. At min 320px viewport (292px SVG width) cells
+// are 58×52 px — both above the 44px minimum tap-target requirement.
+// Attacking end is always at the bottom of the screen (row 6).
+const ZONE_COLS   = 5;
+const ZONE_ROWS   = 7;
+const ZONE_SCHEME = 'fine-full-7x5';
+// Playable pitch area in SVG viewBox coords (320×400)
+const ZPX = 10, ZPY = 10, ZPW = 300, ZPH = 380;
+const ZCW = ZPW / ZONE_COLS;   // 60 SVG units wide
+const ZCH = ZPH / ZONE_ROWS;   // ≈54.3 SVG units tall
 
 // ─── STATE (single source of truth) ──────────────────────────────────────────
 const state = {
@@ -551,6 +564,7 @@ const state = {
   sport:'hurling', // 'hurling' or 'football'
   teamSize:15,     // 15 or 13
   captain:null,    // slot number of captain, or null
+  trackShotLocations:false,
 };
 for (let i = 1; i <= 15; i++) state.slotp[i] = i;
 
@@ -559,6 +573,11 @@ let undos   = [];
 let selMode = false;
 let selSlot = null, pendAct = null, subOff = null;
 let pendScoreAdj = null; // {type, d, side} for pending score adjustment
+// Zone picker session state
+let pendActSaved = null, pendSecVal = null, pendSlotSaved = null;
+let zoneSelectedId = null, zoneSelectedCoords = null;
+// Shot map filter state
+let shotMapTeamFilter = 'all', shotMapHalfFilter = 'all';
 let tInt    = null;
 let tRun    = false;
 let modalHandlerRef = null;
@@ -670,10 +689,10 @@ let saveStateTimeoutId = null;
 function serializeState() {
   const {goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
          usN,oppN,location,referee,matchNotes,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
-         maxB,evts,sport,teamSize,captain,startSlotp,startCaptain} = state;
+         maxB,evts,sport,teamSize,captain,startSlotp,startCaptain,trackShotLocations} = state;
   return {goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
           usN,oppN,location,referee,matchNotes,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
-          maxB,evts,sport,teamSize,captain,startSlotp,startCaptain};
+          maxB,evts,sport,teamSize,captain,startSlotp,startCaptain,trackShotLocations};
 }
 
 function saveState() {
@@ -1138,6 +1157,7 @@ function handleModalClick(e) {
 
 const ACTION_GROUPS = [
   {label:'Scores',    items:['Goal','Point','2 Point','Wide']},
+  {label:'Possession',items:['Turnover Won','Turnover Lost']},
   {label:'Discipline',items:['Free','Advanced','Yellow Card','Black Card','Red Card']},
   {label:'Personnel', items:['Substitution']},
 ];
@@ -1151,7 +1171,9 @@ const ACTION_META = {
   'Red Card':    {cls:'action-btn-red',   icon:'<i class="fas fa-square" style="color:#E53935;"></i>'},
   'Yellow Card': {cls:'action-btn-yellow',icon:'<i class="fas fa-square" style="color:#FDD835;"></i>'},
   'Black Card':  {cls:'action-btn-black', icon:'<i class="fas fa-square" style="color:#2c2c2a;"></i>'},
-  'Substitution':{cls:'action-btn-sub',   icon:'<i class="fas fa-people-arrows"></i>'},
+  'Substitution':  {cls:'action-btn-sub',          icon:'<i class="fas fa-people-arrows"></i>'},
+  'Turnover Won':  {cls:'action-btn-turnover-won',  icon:'<i class="fas fa-turn-up"></i>'},
+  'Turnover Lost': {cls:'action-btn-turnover-lost', icon:'<i class="fas fa-turn-down"></i>'},
 };
 
 function showOpts(title, opts, handler, rich) {
@@ -1455,19 +1477,125 @@ function actCb(a) {
   } else { logEv(a,null); closeMod(); }
 }
 
+const ZONE_ACTS = new Set(['Goal','Point','2 Point','Wide']);
+
 function secCb(s) {
   const act = pendAct;
-  logEv(pendAct, s);
-  closeMod();
-  if (act==='Goal'||act==='Point'||act==='2 Point'||act==='Wide') showRestartModal('us');
+  if (state.trackShotLocations && ZONE_ACTS.has(act)) {
+    // Save all session state before closeMod() clears it
+    pendActSaved  = act;
+    pendSecVal    = s;
+    pendSlotSaved = selSlot;
+    closeMod();
+    showZonePicker();
+  } else {
+    logEv(act, s);
+    closeMod();
+    if (ZONE_ACTS.has(act)) showRestartModal('us');
+  }
+}
+
+// ─── ZONE PICKER ──────────────────────────────────────────────────────────────
+function showZonePicker() {
+  const act = pendActSaved, sec = pendSecVal, slot = pendSlotSaved;
+  const pi   = state.slotp[slot];
+  const name = gn(pi) ? gn(pi)+' (#'+pi+')' : '#'+pi;
+  document.getElementById('zone-ctx').textContent = act + '  ·  ' + name;
+
+  // Preselect cell based on how the shot was taken
+  zoneSelectedId     = getZonePreselect(sec);
+  zoneSelectedCoords = zoneSelectedId ? getZoneCellCoords(zoneSelectedId) : null;
+
+  document.getElementById('zone-pitch-wrap').innerHTML = buildZoneSVG(zoneSelectedId);
+  document.getElementById('zonepanel').classList.add('open');
+}
+
+function getZonePreselect(sec) {
+  // '45 (hurling) or '45 (football) → attacking 45m line, centre col
+  if (sec === 'From 65' || sec === 'From 45') return 'z-5-2';
+  // Penalty → penalty spot (bottom goal, centre)
+  if (sec === 'From Penalty') return 'z-6-2';
+  return null;
+}
+
+function getZoneCellCoords(id) {
+  if (!id) return null;
+  const parts = id.split('-');
+  const r = parseInt(parts[1]), c = parseInt(parts[2]);
+  return {
+    x: parseFloat(((ZPX + c * ZCW + ZCW / 2) / 320).toFixed(4)),
+    y: parseFloat(((ZPY + r * ZCH + ZCH / 2) / 400).toFixed(4))
+  };
+}
+
+function buildZoneSVG(selectedId) {
+  let cells = '';
+  for (let r = 0; r < ZONE_ROWS; r++) {
+    for (let c = 0; c < ZONE_COLS; c++) {
+      const id   = `z-${r}-${c}`;
+      const x    = ZPX + c * ZCW;
+      const y    = ZPY + r * ZCH;
+      const cx   = (x + ZCW / 2) / 320;
+      const cy   = (y + ZCH / 2) / 400;
+      const sel  = id === selectedId;
+      const fill = sel ? 'rgba(55,138,221,0.52)' : 'rgba(255,255,255,0.04)';
+      const strk = sel ? 'rgba(55,138,221,0.9)'  : 'rgba(255,255,255,0.22)';
+      const sw   = sel ? '1.5' : '0.7';
+      cells += `<rect id="${id}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${ZCW.toFixed(1)}" height="${ZCH.toFixed(1)}" fill="${fill}" stroke="${strk}" stroke-width="${sw}" onclick="selectZoneCell('${id}',${cx.toFixed(4)},${cy.toFixed(4)})" style="cursor:pointer;-webkit-tap-highlight-color:transparent;"/>`;
+    }
+  }
+  // End-orientation labels inside SVG
+  const labels =
+    `<rect x="10" y="10" width="300" height="11" fill="white" opacity="0.92"/>` +
+    `<text x="160" y="19" text-anchor="middle" font-size="9" font-weight="700" fill="#2E7D32" font-family="-apple-system,BlinkMacSystemFont,sans-serif">DEFENSIVE END</text>` +
+    `<rect x="10" y="379" width="300" height="11" fill="white" opacity="0.92"/>` +
+    `<text x="160" y="388" text-anchor="middle" font-size="9" font-weight="700" fill="#2E7D32" font-family="-apple-system,BlinkMacSystemFont,sans-serif">▾ ATTACKING END</text>`;
+  return `<svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;touch-action:none;" preserveAspectRatio="xMidYMid meet">${PITCH_SVG_INNER}${cells}${labels}</svg>`;
+}
+
+function selectZoneCell(id, x, y) {
+  if (zoneSelectedId === id) {
+    zoneSelectedId = null; zoneSelectedCoords = null;
+  } else {
+    zoneSelectedId = id;
+    zoneSelectedCoords = {x: parseFloat(x), y: parseFloat(y)};
+  }
+  document.getElementById('zone-pitch-wrap').innerHTML = buildZoneSVG(zoneSelectedId);
+}
+
+function closeZone() {
+  document.getElementById('zonepanel').classList.remove('open');
+}
+
+function confirmZone() {
+  const zone = zoneSelectedId
+    ? {id: zoneSelectedId, coords: zoneSelectedCoords, scheme: ZONE_SCHEME}
+    : null;
+  _finishZone(zone);
+}
+
+function skipZone() { _finishZone(null); }
+
+function _finishZone(zone) {
+  closeZone();
+  // Temporarily restore selSlot so logEv can read it
+  selSlot = pendSlotSaved;
+  logEv(pendActSaved, pendSecVal, zone);
+  const act = pendActSaved;
+  selSlot = null;
+  pendActSaved = pendSecVal = pendSlotSaved = null;
+  zoneSelectedId = null; zoneSelectedCoords = null;
+  if (ZONE_ACTS.has(act)) showRestartModal('us');
 }
 
 function badgeCls(a) {
   if(a==='Goal')return 'bg'; if(a==='Point')return 'bp'; if(a==='2 Point')return 'bp'; if(a==='Wide')return 'bw';
-  if(a==='Red Card')return 'br'; if(a==='Yellow Card')return 'by'; if(a.indexOf('Card')>=0)return 'bc'; return 'bo';
+  if(a==='Red Card')return 'br'; if(a==='Yellow Card')return 'by'; if(a.indexOf('Card')>=0)return 'bc';
+  if(a==='Turnover Won')return 'bg'; if(a==='Turnover Lost')return 'br';
+  return 'bo';
 }
 
-function logEv(action, sec) {
+function logEv(action, sec, zone) {
   const slot = selSlot, pi = state.slotp[slot];
   const prevG  = state.goals, prevP = state.pts;
 
@@ -1500,7 +1628,7 @@ function logEv(action, sec) {
   addRow(fmt(state.secs), gi(pi), badgeCls(action), desc);
   // Tag the event with slot/action/sec for accurate undo hev check and scorer summary
   const ev = state.evts[state.evts.length-1];
-  ev.slot=slot; ev.action=action; ev.sec=sec||null;
+  ev.slot=slot; ev.action=action; ev.sec=sec||null; ev.zone=(zone!==undefined)?zone:null;
   if (action==='Goal'||action==='Point'||action==='2 Point') refBtn(slot);
 
   pushUndo(desc, () => {
@@ -1579,8 +1707,8 @@ function shareWA() {
 
 function shareCSV() {
   const csvEsc = v => '"' + String(v||'').replace(/"/g,'""') + '"';
-  const rows = [['Time','Event','Description']];
-  state.evts.forEach(e => rows.push([e.time, e.badge, e.desc]));
+  const rows = [['Time','Event','Description','zone_id','zone_x','zone_y']];
+  state.evts.forEach(e => rows.push([e.time, e.badge, e.desc, e.zone?e.zone.id:'', e.zone?e.zone.coords.x.toFixed(4):'', e.zone?e.zone.coords.y.toFixed(4):'']));
   const csv = rows.map(r => r.map(csvEsc).join(',')).join('\r\n');
   const date = new Date().toISOString().slice(0,10);
   const safe = (state.usN||'match').replace(/[^a-z0-9]/gi,'_');
@@ -1664,6 +1792,11 @@ function openSettings(){
   const is13 = state.teamSize === 13;
   document.getElementById('sport-chk').checked = isFootball;
   document.getElementById('size-chk').checked = is13;
+  const shotlocIcon = document.getElementById('shotloc-icon');
+  if (shotlocIcon) {
+    shotlocIcon.className = state.trackShotLocations ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
+    shotlocIcon.style.color = state.trackShotLocations ? '#2E7D32' : 'var(--t3)';
+  }
   el['starting-lbl'].textContent = 'STARTING '+(state.teamSize||15);
   el.pslist.innerHTML='';
   const sz = state.teamSize || 15;
@@ -1764,6 +1897,16 @@ function onSizeToggle(checked) {
   saveState();
 }
 
+function onShotLocToggle() {
+  state.trackShotLocations = !state.trackShotLocations;
+  saveState();
+  const icon = document.getElementById('shotloc-icon');
+  if (icon) {
+    icon.className = state.trackShotLocations ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
+    icon.style.color = state.trackShotLocations ? '#2E7D32' : 'var(--t3)';
+  }
+}
+
 // ─── RESTORE UI FROM PERSISTED STATE ─────────────────────────────────────────
 function restoreUI() {
   el.gc.textContent=state.goals; el.pc.textContent=state.pts;
@@ -1838,6 +1981,9 @@ function restoreUI() {
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 function init() {
   initEl();
+  // Inject pitch SVG from single-source constant into main screen host
+  document.getElementById('pitch-main-host').innerHTML =
+    `<svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;" preserveAspectRatio="xMidYMid slice">${PITCH_SVG_INNER}</svg>`;
   const restored = loadSavedState();
   renderPGrid();
   if (restored) {
@@ -2168,6 +2314,7 @@ function buildStatsHTML() {
   let placedGoals=0, placedPts=0, placedTwoPts=0, placedWides=0;
   let ownWon=0, ownLost=0, ownUnclear=0;
   let oppWon=0, oppLost=0, oppUnclear=0;
+  let turnoversWon=0, turnoversLost=0;
   const pstats = {};
 
   state.evts.forEach(ev => {
@@ -2186,7 +2333,7 @@ function buildStatsHTML() {
     const pi = state.slotp[ev.slot];
     if (!pi) return;
     const placed = PLACED_BALL.has(ev.sec);
-    if (!pstats[pi]) pstats[pi] = {name:pl(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0};
+    if (!pstats[pi]) pstats[pi] = {name:pl(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0,twon:0,tlost:0};
     const ps = pstats[pi];
     if (ev.action === 'Goal')     { goalCount++;   placed ? (placedGoals++,  ps.gPlaced++) : ps.gPlay++; }
     else if (ev.action === 'Point')    { ptCount++;    placed ? (placedPts++,   ps.pPlaced++) : ps.pPlay++; }
@@ -2195,6 +2342,8 @@ function buildStatsHTML() {
     else if (ev.action === 'Yellow Card') ps.yc++;
     else if (ev.action === 'Red Card')   ps.rc++;
     else if (ev.action === 'Black Card') ps.bc++;
+    else if (ev.action === 'Turnover Won')  { turnoversWon++;  ps.twon++; }
+    else if (ev.action === 'Turnover Lost') { turnoversLost++; ps.tlost++; }
   });
 
   const totalScoreActions = goalCount + ptCount + twoPtCount;
@@ -2207,6 +2356,7 @@ function buildStatsHTML() {
   const placedAttempts = placedScoreCount + placedWides;
   const placedPct = placedAttempts > 0 ? Math.round(placedScoreCount / placedAttempts * 100) : 0;
 
+  const totalTurnovers = turnoversWon + turnoversLost;
   const ownTotal = ownWon + ownLost + ownUnclear;
   const oppTotal = oppWon + oppLost + oppUnclear;
 
@@ -2215,10 +2365,9 @@ function buildStatsHTML() {
   }
 
   // ── Momentum calculation ──
-  // Positive event values: score pts (our) + restarts won by us
-  // Opposition: score pts (opp) + restarts won by them
-  const usMom  = (state.goals*3 + state.pts)  + (ownWon  + oppWon)  * 2;
-  const oppMom = (state.og*3   + state.op_)   + (ownLost + oppLost) * 2;
+  // Scores + restarts won + turnovers won (turnovers lost count for opposition)
+  const usMom  = (state.goals*3 + state.pts)  + (ownWon  + oppWon)  * 2 + turnoversWon;
+  const oppMom = (state.og*3   + state.op_)   + (ownLost + oppLost) * 2 + turnoversLost;
   const momTotal = usMom + oppMom;
   const usPct  = momTotal > 0 ? Math.round(usMom  / momTotal * 100) : 50;
   const oppPct = momTotal > 0 ? 100 - usPct : 50;
@@ -2244,7 +2393,10 @@ function buildStatsHTML() {
   h += '<span class="momentum-pct" style="color:#6B6F66;">'+oppPct+'%</span>';
   h += '</div>';
   h += '</div>';
-  const basisNote = (ownTotal+oppTotal > 0) ? 'Scores + restarts won' : 'Based on scores';
+  const basisNote = (ownTotal+oppTotal > 0 && totalTurnovers > 0) ? 'Scores + restarts + turnovers'
+    : (ownTotal+oppTotal > 0) ? 'Scores + restarts won'
+    : totalTurnovers > 0 ? 'Scores + turnovers'
+    : 'Based on scores';
   const domNote = dominant ? ' &mdash; '+esc(dominant)+' dominant' : '';
   h += '<div class="momentum-basis">'+basisNote+domNote+'</div>';
   h += '</div></div>';
@@ -2300,6 +2452,30 @@ function buildStatsHTML() {
   h += rstBlock('Opposition '+rstLabel+'s', oppWon, oppLost, oppUnclear, oppTotal);
   h += '</div></div>';
 
+  // ── Turnovers ──
+  if (totalTurnovers > 0) {
+    const wonPct = Math.round(turnoversWon / totalTurnovers * 100);
+    h += '<div class="stat-section"><div class="stat-section-title">Turnovers</div><div class="stat-card">';
+    h += '<div style="display:flex;gap:12px;align-items:center;padding:4px 0 10px;">';
+    h += '<div style="flex:1;text-align:center;"><div style="font-size:24px;font-weight:700;color:#2E7D32;line-height:1;">'+turnoversWon+'</div><div style="font-size:11px;color:var(--t2);margin-top:2px;">Won</div></div>';
+    h += '<div style="flex:1;text-align:center;"><div style="font-size:24px;font-weight:700;color:#C62828;line-height:1;">'+turnoversLost+'</div><div style="font-size:11px;color:var(--t2);margin-top:2px;">Lost</div></div>';
+    h += '</div>';
+    h += '<div class="stat-split-bar"><div class="stat-split-won" style="width:'+wonPct+'%"></div></div>';
+    h += '<div class="stat-split-labels"><span style="color:#2E7D32;font-weight:600;">'+wonPct+'% won</span><span style="color:#C62828;font-weight:600;">'+(100-wonPct)+'% lost</span></div>';
+    const twPlayers = Object.values(pstats).filter(p=>p.twon+p.tlost>0).sort((a,b)=>(b.twon-b.tlost)-(a.twon-a.tlost)||a.name.localeCompare(b.name));
+    if (twPlayers.length) {
+      h += '<div style="border-top:.5px solid var(--b);margin-top:10px;padding-top:6px;">';
+      twPlayers.forEach(p => {
+        h += '<div class="stat-prow"><div class="stat-pname">'+esc(p.name)+'</div><div class="stat-ptags">';
+        if (p.twon  > 0) h += '<span class="stat-tag green">+'+p.twon+'</span>';
+        if (p.tlost > 0) h += '<span class="stat-tag red">-'+p.tlost+'</span>';
+        h += '</div></div>';
+      });
+      h += '</div>';
+    }
+    h += '</div></div>';
+  }
+
   // ── Player breakdown ──
   const scorers = Object.values(pstats).filter(p =>
     p.gPlay+p.gPlaced+p.pPlay+p.pPlaced+p.wides > 0
@@ -2351,7 +2527,91 @@ function buildStatsHTML() {
 
   h += buildSubTableHTML();
 
+  if (state.trackShotLocations) {
+    const smHtml = buildShotMapHTML();
+    if (smHtml) h += smHtml;
+  }
+
   return h;
+}
+
+// ─── SHOT MAP ─────────────────────────────────────────────────────────────────
+function buildShotMapHTML() {
+  const shotActs = new Set(['Goal','Point','2 Point','Wide']);
+  let inH2 = false;
+  const shots = [];
+  state.evts.forEach(ev => {
+    if (ev.badge === '1H') { if ((ev.desc||'').includes('ended')) inH2 = true; return; }
+    if (!shotActs.has(ev.action) || !ev.zone) return;
+    shots.push({ action: ev.action, zone: ev.zone, team: ev.slot != null ? 'us' : 'opp', half: inH2 ? 'h2' : 'h1' });
+  });
+
+  if (shots.length === 0) return '';
+
+  const filtered = shots.filter(s => {
+    if (shotMapHalfFilter !== 'all' && s.half !== shotMapHalfFilter) return false;
+    return true;
+  });
+
+  // Seeded jitter so dots in the same zone spread slightly but are stable across re-renders
+  const jitter = (seed, range) => { const x = Math.sin(seed) * 43758.5453; return (x - Math.floor(x) - 0.5) * range; };
+  let dots = '';
+  filtered.forEach((s, i) => {
+    const baseCx = ZPX + s.zone.coords.x * ZPW;
+    const baseCy = ZPY + s.zone.coords.y * ZPH;
+    const cx = (baseCx + jitter(i * 2.1 + 1, 14)).toFixed(1);
+    const cy = (baseCy + jitter(i * 2.1 + 2, 14)).toFixed(1);
+    const isScore = s.action !== 'Wide';
+    const r = s.action === 'Goal' ? 9 : 5;
+    const fill = isScore ? '#2E7D32' : '#C62828';
+    dots += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" opacity="0.82" stroke="white" stroke-width="1.2"/>`;
+  });
+
+  const svg = `<svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:8px;" preserveAspectRatio="xMidYMid meet">${PITCH_SVG_INNER}${dots}</svg>`;
+
+  const thirds = { att:{shots:0,scores:0}, mid:{shots:0,scores:0}, def:{shots:0,scores:0} };
+  filtered.forEach(s => {
+    const y = s.zone.coords.y;
+    const t = y > 0.667 ? 'att' : y > 0.333 ? 'mid' : 'def';
+    thirds[t].shots++;
+    if (s.action !== 'Wide') thirds[t].scores++;
+  });
+
+  const pct = (n,d) => d>0 ? Math.round(n/d*100)+'%' : '—';
+  const hChip = (val,label) => `<button class="zone-chip${shotMapHalfFilter===val?' active':''}" onclick="setShotMapFilter('half','${val}')">${label}</button>`;
+
+  let h = '<div id="shot-map-section" class="stat-section">';
+  h += '<div class="stat-section-title">Shot Map</div>';
+  h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">';
+  h += hChip('all','Full Match')+hChip('h1','H1')+hChip('h2','H2');
+  h += '</div>';
+  h += `<div style="border-radius:8px;overflow:hidden;margin-bottom:8px;">${svg}</div>`;
+  h += '<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;font-size:12px;color:var(--t2);align-items:center;">';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#2E7D32" opacity=".82"/></svg>Score</span>';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#C62828" opacity=".82"/></svg>Wide</span>';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="#2E7D32" opacity=".82" stroke="white" stroke-width="1"/></svg>Goal</span>';
+  h += '</div>';
+
+  const thirdRows = [['Attacking third',thirds.att],['Middle third',thirds.mid],['Defensive third',thirds.def]];
+  const hasData = thirdRows.some(([,d]) => d.shots > 0);
+  if (hasData) {
+    h += '<table style="width:100%;font-size:12px;border-collapse:collapse;">';
+    h += '<tr style="color:var(--t3);font-size:11px;"><th style="text-align:left;padding:4px 0;font-weight:500;">Zone</th><th style="text-align:center;font-weight:500;">Shots</th><th style="text-align:center;font-weight:500;">Scores</th><th style="text-align:center;font-weight:500;">Conv%</th></tr>';
+    thirdRows.forEach(([label,d]) => {
+      if (d.shots === 0) return;
+      h += `<tr><td style="padding:3px 0;color:var(--t2);">${label}</td><td style="text-align:center;color:var(--t1);">${d.shots}</td><td style="text-align:center;color:var(--t1);">${d.scores}</td><td style="text-align:center;font-weight:600;color:var(--ti);">${pct(d.scores,d.shots)}</td></tr>`;
+    });
+    h += '</table>';
+  }
+
+  h += '</div>';
+  return h;
+}
+
+function setShotMapFilter(key, val) {
+  if (key === 'half') shotMapHalfFilter = val;
+  const section = document.getElementById('shot-map-section');
+  if (section) section.outerHTML = buildShotMapHTML();
 }
 
 // ─── PRINT / SHARE ────────────────────────────────────────────────────────────
@@ -2539,6 +2799,7 @@ function buildPrintHTML() {
   let ownWon=0, ownLost=0, ownUnclear=0;
   let oppWon=0, oppLost=0, oppUnclear=0;
   let freesConc=0, freesScored=0;
+  let turnoversWon=0, turnoversLost=0;
   const pstats = {};
 
   // Infer free outcomes: a Free event immediately followed (ignoring RSTR) by an OPP score
@@ -2569,7 +2830,7 @@ function buildPrintHTML() {
     const pi = state.slotp[ev.slot];
     if (!pi) return;
     const placed = PLACED_BALL.has(ev.sec);
-    if (!pstats[pi]) pstats[pi] = {name:pl(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0};
+    if (!pstats[pi]) pstats[pi] = {name:pl(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0,twon:0,tlost:0};
     const ps = pstats[pi];
     if (ev.action === 'Goal')        { goalCount++;   placed ? (placedGoals++,  ps.gPlaced++) : ps.gPlay++; }
     else if (ev.action === 'Point')       { ptCount++;    placed ? (placedPts++,   ps.pPlaced++) : ps.pPlay++; }
@@ -2578,6 +2839,8 @@ function buildPrintHTML() {
     else if (ev.action === 'Yellow Card') ps.yc++;
     else if (ev.action === 'Red Card')    ps.rc++;
     else if (ev.action === 'Black Card')  ps.bc++;
+    else if (ev.action === 'Turnover Won')  { turnoversWon++;  ps.twon++; }
+    else if (ev.action === 'Turnover Lost') { turnoversLost++; ps.tlost++; }
   });
 
   const totalScoreActions = goalCount + ptCount + twoPtCount;
@@ -2589,6 +2852,7 @@ function buildPrintHTML() {
   const placedAttempts = placedScoreCount + placedWides;
   const placedPct = placedAttempts > 0 ? Math.round(placedScoreCount / placedAttempts * 100) : 0;
   const rstLabel = state.sport === 'hurling' ? 'Puck Out' : 'Kickout';
+  const totalTurnovers = turnoversWon + turnoversLost;
   const ownTotal = ownWon + ownLost + ownUnclear;
   const oppTotal = oppWon + oppLost + oppUnclear;
 
@@ -2635,13 +2899,17 @@ function buildPrintHTML() {
   }
 
   // Momentum
-  const usMom  = (state.goals*3 + state.pts)  + (ownWon  + oppWon)  * 2;
-  const oppMom = (state.og*3   + state.op_)   + (ownLost + oppLost) * 2;
+  const usMom  = (state.goals*3 + state.pts)  + (ownWon  + oppWon)  * 2 + turnoversWon;
+  const oppMom = (state.og*3   + state.op_)   + (ownLost + oppLost) * 2 + turnoversLost;
   const momTotal = usMom + oppMom;
   if (momTotal > 0) {
     const usPct  = Math.round(usMom  / momTotal * 100);
     const oppPct = 100 - usPct;
     const dominant = usPct > oppPct ? state.usN : usPct < oppPct ? state.oppN : null;
+    const prBasisNote = (ownTotal+oppTotal > 0 && totalTurnovers > 0) ? 'Scores + restarts + turnovers'
+      : (ownTotal+oppTotal > 0) ? 'Scores + restarts won'
+      : totalTurnovers > 0 ? 'Scores + turnovers'
+      : 'Based on scores';
     h += '<div class="pr-section">';
     h += '<div class="pr-section-title">Momentum</div>';
     h += '<div class="pr-card">';
@@ -2654,7 +2922,7 @@ function buildPrintHTML() {
     h += '<span style="color:#2E7D32;font-weight:600;">'+esc(state.usN)+' <span style="font-weight:400;">'+usPct+'%</span></span>';
     h += '<span style="color:#C62828;font-weight:600;">'+esc(state.oppN)+' <span style="font-weight:400;">'+oppPct+'%</span></span>';
     h += '</div>';
-    if (dominant) h += '<div style="font-size:11px;color:#6B6F66;margin-top:4px;">'+esc(dominant)+' dominant &mdash; based on scores + restarts won</div>';
+    if (dominant) h += '<div style="font-size:11px;color:#6B6F66;margin-top:4px;">'+esc(dominant)+' dominant &mdash; '+prBasisNote+'</div>';
     h += '</div></div>';
   }
 
@@ -2697,6 +2965,31 @@ function buildPrintHTML() {
       const pct=Math.round(oppWon/oppTotal*100);
       h+='<div class="pr-row"><span>Opposition '+rstLabel+'s</span><span>'+oppWon+' won / '+oppLost+' lost'+(oppUnclear?' / '+oppUnclear+' unclear':'')+' — <strong>'+pct+'%</strong></span></div>';
     }
+    h += '</div></div>';
+  }
+
+  // Turnovers
+  if (totalTurnovers > 0) {
+    const wonPct = Math.round(turnoversWon / totalTurnovers * 100);
+    h += '<div class="pr-section">';
+    h += '<div class="pr-section-title">Turnovers</div>';
+    h += '<div class="pr-card">';
+    h += '<div style="display:flex;gap:24px;align-items:center;margin-bottom:10px;">';
+    h += '<span style="font-size:18px;font-weight:700;color:#2E7D32;">'+turnoversWon+' won</span>';
+    h += '<span style="font-size:18px;font-weight:700;color:#C62828;">'+turnoversLost+' lost</span>';
+    h += '</div>';
+    h += '<div style="height:10px;border-radius:5px;overflow:hidden;display:flex;margin-bottom:6px;background:#F8D7D7;">';
+    h += '<div style="width:'+wonPct+'%;background:#2E7D32;"></div>';
+    h += '</div>';
+    h += '<div class="pr-row"><span>Won</span><span style="color:#2E7D32;font-weight:600;">'+turnoversWon+' ('+wonPct+'%)</span></div>';
+    h += '<div class="pr-row"><span>Lost</span><span style="color:#C62828;font-weight:600;">'+turnoversLost+' ('+(100-wonPct)+'%)</span></div>';
+    const twPlayers = Object.values(pstats).filter(p=>p.twon+p.tlost>0).sort((a,b)=>(b.twon-b.tlost)-(a.twon-a.tlost)||a.name.localeCompare(b.name));
+    twPlayers.forEach(p => {
+      h += '<div class="pr-row"><span>'+esc(p.name)+'</span><span>';
+      if (p.twon  > 0) h += '<span class="pr-tag" style="margin-right:4px;">+'+p.twon+'</span>';
+      if (p.tlost > 0) h += '<span class="pr-tag" style="background:#F8D7D7;color:#991B1B;">-'+p.tlost+'</span>';
+      h += '</span></div>';
+    });
     h += '</div></div>';
   }
 
@@ -2806,7 +3099,69 @@ function buildPrintHTML() {
     h += '</div>';
   }
 
+  // Shot map
+  if (state.trackShotLocations) {
+    const smPrint = buildPrintShotMapHTML();
+    if (smPrint) h += smPrint;
+  }
+
   h += '<div class="pr-footer">Generated by GAA Match Tracker</div>';
+  return h;
+}
+
+function buildPrintShotMapHTML() {
+  const shotActs = new Set(['Goal','Point','2 Point','Wide']);
+  let inH2 = false;
+  const shots = [];
+  state.evts.forEach(ev => {
+    if (ev.badge === '1H') { if ((ev.desc||'').includes('ended')) inH2 = true; return; }
+    if (!shotActs.has(ev.action) || !ev.zone) return;
+    shots.push({ action: ev.action, zone: ev.zone, half: inH2 ? 'h2' : 'h1' });
+  });
+  if (shots.length === 0) return '';
+
+  const jitter = (seed, range) => { const x = Math.sin(seed) * 43758.5453; return (x - Math.floor(x) - 0.5) * range; };
+  let dots = '';
+  shots.forEach((s, i) => {
+    const cx = (ZPX + s.zone.coords.x * ZPW + jitter(i * 2.1 + 1, 14)).toFixed(1);
+    const cy = (ZPY + s.zone.coords.y * ZPH + jitter(i * 2.1 + 2, 14)).toFixed(1);
+    const r = s.action === 'Goal' ? 9 : 5;
+    const fill = s.action !== 'Wide' ? '#2E7D32' : '#C62828';
+    dots += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" opacity="0.82" stroke="white" stroke-width="1.2"/>`;
+  });
+
+  const thirds = { att:{shots:0,scores:0}, mid:{shots:0,scores:0}, def:{shots:0,scores:0} };
+  shots.forEach(s => {
+    const y = s.zone.coords.y;
+    const t = y > 0.667 ? 'att' : y > 0.333 ? 'mid' : 'def';
+    thirds[t].shots++;
+    if (s.action !== 'Wide') thirds[t].scores++;
+  });
+  const pct = (n,d) => d>0 ? Math.round(n/d*100)+'%' : '—';
+
+  let h = '<div class="pr-section">';
+  h += '<div class="pr-section-title">Shot Map</div>';
+  h += '<div class="pr-card" style="padding:0;overflow:hidden;">';
+  h += `<svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;" preserveAspectRatio="xMidYMid meet">${PITCH_SVG_INNER}${dots}</svg>`;
+  h += '<div style="padding:10px 14px;">';
+  // Legend
+  h += '<div style="display:flex;gap:14px;margin-bottom:10px;font-size:11px;color:#4A4A4A;align-items:center;">';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#2E7D32" opacity=".82"/></svg>Score</span>';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#C62828" opacity=".82"/></svg>Wide</span>';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="#2E7D32" opacity=".82" stroke="white" stroke-width="1"/></svg>Goal</span>';
+  h += '</div>';
+  // Thirds table
+  const thirdRows = [['Attacking third',thirds.att],['Middle third',thirds.mid],['Defensive third',thirds.def]];
+  if (thirdRows.some(([,d]) => d.shots > 0)) {
+    h += '<table style="width:100%;font-size:12px;border-collapse:collapse;">';
+    h += '<tr style="color:#6B6F66;font-size:11px;"><th style="text-align:left;padding:4px 0;font-weight:500;">Zone</th><th style="text-align:center;font-weight:500;">Shots</th><th style="text-align:center;font-weight:500;">Scores</th><th style="text-align:center;font-weight:500;">Conv%</th></tr>';
+    thirdRows.forEach(([label,d]) => {
+      if (d.shots === 0) return;
+      h += `<tr><td style="padding:3px 0;color:#4A4A4A;">${label}</td><td style="text-align:center;color:#1F1F1F;">${d.shots}</td><td style="text-align:center;color:#1F1F1F;">${d.scores}</td><td style="text-align:center;font-weight:600;color:#2E7D32;">${pct(d.scores,d.shots)}</td></tr>`;
+    });
+    h += '</table>';
+  }
+  h += '</div></div></div>';
   return h;
 }
 
