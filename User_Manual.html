@@ -101,6 +101,9 @@
 <h3>Team Size Toggle</h3>
 <p>Switch between <strong>15-a-side</strong> and <strong>13-a-side</strong> formats. This changes the pitch grid layout and the number of starting player slots.</p>
 
+<h3>Shot Location Tracking</h3>
+<p>At the bottom of the Setup panel, a <strong>Shot Location Tracking</strong> toggle (indicated by a small on/off icon) enables zone tagging for shots. When active, every Goal, Point, 2-Point, and Wide triggers an extra step where you tap a cell on a full-pitch zone grid to record where the shot was taken from. The toggle is off by default — enable it only when you have a dedicated person tracking. Collected data feeds the <strong>Shot Map</strong> in the Stats panel and adds zone columns to the CSV export.</p>
+
 <h3>Starting Players</h3>
 <p>Below the toggles is a numbered list of player slots. Slot 1 is always the goalkeeper (marked with a gold badge). Type each player's name into the corresponding field. The app automatically generates initials for the pitch grid — it intelligently handles Irish names with O' prefixes and disambiguates clashing initials.</p>
 <p>The <strong>©</strong> icon beside each player lets you designate a <strong>captain</strong>. Tap it to toggle — the active captain shows a green © and a badge appears on their pitch button.</p>
@@ -153,7 +156,7 @@
   <li><strong>2 Point</strong> — Football only. A 2-pointer scored over the crossbar from outside the 45m arc.</li>
   <li><strong>Wide</strong> — Records a wide. Same follow-up for how it was attempted.</li>
 </ul>
-<p>After any score or wide, a <strong>Restart</strong> dialog appears asking whether the restart was Won, Lost, or Unclear.</p>
+<p>After any score or wide, if <strong>Shot Location Tracking</strong> is enabled, a full-screen zone picker appears first. The pitch is divided into a 5-column × 7-row grid. Tap the cell where the shot was taken — the attacking end is always at the bottom. Cells along the 45m/65m line and the penalty spot are pre-selected automatically when relevant. Tap <strong>Select</strong> to confirm or <strong>Skip</strong> to record without a location. The Restart dialog follows.</p>
 
 <h3>Discipline</h3>
 <ul>
@@ -163,6 +166,13 @@
   <li><strong>Black Card</strong> — Adds a black card indicator (Football).</li>
   <li><strong>Red Card</strong> — Adds a red card and <strong>disables</strong> the player's button for the rest of the match.</li>
 </ul>
+
+<h3>Possession</h3>
+<ul>
+  <li><strong>Turnover Won</strong> — Records a possession gained (green, up-arrow icon).</li>
+  <li><strong>Turnover Lost</strong> — Records a possession lost (red, down-arrow icon).</li>
+</ul>
+<p>Turnovers feed into the Momentum calculation in Stats, contributing positively or negatively depending on direction.</p>
 
 <h3>Personnel</h3>
 <ul>
@@ -214,7 +224,7 @@
 <p>A line chart showing the running total for both teams over the match. Your team is green, the opposition is red. Dots mark goals (green filled), points (white), 2-pointers (orange), and wides (grey). Dashed lines mark substitutions, red cards, and black cards.</p>
 
 <h3>Momentum</h3>
-<p>A bar and percentage split showing which team has been more dominant, calculated from scores and restarts won.</p>
+<p>A bar and percentage split showing which team has been more dominant, calculated from scores, restarts won, and turnovers (when recorded). A note below the bar indicates which signals are included.</p>
 
 <h3>Scoring</h3>
 <p>A summary card showing total score, conversion rate (scores vs attempts including wides), and a visual breakdown bar.</p>
@@ -227,6 +237,12 @@
 
 <h3>Restarts</h3>
 <p>Breaks down restart results (Won / Lost / Unclear) for both your own and opposition restarts.</p>
+
+<h3>Turnovers</h3>
+<p>When turnover events have been recorded, a Turnovers card shows the total won and lost, a split bar showing the won percentage, and a per-player breakdown.</p>
+
+<h3>Shot Map</h3>
+<p>Visible only when <strong>Shot Location Tracking</strong> is enabled and at least one shot has been tagged. Shows a full-pitch overhead view with coloured dots for each tagged shot: <strong>green</strong> for scores (goals shown larger), <strong>red</strong> for wides. Filter by half (Full Match / H1 / H2) using the chips above the map. A conversion percentage table beneath the map breaks results down by pitch third (Attacking / Middle / Defensive). The Shot Map is also included in the printed/exported match report.</p>
 
 <h3>Player Breakdown</h3>
 <p>Lists individual scoring stats and discipline records (cards).</p>
@@ -249,7 +265,7 @@
 <table>
   <tr><th>Method</th><th>Where</th><th>What's shared</th></tr>
   <tr><td><strong>WhatsApp</strong></td><td>Event Log panel</td><td>Formatted text with score and all events</td></tr>
-  <tr><td><strong>Export CSV</strong></td><td>Event Log panel</td><td>Spreadsheet-compatible file (Time, Event, Description)</td></tr>
+  <tr><td><strong>Export CSV</strong></td><td>Event Log panel</td><td>Spreadsheet-compatible file (Time, Event, Description, zone_id, zone_x, zone_y). Zone columns are populated for tagged shots when Shot Location Tracking is enabled; otherwise left blank.</td></tr>
   <tr><td><strong>Print / PDF</strong></td><td>Stats panel (share icon)</td><td>Full match report with scores, timeline, scorers, subs, discipline</td></tr>
 </table>
 
