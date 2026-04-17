@@ -120,6 +120,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .pbadge{width:32px;height:32px;border-radius:50%;flex-shrink:0;border:1.5px solid rgba(46,125,50,0.35);background:#DFF3E3;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#2E7D32;}
 .pbadge.gk{border-color:rgba(249,168,37,0.4);color:#B45309;background:#FFF1D6;}
 .pbadge.sub{border-color:var(--bm);color:var(--t2);background:var(--bg3);}
+.drag-handle{cursor:grab;color:var(--t3);padding:4px 3px;font-size:13px;flex-shrink:0;touch-action:none;user-select:none;-webkit-user-select:none;line-height:1;display:flex;align-items:center;}
+.drag-handle:active{cursor:grabbing;color:var(--t2);}
+.prow.drag-over{background:var(--bgi);border-radius:var(--r);outline:1.5px solid var(--bi);}
+.prow.dragging{opacity:0.3;}
 .stitle{font-size:11px;font-weight:500;color:var(--t2);letter-spacing:.06em;margin:14px 0 7px;}
 .tplrow{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:.5px solid var(--b);}
 .tplrow:last-child{border-bottom:none;}
@@ -1817,8 +1821,9 @@ function renderBench(){
 
 function addBRow(c,idx){
   const row=document.createElement('div'); row.className='prow'; row.id='br'+idx;
-  row.innerHTML='<div class="pbadge sub">'+idx+'</div><input class="sinput" id="sn'+idx+'" type="text" placeholder="'+(idx===16?'Sub GK':'Sub #'+idx)+'" maxlength="30" value="'+esc(gn(idx)||'')+'">';
+  row.innerHTML='<span class="drag-handle" title="Drag to swap player"><i class="fas fa-grip-vertical"></i></span><div class="pbadge sub">'+idx+'</div><input class="sinput" id="sn'+idx+'" type="text" placeholder="'+(idx===16?'Sub GK':'Sub #'+idx)+'" maxlength="30" value="'+esc(gn(idx)||'')+'">';
   c.appendChild(row);
+  attachDragHandle(row);
   document.getElementById('sn'+idx).addEventListener('input',function(){
     const ti=parseInt(this.id.replace('sn',''));
     if(this.value.trim()&&ti>=state.maxB){
@@ -1876,12 +1881,86 @@ function setCaptain(slot) {
   saveState();
 }
 
+// ─── DRAG-TO-SWAP PLAYER NAMES ───────────────────────────────────────────────
+let _drag = null;
+
+function _dragMove(e) {
+  if (!_drag) return;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  _drag.ghost.style.top = (clientY - _drag.offsetY) + 'px';
+  _drag.ghost.style.visibility = 'hidden';
+  const under = document.elementFromPoint(clientX, clientY);
+  _drag.ghost.style.visibility = '';
+  const targetRow = under && under.closest('.prow');
+  if (_drag.over && _drag.over !== targetRow) _drag.over.classList.remove('drag-over');
+  _drag.over = null;
+  if (targetRow && targetRow !== _drag.row && targetRow.parentElement === _drag.row.parentElement) {
+    targetRow.classList.add('drag-over');
+    _drag.over = targetRow;
+  }
+}
+
+function _dragEnd() {
+  if (!_drag) return;
+  const { row, over, ghost } = _drag;
+  if (over) {
+    over.classList.remove('drag-over');
+    const srcIn = row.querySelector('.sinput');
+    const tgtIn = over.querySelector('.sinput');
+    const tmp = srcIn.value; srcIn.value = tgtIn.value; tgtIn.value = tmp;
+    // Swap captain designation so it follows the player name
+    const srcSlot = parseInt(srcIn.id.replace('sn',''));
+    const tgtSlot = parseInt(tgtIn.id.replace('sn',''));
+    if (state.captain === srcSlot) state.captain = tgtSlot;
+    else if (state.captain === tgtSlot) state.captain = srcSlot;
+    document.querySelectorAll('.cap-btn').forEach(b => {
+      const s = parseInt(b.dataset.cap);
+      const isCap = state.captain === s;
+      b.className = 'cap-btn '+(isCap?'active':'inactive');
+      b.querySelector('i').className = 'fa-regular '+(isCap?'fa-copyright':'fa-circle');
+    });
+  }
+  row.classList.remove('dragging');
+  ghost.remove();
+  _drag = null;
+  document.removeEventListener('mousemove', _dragMove);
+  document.removeEventListener('mouseup', _dragEnd);
+  document.removeEventListener('touchmove', _dragMove);
+  document.removeEventListener('touchend', _dragEnd);
+}
+
+function _dragStart(e, row) {
+  e.preventDefault();
+  const rect = row.getBoundingClientRect();
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const ghost = row.cloneNode(true);
+  ghost.style.cssText = 'position:fixed;pointer-events:none;z-index:9999;width:'+rect.width+'px;opacity:0.9;background:var(--bg1);border-radius:var(--r);box-shadow:0 4px 20px rgba(0,0,0,0.18);left:'+rect.left+'px;top:'+rect.top+'px;padding:7px 0;';
+  document.body.appendChild(ghost);
+  row.classList.add('dragging');
+  _drag = { row, ghost, offsetY: clientY - rect.top, over: null };
+  document.addEventListener('mousemove', _dragMove);
+  document.addEventListener('mouseup', _dragEnd);
+  document.addEventListener('touchmove', _dragMove, {passive:false});
+  document.addEventListener('touchend', _dragEnd);
+}
+
+function attachDragHandle(row) {
+  const h = row.querySelector('.drag-handle');
+  if (!h) return;
+  h.addEventListener('mousedown', e => _dragStart(e, row));
+  h.addEventListener('touchstart', e => _dragStart(e, row), {passive:false});
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 function buildPlayerRow(i) {
   const isCap = state.captain === i;
   const row = document.createElement('div'); row.className='prow';
-  row.innerHTML = '<div class="pbadge'+(i===1?' gk':'')+'">'+i+'</div>'
+  row.innerHTML = '<span class="drag-handle" title="Drag to swap player"><i class="fas fa-grip-vertical"></i></span>'
+    +'<div class="pbadge'+(i===1?' gk':'')+'">'+i+'</div>'
     +'<input class="sinput" id="sn'+i+'" type="text" placeholder="'+(i===1?'Goalkeeper':'Player '+i)+'" maxlength="30" value="'+esc(gn(i)||'')+'">'
     +'<button type="button" class="cap-btn '+(isCap?'active':'inactive')+'" data-cap="'+i+'" onclick="setCaptain('+i+')" title="Set captain"><i class="fa-regular '+(isCap?'fa-copyright':'fa-circle')+'"></i></button>';
+  attachDragHandle(row);
   return row;
 }
 
