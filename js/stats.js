@@ -171,7 +171,7 @@ function showHalfTimeReport() {
     else if (ev.action==='2 Point')  scores++;
     else if (ev.action==='Wide')     wides++;
     if (!ev.slot) continue;
-    const pi=state.slotp[ev.slot]; if (!pi) continue;
+    const pi = ev.pi != null ? ev.pi : state.slotp[ev.slot]; if (!pi) continue;
     if (!pstats[pi]) pstats[pi]={name:gn(pi)||('#'+pi),g:0,p:0};
     if (ev.action==='Goal') pstats[pi].g++;
     if (ev.action==='Point'||ev.action==='2 Point') pstats[pi].p++;
@@ -262,7 +262,7 @@ function buildStatsHTML() {
       return;
     }
     if (!ev.action || !ev.slot) return;
-    const pi = state.slotp[ev.slot];
+    const pi = ev.pi != null ? ev.pi : state.slotp[ev.slot];
     if (!pi) return;
     const placed = PLACED_BALL.has(ev.sec);
     if (!pstats[pi]) pstats[pi] = {name:pl(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0,twon:0,tlost:0};
@@ -467,8 +467,8 @@ function buildShotMapHTML() {
   state.evts.forEach(ev => {
     if (ev.badge === '1H') { if ((ev.desc||'').includes('ended')) inH2 = true; return; }
     if (!shotActs.has(ev.action) || !ev.zone) return;
-    const pi = ev.slot != null ? state.slotp[ev.slot] : null;
-    shots.push({ action: ev.action, zone: ev.zone, team: ev.slot != null ? 'us' : 'opp', half: inH2 ? 'h2' : 'h1', slot: ev.slot != null ? ev.slot : null, pi });
+    const pi = ev.pi != null ? ev.pi : (ev.slot != null ? state.slotp[ev.slot] : null);
+    shots.push({ action: ev.action, zone: ev.zone, team: ev.slot != null ? 'us' : 'opp', half: inH2 ? 'h2' : 'h1', slot: ev.slot != null ? ev.slot : null, pi, placed: PLACED_BALL.has(ev.sec) });
   });
 
   if (shots.length === 0) return '';
@@ -497,6 +497,7 @@ function buildShotMapHTML() {
     const isGoal = s.action === 'Goal';
     const r = isGoal ? 9 : 6;
     const fill = isScore ? '#2E7D32' : '#C62828';
+    if (s.placed) dots += `<circle cx="${cx}" cy="${cy}" r="${r+3.5}" fill="none" stroke="${fill}" stroke-width="1.5" opacity="0.7"/>`;
     dots += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" opacity="0.82" stroke="white" stroke-width="1.2"/>`;
     if (s.pi != null) {
       const ini = esc(gi(s.pi));
@@ -535,6 +536,7 @@ function buildShotMapHTML() {
   h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#2E7D32" opacity=".82"/></svg>Score</span>';
   h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#C62828" opacity=".82"/></svg>Wide</span>';
   h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="#2E7D32" opacity=".82" stroke="white" stroke-width="1"/></svg>Goal</span>';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="18" height="18"><circle cx="9" cy="9" r="8" fill="none" stroke="#2E7D32" stroke-width="1.5" opacity=".7"/><circle cx="9" cy="9" r="5" fill="#2E7D32" opacity=".82" stroke="white" stroke-width="1"/></svg>Placed</span>';
   h += '</div>';
 
   const thirdRows = [['Attacking third',thirds.att],['Middle third',thirds.mid],['Defensive third',thirds.def]];

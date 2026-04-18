@@ -98,7 +98,9 @@ const gi = i => initialsCache[i] !== undefined ? initialsCache[i] : String(i);
 function playerScore(pi) {
   let g = 0, p = 0;
   for (const ev of state.evts) {
-    if (!ev.action || ev.slot == null || state.slotp[ev.slot] !== pi) continue;
+    if (!ev.action || ev.slot == null) continue;
+    const evPi = ev.pi != null ? ev.pi : state.slotp[ev.slot];
+    if (evPi !== pi) continue;
     if (ev.action === 'Goal') g++;
     else if (ev.action === 'Point') p++;
     else if (ev.action === '2 Point') p += 2;
@@ -111,9 +113,9 @@ function refBtn(s) {
   const b = document.querySelector('[data-s="'+s+'"]'); if (!b) return;
   const pi = state.slotp[s], ini = gi(pi);
   while (b.firstChild) b.removeChild(b.firstChild);
-  if (state.ycarded[s]) { const e=document.createElement('span'); e.className='card-y'; b.appendChild(e); }
-  if (state.bcarded[s]) { const e=document.createElement('span'); e.className='card-b'; b.appendChild(e); }
-  if (state.rcarded[s]) { const e=document.createElement('span'); e.className='card-r'; b.appendChild(e); }
+  if (state.ycarded[pi]) { const e=document.createElement('span'); e.className='card-y'; b.appendChild(e); }
+  if (state.bcarded[pi]) { const e=document.createElement('span'); e.className='card-b'; b.appendChild(e); }
+  if (state.rcarded[pi]) { const e=document.createElement('span'); e.className='card-r'; b.appendChild(e); }
   if (state.ubench[pi]) { const e=document.createElement('span'); e.className='subdot'; b.appendChild(e); }
   if (state.captain === s) { const e=document.createElement('i'); e.className='fa-regular fa-copyright cap-badge'; b.appendChild(e); }
   const wrap = document.createElement('span');

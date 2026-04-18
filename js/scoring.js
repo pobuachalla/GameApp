@@ -7,7 +7,7 @@ function buildScorerSummary() {
     if (!ev.slot || !ev.action) return;
     const a = ev.action;
     if (a !== 'Goal' && a !== 'Point' && a !== '2 Point') return;
-    const pi = state.slotp[ev.slot];
+    const pi = ev.pi != null ? ev.pi : state.slotp[ev.slot];
     if (!pi) return;
     if (!scorers[pi]) scorers[pi] = {name: pl(pi), gPlay:0, gPlaced:0, pPlay:0, pPlaced:0};
     const s = scorers[pi];

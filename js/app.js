@@ -53,12 +53,13 @@ function restoreUI() {
     el.evlog.appendChild(r);
   });
   if(state.evts.length) el.logempty.style.display='none';
-  const slotsWithEvts=new Set(state.evts.filter(e=>e.slot&&e.action&&e.action!=='sub').map(e=>e.slot));
+  const pisWithEvts=new Set(state.evts.filter(e=>e.slot&&e.action&&e.action!=='sub').map(e=>e.pi!=null?e.pi:state.slotp[e.slot]));
   const teamSz=state.teamSize||15;
   for(let s=1;s<=teamSz;s++){
     const b=document.querySelector('[data-s="'+s+'"]'); if(!b) continue;
-    if(state.rcarded[s])        b.classList.add('rc');
-    else if(slotsWithEvts.has(s)) b.classList.add('hev');
+    const pi=state.slotp[s];
+    if(state.rcarded[pi])          b.classList.add('rc');
+    else if(pisWithEvts.has(pi))   b.classList.add('hev');
     if(state.ubench[state.slotp[s]]) b.classList.add('sub');
   }
   buildInitialsCache();

@@ -202,7 +202,7 @@ function buildPrintHTML() {
       return;
     }
     if (!ev.action || !ev.slot) return;
-    const pi = state.slotp[ev.slot];
+    const pi = ev.pi != null ? ev.pi : state.slotp[ev.slot];
     if (!pi) return;
     const placed = PLACED_BALL.has(ev.sec);
     if (!pstats[pi]) pstats[pi] = {name:pl(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0,twon:0,tlost:0};
@@ -475,8 +475,8 @@ function buildPrintShotMapHTML() {
   state.evts.forEach(ev => {
     if (ev.badge === '1H') { if ((ev.desc||'').includes('ended')) inH2 = true; return; }
     if (!shotActs.has(ev.action) || !ev.zone) return;
-    const pi = ev.slot != null ? state.slotp[ev.slot] : null;
-    shots.push({ action: ev.action, zone: ev.zone, half: inH2 ? 'h2' : 'h1', pi });
+    const pi = ev.pi != null ? ev.pi : (ev.slot != null ? state.slotp[ev.slot] : null);
+    shots.push({ action: ev.action, zone: ev.zone, half: inH2 ? 'h2' : 'h1', pi, placed: PLACED_BALL.has(ev.sec) });
   });
   if (shots.length === 0) return '';
 
@@ -488,6 +488,7 @@ function buildPrintShotMapHTML() {
     const isGoal = s.action === 'Goal';
     const r = isGoal ? 9 : 6;
     const fill = s.action !== 'Wide' ? '#2E7D32' : '#C62828';
+    if (s.placed) dots += `<circle cx="${cx}" cy="${cy}" r="${r+3.5}" fill="none" stroke="${fill}" stroke-width="1.5" opacity="0.7"/>`;
     dots += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" opacity="0.82" stroke="white" stroke-width="1.2"/>`;
     if (s.pi != null) {
       const ini = gi(s.pi);

@@ -2,7 +2,7 @@
 
 // ─── PLAYER ACTIONS ───────────────────────────────────────────────────────────
 function sel(s) {
-  if (!tRun || state.rcarded[s]) return;
+  if (!tRun || state.rcarded[state.slotp[s]]) return;
   selSlot = s;
   const acts = state.sport==='football' ? ACTS : ACTS.filter(a => a !== '2 Point');
   showOpts(pl(state.slotp[s])+' — select action', acts, actCb, false);
@@ -171,17 +171,17 @@ function logEv(action, sec, zone) {
   if (action==='Goal'||action==='Point'||action==='2 Point') upTot();
 
   if (action==='Red Card') {
-    state.rcarded[slot]=true;
+    state.rcarded[pi]=true;
     const b=document.querySelector('[data-s="'+slot+'"]');
     if(b){ b.classList.remove('hev','sub'); b.classList.add('rc'); const e=document.createElement('span'); e.className='card-r'; b.appendChild(e); }
   }
   if (action==='Yellow Card') {
-    state.ycarded[slot]=(state.ycarded[slot]||0)+1;
+    state.ycarded[pi]=(state.ycarded[pi]||0)+1;
     const b=document.querySelector('[data-s="'+slot+'"]');
     if(b&&!b.querySelector('.card-y')){ const e=document.createElement('span'); e.className='card-y'; b.appendChild(e); }
   }
   if (action==='Black Card') {
-    state.bcarded[slot]=(state.bcarded[slot]||0)+1;
+    state.bcarded[pi]=(state.bcarded[pi]||0)+1;
     const b=document.querySelector('[data-s="'+slot+'"]');
     if(b&&!b.querySelector('.card-b')){ const e=document.createElement('span'); e.className='card-b'; b.appendChild(e); }
   }
@@ -194,7 +194,7 @@ function logEv(action, sec, zone) {
   addRow(fmt(state.secs), gi(pi), badgeCls(action), desc);
   // Tag the event with slot/action/sec for accurate undo hev check and scorer summary
   const ev = state.evts[state.evts.length-1];
-  ev.slot=slot; ev.action=action; ev.sec=sec||null; ev.zone=(zone!==undefined)?zone:null;
+  ev.slot=slot; ev.pi=pi; ev.action=action; ev.sec=sec||null; ev.zone=(zone!==undefined)?zone:null;
   if (action==='Goal'||action==='Point'||action==='2 Point') refBtn(slot);
 
   pushUndo(desc, () => {
@@ -202,17 +202,17 @@ function logEv(action, sec, zone) {
     if (action==='Point')   { setUsPts(prevP);   upTot(); refBtn(slot); }
     if (action==='2 Point') { setUsPts(prevP);   upTot(); refBtn(slot); }
     if (action==='Red Card') {
-      delete state.rcarded[slot];
+      delete state.rcarded[pi];
       const b=document.querySelector('[data-s="'+slot+'"]');
       if(b){ b.classList.remove('rc'); const c=b.querySelector('.card-r'); if(c)c.remove(); }
     }
     if (action==='Yellow Card') {
-      state.ycarded[slot]=(state.ycarded[slot]||1)-1;
-      if(state.ycarded[slot]<=0){ delete state.ycarded[slot]; const b=document.querySelector('[data-s="'+slot+'"]'); const c=b&&b.querySelector('.card-y'); if(c)c.remove(); }
+      state.ycarded[pi]=(state.ycarded[pi]||1)-1;
+      if(state.ycarded[pi]<=0){ delete state.ycarded[pi]; const b=document.querySelector('[data-s="'+slot+'"]'); const c=b&&b.querySelector('.card-y'); if(c)c.remove(); }
     }
     if (action==='Black Card') {
-      state.bcarded[slot]=(state.bcarded[slot]||1)-1;
-      if(state.bcarded[slot]<=0){ delete state.bcarded[slot]; const b=document.querySelector('[data-s="'+slot+'"]'); const c=b&&b.querySelector('.card-b'); if(c)c.remove(); }
+      state.bcarded[pi]=(state.bcarded[pi]||1)-1;
+      if(state.bcarded[pi]<=0){ delete state.bcarded[pi]; const b=document.querySelector('[data-s="'+slot+'"]'); const c=b&&b.querySelector('.card-b'); if(c)c.remove(); }
     }
     const b2=document.querySelector('[data-s="'+slot+'"]');
     const still=state.evts.some(e=>e.slot===slot);
@@ -234,7 +234,7 @@ function pickSubOn() {
   for (let pidx in state.suboff) {
     pidx=parseInt(pidx); if(used[pidx])continue;
     if(isGK!==(state.suboff[pidx]===1))continue;
-    if(state.rcarded[state.suboff[pidx]])continue;
+    if(state.rcarded[pidx])continue;
     avail.push({val:String(pidx),label:(gn(pidx)||'#'+pidx),sub:'Previously subbed off'});
   }
   if (!avail.length) {
