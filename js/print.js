@@ -219,6 +219,18 @@ function buildPrintHTML() {
   const ownTotal = ownWon + ownLost + ownUnclear;
   const oppTotal = oppWon + oppLost + oppUnclear;
 
+  let freesConc = 0, freesScored = 0;
+  for (let i = 0; i < state.evts.length; i++) {
+    if (state.evts[i].action !== 'Free') continue;
+    freesConc++;
+    for (let j = i + 1; j < state.evts.length; j++) {
+      const next = state.evts[j];
+      if (next.badge === 'RSTR') continue;
+      if (next.badge === 'OPP') freesScored++;
+      break;
+    }
+  }
+
   const scorers = Object.values(pstats).filter(p =>
     p.gPlay+p.gPlaced+p.pPlay+p.pPlaced+p.wides > 0
   ).sort((a,b) => {
@@ -227,16 +239,14 @@ function buildPrintHTML() {
     return tb !== ta ? tb - ta : a.name.localeCompare(b.name);
   });
 
-  const disciplined = Object.values(pstats).filter(p =>
-    p.yc+p.bc+p.rc > 0
-  ).sort((a,b) => (b.rc*100+b.bc*10+b.yc)-(a.rc*100+a.bc*10+a.yc)||a.name.localeCompare(b.name));
-
-  const freePlayers = Object.values(pstats).filter(p =>
-    Object.keys(p.frees).length > 0
+  const discPlayers = Object.values(pstats).filter(p =>
+    p.yc+p.bc+p.rc > 0 || Object.keys(p.frees).length > 0
   ).sort((a,b) => {
-    const ta = Object.values(a.frees).reduce((s,n)=>s+n,0);
-    const tb = Object.values(b.frees).reduce((s,n)=>s+n,0);
-    return tb - ta || a.name.localeCompare(b.name);
+    const ca = a.rc*100+a.bc*10+a.yc, cb = b.rc*100+b.bc*10+b.yc;
+    if (cb !== ca) return cb - ca;
+    const fa = Object.values(a.frees).reduce((s,n)=>s+n,0);
+    const fb = Object.values(b.frees).reduce((s,n)=>s+n,0);
+    return fb - fa || a.name.localeCompare(b.name);
   });
 
   const usScore = state.goals+'-'+state.pts+' ('+((state.goals*3)+state.pts)+'pts)';
@@ -425,39 +435,37 @@ function buildPrintHTML() {
     h += '</div></div>';
   }
 
-  if (disciplined.length > 0 || freePlayers.length > 0) {
+  if (discPlayers.length > 0 || freesConc > 0) {
     h += '<div class="pr-section">';
     h += '<div class="pr-section-title">Discipline</div>';
-
-    if (freePlayers.length > 0) {
-      h += '<div class="pr-card" style="margin-bottom:8px;">';
+    h += '<div class="pr-card">';
+    if (freesConc > 0) {
       h += '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;margin-bottom:8px;">Frees Conceded</div>';
-      freePlayers.forEach(p => {
-        const total = Object.values(p.frees).reduce((s,n)=>s+n,0);
-        h += html`<div class="pr-row" style="align-items:flex-start;"><span style="flex:1;">${p.name}</span><span style="display:flex;flex-wrap:wrap;gap:3px;justify-content:flex-end;">`;
-        h += `<span style="font-size:11px;font-weight:600;color:#6B6F66;">${total} total &mdash;</span>`;
-        Object.entries(p.frees).sort((a,b)=>b[1]-a[1]).forEach(([type,n]) => {
-          h += `<span style="font-size:11px;color:#6B6F66;">${esc(type)}${n>1?' ×'+n:''}</span>`;
-        });
-        h += '</span></div>';
-      });
-      h += '</div>';
+      h += `<div class="pr-row" style="margin-bottom:6px;"><span>Total</span><span style="font-weight:600;">${freesConc}</span></div>`;
+      if (freesScored > 0) h += `<div class="pr-row" style="margin-bottom:${discPlayers.length>0?'12':'4'}px;"><span>Scored by opposition</span><span style="color:#C62828;font-weight:600;">${freesScored}</span></div>`;
     }
-
-    if (disciplined.length > 0) {
-      h += '<div class="pr-card">';
-      h += '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;margin-bottom:8px;">Cards</div>';
-      disciplined.forEach(p => {
-        h += html`<div class="pr-row"><span>${p.name}</span><span>`;
-        for (let i=0;i<p.yc;i++) h+='<span style="display:inline-block;width:10px;height:14px;background:#FDD835;border-radius:2px;border:.5px solid rgba(0,0,0,.2);margin:0 1px;"></span>';
-        for (let i=0;i<p.bc;i++) h+='<span style="display:inline-block;width:10px;height:14px;background:#2c2c2a;border-radius:2px;margin:0 1px;"></span>';
-        for (let i=0;i<p.rc;i++) h+='<span style="display:inline-block;width:10px;height:14px;background:#E53935;border-radius:2px;margin:0 1px;"></span>';
-        h += '</span></div>';
+    if (discPlayers.length > 0) {
+      if (freesConc > 0) h += '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;margin-bottom:8px;">By Player</div>';
+      discPlayers.forEach(p => {
+        const freeTotal = Object.values(p.frees).reduce((s,n)=>s+n,0);
+        h += '<div class="pr-row" style="align-items:center;gap:6px;">';
+        if (p.yc+p.bc+p.rc > 0) {
+          h += '<span style="display:flex;gap:2px;flex-shrink:0;">';
+          for (let i=0;i<p.yc;i++) h+='<span style="display:inline-block;width:9px;height:13px;background:#FDD835;border-radius:2px;border:.5px solid rgba(0,0,0,.2);"></span>';
+          for (let i=0;i<p.bc;i++) h+='<span style="display:inline-block;width:9px;height:13px;background:#2c2c2a;border-radius:2px;"></span>';
+          for (let i=0;i<p.rc;i++) h+='<span style="display:inline-block;width:9px;height:13px;background:#E53935;border-radius:2px;"></span>';
+          h += '</span>';
+        }
+        h += html`<span style="flex:1;font-size:13px;">${p.name}</span>`;
+        if (freeTotal > 0) {
+          h += `<span style="font-size:11px;color:#6B6F66;">${freeTotal} free${freeTotal!==1?'s':''}`;
+          const types = Object.entries(p.frees).sort((a,b)=>b[1]-a[1]).map(([t,n])=>esc(t)+(n>1?' ×'+n:'')).join(', ');
+          h += ` &mdash; ${types}</span>`;
+        }
+        h += '</div>';
       });
-      h += '</div>';
     }
-
-    h += '</div>';
+    h += '</div></div>';
   }
 
   if (state.trackShotLocations) {
@@ -516,6 +524,7 @@ function buildPrintShotMapHTML() {
   h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#2E7D32" opacity=".82"/></svg>Score</span>';
   h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#C62828" opacity=".82"/></svg>Wide</span>';
   h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="#2E7D32" opacity=".82" stroke="white" stroke-width="1"/></svg>Goal</span>';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="18" height="18"><circle cx="9" cy="9" r="8" fill="none" stroke="#2E7D32" stroke-width="1.5" opacity=".7"/><circle cx="9" cy="9" r="5" fill="#2E7D32" opacity=".82" stroke="white" stroke-width="1"/></svg>Placed</span>';
   h += '</div>';
   const thirdRows = [['Attacking third',thirds.att],['Middle third',thirds.mid],['Defensive third',thirds.def]];
   if (thirdRows.some(([,d]) => d.shots > 0)) {

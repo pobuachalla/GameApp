@@ -279,6 +279,18 @@ function buildStatsHTML() {
     else if (ev.action === 'Free') { const ft = ev.sec || 'Other'; ps.frees[ft] = (ps.frees[ft]||0) + 1; }
   });
 
+  let freesConc = 0, freesScored = 0;
+  for (let i = 0; i < state.evts.length; i++) {
+    if (state.evts[i].action !== 'Free') continue;
+    freesConc++;
+    for (let j = i + 1; j < state.evts.length; j++) {
+      const next = state.evts[j];
+      if (next.badge === 'RSTR') continue;
+      if (next.badge === 'OPP') freesScored++;
+      break;
+    }
+  }
+
   const totalScoreActions = goalCount + ptCount + twoPtCount;
   const totalAttempts = totalScoreActions + wideCount;
   const scorePct = totalAttempts > 0 ? Math.round(totalScoreActions / totalAttempts * 100) : 0;
@@ -413,21 +425,17 @@ function buildStatsHTML() {
     return tb !== ta ? tb - ta : a.name.localeCompare(b.name);
   });
 
-  const disciplined = Object.values(pstats).filter(p =>
-    p.yc+p.bc+p.rc > 0
-  ).sort((a,b) =>
-    (b.rc*100 + b.bc*10 + b.yc) - (a.rc*100 + a.bc*10 + a.yc) || a.name.localeCompare(b.name)
-  );
-
-  const freePlayers = Object.values(pstats).filter(p =>
-    Object.keys(p.frees).length > 0
+  const discPlayers = Object.values(pstats).filter(p =>
+    p.yc+p.bc+p.rc > 0 || Object.keys(p.frees).length > 0
   ).sort((a,b) => {
-    const ta = Object.values(a.frees).reduce((s,n)=>s+n,0);
-    const tb = Object.values(b.frees).reduce((s,n)=>s+n,0);
-    return tb - ta || a.name.localeCompare(b.name);
+    const ca = a.rc*100+a.bc*10+a.yc, cb = b.rc*100+b.bc*10+b.yc;
+    if (cb !== ca) return cb - ca;
+    const fa = Object.values(a.frees).reduce((s,n)=>s+n,0);
+    const fb = Object.values(b.frees).reduce((s,n)=>s+n,0);
+    return fb - fa || a.name.localeCompare(b.name);
   });
 
-  if (scorers.length > 0 || disciplined.length > 0 || freePlayers.length > 0) {
+  if (scorers.length > 0 || discPlayers.length > 0 || freesConc > 0) {
     h += '<div class="stat-section"><div class="stat-section-title">Player Breakdown</div>';
     if (scorers.length > 0) {
       h += '<div class="stat-sub-hdr" style="margin-top:0;">Scoring</div>';
@@ -442,33 +450,39 @@ function buildStatsHTML() {
       });
       h += '</div>';
     }
-    if (disciplined.length > 0) {
-      h += '<div class="stat-sub-hdr">Cards</div>';
-      h += '<div class="stat-card">';
-      disciplined.forEach(p => {
-        h += html`<div class="disc-row"><div class="stat-pname">${p.name}</div>`;
-        h += '<div class="disc-chips">';
-        for (let i=0; i<p.yc; i++) h += '<span class="disc-chip" style="background:#FDD835;" title="Yellow Card"></span>';
-        for (let i=0; i<p.bc; i++) h += '<span class="disc-chip" style="background:#2c2c2a;" title="Black Card"></span>';
-        for (let i=0; i<p.rc; i++) h += '<span class="disc-chip" style="background:#E53935;" title="Red Card"></span>';
-        h += '</div></div>';
-      });
-      h += '</div>';
-    }
-    if (freePlayers.length > 0) {
-      h += '<div class="stat-sub-hdr">Frees Conceded</div>';
-      h += '<div class="stat-card">';
-      freePlayers.forEach(p => {
-        const total = Object.values(p.frees).reduce((s,n)=>s+n,0);
-        h += html`<div class="stat-prow"><div class="stat-pname">${p.name}</div>`;
-        h += '<div class="stat-ptags">';
-        h += `<span class="stat-tag grey">${total} total</span>`;
-        Object.entries(p.frees).sort((a,b)=>b[1]-a[1]).forEach(([type,n]) => {
-          h += `<span class="stat-tag grey">${esc(type)}${n>1?' ×'+n:''}</span>`;
+    if (discPlayers.length > 0 || freesConc > 0) {
+      h += '<div class="stat-sub-hdr">Discipline</div>';
+      if (freesConc > 0) {
+        h += '<div style="display:flex;gap:16px;padding:4px 0 10px;align-items:baseline;">';
+        h += `<span style="font-size:13px;color:var(--t2);">Frees conceded: <strong style="color:var(--t1);">${freesConc}</strong></span>`;
+        if (freesScored > 0) h += `<span style="font-size:13px;color:#C62828;font-weight:600;">${freesScored} scored by opposition</span>`;
+        h += '</div>';
+      }
+      if (discPlayers.length > 0) {
+        h += '<div class="stat-card">';
+        discPlayers.forEach(p => {
+          const freeTotal = Object.values(p.frees).reduce((s,n)=>s+n,0);
+          h += '<div class="disc-row">';
+          if (p.yc+p.bc+p.rc > 0) {
+            h += '<span style="display:flex;gap:3px;flex-shrink:0;">';
+            for (let i=0;i<p.yc;i++) h += '<span class="disc-chip" style="background:#FDD835;" title="Yellow Card"></span>';
+            for (let i=0;i<p.bc;i++) h += '<span class="disc-chip" style="background:#2c2c2a;" title="Black Card"></span>';
+            for (let i=0;i<p.rc;i++) h += '<span class="disc-chip" style="background:#E53935;" title="Red Card"></span>';
+            h += '</span>';
+          }
+          h += html`<span class="stat-pname" style="flex:1;">${p.name}</span>`;
+          if (freeTotal > 0) {
+            h += '<span class="stat-ptags">';
+            h += `<span class="stat-tag grey">${freeTotal} free${freeTotal!==1?'s':''}</span>`;
+            Object.entries(p.frees).sort((a,b)=>b[1]-a[1]).forEach(([type,n]) => {
+              h += `<span class="stat-tag grey">${esc(type)}${n>1?' ×'+n:''}</span>`;
+            });
+            h += '</span>';
+          }
+          h += '</div>';
         });
-        h += '</div></div>';
-      });
-      h += '</div>';
+        h += '</div>';
+      }
     }
     h += '</div>';
   }

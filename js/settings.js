@@ -42,13 +42,31 @@ function loadTpl(name) {
 
 function delTpl(name){try{localStorage.removeItem('tpl:'+name);renderTpls();toast('Deleted');}catch(e){}}
 
+function updateTpl(name) {
+  const data = {usName:el.sun.value.trim()||state.usN, playerNames:{}, captain:state.captain};
+  for(let i=1;i<=state.maxB+2;i++){const inp=document.getElementById('sn'+i);if(inp&&inp.value.trim())data.playerNames[i]=inp.value.trim();}
+  try{localStorage.setItem('tpl:'+name,JSON.stringify(data));toast('Updated "'+name+'"');}catch(e){toast('Update failed');}
+}
+
+function clearAllNames() {
+  const sz = state.teamSize || 15;
+  for (let i = 1; i <= sz; i++) { const inp=document.getElementById('sn'+i); if(inp) inp.value=''; }
+  for (let i = 16; i <= state.maxB; i++) { const inp=document.getElementById('sn'+i); if(inp) inp.value=''; }
+  flushSettings();
+  toast('Names cleared');
+}
+
 function renderTpls(){
   const keys=[];
   for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('tpl:'))keys.push(k);}
   if(!keys.length){el.tpllist.innerHTML='<div style="font-size:13px;color:var(--t3);padding:4px 0;">No saved templates</div>';return;}
   el.tpllist.innerHTML=keys.map(k=>{
     const n=k.replace('tpl:','');
-    return '<div class="tplrow"><span style="flex:1;font-size:14px;">'+esc(n)+'</span><button class="tplbtn load" onclick="loadTpl(\''+esc(n)+'\')">Load</button><button class="tplbtn del" onclick="delTpl(\''+esc(n)+'\')">Delete</button></div>';
+    return '<div class="tplrow"><span style="flex:1;font-size:14px;color:var(--t1);">'+esc(n)+'</span>'
+      +'<button class="tpl-icon-btn" onclick="loadTpl(\''+esc(n)+'\')" title="Load"><i class="fas fa-file-import"></i></button>'
+      +'<button class="tpl-icon-btn save" onclick="updateTpl(\''+esc(n)+'\')" title="Save current squad to this template"><i class="fas fa-floppy-disk"></i></button>'
+      +'<button class="tpl-icon-btn del" onclick="delTpl(\''+esc(n)+'\')" title="Delete"><i class="fas fa-trash-can"></i></button>'
+      +'</div>';
   }).join('');
 }
 

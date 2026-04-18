@@ -118,6 +118,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .tplbtn{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:500;cursor:pointer;border:.5px solid var(--bm);background:var(--bg1);color:var(--t1);font-family:inherit;}
 .tplbtn.load{border-color:var(--bi);color:var(--ti);}
 .tplbtn.del{border-color:var(--bd);color:var(--td);}
+.tpl-icon-btn{width:30px;height:30px;border-radius:50%;border:.5px solid var(--bm);background:var(--bg2);color:var(--t2);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit;}
+.tpl-icon-btn.save{border-color:var(--bi);color:var(--ti);}
+.tpl-icon-btn.del{border-color:var(--bd);color:var(--td);}
 .log-actions{display:flex;border-top:.5px solid var(--b);}
 .wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;flex:1;padding:12px 14px;background:#25D366;color:#fff;border:none;border-radius:0 0 var(--rl) 0;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;}
 .wa-btn:active{opacity:.85;}

@@ -216,7 +216,10 @@
       <div id="tpllist"><div style="font-size:13px;color:var(--t3);padding:4px 0;">No saved templates</div></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin:14px 0 7px;">
         <span class="stitle" id="starting-lbl" style="margin:0;">STARTING 15</span>
-        <button onclick="openLayout()" style="background:none;border:.5px solid var(--bm);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;"><i class="fa-solid fa-shirt" style="font-size:12px;color:#2E7D32;"></i>Line-up</button>
+        <div style="display:flex;gap:6px;">
+          <button onclick="clearAllNames()" style="background:none;border:.5px solid var(--bm);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;" title="Clear all player names"><i class="fas fa-eraser" style="font-size:11px;"></i>Clear names</button>
+          <button onclick="openLayout()" style="background:none;border:.5px solid var(--bm);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;"><i class="fa-solid fa-shirt" style="font-size:12px;color:#2E7D32;"></i>Line-up</button>
+        </div>
       </div>
       <div id="pslist"></div>
       <div class="stitle">BENCH</div>
