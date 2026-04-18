@@ -174,21 +174,8 @@ function buildPrintHTML() {
   let placedGoals=0, placedPts=0, placedTwoPts=0, placedWides=0;
   let ownWon=0, ownLost=0, ownUnclear=0;
   let oppWon=0, oppLost=0, oppUnclear=0;
-  let freesConc=0, freesScored=0;
   let turnoversWon=0, turnoversLost=0;
   const pstats = {};
-
-  for (let i = 0; i < state.evts.length; i++) {
-    const ev = state.evts[i];
-    if (ev.action !== 'Free') continue;
-    freesConc++;
-    for (let j = i + 1; j < state.evts.length; j++) {
-      const next = state.evts[j];
-      if (next.badge === 'RSTR') continue;
-      if (next.badge === 'OPP') freesScored++;
-      break;
-    }
-  }
 
   state.evts.forEach(ev => {
     if (ev.badge === 'RSTR') {
@@ -205,7 +192,7 @@ function buildPrintHTML() {
     const pi = ev.pi != null ? ev.pi : state.slotp[ev.slot];
     if (!pi) return;
     const placed = PLACED_BALL.has(ev.sec);
-    if (!pstats[pi]) pstats[pi] = {name:pl(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0,twon:0,tlost:0};
+    if (!pstats[pi]) pstats[pi] = {name:pl(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0,twon:0,tlost:0,frees:{}};
     const ps = pstats[pi];
     if (ev.action === 'Goal')        { goalCount++;   placed ? (placedGoals++,  ps.gPlaced++) : ps.gPlay++; }
     else if (ev.action === 'Point')       { ptCount++;    placed ? (placedPts++,   ps.pPlaced++) : ps.pPlay++; }
@@ -216,6 +203,7 @@ function buildPrintHTML() {
     else if (ev.action === 'Black Card')  ps.bc++;
     else if (ev.action === 'Turnover Won')  { turnoversWon++;  ps.twon++; }
     else if (ev.action === 'Turnover Lost') { turnoversLost++; ps.tlost++; }
+    else if (ev.action === 'Free') { const ft = ev.sec || 'Other'; ps.frees[ft] = (ps.frees[ft]||0) + 1; }
   });
 
   const totalScoreActions = goalCount + ptCount + twoPtCount;
@@ -242,6 +230,14 @@ function buildPrintHTML() {
   const disciplined = Object.values(pstats).filter(p =>
     p.yc+p.bc+p.rc > 0
   ).sort((a,b) => (b.rc*100+b.bc*10+b.yc)-(a.rc*100+a.bc*10+a.yc)||a.name.localeCompare(b.name));
+
+  const freePlayers = Object.values(pstats).filter(p =>
+    Object.keys(p.frees).length > 0
+  ).sort((a,b) => {
+    const ta = Object.values(a.frees).reduce((s,n)=>s+n,0);
+    const tb = Object.values(b.frees).reduce((s,n)=>s+n,0);
+    return tb - ta || a.name.localeCompare(b.name);
+  });
 
   const usScore = state.goals+'-'+state.pts+' ('+((state.goals*3)+state.pts)+'pts)';
   const oppScore = state.og+'-'+state.op_+' ('+(state.og*3+state.op_)+'pts)';
@@ -429,17 +425,22 @@ function buildPrintHTML() {
     h += '</div></div>';
   }
 
-  if (disciplined.length > 0 || freesConc > 0) {
+  if (disciplined.length > 0 || freePlayers.length > 0) {
     h += '<div class="pr-section">';
     h += '<div class="pr-section-title">Discipline</div>';
 
-    if (freesConc > 0) {
-      const freesNotScored = freesConc - freesScored;
+    if (freePlayers.length > 0) {
       h += '<div class="pr-card" style="margin-bottom:8px;">';
       h += '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;margin-bottom:8px;">Frees Conceded</div>';
-      h += '<div class="pr-row"><span>Total frees conceded</span><span><strong>'+freesConc+'</strong></span></div>';
-      if (freesScored > 0)    h += '<div class="pr-row"><span>Opposition scored from free</span><span style="color:#C62828;font-weight:600;">'+freesScored+'</span></div>';
-      if (freesNotScored > 0) h += '<div class="pr-row"><span>Not scored</span><span style="color:#6B6F66;">'+freesNotScored+'</span></div>';
+      freePlayers.forEach(p => {
+        const total = Object.values(p.frees).reduce((s,n)=>s+n,0);
+        h += html`<div class="pr-row" style="align-items:flex-start;"><span style="flex:1;">${p.name}</span><span style="display:flex;flex-wrap:wrap;gap:3px;justify-content:flex-end;">`;
+        h += `<span style="font-size:11px;font-weight:600;color:#6B6F66;">${total} total &mdash;</span>`;
+        Object.entries(p.frees).sort((a,b)=>b[1]-a[1]).forEach(([type,n]) => {
+          h += `<span style="font-size:11px;color:#6B6F66;">${esc(type)}${n>1?' ×'+n:''}</span>`;
+        });
+        h += '</span></div>';
+      });
       h += '</div>';
     }
 

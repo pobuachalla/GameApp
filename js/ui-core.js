@@ -120,6 +120,13 @@ function refBtn(s) {
   if (state.captain === s) { const e=document.createElement('i'); e.className='fa-regular fa-copyright cap-badge'; b.appendChild(e); }
   const wrap = document.createElement('span');
   wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:0;line-height:1;';
+  const hasName = !!gn(pi);
+  if (hasName) {
+    const numSpan = document.createElement('span');
+    numSpan.textContent = pi;
+    numSpan.style.cssText = 'font-size:8px;font-weight:500;opacity:0.55;margin-bottom:1px;';
+    wrap.appendChild(numSpan);
+  }
   const iniSpan = document.createElement('span');
   iniSpan.textContent = ini;
   iniSpan.style.fontSize = ini.length>=4?'10px':ini.length===3?'11px':ini.length===2?'12px':'14px';
