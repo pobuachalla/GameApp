@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>GAA Match Review</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green: #2E7D32; --green-d: #1B5E20; --green-l: #E8F5E9;
+  --red: #C62828; --red-l: #FFEBEE;
+  --amber: #D97706; --amber-l: #FFF8E1;
+  --bg: #EEF0EA; --card: #FFFFFF;
+  --t1: #1A2E1A; --t2: #4A5A4A; --t3: #7A8A7A;
+  --border: #E0E3DC;
+  --shadow: 0 2px 14px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+  --r: 16px;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--t1); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* ── Landing ─────────────────────────────────────────────────────────────── */
+#landing { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+.lc { background: var(--card); border-radius: 24px; padding: 52px 44px; max-width: 460px; width: 100%; text-align: center; box-shadow: var(--shadow); }
+.lc-icon { font-size: 52px; margin-bottom: 20px; }
+.lc-title { font-size: 26px; font-weight: 700; color: var(--t1); margin-bottom: 10px; }
+.lc-sub { font-size: 14px; color: var(--t3); line-height: 1.6; margin-bottom: 32px; }
+.lc-btn { display: inline-flex; align-items: center; gap: 10px; background: var(--green); color: white; padding: 14px 28px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity .15s; border: none; font-family: inherit; }
+.lc-btn:hover { opacity: .88; }
+.lc-hint { font-size: 12px; color: var(--t3); margin-top: 16px; }
+
+/* ── Review wrapper ──────────────────────────────────────────────────────── */
+#review { display: none; max-width: 1440px; margin: 0 auto; padding: 24px 24px 48px; }
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.rv-hdr { background: linear-gradient(140deg, #1a5c1e 0%, #2E7D32 55%, #3a9140 100%); color: white; border-radius: 20px; padding: 32px 36px; margin-bottom: 18px; }
+.rv-hdr-meta { font-size: 13px; opacity: .7; margin-bottom: 22px; display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+.rv-hdr-meta i { opacity: .8; }
+.rv-score-row { display: flex; align-items: center; gap: 20px; }
+.rv-team-blk { flex: 1; min-width: 0; }
+.rv-team-name { font-size: 18px; font-weight: 600; opacity: .85; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rv-score-big { font-size: 62px; font-weight: 800; line-height: 1; letter-spacing: -2px; }
+.rv-score-pts { font-size: 17px; opacity: .6; margin-top: 5px; font-weight: 500; }
+.rv-vs-col { text-align: center; flex-shrink: 0; padding: 0 8px; }
+.rv-vs { font-size: 22px; font-weight: 300; opacity: .45; margin-bottom: 8px; }
+.rv-lead-pill { background: rgba(255,255,255,.18); border-radius: 999px; padding: 5px 14px; font-size: 13px; font-weight: 500; white-space: nowrap; }
+.rv-notes { margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.18); font-size: 14px; opacity: .82; line-height: 1.6; font-style: italic; }
+
+/* ── Grid layouts ────────────────────────────────────────────────────────── */
+.rv-g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+.rv-g2  { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.rv-g21 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+.rv-g12 { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; margin-bottom: 16px; }
+/* Shot map 2×2 block */
+.rv-smb { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; align-items: start; }
+.rv-sm-large { grid-column: 2 / 4; grid-row: 1 / 3; display: flex; flex-direction: column; }
+.rv-full { margin-bottom: 16px; }
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.rv-card { background: var(--card); border-radius: var(--r); padding: 24px; box-shadow: var(--shadow); }
+.rv-ctitle { font-size: 10px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--t3); margin-bottom: 18px; }
+
+/* ── Big number ──────────────────────────────────────────────────────────── */
+.rv-bignum { font-size: 54px; font-weight: 800; color: var(--green); line-height: 1; letter-spacing: -1.5px; }
+.rv-bigsub { font-size: 13px; color: var(--t3); margin-top: 6px; }
+
+/* ── Rows ────────────────────────────────────────────────────────────────── */
+.rv-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.rv-row:last-child { border-bottom: none; }
+.rv-rl { color: var(--t2); }
+.rv-rv { font-weight: 600; }
+
+/* ── Bars ────────────────────────────────────────────────────────────────── */
+.rv-bar { height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; margin: 10px 0; }
+.rv-bar-fill { height: 100%; background: var(--green); border-radius: 5px; }
+.rv-split { height: 14px; border-radius: 7px; overflow: hidden; display: flex; margin: 14px 0 8px; }
+.rv-split-g { background: var(--green); }
+.rv-split-r { background: var(--red); }
+.rv-split-lbls { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; }
+.rv-attempt-bar { height: 12px; border-radius: 6px; overflow: hidden; display: flex; margin: 14px 0 8px; }
+.rv-aseg { height: 100%; }
+.rv-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+.rv-li { font-size: 12px; color: var(--t2); display: flex; align-items: center; gap: 5px; }
+.rv-ld { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── Tags ────────────────────────────────────────────────────────────────── */
+.rv-tag { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; margin: 0 2px; }
+.rv-tg  { background: var(--green-l); color: var(--green); }
+.rv-tr  { background: var(--red-l); color: var(--red); }
+.rv-tgr { background: #F0F2EE; color: var(--t3); }
+.rv-ta  { background: var(--amber-l); color: var(--amber); }
+
+/* ── Player table ────────────────────────────────────────────────────────── */
+.rv-pt { width: 100%; border-collapse: collapse; }
+.rv-pt th { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); padding: 0 10px 10px 0; border-bottom: 1px solid var(--border); text-align: left; }
+.rv-pt th.r { text-align: right; }
+.rv-pt td { padding: 10px 10px 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
+.rv-pt tr:last-child td { border-bottom: none; }
+.rv-pt td.r { text-align: right; }
+.rv-pt td.c { text-align: center; }
+.rv-pt .scorer-bar-cell { width: 120px; }
+.rv-scorer-bar-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.rv-scorer-bar-fill { height: 100%; background: var(--green); border-radius: 3px; }
+
+/* ── Card chips ──────────────────────────────────────────────────────────── */
+.cc { display: inline-block; width: 10px; height: 14px; border-radius: 2px; margin: 0 1px; vertical-align: middle; }
+
+/* ── Shot map ────────────────────────────────────────────────────────────── */
+.rv-sm-wrap { display: flex; gap: 28px; align-items: flex-start; }
+.rv-sm-leg { flex: 1; display: flex; flex-direction: column; gap: 12px; padding-top: 4px; }
+.rv-sm-li { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--t2); }
+
+/* ── Subs ────────────────────────────────────────────────────────────────── */
+.rv-sub-hdr { display: flex; gap: 8px; padding: 0 0 8px; border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); }
+.rv-sub-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+.rv-sub-row:last-child { border-bottom: none; }
+.rv-sub-t { min-width: 46px; color: var(--t3); font-size: 13px; padding-top: 1px; }
+.rv-sub-on { flex: 1; font-size: 14px; font-weight: 500; }
+.rv-sub-off { flex: 1; font-size: 14px; color: var(--t2); }
+
+/* ── Lineup ──────────────────────────────────────────────────────────────── */
+.rv-lu-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.rv-lu-p { background: var(--green-l); border-radius: 10px; padding: 11px 8px; text-align: center; }
+.rv-lu-p.gk { background: var(--amber-l); }
+.rv-lu-num { font-size: 11px; font-weight: 700; color: var(--green); opacity: .65; }
+.rv-lu-p.gk .rv-lu-num { color: var(--amber); }
+.rv-lu-name { font-size: 13px; font-weight: 600; color: var(--green); margin-top: 3px; line-height: 1.25; word-break: break-word; }
+.rv-lu-p.gk .rv-lu-name { color: var(--amber); }
+.rv-lu-cap { font-size: 10px; color: var(--green); opacity: .6; margin-top: 3px; }
+
+/* ── Ring ────────────────────────────────────────────────────────────────── */
+.rv-ring-w { display: flex; align-items: center; gap: 20px; margin: 4px 0 14px; }
+.rv-ring { width: 84px; height: 84px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.rv-ring-in { width: 60px; height: 60px; border-radius: 50%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.rv-ring-pct { font-size: 18px; font-weight: 800; color: var(--green); line-height: 1; }
+.rv-ring-lbl { font-size: 10px; color: var(--t3); }
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.rv-foot { text-align: center; padding: 28px 0 8px; font-size: 12px; color: var(--t3); }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 1000px) {
+  .rv-g3  { grid-template-columns: 1fr 1fr; }
+  .rv-g21, .rv-g12 { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .rv-g3 { grid-template-columns: 1fr; }
+  .rv-score-big { font-size: 44px; }
+  .rv-lu-grid { grid-template-columns: repeat(3, 1fr); }
+  .rv-sm-wrap { flex-direction: column; }
+}
+@media print {
+  body { background: white; }
+  #review { max-width: 100%; padding: 12px; }
+  .rv-card { box-shadow: none; border: 1px solid var(--border); }
+  .rv-hdr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .rv-lu-p, .rv-lu-p.gk { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Landing ─────────────────────────────────────────────────────────── -->
+<div id="landing">
+  <div class="lc">
+    <div class="lc-icon">🏐</div>
+    <div class="lc-title">GAA Match Review</div>
+    <div class="lc-sub">Load an exported match file to view the full stats infographic — designed for review sessions on desktop.</div>
+    <label class="lc-btn">
+      <i class="fas fa-file-import"></i> Load Match File
+      <input type="file" accept=".json" style="display:none;" onchange="loadMatch(event)">
+    </label>
+    <div class="lc-hint">Export from GAA Match Tracker → Setup → Transfer → Export Match</div>
+  </div>
+</div>
+
+<!-- ── Review ──────────────────────────────────────────────────────────── -->
+<div id="review"></div>
+
+<script>
+'use strict';
+
+// ── Constants ────────────────────────────────────────────────────────────────
+const PLACED_BALL = new Set(['From Free','From Penalty','From 65','From 45']);
+const ZPX=10, ZPY=10, ZPW=300, ZPH=380;
+const PITCH_SVG_INNER=`<rect width="320" height="400" fill="#4C9A3A" rx="10"/><rect x="0" y="10" width="320" height="44" fill="#52a83f" opacity="0.5"/><rect x="0" y="98" width="320" height="44" fill="#52a83f" opacity="0.5"/><rect x="0" y="186" width="320" height="28" fill="#52a83f" opacity="0.5"/><rect x="0" y="258" width="320" height="44" fill="#52a83f" opacity="0.5"/><rect x="0" y="346" width="320" height="44" fill="#52a83f" opacity="0.5"/><rect x="10" y="10" width="300" height="380" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"/><line x1="10" y1="132" x2="310" y2="132" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><line x1="10" y1="268" x2="310" y2="268" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><line x1="10" y1="64" x2="310" y2="64" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><line x1="10" y1="336" x2="310" y2="336" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><line x1="10" y1="45" x2="310" y2="45" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/><line x1="10" y1="355" x2="310" y2="355" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/><line x1="10" y1="200" x2="310" y2="200" stroke="rgba(255,255,255,0.65)" stroke-width="1.6" stroke-dasharray="12 12"/><line x1="10" y1="185" x2="310" y2="185" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/><line x1="10" y1="215" x2="310" y2="215" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/><circle cx="160" cy="200" r="2.5" fill="rgba(255,255,255,0.6)"/><rect x="127" y="10" width="66" height="35" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><rect x="127" y="355" width="66" height="35" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><rect x="135" y="10" width="50" height="12" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><rect x="135" y="378" width="50" height="12" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.6"/><path d="M 114,64 A 46,35 0 0,0 206,64" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><path d="M 114,336 A 46,35 0 0,1 206,336" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><path d="M 38,64 A 141,108 0 0,0 282,64" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><path d="M 38,336 A 141,108 0 0,1 282,336" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.4"/><circle cx="160" cy="40" r="2.5" fill="rgba(255,255,255,0.6)"/><circle cx="160" cy="360" r="2.5" fill="rgba(255,255,255,0.6)"/><line x1="149" y1="0" x2="149" y2="12" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="171" y1="0" x2="171" y2="12" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="147" y1="3" x2="173" y2="3" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="149" y1="388" x2="149" y2="400" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="171" y1="388" x2="171" y2="400" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/><line x1="147" y1="397" x2="173" y2="397" stroke="rgba(255,255,255,0.8)" stroke-width="2.5"/>`;
+
+// ── Utils ────────────────────────────────────────────────────────────────────
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const gn  = (st,i) => (st.pnames&&st.pnames[i]||'').trim();
+const pn  = (st,i) => gn(st,i)||'#'+i;
+const toS = s => { const p=(s||'0:00').split(':'); return parseInt(p[0]||0)*60+parseInt(p[1]||0); };
+const jit = (seed,range) => { const x=Math.sin(seed)*43758.5453; return (x-Math.floor(x)-.5)*range; };
+
+// ── File load ────────────────────────────────────────────────────────────────
+function loadMatch(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const st = JSON.parse(e.target.result);
+      if (!Array.isArray(st.evts)) { alert('Not a valid GAA Match Tracker export.'); return; }
+      document.getElementById('landing').style.display = 'none';
+      const rv = document.getElementById('review');
+      rv.style.display = 'block';
+      rv.innerHTML = buildReview(st);
+    } catch(err) { alert('Could not read file: ' + err.message); }
+  };
+  reader.readAsText(file);
+}
+
+// ── Stats computation ─────────────────────────────────────────────────────────
+function computeStats(st) {
+  let gC=0,pC=0,t2C=0,wC=0;
+  let pgC=0,ppC=0,pt2C=0,pwC=0;
+  let ownWon=0,ownLost=0,ownUnclear=0,oppWon=0,oppLost=0,oppUnclear=0;
+  let twon=0,tlost=0;
+  const ps={};
+
+  // Timeline accumulators
+  const tlD=[{secs:0,us:0,opp:0}];
+  const tlSubs=[],tlReds=[],tlBlacks=[],tlMk=[];
+  let tlUG=0,tlUP=0,tlOG=0,tlOP=0,tlHS=0,tlH2=false;
+
+  const shots=[];
+  let smH2=false;
+
+  const getP=pi=>{
+    if(!ps[pi])ps[pi]={pi,name:pn(st,pi),gPl:0,gPd:0,pPl:0,pPd:0,w:0,yc:0,bc:0,rc:0,tw:0,tl:0,fr:{}};
+    return ps[pi];
+  };
+
+  st.evts.forEach(ev=>{
+    if(ev.badge==='RSTR'){
+      const d=ev.desc||'';const won=d.includes(': Won'),lost=d.includes(': Lost');
+      if(d.startsWith('Own Restart')){if(won)ownWon++;else if(lost)ownLost++;else ownUnclear++;}
+      else if(d.startsWith('Opposition')){if(won)oppWon++;else if(lost)oppLost++;else oppUnclear++;}
+      return;
+    }
+    if(ev.badge==='1H'){tlHS=toS(ev.time);return;}
+    if(ev.badge==='2H'){tlH2=true;smH2=true;return;}
+
+    const pi=ev.pi!=null?ev.pi:(ev.slot!=null?(st.slotp&&st.slotp[ev.slot])||ev.slot:null);
+    const p=(pi&&ev.action&&ev.action!=='sub')?getP(pi):null;
+    const placed=PLACED_BALL.has(ev.sec);
+    const t=toS(ev.time), secs=tlH2?t+tlHS:t;
+    const prevUs=tlUG*3+tlUP, prevOpp=tlOG*3+tlOP;
+    let mType=null,mTeam='us';
+
+    if(ev.action==='Goal'){
+      gC++;if(p){placed?p.gPd++:p.gPl++;}if(placed)pgC++;
+      tlUG++;mType='Goal';mTeam='us';
+    }else if(ev.action==='Point'){
+      pC++;if(p){placed?p.pPd++:p.pPl++;}if(placed)ppC++;
+      tlUP++;mType='Point';mTeam='us';
+    }else if(ev.action==='2 Point'){
+      t2C++;if(p){placed?(p.pPd+=2):(p.pPl+=2);}if(placed)pt2C++;
+      tlUP+=2;mType='2 Point';mTeam='us';
+    }else if(ev.action==='Wide'){
+      wC++;if(p)p.w++;if(placed)pwC++;
+      mType='Wide';mTeam=(ev.badge==='OPP')?'opp':'us';
+    }else if(ev.badge==='OPP'){
+      const d=ev.desc||'';
+      if(d.includes('Goal added')){tlOG++;mType='Goal';mTeam='opp';}
+      else if(d.includes('2 Point added')){tlOP+=2;mType='2 Point';mTeam='opp';}
+      else if(d.includes('Point added')){tlOP++;mType='Point';mTeam='opp';}
+      else if(d.includes('Goal removed'))tlOG=Math.max(0,tlOG-1);
+      else if(d.includes('Point removed'))tlOP=Math.max(0,tlOP-1);
+    }else if(ev.badge==='ADJ'){
+      const d=ev.desc||'';
+      if(d.includes('Goal added')){tlUG++;mType='Goal';mTeam='us';}
+      else if(d.includes('2 Point added')){tlUP+=2;mType='2 Point';mTeam='us';}
+      else if(d.includes('Point added')){tlUP++;mType='Point';mTeam='us';}
+      else if(d.includes('Goal removed'))tlUG=Math.max(0,tlUG-1);
+      else if(d.includes('Point removed'))tlUP=Math.max(0,tlUP-1);
+    }else if(ev.action==='sub'){
+      tlSubs.push({secs});
+    }else if(ev.action==='Yellow Card'){if(p)p.yc++;
+    }else if(ev.action==='Black Card'){if(p)p.bc++;tlBlacks.push({secs});
+    }else if(ev.action==='Red Card'){if(p)p.rc++;tlReds.push({secs});
+    }else if(ev.action==='Turnover Won'){twon++;if(p)p.tw++;
+    }else if(ev.action==='Turnover Lost'){tlost++;if(p)p.tl++;
+    }else if(ev.action==='Free'){if(p){const ft=ev.sec||'Other';p.fr[ft]=(p.fr[ft]||0)+1;}}
+
+    const curUs=tlUG*3+tlUP,curOpp=tlOG*3+tlOP;
+    if(mType)tlMk.push({secs,team:mTeam,type:mType,us:curUs,opp:curOpp});
+    if(curUs!==prevUs||curOpp!==prevOpp||mType==='Wide')tlD.push({secs,us:curUs,opp:curOpp});
+    if(ev.zone&&(ev.action==='Goal'||ev.action==='Point'||ev.action==='2 Point'||ev.action==='Wide')){
+      shots.push({action:ev.action,zone:ev.zone,half:smH2?'h2':'h1',pi,placed});
+    }
+  });
+
+  // Frees conceded + scored
+  let freesConc=0,freesScored=0;
+  for(let i=0;i<st.evts.length;i++){
+    if(st.evts[i].action!=='Free')continue;
+    freesConc++;
+    for(let j=i+1;j<st.evts.length;j++){
+      const nx=st.evts[j];
+      if(nx.badge==='RSTR')continue;
+      if(nx.badge==='OPP')freesScored++;
+      break;
+    }
+  }
+
+  const totalSecs=Math.max(tlD.length>1?tlD[tlD.length-1].secs:0,tlHS||0,1);
+  tlD.push({secs:totalSecs,us:tlUG*3+tlUP,opp:tlOG*3+tlOP});
+
+  return {gC,pC,t2C,wC,pgC,ppC,pt2C,pwC,
+    ownWon,ownLost,ownUnclear,oppWon,oppLost,oppUnclear,
+    twon,tlost,freesConc,freesScored,
+    ps,shots,tlD,tlSubs,tlReds,tlBlacks,tlMk,tlHS,totalSecs,
+    usG:tlUG,usP:tlUP,oppG:tlOG,oppP:tlOP};
+}
+
+// ── Timeline SVG ──────────────────────────────────────────────────────────────
+function buildTL(s, usN, oppN) {
+  if(s.tlD.length<2)return'';
+  const W=860,H=170,PL=34,PR=14,PT=16,PB=32;
+  const cw=W-PL-PR,ch=H-PT-PB;
+  const x=t=>(PL+(t/s.totalSecs)*cw).toFixed(1);
+  const maxPts=Math.max(...s.tlD.map(d=>Math.max(d.us,d.opp)),1);
+  const y=p=>(PT+ch-(p/maxPts)*ch).toFixed(1);
+  const uLn=s.tlD.map(d=>x(d.secs)+','+y(d.us)).join(' ');
+  const oLn=s.tlD.map(d=>x(d.secs)+','+y(d.opp)).join(' ');
+  const yMid=Math.round(maxPts/2);
+  let svg=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="width:100%;display:block;">`;
+  // grid
+  svg+=`<line x1="${PL}" y1="${PT+ch}" x2="${PL+cw}" y2="${PT+ch}" stroke="#E0E3DC" stroke-width="1"/>`;
+  svg+=`<line x1="${PL}" y1="${y(yMid)}" x2="${PL+cw}" y2="${y(yMid)}" stroke="#E0E3DC" stroke-width="1" stroke-dasharray="4 4"/>`;
+  [0,yMid,maxPts].forEach(v=>svg+=`<text x="${PL-6}" y="${parseFloat(y(v))+4}" text-anchor="end" font-size="11" fill="#9A9E99">${v}</text>`);
+  svg+=`<text x="${PL}" y="${H-6}" text-anchor="middle" font-size="11" fill="#9A9E99">0'</text>`;
+  if(s.tlHS>0){
+    svg+=`<line x1="${x(s.tlHS)}" y1="${PT}" x2="${x(s.tlHS)}" y2="${PT+ch}" stroke="#C0C5BC" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+    svg+=`<text x="${x(s.tlHS)}" y="${H-6}" text-anchor="middle" font-size="11" fill="#9A9E99">HT</text>`;
+  }
+  svg+=`<text x="${x(s.totalSecs)}" y="${H-6}" text-anchor="middle" font-size="11" fill="#9A9E99">${Math.round(s.totalSecs/60)}'</text>`;
+  s.tlSubs.forEach(e=>{const sx=x(e.secs);svg+=`<line x1="${sx}" y1="${PT}" x2="${sx}" y2="${PT+ch}" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="3 3"/>`;});
+  s.tlReds.forEach(e=>{const sx=x(e.secs);svg+=`<line x1="${sx}" y1="${PT}" x2="${sx}" y2="${PT+ch}" stroke="#E53935" stroke-width="1.5" stroke-dasharray="3 3"/>`;});
+  s.tlBlacks.forEach(e=>{const sx=x(e.secs);svg+=`<line x1="${sx}" y1="${PT}" x2="${sx}" y2="${PT+ch}" stroke="#2c2c2a" stroke-width="1.5" stroke-dasharray="3 3"/>`;});
+  // area fills
+  svg+=`<polygon points="${PL},${PT+ch} ${uLn} ${x(s.totalSecs)},${PT+ch}" fill="rgba(46,125,50,0.08)"/>`;
+  svg+=`<polygon points="${PL},${PT+ch} ${oLn} ${x(s.totalSecs)},${PT+ch}" fill="rgba(198,40,40,0.06)"/>`;
+  svg+=`<polyline points="${oLn}" fill="none" stroke="#C62828" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  svg+=`<polyline points="${uLn}" fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  s.tlMk.forEach(m=>{
+    const cx=x(m.secs),cy=y(m.team==='us'?m.us:m.opp),col=m.team==='us'?'#2E7D32':'#C62828';
+    if(m.type==='Goal')svg+=`<circle cx="${cx}" cy="${cy}" r="6" fill="${col}" stroke="#fff" stroke-width="1.5"/>`;
+    else if(m.type==='2 Point')svg+=`<circle cx="${cx}" cy="${cy}" r="5" fill="#F59E0B" stroke="#fff" stroke-width="1.5"/>`;
+    else if(m.type==='Point')svg+=`<circle cx="${cx}" cy="${cy}" r="4.5" fill="#fff" stroke="${col}" stroke-width="1.5"/>`;
+    else if(m.type==='Wide')svg+=`<circle cx="${cx}" cy="${cy}" r="3" fill="#C8CAC4"/>`;
+  });
+  // inline legend in SVG
+  let lx=PL;
+  const leg=(col,label)=>{svg+=`<circle cx="${lx+5}" cy="${H-6}" r="4" fill="${col}"/><text x="${lx+13}" y="${H-3}" font-size="11" fill="#7A8A7A">${label}</text>`;lx+=13+label.length*6.5+10;};
+  leg('#2E7D32',esc(usN)); leg('#C62828',esc(oppN));
+  if(s.tlSubs.length)leg('#F59E0B','Sub');
+  if(s.tlReds.length)leg('#E53935','Red Card');
+  if(s.tlBlacks.length)leg('#2c2c2a','Black Card');
+  svg+='</svg>';
+  return svg;
+}
+
+// ── Shot map SVG ──────────────────────────────────────────────────────────────
+function buildSM(shots) {
+  if(!shots.length)return'';
+  let dots='';
+  shots.forEach((s,i)=>{
+    const cx=(ZPX+s.zone.coords.x*ZPW+jit(i*2.1+1,14)).toFixed(1);
+    const cy=(ZPY+s.zone.coords.y*ZPH+jit(i*2.1+2,14)).toFixed(1);
+    const isGoal=s.action==='Goal',r=isGoal?9:6;
+    let fill='#9E9E9E',stroke='none';
+    if(isGoal){fill='#2E7D32';stroke='rgba(0,0,0,0.2)';}
+    else if(s.action==='Point'||s.action==='2 Point'){fill='#fff';stroke='#2E7D32';}
+    if(s.placed)dots+=`<circle cx="${cx}" cy="${cy}" r="${r+4}" fill="none" stroke="${s.action==='Wide'?'#9E9E9E':'#2E7D32'}" stroke-width="1.8" opacity="0.55"/>`;
+    dots+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${stroke!=='none'?1.5:0}"/>`;
+  });
+  return `<svg width="320" height="400" viewBox="0 0 320 400" style="border-radius:12px;display:block;max-width:100%;">${PITCH_SVG_INNER}${dots}</svg>`;
+}
+
+// ── Main builder ──────────────────────────────────────────────────────────────
+function buildReview(st) {
+  const s = computeStats(st);
+  const usN=st.usN||'Us', oppN=st.oppN||'Opposition';
+  const usPts=(st.goals||0)*3+(st.pts||0), oppPts=(st.og||0)*3+(st.op_||0);
+  const usDisp=(st.goals||0)+'-'+(st.pts||0), oppDisp=(st.og||0)+'-'+(st.op_||0);
+  const lead=usPts>oppPts?esc(usN)+' by '+(usPts-oppPts)+'pt'+(usPts-oppPts!==1?'s':'')
+            :usPts<oppPts?esc(oppN)+' by '+(oppPts-usPts)+'pt'+(oppPts-usPts!==1?'s':'')
+            :'Level';
+
+  const ownRstT=s.ownWon+s.ownLost+s.ownUnclear,oppRstT=s.oppWon+s.oppLost+s.oppUnclear;
+  const usMom=usPts+(s.ownWon+s.oppWon)*2+s.twon;
+  const oMom=oppPts+(s.ownLost+s.oppLost)*2+s.tlost;
+  const momT=usMom+oMom;
+  const uMP=momT>0?Math.round(usMom/momT*100):50, oMP=100-uMP;
+
+  const totalSA=s.gC+s.pC+s.t2C, totalAtt=totalSA+s.wC;
+  const scorePct=totalAtt>0?Math.round(totalSA/totalAtt*100):0;
+  const totalPts=s.gC*3+s.pC+s.t2C*2, displayPts=s.pC+s.t2C*2;
+  const placedSC=s.pgC+s.ppC+s.pt2C, placedAtt=placedSC+s.pwC;
+  const placedPct=placedAtt>0?Math.round(placedSC/placedAtt*100):0;
+  const totalTurn=s.twon+s.tlost;
+  const rstLabel=st.sport==='hurling'?'Puck Out':'Kickout';
+
+  const scorers=Object.values(s.ps).filter(p=>p.gPl+p.gPd+p.pPl+p.pPd+p.w>0)
+    .sort((a,b)=>{const ta=(a.gPl+a.gPd)*3+(a.pPl+a.pPd),tb=(b.gPl+b.gPd)*3+(b.pPl+b.pPd);return tb!==ta?tb-ta:a.name.localeCompare(b.name);});
+  const maxScore=scorers.length?((scorers[0].gPl+scorers[0].gPd)*3+(scorers[0].pPl+scorers[0].pPd)):1;
+
+  const twPlayers=Object.values(s.ps).filter(p=>p.tw+p.tl>0)
+    .sort((a,b)=>(b.tw-b.tl)-(a.tw-a.tl)||a.name.localeCompare(b.name));
+  const discPlayers=Object.values(s.ps).filter(p=>p.yc+p.bc+p.rc>0||Object.keys(p.fr).length>0)
+    .sort((a,b)=>{const ca=a.rc*100+a.bc*10+a.yc,cb=b.rc*100+b.bc*10+b.yc;if(cb!==ca)return cb-ca;const fa=Object.values(a.fr).reduce((s,n)=>s+n,0),fb=Object.values(b.fr).reduce((s,n)=>s+n,0);return fb-fa||a.name.localeCompare(b.name);});
+
+  // Substitution score tracking
+  let sUG=0,sUP=0,sOG=0,sOP=0;const sSAt=[];
+  st.evts.forEach(ev=>{
+    if(ev.action==='Goal')sUG++;
+    else if(ev.action==='Point')sUP++;
+    else if(ev.action==='2 Point')sUP+=2;
+    else if(ev.badge==='OPP'){const d=ev.desc||'';if(d.includes('Goal added'))sOG++;else if(d.includes('2 Point added'))sOP+=2;else if(d.includes('Point added'))sOP++;else if(d.includes('Goal removed'))sOG=Math.max(0,sOG-1);else if(d.includes('Point removed'))sOP=Math.max(0,sOP-1);}
+    else if(ev.badge==='ADJ'){const d=ev.desc||'';if(d.includes('Goal added'))sUG++;else if(d.includes('2 Point added'))sUP+=2;else if(d.includes('Point added'))sUP++;else if(d.includes('Goal removed'))sUG=Math.max(0,sUG-1);else if(d.includes('Point removed'))sUP=Math.max(0,sUP-1);}
+    sSAt.push({usG:sUG,usP:sUP,oppG:sOG,oppP:sOP});
+  });
+
+  let h='';
+
+  // ─── Header ──────────────────────────────────────────────────────────────
+  const metaParts=[];
+  if(st.location)metaParts.push(`<span><i class="fas fa-location-dot"></i> ${esc(st.location)}</span>`);
+  if(st.referee)metaParts.push(`<span><i class="fas fa-whistle"></i> ${esc(st.referee)}</span>`);
+  h+=`<div class="rv-hdr">`;
+  if(metaParts.length)h+=`<div class="rv-hdr-meta">${metaParts.join('<span style="opacity:.3;">·</span>')}</div>`;
+  h+=`<div class="rv-score-row">`;
+  h+=`<div class="rv-team-blk"><div class="rv-team-name">${esc(usN)}</div><div class="rv-score-big">${esc(usDisp)}</div><div class="rv-score-pts">(${usPts} pts)</div></div>`;
+  h+=`<div class="rv-vs-col"><div class="rv-vs">vs</div><div class="rv-lead-pill">${lead}</div></div>`;
+  h+=`<div class="rv-team-blk" style="text-align:right;"><div class="rv-team-name">${esc(oppN)}</div><div class="rv-score-big">${esc(oppDisp)}</div><div class="rv-score-pts">(${oppPts} pts)</div></div>`;
+  h+=`</div>`;
+  if(st.matchNotes)h+=`<div class="rv-notes">${esc(st.matchNotes)}</div>`;
+  h+=`</div>`;
+
+  // ─── Timeline ────────────────────────────────────────────────────────────
+  const tlSVG=buildTL(s,usN,oppN);
+  if(tlSVG){
+    h+=`<div class="rv-full rv-card"><div class="rv-ctitle">Score Timeline</div>${tlSVG}</div>`;
+  }
+
+  // ─── Scoring | Placed Balls | Momentum ───────────────────────────────────
+  h+=`<div class="rv-g3">`;
+
+  // Scoring
+  h+=`<div class="rv-card"><div class="rv-ctitle">Scoring</div>`;
+  h+=`<div class="rv-bignum">${s.gC}-${displayPts}</div>`;
+  h+=`<div class="rv-bigsub">${totalPts} pts &mdash; ${scorePct}% conversion (${totalSA} / ${totalAtt})</div>`;
+  if(totalAtt>0){
+    const gw=s.gC/totalAtt*100,tw=s.t2C/totalAtt*100,pw=s.pC/totalAtt*100,ww=s.wC/totalAtt*100;
+    h+=`<div class="rv-attempt-bar" style="margin-top:18px;">`;
+    if(gw>0)h+=`<div class="rv-aseg" style="width:${gw.toFixed(1)}%;background:#2E7D32;"></div>`;
+    if(tw>0)h+=`<div class="rv-aseg" style="width:${tw.toFixed(1)}%;background:#D97706;"></div>`;
+    if(pw>0)h+=`<div class="rv-aseg" style="width:${pw.toFixed(1)}%;background:#A8CBA8;border:.5px solid #98BB98;"></div>`;
+    if(ww>0)h+=`<div class="rv-aseg" style="width:${ww.toFixed(1)}%;background:#C8CAC4;"></div>`;
+    h+=`</div><div class="rv-legend">`;
+    if(s.gC>0) h+=`<span class="rv-li"><span class="rv-ld" style="background:#2E7D32;"></span>${s.gC} goal${s.gC!==1?'s':''}</span>`;
+    if(s.t2C>0)h+=`<span class="rv-li"><span class="rv-ld" style="background:#D97706;"></span>${s.t2C} 2-ptr${s.t2C!==1?'s':''}</span>`;
+    if(s.pC>0) h+=`<span class="rv-li"><span class="rv-ld" style="background:#A8CBA8;border:.5px solid #98BB98;"></span>${s.pC} point${s.pC!==1?'s':''}</span>`;
+    if(s.wC>0) h+=`<span class="rv-li"><span class="rv-ld" style="background:#C8CAC4;"></span>${s.wC} wide${s.wC!==1?'s':''}</span>`;
+    h+=`</div>`;
+  }
+  h+=`</div>`;
+
+  // Placed Balls
+  h+=`<div class="rv-card"><div class="rv-ctitle">Placed Balls</div>`;
+  if(placedAtt>0){
+    const grad=`conic-gradient(#2E7D32 ${placedPct}%, #E8F5E9 0%)`;
+    h+=`<div class="rv-ring-w">`;
+    h+=`<div class="rv-ring" style="background:${grad};"><div class="rv-ring-in"><div class="rv-ring-pct">${placedPct}%</div><div class="rv-ring-lbl">conv.</div></div></div>`;
+    h+=`<div><div style="font-size:26px;font-weight:800;color:#2E7D32;line-height:1;">${placedSC} / ${placedAtt}</div>`;
+    h+=`<div style="font-size:13px;color:#7A8A7A;margin-top:5px;">converted</div>`;
+    if(s.pwC>0)h+=`<div style="font-size:13px;color:#7A8A7A;margin-top:6px;">${s.pwC} wide${s.pwC!==1?'s':''}</div>`;
+    h+=`</div></div>`;
+    if(s.pgC||s.ppC||s.pt2C){
+      const pg=s.pgC,pp=s.ppC+s.pt2C*2;
+      if(pg||pp)h+=`<div class="rv-row"><span class="rv-rl">Score</span><span class="rv-rv">${pg}-${pp}</span></div>`;
+    }
+  }else{
+    h+=`<div style="font-size:14px;color:#9A9E99;padding:24px 0;text-align:center;">No placed ball attempts</div>`;
+  }
+  h+=`</div>`;
+
+  // Momentum
+  h+=`<div class="rv-card"><div class="rv-ctitle">Momentum</div>`;
+  h+=`<div class="rv-split"><div class="rv-split-g" style="width:${uMP}%;"></div><div class="rv-split-r" style="width:${oMP}%;"></div></div>`;
+  h+=`<div class="rv-split-lbls">`;
+  h+=`<span style="color:#2E7D32;">${uMP}%<br><span style="font-size:12px;font-weight:400;color:#7A8A7A;">${esc(usN)}</span></span>`;
+  h+=`<span style="color:#C62828;text-align:right;">${oMP}%<br><span style="font-size:12px;font-weight:400;color:#7A8A7A;">${esc(oppN)}</span></span>`;
+  h+=`</div>`;
+  const bNote=(ownRstT+oppRstT>0&&totalTurn>0)?'Scores + restarts + turnovers':(ownRstT+oppRstT>0)?'Scores + restarts':(totalTurn>0)?'Scores + turnovers':'Based on scores';
+  h+=`<div style="font-size:11px;color:#9A9E99;margin-top:12px;">${bNote}</div>`;
+  if(ownRstT>0||oppRstT>0){
+    h+=`<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">`;
+    h+=`<div class="rv-ctitle" style="margin-bottom:10px;">${rstLabel}s</div>`;
+    if(ownRstT>0){const p=Math.round(s.ownWon/ownRstT*100);h+=`<div class="rv-row"><span class="rv-rl">Own</span><span class="rv-rv">${s.ownWon}W / ${s.ownLost}L${s.ownUnclear?' / '+s.ownUnclear+'?':''} <span style="font-weight:400;color:#7A8A7A;">(${p}%)</span></span></div>`;}
+    if(oppRstT>0){const p=Math.round(s.oppWon/oppRstT*100);h+=`<div class="rv-row"><span class="rv-rl">Opp.</span><span class="rv-rv">${s.oppWon}W / ${s.oppLost}L${s.oppUnclear?' / '+s.oppUnclear+'?':''} <span style="font-weight:400;color:#7A8A7A;">(${p}%)</span></span></div>`;}
+    h+=`</div>`;
+  }
+  h+=`</div>`;
+  h+=`</div>`; // end rv-g3
+
+  // ─── Player Scoring + Shot Map ────────────────────────────────────────────
+  const hasSM=s.shots.length>0&&st.trackShotLocations;
+  if(scorers.length>0||hasSM){
+    h+=`<div class="${hasSM&&scorers.length>0?'rv-g21':'rv-full'}">`;
+    if(scorers.length>0){
+      h+=`<div class="rv-card"><div class="rv-ctitle">Player Scoring</div>`;
+      h+=`<table class="rv-pt"><thead><tr><th>Player</th><th class="r">Score</th><th class="r">Pts</th><th class="r">Wides</th><th class="r">Placed</th><th></th></tr></thead><tbody>`;
+      scorers.forEach(p=>{
+        const g=p.gPl+p.gPd,pts=p.pPl+p.pPd,total=g*3+pts,barW=Math.round(total/maxScore*100);
+        h+=`<tr><td style="font-weight:500;">${esc(p.name)}</td>`;
+        h+=`<td class="r" style="font-weight:700;color:#2E7D32;">${g}-${pts}</td>`;
+        h+=`<td class="r" style="font-weight:600;color:#2E7D32;">${total}</td>`;
+        h+=`<td class="r" style="color:#9A9E99;">${p.w||'—'}</td>`;
+        h+=`<td class="r">${(p.gPd||p.pPd)?`<span class="rv-tag rv-ta">${p.gPd}-${p.pPd}</span>`:'—'}</td>`;
+        h+=`<td class="rv-scorer-bar-cell"><div class="rv-scorer-bar-track"><div class="rv-scorer-bar-fill" style="width:${barW}%;"></div></div></td>`;
+        h+=`</tr>`;
+      });
+      h+=`</tbody></table></div>`;
+    }
+    if(hasSM){
+      const mapSVG=buildSM(s.shots);
+      h+=`<div class="rv-card"><div class="rv-ctitle">Shot Map</div>`;
+      h+=`<div class="rv-sm-wrap"><div>${mapSVG}</div>`;
+      h+=`<div class="rv-sm-leg">`;
+      h+=`<div class="rv-sm-li"><svg width="18" height="18"><circle cx="9" cy="9" r="7" fill="#2E7D32"/></svg>Goal</div>`;
+      h+=`<div class="rv-sm-li"><svg width="18" height="18"><circle cx="9" cy="9" r="6" fill="#fff" stroke="#2E7D32" stroke-width="1.5"/></svg>Point / 2-pt</div>`;
+      h+=`<div class="rv-sm-li"><svg width="18" height="18"><circle cx="9" cy="9" r="5" fill="#9E9E9E"/></svg>Wide</div>`;
+      h+=`<div class="rv-sm-li"><svg width="22" height="22"><circle cx="11" cy="11" r="9" fill="none" stroke="#2E7D32" stroke-width="1.8" opacity="0.6"/><circle cx="11" cy="11" r="5" fill="#2E7D32"/></svg>Placed ball</div>`;
+      h+=`<div style="margin-top:8px;font-size:12px;color:#9A9E99;">${s.shots.length} shot${s.shots.length!==1?'s':''} tracked</div>`;
+      h+=`</div></div></div>`;
+    }
+    h+=`</div>`;
+  }
+
+  // ─── Turnovers | Discipline | Substitutions ───────────────────────────────
+  h+=`<div class="rv-g3">`;
+
+  // Turnovers
+  h+=`<div class="rv-card"><div class="rv-ctitle">Turnovers</div>`;
+  if(totalTurn>0){
+    const wonPct=Math.round(s.twon/totalTurn*100);
+    h+=`<div style="display:flex;gap:24px;margin-bottom:18px;">`;
+    h+=`<div style="flex:1;text-align:center;"><div style="font-size:44px;font-weight:800;color:#2E7D32;line-height:1;">${s.twon}</div><div style="font-size:12px;color:#7A8A7A;margin-top:5px;">Won</div></div>`;
+    h+=`<div style="flex:1;text-align:center;"><div style="font-size:44px;font-weight:800;color:#C62828;line-height:1;">${s.tlost}</div><div style="font-size:12px;color:#7A8A7A;margin-top:5px;">Lost</div></div>`;
+    h+=`</div>`;
+    h+=`<div class="rv-bar"><div class="rv-bar-fill" style="width:${wonPct}%;"></div></div>`;
+    h+=`<div style="font-size:12px;color:#7A8A7A;margin-bottom:14px;">${wonPct}% won</div>`;
+    if(twPlayers.length>0){
+      h+=`<div style="border-top:1px solid var(--border);padding-top:10px;">`;
+      twPlayers.forEach(p=>{
+        h+=`<div class="rv-row"><span class="rv-rl">${esc(p.name)}</span><span>`;
+        if(p.tw>0)h+=`<span class="rv-tag rv-tg">+${p.tw}</span>`;
+        if(p.tl>0)h+=`<span class="rv-tag rv-tr">-${p.tl}</span>`;
+        h+=`</span></div>`;
+      });
+      h+=`</div>`;
+    }
+  }else{h+=`<div style="font-size:14px;color:#9A9E99;padding:16px 0;">None recorded</div>`;}
+  h+=`</div>`;
+
+  // Discipline
+  h+=`<div class="rv-card"><div class="rv-ctitle">Discipline</div>`;
+  if(s.freesConc>0){
+    h+=`<div class="rv-row"><span class="rv-rl">Frees conceded</span><span class="rv-rv">${s.freesConc}</span></div>`;
+    if(s.freesScored>0)h+=`<div class="rv-row"><span class="rv-rl">Scored by opp.</span><span class="rv-rv" style="color:#C62828;">${s.freesScored}</span></div>`;
+  }
+  if(discPlayers.length>0){
+    if(s.freesConc>0)h+=`<div style="border-top:1px solid var(--border);margin:10px 0 10px;"></div>`;
+    discPlayers.forEach(p=>{
+      const fT=Object.values(p.fr).reduce((s,n)=>s+n,0);
+      h+=`<div style="padding:9px 0;border-bottom:1px solid var(--border);">`;
+      h+=`<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">`;
+      if(p.yc+p.bc+p.rc>0){
+        h+=`<span style="display:flex;gap:2px;">`;
+        for(let i=0;i<p.yc;i++)h+=`<span class="cc" style="background:#FDD835;border:.5px solid rgba(0,0,0,0.15);"></span>`;
+        for(let i=0;i<p.bc;i++)h+=`<span class="cc" style="background:#2c2c2a;"></span>`;
+        for(let i=0;i<p.rc;i++)h+=`<span class="cc" style="background:#E53935;"></span>`;
+        h+=`</span>`;
+      }
+      h+=`<span style="font-size:14px;font-weight:500;">${esc(p.name)}</span>`;
+      h+=`</div>`;
+      if(fT>0){
+        h+=`<div style="font-size:12px;color:#7A8A7A;margin-top:4px;padding-left:2px;">${fT} free${fT!==1?'s':''} &mdash; `;
+        h+=Object.entries(p.fr).sort((a,b)=>b[1]-a[1]).map(([t,n])=>esc(t)+(n>1?' ×'+n:'')).join(', ');
+        h+=`</div>`;
+      }
+      h+=`</div>`;
+    });
+  }
+  if(!s.freesConc&&!discPlayers.length)h+=`<div style="font-size:14px;color:#9A9E99;padding:16px 0;">No discipline events</div>`;
+  h+=`</div>`;
+
+  // Substitutions
+  h+=`<div class="rv-card"><div class="rv-ctitle">Substitutions</div>`;
+  const subEvts=st.evts.filter(ev=>ev.action==='sub');
+  if(subEvts.length>0){
+    h+=`<div class="rv-sub-hdr"><span class="rv-sub-t">Time</span><span style="flex:1;">On</span><span style="flex:1;">Off</span></div>`;
+    st.evts.forEach((ev,i)=>{
+      if(ev.action!=='sub')return;
+      const m=ev.desc.match(/Sub: (.+) off \/ (.+) on \(pos (\d+)\)/);
+      const offName=m?m[1]:'?',onName=m?m[2]:'?',pos=m?m[3]:'';
+      h+=`<div class="rv-sub-row">`;
+      h+=`<div class="rv-sub-t">${esc(ev.time)}</div>`;
+      h+=`<div class="rv-sub-on">${esc(onName)}${pos?`<div style="font-size:11px;color:#9A9E99;">Pos ${pos}</div>`:''}</div>`;
+      h+=`<div class="rv-sub-off">${esc(offName)}</div>`;
+      h+=`</div>`;
+    });
+  }else{h+=`<div style="font-size:14px;color:#9A9E99;padding:16px 0;">No substitutions</div>`;}
+  h+=`</div>`;
+
+  h+=`</div>`; // end rv-g3
+
+  // ─── Starting Lineup ─────────────────────────────────────────────────────
+  const teamSz=st.teamSize||15;
+  const hasNames=Object.values(st.pnames||{}).some(n=>n&&n.trim());
+  if(hasNames){
+    h+=`<div class="rv-full rv-card"><div class="rv-ctitle">Starting Line-up &mdash; ${esc(usN)}</div>`;
+    h+=`<div class="rv-lu-grid">`;
+    for(let i=1;i<=teamSz;i++){
+      const nm=gn(st,i)||(i===1?'GK':'#'+i);
+      const isCap=st.captain===i,isGK=i===1;
+      h+=`<div class="rv-lu-p${isGK?' gk':''}">`;
+      h+=`<div class="rv-lu-num">${i}</div>`;
+      h+=`<div class="rv-lu-name${isGK?' gk':''}">${esc(nm)}</div>`;
+      if(isCap)h+=`<div class="rv-lu-cap">© Captain</div>`;
+      h+=`</div>`;
+    }
+    h+=`</div></div>`;
+  }
+
+  h+=`<div class="rv-foot">GAA Match Tracker &mdash; Match Review</div>`;
+  return h;
+}
+</script>
+</body>
+</html>

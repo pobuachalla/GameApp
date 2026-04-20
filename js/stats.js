@@ -343,7 +343,7 @@ function buildStatsHTML() {
   h += '<div class="momentum-basis">'+basisNote+domNote+'</div>';
   h += '</div></div>';
 
-  // Scoring
+  // Scoring + Placed Balls
   h += '<div class="stat-section"><div class="stat-section-title">Scoring</div><div class="stat-card">';
   h += '<div class="stat-big">'+goalCount+'-'+displayPts+' <span style="font-size:15px;font-weight:500;color:var(--t2);">('+totalPts+'pts)</span></div>';
   h += '<div class="stat-big-sub">'+totalScoreActions+' score'+(totalScoreActions!==1?'s':'')+' from '+totalAttempts+' attempt'+(totalAttempts!==1?'s':'')+' &mdash; '+scorePct+'% conversion</div>';
@@ -363,13 +363,9 @@ function buildStatsHTML() {
     if (wideCount > 0)  h += '<span class="stat-legend-item"><span class="stat-legend-dot" style="background:#9E9E9E;"></span>'+wideCount+' wide'+(wideCount!==1?'s':'')+'</span>';
     h += '</div>';
   }
-  h += '</div></div>';
-
-  // Placed balls
-  h += '<div class="stat-section"><div class="stat-section-title">Placed Balls</div><div class="stat-card">';
-  if (placedAttempts === 0) {
-    h += '<div style="font-size:13px;color:var(--t2);padding:4px 0;">No placed ball attempts recorded</div>';
-  } else {
+  if (placedAttempts > 0) {
+    h += '<div style="border-top:.5px solid var(--b);margin:12px 0 10px;"></div>';
+    h += '<div class="stat-sub-hdr" style="margin-top:0;">Placed Balls</div>';
     const ringGrad = 'conic-gradient(#2E7D32 '+placedPct+'%, var(--bg3) 0%)';
     h += '<div class="stat-ring-wrap">';
     h += '<div class="stat-ring" style="background:'+ringGrad+';">';
@@ -379,18 +375,36 @@ function buildStatsHTML() {
     h += '<div style="font-size:16px;font-weight:700;color:#2E7D32;line-height:1.2;">'+placedScoreCount+' converted</div>';
     h += '<div style="font-size:12px;color:var(--t2);margin-top:2px;">from '+placedAttempts+' attempt'+(placedAttempts!==1?'s':'')+'</div>';
     if (placedWides > 0) h += '<div style="font-size:12px;color:var(--t2);margin-top:6px;">'+placedWides+' placed ball wide'+(placedWides!==1?'s':'')+'</div>';
-    h += '</div>';
-    h += '</div>';
+    h += '</div></div>';
   }
   h += '</div></div>';
 
-  // Restarts
-  const rstLabel = state.sport === 'hurling' ? 'Puck Out' : 'Kickout';
-  h += '<div class="stat-section"><div class="stat-section-title">Restarts</div><div class="stat-card">';
-  h += rstBlock('Own '+rstLabel+'s', ownWon, ownLost, ownUnclear, ownTotal);
-  h += '<div style="border-top:.5px solid var(--b);margin:6px 0 10px;"></div>';
-  h += rstBlock('Opposition '+rstLabel+'s', oppWon, oppLost, oppUnclear, oppTotal);
-  h += '</div></div>';
+  // Player Scoring
+  const scorers = Object.values(pstats).filter(p =>
+    p.gPlay+p.gPlaced+p.pPlay+p.pPlaced+p.wides > 0
+  ).sort((a,b) => {
+    const ta = (a.gPlay+a.gPlaced)*3+(a.pPlay+a.pPlaced);
+    const tb = (b.gPlay+b.gPlaced)*3+(b.pPlay+b.pPlaced);
+    return tb !== ta ? tb - ta : a.name.localeCompare(b.name);
+  });
+  if (scorers.length > 0) {
+    h += '<div class="stat-section"><div class="stat-section-title">Player Scoring</div><div class="stat-card">';
+    scorers.forEach(p => {
+      const g = p.gPlay+p.gPlaced, pts = p.pPlay+p.pPlaced, total = g*3+pts;
+      h += html`<div class="stat-prow"><div class="stat-pname">${p.name}</div>`;
+      h += '<div class="stat-ptags">';
+      if (g > 0 || pts > 0) h += `<span class="stat-tag green">${g}-${pts} (${total})</span>`;
+      if (p.wides > 0) h += `<span class="stat-tag grey">${p.wides} wide${p.wides!==1?'s':''}</span>`;
+      h += '</div></div>';
+    });
+    h += '</div></div>';
+  }
+
+  // Shot Map
+  if (state.trackShotLocations) {
+    const smHtml = buildShotMapHTML();
+    if (smHtml) h += smHtml;
+  }
 
   // Turnovers
   if (totalTurnovers > 0) {
@@ -416,15 +430,15 @@ function buildStatsHTML() {
     h += '</div></div>';
   }
 
-  // Player breakdown
-  const scorers = Object.values(pstats).filter(p =>
-    p.gPlay+p.gPlaced+p.pPlay+p.pPlaced+p.wides > 0
-  ).sort((a,b) => {
-    const ta = (a.gPlay+a.gPlaced)*3+(a.pPlay+a.pPlaced);
-    const tb = (b.gPlay+b.gPlaced)*3+(b.pPlay+b.pPlaced);
-    return tb !== ta ? tb - ta : a.name.localeCompare(b.name);
-  });
+  // Restarts
+  const rstLabel = state.sport === 'hurling' ? 'Puck Out' : 'Kickout';
+  h += '<div class="stat-section"><div class="stat-section-title">Restarts</div><div class="stat-card">';
+  h += rstBlock('Own '+rstLabel+'s', ownWon, ownLost, ownUnclear, ownTotal);
+  h += '<div style="border-top:.5px solid var(--b);margin:6px 0 10px;"></div>';
+  h += rstBlock('Opposition '+rstLabel+'s', oppWon, oppLost, oppUnclear, oppTotal);
+  h += '</div></div>';
 
+  // Discipline
   const discPlayers = Object.values(pstats).filter(p =>
     p.yc+p.bc+p.rc > 0 || Object.keys(p.frees).length > 0
   ).sort((a,b) => {
@@ -434,65 +448,44 @@ function buildStatsHTML() {
     const fb = Object.values(b.frees).reduce((s,n)=>s+n,0);
     return fb - fa || a.name.localeCompare(b.name);
   });
-
-  if (scorers.length > 0 || discPlayers.length > 0 || freesConc > 0) {
-    h += '<div class="stat-section"><div class="stat-section-title">Player Breakdown</div>';
-    if (scorers.length > 0) {
-      h += '<div class="stat-sub-hdr" style="margin-top:0;">Scoring</div>';
-      h += '<div class="stat-card">';
-      scorers.forEach(p => {
-        const g = p.gPlay+p.gPlaced, pts = p.pPlay+p.pPlaced, total = g*3+pts;
-        h += html`<div class="stat-prow"><div class="stat-pname">${p.name}</div>`;
-        h += '<div class="stat-ptags">';
-        if (g > 0 || pts > 0) h += `<span class="stat-tag green">${g}-${pts} (${total})</span>`;
-        if (p.wides > 0) h += `<span class="stat-tag grey">${p.wides} wide${p.wides!==1?'s':''}</span>`;
-        h += '</div></div>';
-      });
+  if (discPlayers.length > 0 || freesConc > 0) {
+    h += '<div class="stat-section"><div class="stat-section-title">Discipline</div>';
+    if (freesConc > 0) {
+      h += '<div style="display:flex;gap:16px;padding:4px 0 10px;align-items:baseline;">';
+      h += `<span style="font-size:13px;color:var(--t2);">Frees conceded: <strong style="color:var(--t1);">${freesConc}</strong></span>`;
+      if (freesScored > 0) h += `<span style="font-size:13px;color:#C62828;font-weight:600;">${freesScored} scored by opposition</span>`;
       h += '</div>';
     }
-    if (discPlayers.length > 0 || freesConc > 0) {
-      h += '<div class="stat-sub-hdr">Discipline</div>';
-      if (freesConc > 0) {
-        h += '<div style="display:flex;gap:16px;padding:4px 0 10px;align-items:baseline;">';
-        h += `<span style="font-size:13px;color:var(--t2);">Frees conceded: <strong style="color:var(--t1);">${freesConc}</strong></span>`;
-        if (freesScored > 0) h += `<span style="font-size:13px;color:#C62828;font-weight:600;">${freesScored} scored by opposition</span>`;
+    if (discPlayers.length > 0) {
+      h += '<div class="stat-card">';
+      discPlayers.forEach(p => {
+        const freeTotal = Object.values(p.frees).reduce((s,n)=>s+n,0);
+        h += '<div class="disc-row">';
+        if (p.yc+p.bc+p.rc > 0) {
+          h += '<span style="display:flex;gap:3px;flex-shrink:0;">';
+          for (let i=0;i<p.yc;i++) h += '<span class="disc-chip" style="background:#FDD835;" title="Yellow Card"></span>';
+          for (let i=0;i<p.bc;i++) h += '<span class="disc-chip" style="background:#2c2c2a;" title="Black Card"></span>';
+          for (let i=0;i<p.rc;i++) h += '<span class="disc-chip" style="background:#E53935;" title="Red Card"></span>';
+          h += '</span>';
+        }
+        h += html`<span class="stat-pname" style="flex:1;">${p.name}</span>`;
+        if (freeTotal > 0) {
+          h += '<span class="stat-ptags">';
+          h += `<span class="stat-tag grey">${freeTotal} free${freeTotal!==1?'s':''}</span>`;
+          Object.entries(p.frees).sort((a,b)=>b[1]-a[1]).forEach(([type,n]) => {
+            h += `<span class="stat-tag grey">${esc(type)}${n>1?' ×'+n:''}</span>`;
+          });
+          h += '</span>';
+        }
         h += '</div>';
-      }
-      if (discPlayers.length > 0) {
-        h += '<div class="stat-card">';
-        discPlayers.forEach(p => {
-          const freeTotal = Object.values(p.frees).reduce((s,n)=>s+n,0);
-          h += '<div class="disc-row">';
-          if (p.yc+p.bc+p.rc > 0) {
-            h += '<span style="display:flex;gap:3px;flex-shrink:0;">';
-            for (let i=0;i<p.yc;i++) h += '<span class="disc-chip" style="background:#FDD835;" title="Yellow Card"></span>';
-            for (let i=0;i<p.bc;i++) h += '<span class="disc-chip" style="background:#2c2c2a;" title="Black Card"></span>';
-            for (let i=0;i<p.rc;i++) h += '<span class="disc-chip" style="background:#E53935;" title="Red Card"></span>';
-            h += '</span>';
-          }
-          h += html`<span class="stat-pname" style="flex:1;">${p.name}</span>`;
-          if (freeTotal > 0) {
-            h += '<span class="stat-ptags">';
-            h += `<span class="stat-tag grey">${freeTotal} free${freeTotal!==1?'s':''}</span>`;
-            Object.entries(p.frees).sort((a,b)=>b[1]-a[1]).forEach(([type,n]) => {
-              h += `<span class="stat-tag grey">${esc(type)}${n>1?' ×'+n:''}</span>`;
-            });
-            h += '</span>';
-          }
-          h += '</div>';
-        });
-        h += '</div>';
-      }
+      });
+      h += '</div>';
     }
     h += '</div>';
   }
 
+  // Substitutions
   h += buildSubTableHTML();
-
-  if (state.trackShotLocations) {
-    const smHtml = buildShotMapHTML();
-    if (smHtml) h += smHtml;
-  }
 
   return h;
 }

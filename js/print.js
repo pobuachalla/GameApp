@@ -301,6 +301,7 @@ function buildPrintHTML() {
     h += '</div></div>';
   }
 
+  // Scoring + Placed Balls
   h += '<div class="pr-section">';
   h += '<div class="pr-section-title">Scoring</div>';
   h += '<div class="pr-card">';
@@ -314,32 +315,37 @@ function buildPrintHTML() {
     if (wideCount)  h += '<span style="color:#6B6F66;">'+wideCount+' wide'+(wideCount!==1?'s':'')+'</span>';
     h += '</div>';
   }
-  h += '</div></div>';
-
   if (placedAttempts > 0) {
-    h += '<div class="pr-section">';
-    h += '<div class="pr-section-title">Placed Balls</div>';
-    h += '<div class="pr-card">';
+    h += '<div style="border-top:1px solid #E2E4DE;margin:12px 0 10px;"></div>';
+    h += '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;margin-bottom:8px;">Placed Balls</div>';
     h += '<div class="pr-big" style="font-size:22px;">'+placedPct+'% <span style="font-size:14px;font-weight:500;color:#6B6F66;">conversion</span></div>';
     h += '<div class="pr-sub">'+placedScoreCount+' converted from '+placedAttempts+' attempt'+(placedAttempts!==1?'s':'')+(placedWides?' · '+placedWides+' wide'+(placedWides!==1?'s':''):'')+'</div>';
-    h += '</div></div>';
   }
+  h += '</div></div>';
 
-  if (ownTotal > 0 || oppTotal > 0) {
-    h += '<div class="pr-section">';
-    h += '<div class="pr-section-title">Restarts</div>';
+  // Player Scoring
+  if (scorers.length > 0) {
+    h += '<div class="pr-section pr-section-flow">';
+    h += '<div class="pr-section-title">Player Scoring</div>';
     h += '<div class="pr-card">';
-    if (ownTotal > 0) {
-      const pct=Math.round(ownWon/ownTotal*100);
-      h+='<div class="pr-row"><span>Own '+rstLabel+'s</span><span>'+ownWon+' won / '+ownLost+' lost'+(ownUnclear?' / '+ownUnclear+' unclear':'')+' — <strong>'+pct+'%</strong></span></div>';
-    }
-    if (oppTotal > 0) {
-      const pct=Math.round(oppWon/oppTotal*100);
-      h+='<div class="pr-row"><span>Opposition '+rstLabel+'s</span><span>'+oppWon+' won / '+oppLost+' lost'+(oppUnclear?' / '+oppUnclear+' unclear':'')+' — <strong>'+pct+'%</strong></span></div>';
-    }
+    scorers.forEach(p => {
+      const g=p.gPlay+p.gPlaced, pts=p.pPlay+p.pPlaced, total=g*3+pts;
+      h += html`<div class="pr-row"><span>${p.name}</span>`;
+      h += '<span>';
+      if (g > 0 || pts > 0) h += `<span class="pr-tag">${g}-${pts} (${total})</span> `;
+      if (p.wides > 0) h += `<span class="pr-tag-grey">${p.wides} wide${p.wides!==1?'s':''}</span>`;
+      h += '</span></div>';
+    });
     h += '</div></div>';
   }
 
+  // Shot Map
+  if (state.trackShotLocations) {
+    const smPrint = buildPrintShotMapHTML();
+    if (smPrint) h += smPrint;
+  }
+
+  // Turnovers
   if (totalTurnovers > 0) {
     const wonPct = Math.round(turnoversWon / totalTurnovers * 100);
     h += '<div class="pr-section">';
@@ -364,18 +370,52 @@ function buildPrintHTML() {
     h += '</div></div>';
   }
 
-  if (scorers.length > 0) {
-    h += '<div class="pr-section pr-section-flow">';
-    h += '<div class="pr-section-title">Player Scoring</div>';
+  // Restarts
+  if (ownTotal > 0 || oppTotal > 0) {
+    h += '<div class="pr-section">';
+    h += '<div class="pr-section-title">Restarts</div>';
     h += '<div class="pr-card">';
-    scorers.forEach(p => {
-      const g=p.gPlay+p.gPlaced, pts=p.pPlay+p.pPlaced, total=g*3+pts;
-      h += html`<div class="pr-row"><span>${p.name}</span>`;
-      h += '<span>';
-      if (g > 0 || pts > 0) h += `<span class="pr-tag">${g}-${pts} (${total})</span> `;
-      if (p.wides > 0) h += `<span class="pr-tag-grey">${p.wides} wide${p.wides!==1?'s':''}</span>`;
-      h += '</span></div>';
-    });
+    if (ownTotal > 0) {
+      const pct=Math.round(ownWon/ownTotal*100);
+      h+='<div class="pr-row"><span>Own '+rstLabel+'s</span><span>'+ownWon+' won / '+ownLost+' lost'+(ownUnclear?' / '+ownUnclear+' unclear':'')+' — <strong>'+pct+'%</strong></span></div>';
+    }
+    if (oppTotal > 0) {
+      const pct=Math.round(oppWon/oppTotal*100);
+      h+='<div class="pr-row"><span>Opposition '+rstLabel+'s</span><span>'+oppWon+' won / '+oppLost+' lost'+(oppUnclear?' / '+oppUnclear+' unclear':'')+' — <strong>'+pct+'%</strong></span></div>';
+    }
+    h += '</div></div>';
+  }
+
+  if (discPlayers.length > 0 || freesConc > 0) {
+    h += '<div class="pr-section">';
+    h += '<div class="pr-section-title">Discipline</div>';
+    h += '<div class="pr-card">';
+    if (freesConc > 0) {
+      h += '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;margin-bottom:8px;">Frees Conceded</div>';
+      h += `<div class="pr-row" style="margin-bottom:6px;"><span>Total</span><span style="font-weight:600;">${freesConc}</span></div>`;
+      if (freesScored > 0) h += `<div class="pr-row" style="margin-bottom:${discPlayers.length>0?'12':'4'}px;"><span>Scored by opposition</span><span style="color:#C62828;font-weight:600;">${freesScored}</span></div>`;
+    }
+    if (discPlayers.length > 0) {
+      if (freesConc > 0) h += '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;margin-bottom:8px;">By Player</div>';
+      discPlayers.forEach(p => {
+        const freeTotal = Object.values(p.frees).reduce((s,n)=>s+n,0);
+        h += '<div class="pr-row" style="align-items:center;gap:6px;">';
+        if (p.yc+p.bc+p.rc > 0) {
+          h += '<span style="display:flex;gap:2px;flex-shrink:0;">';
+          for (let i=0;i<p.yc;i++) h+='<span style="display:inline-block;width:9px;height:13px;background:#FDD835;border-radius:2px;border:.5px solid rgba(0,0,0,.2);"></span>';
+          for (let i=0;i<p.bc;i++) h+='<span style="display:inline-block;width:9px;height:13px;background:#2c2c2a;border-radius:2px;"></span>';
+          for (let i=0;i<p.rc;i++) h+='<span style="display:inline-block;width:9px;height:13px;background:#E53935;border-radius:2px;"></span>';
+          h += '</span>';
+        }
+        h += html`<span style="flex:1;font-size:13px;">${p.name}</span>`;
+        if (freeTotal > 0) {
+          h += `<span style="font-size:11px;color:#6B6F66;">${freeTotal} free${freeTotal!==1?'s':''}`;
+          const types = Object.entries(p.frees).sort((a,b)=>b[1]-a[1]).map(([t,n])=>esc(t)+(n>1?' ×'+n:'')).join(', ');
+          h += ` &mdash; ${types}</span>`;
+        }
+        h += '</div>';
+      });
+    }
     h += '</div></div>';
   }
 
@@ -433,44 +473,6 @@ function buildPrintHTML() {
     });
     h += html`<div style="padding:6px 14px;font-size:10px;color:#9A9E99;">After = goals-pts scored from sub on (${state.usN} / ${state.oppN})</div>`;
     h += '</div></div>';
-  }
-
-  if (discPlayers.length > 0 || freesConc > 0) {
-    h += '<div class="pr-section">';
-    h += '<div class="pr-section-title">Discipline</div>';
-    h += '<div class="pr-card">';
-    if (freesConc > 0) {
-      h += '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;margin-bottom:8px;">Frees Conceded</div>';
-      h += `<div class="pr-row" style="margin-bottom:6px;"><span>Total</span><span style="font-weight:600;">${freesConc}</span></div>`;
-      if (freesScored > 0) h += `<div class="pr-row" style="margin-bottom:${discPlayers.length>0?'12':'4'}px;"><span>Scored by opposition</span><span style="color:#C62828;font-weight:600;">${freesScored}</span></div>`;
-    }
-    if (discPlayers.length > 0) {
-      if (freesConc > 0) h += '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;margin-bottom:8px;">By Player</div>';
-      discPlayers.forEach(p => {
-        const freeTotal = Object.values(p.frees).reduce((s,n)=>s+n,0);
-        h += '<div class="pr-row" style="align-items:center;gap:6px;">';
-        if (p.yc+p.bc+p.rc > 0) {
-          h += '<span style="display:flex;gap:2px;flex-shrink:0;">';
-          for (let i=0;i<p.yc;i++) h+='<span style="display:inline-block;width:9px;height:13px;background:#FDD835;border-radius:2px;border:.5px solid rgba(0,0,0,.2);"></span>';
-          for (let i=0;i<p.bc;i++) h+='<span style="display:inline-block;width:9px;height:13px;background:#2c2c2a;border-radius:2px;"></span>';
-          for (let i=0;i<p.rc;i++) h+='<span style="display:inline-block;width:9px;height:13px;background:#E53935;border-radius:2px;"></span>';
-          h += '</span>';
-        }
-        h += html`<span style="flex:1;font-size:13px;">${p.name}</span>`;
-        if (freeTotal > 0) {
-          h += `<span style="font-size:11px;color:#6B6F66;">${freeTotal} free${freeTotal!==1?'s':''}`;
-          const types = Object.entries(p.frees).sort((a,b)=>b[1]-a[1]).map(([t,n])=>esc(t)+(n>1?' ×'+n:'')).join(', ');
-          h += ` &mdash; ${types}</span>`;
-        }
-        h += '</div>';
-      });
-    }
-    h += '</div></div>';
-  }
-
-  if (state.trackShotLocations) {
-    const smPrint = buildPrintShotMapHTML();
-    if (smPrint) h += smPrint;
   }
 
   h += '<div class="pr-footer">Generated by GAA Match Tracker</div>';

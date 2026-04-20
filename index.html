@@ -208,6 +208,15 @@
         <span style="font-size:12px;color:var(--t2);">Shot location tracking</span>
       </div>
       <div style="font-size:11px;color:var(--t3);line-height:1.4;margin-bottom:2px;">Tag where scores and wides were taken from</div>
+      <div class="stitle">TRANSFER</div>
+      <div style="display:flex;gap:8px;margin-bottom:4px;">
+        <button onclick="exportMatchJSON()" style="flex:1;background:none;border:.5px solid var(--bm);border-radius:8px;padding:9px 8px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;"><i class="fas fa-file-export" style="color:#2E7D32;"></i>Export Match</button>
+        <label style="flex:1;background:none;border:.5px solid var(--bm);border-radius:8px;padding:9px 8px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;">
+          <i class="fas fa-file-import" style="color:#2E7D32;"></i>Import Match
+          <input type="file" accept=".json" style="display:none;" onchange="importMatchJSON(this)">
+        </label>
+      </div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.4;margin-bottom:2px;">Export to move a session between devices &mdash; open in <a href="review.html" target="_blank" style="color:var(--ti);text-decoration:none;">Review View</a></div>
       <div class="stitle">TEMPLATES</div>
       <div style="display:flex;gap:8px;margin-bottom:8px;">
         <input class="sinput" id="tni" type="text" placeholder="Template name" maxlength="30" style="flex:1;">
@@ -260,6 +269,8 @@
 <script src="js/layout.js"></script>
 <script src="js/stats.js"></script>
 <script src="js/print.js"></script>
+<script src="js/transfer.js"></script>
 <script src="js/app.js"></script>
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4e27a1466ecf4893866bc3012206399a"}'></script>
 </body>
 </html>
