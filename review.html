@@ -259,7 +259,8 @@ function computeStats(st) {
       t2C++;if(p){placed?(p.pPd+=2):(p.pPl+=2);}if(placed)pt2C++;
       tlUP+=2;mType='2 Point';mTeam='us';
     }else if(ev.action==='Wide'){
-      wC++;if(p)p.w++;if(placed)pwC++;
+      if(ev.slot){wC++;if(placed)pwC++;}
+      if(p)p.w++;
       mType='Wide';mTeam=(ev.badge==='OPP')?'opp':'us';
     }else if(ev.badge==='OPP'){
       const d=ev.desc||'';
