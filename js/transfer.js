@@ -24,8 +24,13 @@ function importMatchJSON(input) {
       allKeys.forEach(k => { if (k in data) state[k] = data[k]; else delete state[k]; });
       buildInitialsCache();
       el.evlog.innerHTML = '';
+      renderPGrid();
       restoreUI();
-      closeSettings();
+      // Close settings panel directly — closeSettings() calls flushSettings() which
+      // would overwrite the freshly-imported state.pnames with stale DOM input values.
+      document.getElementById('setovly').classList.remove('open');
+      el.setpanel.classList.remove('open');
+      saveState();
       toast('Loaded: ' + (state.oppN || 'match'));
     } catch (err) {
       toast('Failed to load file');
