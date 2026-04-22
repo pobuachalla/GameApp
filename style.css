@@ -40,8 +40,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bar-btn.danger{color:var(--td);}
 .bar-btn:disabled{opacity:.3;cursor:default;}
 .bar-div{width:.5px;background:var(--b);align-self:stretch;margin:8px 0;}
-.overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.48);z-index:50;padding:12px;}
-.modal-box{background:var(--bg1);border-radius:var(--rl);border:.5px solid var(--b);padding:14px;max-height:calc(100% - 24px);overflow-y:auto;}
+.overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.48);z-index:50;padding:44px 12px 12px;}
+.modal-box{background:var(--bg1);border-radius:var(--rl);border:.5px solid var(--b);padding:14px;max-height:82vh;overflow-y:auto;}
 .full-panel{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:var(--bg1);z-index:60;padding:14px;flex-direction:column;}
 .full-panel.open{display:flex;}
 .panel-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-shrink:0;}
