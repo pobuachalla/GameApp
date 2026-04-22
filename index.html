@@ -66,6 +66,14 @@
     <div style="position:relative;flex:1;">
       <div id="pitch-main-host" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:10px;overflow:hidden;"></div>
       <div id="pgrid" style="position:relative;z-index:1;opacity:.3;pointer-events:none;transition:opacity .2s;padding:10px 0 10px;height:100%;display:flex;flex-direction:column;justify-content:space-around;"></div>
+      <!-- Modal — anchored to pitch area so timer/score/bottom bar remain visible -->
+      <div id="modal" class="overlay">
+        <div class="modal-box">
+          <div id="mtitle" style="font-size:14px;font-weight:500;color:var(--t2);margin-bottom:11px;padding-bottom:9px;border-bottom:.5px solid var(--b);"></div>
+          <div id="mopts"></div>
+          <button onclick="closeMod()" style="display:block;width:100%;padding:13px;border-radius:var(--r);background:none;border:.5px solid var(--bm);color:var(--t2);font-size:14px;cursor:pointer;margin-top:8px;font-family:inherit;">Cancel</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -90,15 +98,6 @@
       <i class="fas fa-rotate-left" aria-hidden="true"></i>
       Undo
     </button>
-  </div>
-
-  <!-- Modal -->
-  <div id="modal" class="overlay">
-    <div class="modal-box">
-      <div id="mtitle" style="font-size:14px;font-weight:500;color:var(--t2);margin-bottom:11px;padding-bottom:9px;border-bottom:.5px solid var(--b);"></div>
-      <div id="mopts"></div>
-      <button onclick="closeMod()" style="display:block;width:100%;padding:13px;border-radius:var(--r);background:none;border:.5px solid var(--bm);color:var(--t2);font-size:14px;cursor:pointer;margin-top:8px;font-family:inherit;">Cancel</button>
-    </div>
   </div>
 
   <!-- Log panel -->
