@@ -65,7 +65,7 @@ function applyStateEffects(prev, next) {
       el['timer-display'].classList.remove('overtime');
       addRow(fmt(state.secs),'1H','bperiod','1st Half ended at '+clockStr);
       pushUndo('1st Half ended',()=>{});
-      setGrid(false);
+      setGrid(true);
       showHalfTimeReport();
       break;
 

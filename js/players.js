@@ -2,8 +2,10 @@
 
 // ─── PLAYER ACTIONS ───────────────────────────────────────────────────────────
 function sel(s) {
-  if (!tRun || state.rcarded[state.slotp[s]]) return;
+  const isHT = state.matchState === 'HALF_TIME';
+  if ((!tRun && !isHT) || state.rcarded[state.slotp[s]]) return;
   selSlot = s;
+  if (isHT) { subOff = selSlot; pickSubOn(); return; }
   const acts = state.sport==='football' ? ACTS : ACTS.filter(a => a !== '2 Point');
   showOpts(pl(state.slotp[s])+' — select action', acts, actCb, false);
 }
@@ -32,12 +34,12 @@ function actCb(a) {
       // Chop is not a football foul
       if (a==='Free' && state.sport==='football') sec = sec.filter(o => o !== 'Chop');
     }
-    const titles = {Goal:'Goal — how scored?',Point:'Point — how scored?','2 Point':'2 Point — how scored?',Wide:'Wide — how attempted?',Free:'Free — reason?'};
+    const titles = {Goal:'Goal — how scored?',Point:'Point — how scored?','2 Point':'2 Point — how scored?',Wide:'Wide — how attempted?',Short:'Short — how attempted?',Saved:'Saved — how attempted?',Free:'Free — reason?'};
     showOpts(titles[a], sec, secCb, false);
   } else { logEv(a,null); closeMod(); }
 }
 
-const ZONE_ACTS = new Set(['Goal','Point','2 Point','Wide']);
+const ZONE_ACTS = new Set(['Goal','Point','2 Point','Wide','Short','Saved']);
 
 function secCb(s) {
   const act = pendAct;
@@ -155,7 +157,7 @@ function _finishZone(zone) {
 
 // ─── EVENT LOGGING ────────────────────────────────────────────────────────────
 function badgeCls(a) {
-  if(a==='Goal')return 'bg'; if(a==='Point')return 'bp'; if(a==='2 Point')return 'bp'; if(a==='Wide')return 'bw';
+  if(a==='Goal')return 'bg'; if(a==='Point')return 'bp'; if(a==='2 Point')return 'bp'; if(a==='Wide'||a==='Short'||a==='Saved')return 'bw';
   if(a==='Red Card')return 'br'; if(a==='Yellow Card')return 'by'; if(a.indexOf('Card')>=0)return 'bc';
   if(a==='Turnover Won')return 'bg'; if(a==='Turnover Lost')return 'br';
   return 'bo';
@@ -251,7 +253,7 @@ function execSub(bi) {
   if(state.suboff[bi])delete state.suboff[bi];
   const desc='Sub: '+pl(out)+' off / '+pl(bi)+' on (pos '+sl+')';
   const btn=document.querySelector('[data-s="'+sl+'"]'); if(btn)btn.classList.add('sub');
-  addRow(fmt(state.secs),'SUB','bs',desc);
+  addRow(fmt(state.secs), state.matchState==='HALF_TIME' ? 'HT' : 'SUB', 'bs', desc);
   const ev=state.evts[state.evts.length-1]; ev.slot=sl; ev.action='sub';
   const cs=sl,co=out,ci=bi;
   pushUndo(desc,()=>{

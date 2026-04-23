@@ -1,10 +1,10 @@
 'use strict';
 
 // ─── ACTION CONSTANTS ─────────────────────────────────────────────────────────
-const ACTS  = ['Goal','Point','2 Point','Wide','Free','Advanced','Card','Substitution','Turnover Won','Turnover Lost'];
-const SSEC  = ['From Play','From Free','From Penalty','From 65'];
+const ACTS  = ['Goal','Point','2 Point','Wide','Short','Saved','Free','Advanced','Card','Substitution','Turnover Won','Turnover Lost'];
+const SSEC  = ['From Play','From Free','From Sideline','From Penalty','From 65'];
 const FSEC  = ['Push','Chop','Steps','Tackle','Pickup','Throw','Other'];
-const NS    = {Goal:SSEC,Point:SSEC,'2 Point':SSEC,Wide:SSEC,Free:FSEC};
+const NS    = {Goal:SSEC,Point:SSEC,'2 Point':SSEC,Wide:SSEC,Short:SSEC,Saved:SSEC,Free:FSEC};
 
 // ─── SAVE KEY / DEFAULTS ──────────────────────────────────────────────────────
 const SAVE_KEY   = 'gaa_match_v1';
@@ -26,7 +26,7 @@ const ZCW = ZPW / ZONE_COLS;   // 60 SVG units wide
 const ZCH = ZPH / ZONE_ROWS;   // ≈54.3 SVG units tall
 
 // ─── SCORING ──────────────────────────────────────────────────────────────────
-const PLACED_BALL = new Set(['From Free','From Penalty','From 65','From 45']);
+const PLACED_BALL = new Set(['From Free','From Sideline','From Penalty','From 65','From 45']);
 
 // ─── TEAM FORMATIONS ──────────────────────────────────────────────────────────
 const GRID_LAYOUTS = {
@@ -47,7 +47,7 @@ const VALID_TRANSITIONS = {
 
 // ─── ACTION UI METADATA ───────────────────────────────────────────────────────
 const ACTION_GROUPS = [
-  {label:'Scores',    items:['Goal','Point','2 Point','Wide']},
+  {label:'Scores',    items:['Goal','Wide','Point','Short','2 Point','Saved']},
   {label:'Possession',items:['Turnover Won','Turnover Lost']},
   {label:'Discipline',items:['Free','Advanced','Card','Yellow Card','Black Card','Red Card']},
   {label:'Personnel', items:['Substitution']},
@@ -57,6 +57,8 @@ const ACTION_META = {
   'Point':       {cls:'score-btn-point',icon:'<i class="far fa-flag fa-beat-fade"></i>'},
   '2 Point':     {cls:'score-btn-2p',   icon:'<i class="fas fa-flag fa-beat-fade"></i>'},
   'Wide':        {cls:'action-btn-wide',icon:'<i class="fa-solid fa-child-reaching"></i>'},
+  'Short':       {cls:'action-btn-wide',icon:'<i class="fas fa-arrow-down"></i>'},
+  'Saved':       {cls:'action-btn-wide',icon:'<i class="fas fa-hand"></i>'},
   'Free':        {cls:'action-btn-neutral',icon:'<i class="fas fa-whistle"></i>'},
   'Advanced':    {cls:'action-btn-neutral',icon:'<i class="fas fa-forward-step"></i>'},
   'Card':        {cls:'action-btn-neutral',icon:'<span style="display:inline-flex;gap:2px;align-items:center;"><i class="fas fa-square" style="font-size:10px;color:#FDD835;"></i><i class="fas fa-square" style="font-size:10px;color:#2c2c2a;"></i><i class="fas fa-square" style="font-size:10px;color:#E53935;"></i></span>'},

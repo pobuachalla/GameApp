@@ -492,7 +492,7 @@ function buildStatsHTML() {
 
 // ─── SHOT MAP ─────────────────────────────────────────────────────────────────
 function buildShotMapHTML() {
-  const shotActs = new Set(['Goal','Point','2 Point','Wide']);
+  const shotActs = new Set(['Goal','Point','2 Point','Wide','Short','Saved']);
   let inH2 = false;
   const shots = [];
   state.evts.forEach(ev => {
@@ -524,10 +524,11 @@ function buildShotMapHTML() {
     const baseCy = ZPY + s.zone.coords.y * ZPH;
     const cx = (baseCx + jitter(i * 2.1 + 1, 14)).toFixed(1);
     const cy = (baseCy + jitter(i * 2.1 + 2, 14)).toFixed(1);
-    const isScore = s.action !== 'Wide';
+    const isScore = s.action !== 'Wide' && s.action !== 'Short' && s.action !== 'Saved';
     const isGoal = s.action === 'Goal';
+    const isShort = s.action === 'Short';
     const r = isGoal ? 9 : 6;
-    const fill = isScore ? '#2E7D32' : '#C62828';
+    const fill = isShort ? '#9E9E9E' : isScore ? '#2E7D32' : '#C62828';
     if (s.placed) dots += `<circle cx="${cx}" cy="${cy}" r="${r+3.5}" fill="none" stroke="${fill}" stroke-width="1.5" opacity="0.7"/>`;
     dots += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" opacity="0.82" stroke="white" stroke-width="1.2"/>`;
     if (s.pi != null) {
@@ -544,7 +545,7 @@ function buildShotMapHTML() {
     const y = s.zone.coords.y;
     const t = y > 0.667 ? 'att' : y > 0.333 ? 'mid' : 'def';
     thirds[t].shots++;
-    if (s.action !== 'Wide') thirds[t].scores++;
+    if (s.action !== 'Wide' && s.action !== 'Short' && s.action !== 'Saved') thirds[t].scores++;
   });
 
   const pct = (n,d) => d>0 ? Math.round(n/d*100)+'%' : '—';
@@ -566,6 +567,8 @@ function buildShotMapHTML() {
   h += '<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;font-size:12px;color:var(--t2);align-items:center;">';
   h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#2E7D32" opacity=".82"/></svg>Score</span>';
   h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#C62828" opacity=".82"/></svg>Wide</span>';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#9E9E9E" opacity=".82"/></svg>Short</span>';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#C62828" opacity=".82"/></svg>Saved</span>';
   h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="#2E7D32" opacity=".82" stroke="white" stroke-width="1"/></svg>Goal</span>';
   h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="18" height="18"><circle cx="9" cy="9" r="8" fill="none" stroke="#2E7D32" stroke-width="1.5" opacity=".7"/><circle cx="9" cy="9" r="5" fill="#2E7D32" opacity=".82" stroke="white" stroke-width="1"/></svg>Placed</span>';
   h += '</div>';
