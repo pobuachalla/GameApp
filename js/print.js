@@ -253,15 +253,31 @@ function buildPrintHTML() {
   const oppScore = state.og+'-'+state.op_+' ('+(state.og*3+state.op_)+'pts)';
   const matchDate = new Date().toLocaleDateString('en-IE',{day:'numeric',month:'long',year:'numeric'});
 
+  const usClub  = findClub(state.usN);
+  const oppClub = findClub(state.oppN);
+  const venuePitch = state.location || (usClub && usClub.pitch) || (oppClub && oppClub.pitch) || '';
+
+  const usCrest  = (usClub && usClub.crest)  || findCountyCrest(state.usN)  || '';
+  const oppCrest = (oppClub && oppClub.crest) || findCountyCrest(state.oppN) || '';
+
+  const crestImg = (src, label) => {
+    if (!src) return '';
+    return `<img src="${esc(src)}" alt="${esc(label)}" style="width:44px;height:44px;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">`;
+  };
+
   let h = '';
 
   h += '<div class="pr-hdr">';
   h += '<div class="pr-title">Match Report</div>';
+  h += '<div style="display:flex;align-items:center;justify-content:center;gap:12px;">';
+  h += crestImg(usCrest, state.usN);
   h += html`<div class="pr-score">${state.usN} ${html.safe(usScore)}<br>${state.oppN} ${html.safe(oppScore)}</div>`;
+  h += crestImg(oppCrest, state.oppN);
+  h += '</div>';
   h += '<div class="pr-teams">';
   h += '<span>'+matchDate+'</span>';
-  if (state.location) h += html`<span>${state.location}</span>`;
-  if (state.referee)  h += html`<span>Ref: ${state.referee}</span>`;
+  if (venuePitch) h += html`<span>${venuePitch}</span>`;
+  if (state.referee) h += html`<span>Ref: ${state.referee}</span>`;
   h += '</div>';
   h += '</div>';
 
@@ -562,6 +578,14 @@ function buildPrintShotMapHTML() {
 }
 
 function printStats() {
-  document.getElementById('print-area').innerHTML = buildPrintHTML();
-  window.print();
+  const area = document.getElementById('print-area');
+  area.innerHTML = buildPrintHTML();
+  const imgs = Array.from(area.querySelectorAll('img'));
+  if (!imgs.length) { window.print(); return; }
+  let pending = imgs.length;
+  const done = () => { if (--pending === 0) window.print(); };
+  imgs.forEach(img => {
+    if (img.complete) { done(); }
+    else { img.addEventListener('load', done); img.addEventListener('error', done); }
+  });
 }
