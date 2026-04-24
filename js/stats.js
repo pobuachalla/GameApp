@@ -499,7 +499,7 @@ function buildShotMapHTML() {
     if (ev.badge === '1H') { if ((ev.desc||'').includes('ended')) inH2 = true; return; }
     if (!shotActs.has(ev.action) || !ev.zone) return;
     const pi = ev.pi != null ? ev.pi : (ev.slot != null ? state.slotp[ev.slot] : null);
-    shots.push({ action: ev.action, zone: ev.zone, team: ev.slot != null ? 'us' : 'opp', half: inH2 ? 'h2' : 'h1', slot: ev.slot != null ? ev.slot : null, pi, placed: PLACED_BALL.has(ev.sec) });
+    shots.push({ action: ev.action, zone: ev.zone, team: ev.slot != null ? 'us' : 'opp', half: inH2 ? 'h2' : 'h1', slot: ev.slot != null ? ev.slot : null, pi, placed: PLACED_BALL.has(ev.sec), sec: ev.sec });
   });
 
   if (shots.length === 0) return '';
@@ -518,24 +518,36 @@ function buildShotMapHTML() {
   });
 
   const jitter = (seed, range) => { const x = Math.sin(seed) * 43758.5453; return (x - Math.floor(x) - 0.5) * range; };
+  const placed = [];
   let dots = '';
   filtered.forEach((s, i) => {
-    const baseCx = ZPX + s.zone.coords.x * ZPW;
-    const baseCy = ZPY + s.zone.coords.y * ZPH;
-    const cx = (baseCx + jitter(i * 2.1 + 1, 14)).toFixed(1);
-    const cy = (baseCy + jitter(i * 2.1 + 2, 14)).toFixed(1);
+    const isSideline = s.sec === 'From Sideline';
+    const is45 = s.sec === 'From 45';
+    const is65 = s.sec === 'From 65';
+    const isPenalty = s.sec === 'From Penalty';
+    const baseCx = isPenalty ? 160 : isSideline ? (s.zone.coords.x < 0.5 ? ZPX : ZPX + ZPW) : ZPX + s.zone.coords.x * ZPW;
+    const baseCy = isPenalty ? 360 : is45 ? 268 : is65 ? 215 : ZPY + s.zone.coords.y * ZPH;
     const isScore = s.action !== 'Wide' && s.action !== 'Short' && s.action !== 'Saved';
     const isGoal = s.action === 'Goal';
     const isShort = s.action === 'Short';
     const isSaved = s.action === 'Saved';
     const r = isGoal ? 9 : 6;
+    let cx, cy, jRange = 14;
+    for (let attempt = 0; attempt < 6; attempt++) {
+      cx = baseCx + (isSideline || isPenalty ? 0 : jitter(i * 2.1 + 1 + attempt * 17.3, jRange));
+      cy = baseCy + (is45 || is65 || isPenalty ? 0 : jitter(i * 2.1 + 2 + attempt * 17.3, jRange));
+      if (!placed.some(p => Math.hypot(cx - p.cx, cy - p.cy) < r + p.r + 1)) break;
+      jRange += 10;
+    }
+    placed.push({cx, cy, r});
+    const cxS = cx.toFixed(1), cyS = cy.toFixed(1);
     const fill = isShort ? '#9E9E9E' : isSaved ? '#F97316' : isScore ? '#2E7D32' : '#C62828';
-    if (s.placed) dots += `<circle cx="${cx}" cy="${cy}" r="${r+3.5}" fill="none" stroke="${fill}" stroke-width="1.5" opacity="0.7"/>`;
-    dots += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" opacity="0.82" stroke="white" stroke-width="1.2"/>`;
+    if (s.placed) dots += `<circle cx="${cxS}" cy="${cyS}" r="${r+3.5}" fill="none" stroke="${fill}" stroke-width="1.5" opacity="0.7"/>`;
+    dots += `<circle cx="${cxS}" cy="${cyS}" r="${r}" fill="${fill}" opacity="0.82" stroke="white" stroke-width="1.2"/>`;
     if (s.pi != null) {
       const ini = esc(gi(s.pi));
       const fs = isGoal ? 7 : (ini.length >= 4 ? 4.5 : 5.5);
-      dots += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="${fs}" font-weight="700" fill="white" font-family="-apple-system,BlinkMacSystemFont,sans-serif" style="pointer-events:none;">${ini}</text>`;
+      dots += `<text x="${cxS}" y="${cyS}" text-anchor="middle" dominant-baseline="central" font-size="${fs}" font-weight="700" fill="white" font-family="-apple-system,BlinkMacSystemFont,sans-serif" style="pointer-events:none;">${ini}</text>`;
     }
   });
 

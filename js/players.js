@@ -26,7 +26,7 @@ function actCb(a) {
   if (sec) {
     // For 2 Point, restrict to From Play and From Free only
     if (a==='2 Point') {
-      sec = ['From Play', 'From Free'];
+      sec = ['From Play', 'From Free', 'From Sideline'];
     } else {
       // Convert From 65 to From 45 for Football for other scoring actions
       const from65 = state.sport==='football' ? 'From 45' : 'From 65';
@@ -39,7 +39,8 @@ function actCb(a) {
   } else { logEv(a,null); closeMod(); }
 }
 
-const ZONE_ACTS = new Set(['Goal','Point','2 Point','Wide','Short','Saved']);
+const ZONE_ACTS    = new Set(['Goal','Point','2 Point','Wide','Short','Saved']);
+const RESTART_ACTS = new Set(['Goal','Point','2 Point','Wide']);
 
 function secCb(s) {
   const act = pendAct;
@@ -53,7 +54,7 @@ function secCb(s) {
   } else {
     logEv(act, s);
     closeMod();
-    if (ZONE_ACTS.has(act)) showRestartModal('us');
+    if (RESTART_ACTS.has(act)) showRestartModal('us');
   }
 }
 
@@ -152,7 +153,7 @@ function _finishZone(zone) {
   selSlot = null;
   pendActSaved = pendSecVal = pendSlotSaved = null;
   zoneSelectedId = null; zoneSelectedCoords = null;
-  if (ZONE_ACTS.has(act)) showRestartModal('us');
+  if (RESTART_ACTS.has(act)) showRestartModal('us');
 }
 
 // ─── EVENT LOGGING ────────────────────────────────────────────────────────────
