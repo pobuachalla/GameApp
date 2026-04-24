@@ -1,13 +1,31 @@
 'use strict';
 
 // ─── LAYOUT PANEL ─────────────────────────────────────────────────────────────
+function _teamCrest(name) {
+  const club = findClub(name);
+  return (club && club.crest) || findCountyCrest(name) || null;
+}
+
+const _crestImg = (src, alt) =>
+  src ? `<img src="${esc(src)}" alt="${esc(alt)}" onerror="this.style.display='none'">` : '';
+
 function openLayout() {
   closeSettings();
+
+  const usCrest = _teamCrest(state.usN);
+  const oppName = state.oppN && state.oppN !== 'Opposition' ? state.oppN : '';
+  const oppCrest = oppName ? _teamCrest(oppName) : null;
+
+  document.getElementById('layout-us-crest').innerHTML  = _crestImg(usCrest, state.usN);
+  document.getElementById('layout-opp-crest').innerHTML = _crestImg(oppCrest, oppName);
   document.getElementById('layout-team-name').textContent = state.usN;
-  const oppText = state.oppN && state.oppN !== 'Opposition' ? 'vs ' + state.oppN : '';
+
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
-  document.getElementById('layout-vs').innerHTML = (oppText ? esc(oppText)+'<br>' : '') + '<span style="font-size:11px;">' + esc(dateStr) + '</span>';
+  document.getElementById('layout-vs').innerHTML =
+    (oppName ? 'vs ' + esc(oppName) + '<br>' : '') +
+    '<span style="font-size:11px;">' + esc(dateStr) + '</span>';
+
   renderLayout();
   document.getElementById('layoutpanel').classList.add('open');
 }

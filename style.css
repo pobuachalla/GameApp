@@ -242,7 +242,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .stat-split-labels{display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px;}
 /* ── Layout panel ─────────────────────────────────────────────────────────── */
 .layout-scroll{flex:1;overflow-y:auto;padding-bottom:32px;}
-.layout-team-hdr{text-align:center;padding:4px 0 8px;flex-shrink:0;border-bottom:.5px solid var(--b);margin-bottom:0;}
+.layout-team-hdr{display:flex;align-items:center;padding:8px 12px 10px;flex-shrink:0;border-bottom:.5px solid var(--b);}
+.layout-hdr-crest{width:56px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.layout-hdr-crest img{width:52px;height:52px;object-fit:contain;}
+.layout-hdr-center{flex:1;text-align:center;}
 #layoutpanel .panel-hdr{margin-bottom:6px;}
 .layout-team-name{font-size:18px;font-weight:700;color:var(--t1);}
 .layout-vs{font-size:12px;color:var(--t2);margin-top:2px;}
