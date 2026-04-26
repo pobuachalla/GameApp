@@ -161,52 +161,7 @@ function buildSubTableHTML() {
 
 // ─── HALF-TIME REPORT ─────────────────────────────────────────────────────────
 function showHalfTimeReport() {
-  let scores=0,wides=0;
-  const pstats={};
-  for (const ev of state.evts) {
-    if (ev.badge==='1H' && (ev.desc||'').includes('ended')) break;
-    if (!ev.action) continue;
-    if      (ev.action==='Goal')     scores++;
-    else if (ev.action==='Point')    scores++;
-    else if (ev.action==='2 Point')  scores++;
-    else if (ev.action==='Wide')     wides++;
-    if (!ev.slot) continue;
-    const pi = ev.pi != null ? ev.pi : state.slotp[ev.slot]; if (!pi) continue;
-    if (!pstats[pi]) pstats[pi]={name:gn(pi)||('#'+pi),g:0,p:0};
-    if (ev.action==='Goal') pstats[pi].g++;
-    if (ev.action==='Point'||ev.action==='2 Point') pstats[pi].p++;
-  }
-  const attempts=scores+wides;
-  const eff=attempts>0?Math.round(scores/attempts*100)+'%':'—';
-  const top=Object.values(pstats).filter(s=>s.g+s.p>0).sort((a,b)=>(b.g*3+b.p)-(a.g*3+a.p));
-  const usPts=state.goals*3+state.pts, oppPts=state.og*3+state.op_;
-  const lead=usPts>oppPts?esc(state.usN)+' lead by '+(usPts-oppPts)+' pt'+(usPts-oppPts!==1?'s':'')
-            :usPts<oppPts?esc(state.oppN)+' lead by '+(oppPts-usPts)+' pt'+(oppPts-usPts!==1?'s':'')
-            :'Level';
-  const row=(l,v)=>'<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:.5px solid var(--b);">'
-    +'<span style="font-size:13px;color:var(--t2);">'+l+'</span>'
-    +'<span style="font-size:13px;font-weight:600;color:var(--t1);">'+v+'</span></div>';
-
-  el.mtitle.textContent='Half Time';
-  let h = html`<div style="display:flex;justify-content:space-around;align-items:center;padding:8px 0 14px;border-bottom:.5px solid var(--b);margin-bottom:12px;">`;
-  h += html`<div style="text-align:center;"><div style="font-size:11px;color:var(--t2);margin-bottom:4px;">${state.usN}</div>`;
-  h += `<div style="font-size:30px;font-weight:600;color:var(--ts);line-height:1;">${state.goals}-${state.pts}</div>`;
-  h += `<div style="font-size:11px;color:var(--t3);">(${usPts}pts)</div></div>`;
-  h += `<div style="font-size:12px;color:var(--t3);text-align:center;max-width:70px;">${lead}</div>`;
-  h += html`<div style="text-align:center;"><div style="font-size:11px;color:var(--t2);margin-bottom:4px;">${state.oppN}</div>`;
-  h += `<div style="font-size:30px;font-weight:600;color:var(--t1);line-height:1;">${state.og}-${state.op_}</div>`;
-  h += `<div style="font-size:11px;color:var(--t3);">(${oppPts}pts)</div></div>`;
-  h += '</div>';
-  h += row('Shooting Efficiency', eff);
-  h += row('Scores / Attempts', scores+' / '+attempts);
-  if (top.length) h += row('Top Scorer', html`${top[0].name} (${top[0].g}-${top[0].p})`);
-  if (top.length>1) h += html`<div style="font-size:11px;color:var(--t3);padding:5px 0 0;">Also: ${top.slice(1,4).map(s=>`${esc(s.name)} ${s.g}-${s.p}`).join(', ')}</div>`;
-
-  el.mopts.innerHTML=h;
-  el.modal.style.display='block';
-  el.modal.dataset.cancelAction='dismiss';
-  const cancelBtn=el.modal.querySelector('button[onclick="closeMod()"]');
-  if (cancelBtn) cancelBtn.textContent='Continue';
+  showScoreGraphic('HT');
 }
 
 // ─── STATS HELPERS ────────────────────────────────────────────────────────────

@@ -42,31 +42,13 @@ function showFullTimeResult() {
   const clockStr = pad(now.getHours())+':'+pad(now.getMinutes());
   const desc = 'Match ended at '+clockStr+' — '+state.usN+' '+state.goals+'-'+state.pts+' ('+u+') v '+state.oppN+' '+state.og+'-'+state.op_+' ('+o+') — '+result;
   addRow(fmt(state.secs),'END','bperiod',desc);
-  el.mtitle.textContent = 'Full Time';
-  el.mopts.innerHTML =
-    '<p style="font-size:15px;font-weight:500;color:var(--t1);padding:6px 0 4px;">'+esc(state.usN)+'</p>'
-   +'<p style="font-size:32px;font-weight:500;color:var(--t1);padding:0 0 4px;line-height:1;">'+state.goals+'-'+state.pts+' <span style="font-size:16px;color:var(--t2);">('+u+')</span></p>'
-   +'<p style="font-size:15px;font-weight:500;color:var(--t1);padding:4px 0;">'+esc(state.oppN)+'</p>'
-   +'<p style="font-size:32px;font-weight:500;color:var(--t1);padding:0 0 16px;line-height:1;">'+state.og+'-'+state.op_+' <span style="font-size:16px;color:var(--t2);">('+o+')</span></p>'
-   +'<p style="font-size:18px;font-weight:500;padding:0 0 16px;color:'+(result==='Win'?'var(--ts)':result==='Loss'?'var(--td)':'var(--t2)')+';">'+result+'</p>'
-   +(()=>{
-     const scorers = buildScorerSummary();
-     if (!scorers.length) return '';
-     return '<div style="border-top:.5px solid var(--b);padding-top:12px;">'
-       +'<div style="font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--t2);text-transform:uppercase;margin-bottom:8px;">Scorers</div>'
-       +scorers.map(s=>'<div style="display:flex;flex-direction:column;padding:6px 0;border-bottom:.5px solid var(--b);font-size:13px;color:var(--t1);">'+formatScorer(s)+'</div>').join('')
-       +'</div>';
-   })();
-  el.modal.style.display = 'block';
-  el.modal.dataset.cancelAction = 'dismiss';
-  const cancelBtn = el.modal.querySelector('button[onclick="closeMod()"]');
-  if (cancelBtn) cancelBtn.textContent = 'Okay';
   const ub = document.getElementById('undobtn');
   if (ub) {
     ub.id='resetbtn'; ub.disabled=false; ub.classList.remove('danger');
     ub.innerHTML='<i class="fas fa-arrows-rotate" aria-hidden="true"></i>Reset';
     ub.onclick=resetMatch;
   }
+  showScoreGraphic('FT');
 }
 
 // ─── RESET ────────────────────────────────────────────────────────────────────
