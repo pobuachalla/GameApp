@@ -171,11 +171,11 @@ function _buildLineupGraphicHTML() {
 
   const shirt = (num, bg, numCol, size) => {
     const s = size || 32;
-    return `<svg width="${s}" height="${s}" viewBox="0 0 36 36" style="display:block;">`
-      + `<path d="M4,8 L10,4 Q13,2 14,6 Q18,10 22,6 Q23,2 26,4 L32,8 L28,14 L25,12 L25,32 L11,32 L11,12 L8,14 Z"`
-      + ` fill="${bg}" stroke="rgba(0,0,0,0.12)" stroke-width="0.8"/>`
-      + `<text x="18" y="24" text-anchor="middle" font-size="10" font-weight="700"`
-      + ` fill="${numCol}" font-family="-apple-system,BlinkMacSystemFont,sans-serif">${num}</text></svg>`;
+    const numSize = Math.round(s * 0.28);
+    return `<span style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:${s}px;height:${s}px;">`
+      + `<i class="fa-solid fa-shirt" style="font-size:${s}px;color:${bg};line-height:1;"></i>`
+      + `<span style="position:absolute;top:58%;left:50%;transform:translate(-50%,-50%);font-size:${numSize}px;font-weight:700;color:${numCol};font-family:-apple-system,BlinkMacSystemFont,sans-serif;line-height:1;">${num}</span>`
+      + `</span>`;
   };
 
   let formation = '<div style="display:flex;flex-direction:column;gap:10px;align-items:center;margin-bottom:14px;">';
@@ -243,6 +243,7 @@ function openShareMenu() {
   h += '</div>';
   el.mopts.innerHTML = h;
   modalHandlerRef = (v) => {
+    closeMod();
     if (v === 'lu')   showLineupGraphic();
     if (v === 'curr') openCurrentScoreCard();
     if (v === 'ht')   showScoreGraphic('HT');

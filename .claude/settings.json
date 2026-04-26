@@ -4,7 +4,8 @@
       "Read(//Users/padraig.obuachalla/Desktop/**)",
       "Bash(sed -n '1,10p' constants.js)",
       "Bash(sed -n '3,10p' players.js)",
-      "Bash(grep -n \"html\\\\`\\\\|esc\\(\\\\|gi\\(\" /Users/padraig.obuachalla/Desktop/GameApp/GameApp/js/print.js)"
+      "Bash(grep -n \"html\\\\`\\\\|esc\\(\\\\|gi\\(\" /Users/padraig.obuachalla/Desktop/GameApp/GameApp/js/print.js)",
+      "Bash(pip3 show *)"
     ]
   }
 }
