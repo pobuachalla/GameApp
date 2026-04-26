@@ -151,22 +151,104 @@ function closeScoreGraphic() {
 
 function openCurrentScoreCard() {
   const secs = state.secs + (state.period === 2 ? 1800 : 0);
-  showScoreGraphic(Math.floor(secs / 60) + "’");
+  showScoreGraphic(Math.floor(secs / 60) + "'");
+}
+
+// ─── LINEUP GRAPHIC ───────────────────────────────────────────────────────────
+function _buildLineupGraphicHTML() {
+  const layout      = GRID_LAYOUTS[state.teamSize] || GRID_LAYOUTS[15];
+  const snapSlotp   = state.startSlotp || state.slotp;
+  const snapCaptain = state.startCaptain != null ? state.startCaptain : state.captain;
+
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
+  const venueHtml = state.location
+    ? `<div style="font-size:13px;color:#888;margin-top:2px;">${esc(state.location)}</div>` : '';
+
+  const usCrest   = _teamCrest(state.usN);
+  const crestHtml = usCrest
+    ? `<img src="${esc(usCrest)}" style="width:34px;height:34px;object-fit:contain;" onerror="this.style.display='none'">` : '';
+
+  const shirt = (num, bg, numCol, size) => {
+    const s = size || 32;
+    return `<svg width="${s}" height="${s}" viewBox="0 0 36 36" style="display:block;">`
+      + `<path d="M4,8 L10,4 Q13,2 14,6 Q18,10 22,6 Q23,2 26,4 L32,8 L28,14 L25,12 L25,32 L11,32 L11,12 L8,14 Z"`
+      + ` fill="${bg}" stroke="rgba(0,0,0,0.12)" stroke-width="0.8"/>`
+      + `<text x="18" y="24" text-anchor="middle" font-size="10" font-weight="700"`
+      + ` fill="${numCol}" font-family="-apple-system,BlinkMacSystemFont,sans-serif">${num}</text></svg>`;
+  };
+
+  let formation = '<div style="display:flex;flex-direction:column;gap:10px;align-items:center;margin-bottom:14px;">';
+  layout.forEach(row => {
+    formation += '<div style="display:flex;gap:10px;justify-content:center;">';
+    row.forEach(slot => {
+      const pi    = snapSlotp ? (snapSlotp[slot] || slot) : slot;
+      const name  = gn(pi) || '';
+      const isCap = snapCaptain === slot;
+      const isGK  = slot === 1;
+      formation += '<div style="display:flex;flex-direction:column;align-items:center;width:44px;">';
+      formation += `<div style="position:relative;width:32px;height:32px;">${shirt(slot, isGK ? '#FDD835' : '#2E7D32', isGK ? '#2E7D32' : '#fff')}`;
+      if (isCap) formation += '<span style="position:absolute;top:-3px;right:-3px;background:#fff;border:1px solid #E2E4DE;border-radius:50%;width:12px;height:12px;font-size:7px;font-weight:700;color:#2E7D32;display:flex;align-items:center;justify-content:center;line-height:1;">C</span>';
+      formation += '</div>';
+      formation += `<div style="font-size:7px;font-weight:600;color:#1F1F1F;text-align:center;margin-top:2px;line-height:1.2;word-break:break-word;">${esc(name || '—')}</div>`;
+      formation += '</div>';
+    });
+    formation += '</div>';
+  });
+  formation += '</div>';
+
+  let subsHtml = '';
+  const subs = [];
+  for (let i = 16; i <= (state.maxB || 16); i++) { const n = gn(i); if (n) subs.push({idx: i, name: n}); }
+  if (subs.length) {
+    subsHtml = '<div style="border-top:1px solid #EBEBEB;padding-top:10px;">'
+      + '<div style="font-size:10px;font-weight:800;letter-spacing:2px;color:#1F2A24;text-transform:uppercase;margin-bottom:8px;">Subs</div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+    subs.forEach(s => {
+      subsHtml += '<div style="display:flex;flex-direction:column;align-items:center;width:36px;">'
+        + `<div style="width:26px;height:26px;">${shirt(s.idx, '#9E9E9E', '#fff', 26)}</div>`
+        + `<div style="font-size:6.5px;color:#1F1F1F;text-align:center;margin-top:2px;line-height:1.2;word-break:break-word;">${esc(s.name)}</div>`
+        + '</div>';
+    });
+    subsHtml += '</div></div>';
+  }
+
+  return `<div style="background:#fff;border-radius:20px;padding:20px;box-shadow:0 2px 24px rgba(0,0,0,0.10);overflow:hidden;">`
+    + `<div style="text-align:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #EBEBEB;">`
+    + `<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#AAA;text-transform:uppercase;">${dateStr}</div>`
+    + venueHtml + `</div>`
+    + `<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;">`
+    + crestHtml
+    + `<div style="font-size:${_htmlNameFS(state.usN)};font-weight:800;color:#1F2A24;letter-spacing:0.5px;text-transform:uppercase;">${esc(state.usN || '')}</div></div>`
+    + formation + subsHtml
+    + `<div style="margin:14px -20px -20px;height:8px;background:#1F5B3A;"></div></div>`;
+}
+
+function showLineupGraphic() {
+  document.getElementById('score-graphic-wrap').innerHTML = _buildLineupGraphicHTML();
+  const btn = document.getElementById('score-graphic-continue-btn');
+  if (btn) btn.textContent = 'Close';
+  document.getElementById('score-graphic-panel').classList.add('open');
 }
 
 function openShareMenu() {
   const hasHT = state.evts.some(ev => ev.badge === '1H' && (ev.desc || '').includes('ended'));
   const hasFT = state.matchState === 'FULL_TIME';
-  el.mtitle.textContent = 'Share Score Card';
+  el.mtitle.textContent = 'Share';
   let h = '<div class="opts-grid">';
-  h += '<button class="abtn" id="_sg-curr"><i class="fas fa-clock"></i> Current Score Card</button>';
-  if (hasHT) h += '<button class="abtn" id="_sg-ht"><i class="fas fa-hourglass-half"></i> Half Time Score Card</button>';
-  if (hasFT) h += '<button class="abtn" id="_sg-ft"><i class="fas fa-flag-checkered"></i> Full Time Score Card</button>';
+  h += '<button class="abtn" data-v="lu"><i class="fa-solid fa-shirt"></i> Starting Line-up</button>';
+  h += '<button class="abtn" data-v="curr"><i class="fas fa-clock"></i> Current Score Card</button>';
+  if (hasHT) h += '<button class="abtn" data-v="ht"><i class="fas fa-hourglass-half"></i> Half Time Score Card</button>';
+  if (hasFT) h += '<button class="abtn" data-v="ft"><i class="fas fa-flag-checkered"></i> Full Time Score Card</button>';
   h += '</div>';
   el.mopts.innerHTML = h;
-  el.mopts.querySelector('#_sg-curr').addEventListener('click', () => { closeMod(); openCurrentScoreCard(); });
-  if (hasHT) el.mopts.querySelector('#_sg-ht').addEventListener('click', () => { closeMod(); showScoreGraphic('HT'); });
-  if (hasFT) el.mopts.querySelector('#_sg-ft').addEventListener('click', () => { closeMod(); showScoreGraphic('FT'); });
+  modalHandlerRef = (v) => {
+    if (v === 'lu')   showLineupGraphic();
+    if (v === 'curr') openCurrentScoreCard();
+    if (v === 'ht')   showScoreGraphic('HT');
+    if (v === 'ft')   showScoreGraphic('FT');
+  };
+  el.mopts.addEventListener('click', handleModalClick);
   el.modal.style.display = 'block';
 }
 

@@ -92,6 +92,8 @@ function openSettings(){
   renderBench(); renderTpls();
   document.getElementById('setovly').classList.add('open');
   el.setpanel.classList.add('open');
+  _initTypeahead(el.sun);
+  _initTypeahead(el.son);
 }
 
 function closeSettings(){ flushSettings(); document.getElementById('setovly').classList.remove('open'); el.setpanel.classList.remove('open'); }
@@ -262,4 +264,72 @@ function onShotLocToggle() {
     icon.className = state.trackShotLocations ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
     icon.style.color = state.trackShotLocations ? '#2E7D32' : 'var(--t3)';
   }
+}
+
+// ─── TEAM NAME TYPEAHEAD ──────────────────────────────────────────────────────
+const _TA_ITEMS = [
+  ...MEATH_CLUBS.map(c => ({name: c.name, crest: c.crest})),
+  ...COUNTIES.map(n => ({name: n, crest: 'crests/' + n.toLowerCase() + '.png'})),
+];
+
+function _initTypeahead(input) {
+  if (input._taInit) return;
+  input._taInit = true;
+
+  if (!document.getElementById('ta-style')) {
+    const s = document.createElement('style');
+    s.id = 'ta-style';
+    s.textContent = '.ta-item:hover,.ta-item:active{background:var(--bg2);}';
+    document.head.appendChild(s);
+  }
+
+  const drop = document.createElement('div');
+  drop.style.cssText = 'position:fixed;z-index:9999;background:var(--bg1);border:.5px solid var(--bm);'
+    + 'border-radius:var(--r);overflow-y:auto;max-height:220px;display:none;'
+    + 'box-shadow:0 4px 16px rgba(0,0,0,0.14);-webkit-overflow-scrolling:touch;';
+  document.body.appendChild(drop);
+
+  const pos = () => {
+    const r = input.getBoundingClientRect();
+    drop.style.left  = r.left + 'px';
+    drop.style.top   = (r.bottom + 2) + 'px';
+    drop.style.width = r.width + 'px';
+  };
+
+  const close = () => { drop.style.display = 'none'; };
+
+  const pick = (name) => {
+    input.value = name;
+    flushSettings();
+    close();
+  };
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    if (q.length < 1) { close(); return; }
+
+    const starts   = _TA_ITEMS.filter(i => i.name.toLowerCase().startsWith(q));
+    const contains = _TA_ITEMS.filter(i => !i.name.toLowerCase().startsWith(q) && i.name.toLowerCase().includes(q));
+    const matches  = [...starts, ...contains].slice(0, 8);
+
+    if (!matches.length) { close(); return; }
+
+    drop.innerHTML = matches.map(item =>
+      `<div class="ta-item" data-name="${esc(item.name)}" `
+      + `style="display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;font-size:14px;color:var(--t1);">`
+      + `<img src="${esc(item.crest)}" style="width:26px;height:26px;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">`
+      + `<span>${esc(item.name)}</span></div>`
+    ).join('');
+
+    drop.querySelectorAll('.ta-item').forEach(row => {
+      row.addEventListener('mousedown', e => { e.preventDefault(); pick(row.dataset.name); });
+      row.addEventListener('touchend',  e => { e.preventDefault(); pick(row.dataset.name); });
+    });
+
+    pos();
+    drop.style.display = 'block';
+  });
+
+  input.addEventListener('blur',    () => setTimeout(close, 200));
+  input.addEventListener('keydown', e  => { if (e.key === 'Escape') { close(); input.blur(); } });
 }
