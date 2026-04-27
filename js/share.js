@@ -30,9 +30,10 @@ function shareCSV() {
 }
 
 // ─── SCORE GRAPHIC ────────────────────────────────────────────────────────────
-function _scorerGraphicLine() {
+function _scorerGraphicLine(evts) {
+  evts = evts || state.evts;
   const scorers = {};
-  state.evts.forEach(ev => {
+  evts.forEach(ev => {
     if (!ev.slot || !ev.action) return;
     const a = ev.action;
     if (a !== 'Goal' && a !== 'Point' && a !== '2 Point') return;
@@ -49,6 +50,15 @@ function _scorerGraphicLine() {
     .slice(0, 4)
     .map(s => esc(s.name) + ' ' + s.g + '–' + pad(s.p))
     .join(' · ');
+}
+
+function _firstHalfEvts() {
+  const out = [];
+  for (const ev of state.evts) {
+    if (ev.badge === '1H' && (ev.desc || '').includes('ended')) break;
+    out.push(ev);
+  }
+  return out;
 }
 
 function _scoreOutcome(label, u, o) {
