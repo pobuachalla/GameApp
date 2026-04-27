@@ -163,8 +163,6 @@ function _buildScoreGraphicHTML(label) {
 
 function showScoreGraphic(label) {
   document.getElementById('score-graphic-wrap').innerHTML = _buildScoreGraphicHTML(label);
-  const btn = document.getElementById('score-graphic-continue-btn');
-  if (btn) btn.textContent = label === 'HT' ? 'Continue' : 'Close';
   document.getElementById('score-graphic-panel').classList.add('open');
 }
 
@@ -255,8 +253,6 @@ function _buildLineupGraphicHTML() {
 
 function showLineupGraphic() {
   document.getElementById('score-graphic-wrap').innerHTML = _buildLineupGraphicHTML();
-  const btn = document.getElementById('score-graphic-continue-btn');
-  if (btn) btn.textContent = 'Close';
   document.getElementById('score-graphic-panel').classList.add('open');
 }
 
