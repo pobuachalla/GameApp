@@ -51,8 +51,7 @@ function _scorerGraphicLine() {
     .join(' · ');
 }
 
-function _scoreOutcome(label) {
-  const u = usTotal(), o = oppTotal();
+function _scoreOutcome(label, u, o) {
   const diff = Math.abs(u - o);
   const pts = diff + ' pt' + (diff !== 1 ? 's' : '');
   const verb = label === 'FT' ? ' win' : ' lead';
@@ -82,10 +81,22 @@ function _buildScoreGraphicHTML(label) {
   const isHT = label === 'HT';
   const isFT = label === 'FT';
   const isTime = !isHT && !isFT;
-  const usT = usTotal(), oppT = oppTotal();
-  const usFmt  = state.goals + '–' + pad(state.pts);
-  const oppFmt = state.og    + '–' + pad(state.op_);
-  const outcome    = _scoreOutcome(label);
+
+  // Use score snapshots for HT/FT so second-half scoring doesn't bleed in
+  let g, p, og, op;
+  if (isHT) {
+    g = state.htGoals ?? state.goals; p  = state.htPts ?? state.pts;
+    og = state.htOg   ?? state.og;    op = state.htOp  ?? state.op_;
+  } else if (isFT) {
+    g = state.ftGoals ?? state.goals; p  = state.ftPts ?? state.pts;
+    og = state.ftOg   ?? state.og;    op = state.ftOp  ?? state.op_;
+  } else {
+    g = state.goals; p = state.pts; og = state.og; op = state.op_;
+  }
+  const usT = g * 3 + p, oppT = og * 3 + op;
+  const usFmt  = g  + '–' + pad(p);
+  const oppFmt = og + '–' + pad(op);
+  const outcome    = _scoreOutcome(label, usT, oppT);
   const scorerLine = _scorerGraphicLine();
 
   const now = new Date();

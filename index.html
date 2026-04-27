@@ -199,10 +199,8 @@
           <div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Referee</div><input class="sinput" id="sref" type="text" placeholder="e.g. J. Murphy" maxlength="30"></div>
         </div>
         <div style="margin-top:8px;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Competition</div><input class="sinput" id="scomp" type="text" placeholder="e.g. County Championship" maxlength="50"></div>
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Date</div><input class="sinput" id="smdate" type="date" style="min-width:0;"></div>
-          <div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Age Grade</div><input class="sinput" id="sage" type="text" placeholder="e.g. Senior" maxlength="20"></div>
-        </div>
+        <div style="margin-top:8px;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Date</div><input class="sinput" id="smdate" type="date"></div>
+        <div style="margin-top:8px;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Age Grade</div><input class="sinput" id="sage" type="text" placeholder="e.g. Senior" maxlength="20"></div>
         <div class="stitle">SPORT</div>
         <label class="gaa-toggle-wrap">
           <input type="checkbox" id="sport-chk" onchange="onSportToggle(this.checked)">
@@ -227,6 +225,11 @@
           <span style="font-size:12px;color:var(--t2);">Shot location tracking</span>
         </div>
         <div style="font-size:11px;color:var(--t3);line-height:1.4;">Tag where scores and wides were taken from</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;margin-top:10px;">
+          <i id="pnum-icon" class="fas fa-toggle-on" style="font-size:26px;color:#2E7D32;cursor:pointer;touch-action:manipulation;" onclick="onPlayerNumToggle()"></i>
+          <span style="font-size:12px;color:var(--t2);">Player numbers on event bubbles</span>
+        </div>
+        <div style="font-size:11px;color:var(--t3);line-height:1.4;">Show jersey number above player initials</div>
       </div>
 
       <!-- ── TEAM TAB ──────────────────────────────────────────────────────── -->

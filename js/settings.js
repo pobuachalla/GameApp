@@ -94,6 +94,12 @@ function openSettings(){
     shotlocIcon.className = state.trackShotLocations ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
     shotlocIcon.style.color = state.trackShotLocations ? '#2E7D32' : 'var(--t3)';
   }
+  const pnumIcon = document.getElementById('pnum-icon');
+  if (pnumIcon) {
+    const on = state.showPlayerNumbers !== false;
+    pnumIcon.className = on ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
+    pnumIcon.style.color = on ? '#2E7D32' : 'var(--t3)';
+  }
   el['starting-lbl'].textContent = 'STARTING '+(state.teamSize||15);
   el.pslist.innerHTML='';
   const sz = state.teamSize || 15;
@@ -276,6 +282,18 @@ function onShotLocToggle() {
     icon.className = state.trackShotLocations ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
     icon.style.color = state.trackShotLocations ? '#2E7D32' : 'var(--t3)';
   }
+}
+
+function onPlayerNumToggle() {
+  state.showPlayerNumbers = !state.showPlayerNumbers;
+  saveState();
+  const icon = document.getElementById('pnum-icon');
+  if (icon) {
+    const on = state.showPlayerNumbers !== false;
+    icon.className = on ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
+    icon.style.color = on ? '#2E7D32' : 'var(--t3)';
+  }
+  refAllBtns();
 }
 
 // ─── TEAM NAME TYPEAHEAD ──────────────────────────────────────────────────────

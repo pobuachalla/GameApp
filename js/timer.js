@@ -61,6 +61,8 @@ function applyStateEffects(prev, next) {
       tRun = false;
       stopInterval();
       state.tWallStart = null;
+      state.htGoals = state.goals; state.htPts = state.pts;
+      state.htOg    = state.og;    state.htOp  = state.op_;
       el['timer-display'].classList.add('muted');
       el['timer-display'].classList.remove('overtime');
       addRow(fmt(state.secs),'1H','bperiod','1st Half ended at '+clockStr);
@@ -108,6 +110,8 @@ function applyStateEffects(prev, next) {
       tRun = false;
       stopInterval();
       state.tWallStart = null;
+      state.ftGoals = state.goals; state.ftPts = state.pts;
+      state.ftOg    = state.og;    state.ftOp  = state.op_;
       el['timer-display'].classList.add('muted');
       setGrid(false);
       showFullTimeResult();

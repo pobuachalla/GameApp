@@ -3,6 +3,8 @@
 // ─── PERSISTENT STATE (single source of truth) ───────────────────────────────
 const state = {
   goals:0, pts:0, og:0, op_:0,
+  htGoals:null, htPts:null, htOg:null, htOp:null,
+  ftGoals:null, ftPts:null, ftOg:null, ftOp:null,
   period:1, secs:0,
   matchState:'PRE_MATCH',
   tWallStart:null, tPausedAt:0,
@@ -17,6 +19,7 @@ const state = {
   teamSize:15,     // 15 or 13
   captain:null,    // slot number of captain, or null
   trackShotLocations:false,
+  showPlayerNumbers:true,
 };
 for (let i = 1; i <= 15; i++) state.slotp[i] = i;
 

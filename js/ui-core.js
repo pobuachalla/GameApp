@@ -121,7 +121,7 @@ function refBtn(s) {
   const wrap = document.createElement('span');
   wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:0;line-height:1;';
   const hasName = !!gn(pi);
-  if (hasName) {
+  if (hasName && state.showPlayerNumbers !== false) {
     const numSpan = document.createElement('span');
     numSpan.textContent = pi;
     numSpan.style.cssText = 'font-size:8px;font-weight:500;opacity:0.55;margin-bottom:1px;';
