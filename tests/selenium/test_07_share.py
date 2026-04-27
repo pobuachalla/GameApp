@@ -25,28 +25,28 @@ def test_share_menu_title_is_share(app):
 def test_share_menu_has_current_score_option(app):
     a = App(app)
     a.open_share()
-    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts .abtn")]
+    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts [data-v]")]
     assert "curr" in opts
 
 
 def test_share_menu_has_lineup_option(app):
     a = App(app)
     a.open_share()
-    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts .abtn")]
+    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts [data-v]")]
     assert "lu" in opts
 
 
 def test_share_menu_no_ht_option_before_half_time(app):
     a = App(app)
     a.open_share()
-    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts .abtn")]
+    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts [data-v]")]
     assert "ht" not in opts
 
 
 def test_share_menu_no_ft_option_before_full_time(app):
     a = App(app)
     a.open_share()
-    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts .abtn")]
+    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts [data-v]")]
     assert "ft" not in opts
 
 
@@ -131,7 +131,7 @@ def test_ht_share_option_appears_after_half_time(app):
     a.start_match()
     a.end_half()
     a.open_share()
-    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts .abtn")]
+    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts [data-v]")]
     a.dismiss()
     assert "ht" in opts
 
@@ -157,7 +157,7 @@ def test_ft_share_option_appears_after_full_time(app):
     a.start_match()
     a.end_match()
     a.open_share()
-    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts .abtn")]
+    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts [data-v]")]
     a.dismiss()
     assert "ft" in opts
 

@@ -87,7 +87,7 @@ class App:
 
     def click_opt(self, data_v):
         """Click a modal option button by its data-v attribute value."""
-        sel = f'#mopts .abtn[data-v="{data_v}"]'
+        sel = f'#mopts [data-v="{data_v}"]'
         self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, sel))).click()
 
     def dismiss(self):
@@ -301,6 +301,7 @@ class App:
         self.wait_panel_closed("setpanel")
 
     def open_log(self):
+        self.open_stats()
         self.click("button[onclick='openLog()']")
         self.wait_panel_open("logpanel")
 
@@ -332,8 +333,9 @@ class App:
 
     def set_player_name(self, slot, name):
         """Set a player name in the settings panel (panel must be open)."""
+        self.js("switchSetupTab('team');")
         inp = self.wait.until(
-            EC.presence_of_element_located((By.ID, f"sn{slot}"))
+            EC.element_to_be_clickable((By.ID, f"sn{slot}"))
         )
         inp.clear()
         inp.send_keys(name)

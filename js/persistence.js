@@ -5,10 +5,12 @@ let saveStateTimeoutId = null;
 
 function serializeState() {
   const {goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
-         usN,oppN,location,referee,matchNotes,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
+         usN,oppN,location,referee,competition,matchDate,ageGrade,matchNotes,
+         pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
          maxB,evts,sport,teamSize,captain,startSlotp,startCaptain,trackShotLocations} = state;
   return {goals,pts,og,op_,period,secs,matchState,tPausedAt,tWallStart,
-          usN,oppN,location,referee,matchNotes,pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
+          usN,oppN,location,referee,competition,matchDate,ageGrade,matchNotes,
+          pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
           maxB,evts,sport,teamSize,captain,startSlotp,startCaptain,trackShotLocations};
 }
 

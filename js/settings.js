@@ -1,5 +1,11 @@
 'use strict';
 
+// ─── SETUP TABS ───────────────────────────────────────────────────────────────
+function switchSetupTab(name) {
+  document.querySelectorAll('.set-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.set-tab-pane').forEach(p => p.classList.toggle('active', p.dataset.tab === name));
+}
+
 // ─── TEMPLATES ────────────────────────────────────────────────────────────────
 function saveTpl() {
   const name = el.tni.value.trim(); if(!name){toast('Enter a template name');return;}
@@ -76,6 +82,9 @@ function openSettings(){
   el.son.value=state.oppN==='Opposition'?'':state.oppN;
   document.getElementById('sloc').value=state.location||'';
   document.getElementById('sref').value=state.referee||'';
+  document.getElementById('scomp').value=state.competition||'';
+  document.getElementById('smdate').value=state.matchDate||'';
+  document.getElementById('sage').value=state.ageGrade||'';
   const isFootball = state.sport === 'football';
   const is13 = state.teamSize === 13;
   document.getElementById('sport-chk').checked = isFootball;
@@ -122,8 +131,11 @@ function addBRow(c,idx){
 function flushSettings() {
   state.usN     = el.sun.value.trim()||DEFAULT_US;
   state.oppN    = el.son.value.trim()||'Opposition';
-  state.location= (document.getElementById('sloc').value||'').trim();
-  state.referee = (document.getElementById('sref').value||'').trim();
+  state.location   = (document.getElementById('sloc').value||'').trim();
+  state.referee    = (document.getElementById('sref').value||'').trim();
+  state.competition= (document.getElementById('scomp').value||'').trim();
+  state.matchDate  = (document.getElementById('smdate').value||'').trim();
+  state.ageGrade   = (document.getElementById('sage').value||'').trim();
   el.uslbl.textContent=state.usN.toUpperCase();
   el.opplbl.textContent=state.oppN.toUpperCase();
   for(let i=1;i<=state.maxB+2;i++){const inp=document.getElementById('sn'+i);if(inp)state.pnames[i]=inp.value.trim();}

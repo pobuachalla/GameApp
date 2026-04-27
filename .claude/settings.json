@@ -5,7 +5,9 @@
       "Bash(sed -n '1,10p' constants.js)",
       "Bash(sed -n '3,10p' players.js)",
       "Bash(grep -n \"html\\\\`\\\\|esc\\(\\\\|gi\\(\" /Users/padraig.obuachalla/Desktop/GameApp/GameApp/js/print.js)",
-      "Bash(pip3 show *)"
+      "Bash(pip3 show *)",
+      "Bash(xargs kill *)",
+      "Bash(python3 -m pytest tests/selenium/test_06_settings.py tests/selenium/test_09_persistence.py -q)"
     ]
   }
 }

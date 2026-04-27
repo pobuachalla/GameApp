@@ -2,7 +2,7 @@
 
 // ─── MODAL ────────────────────────────────────────────────────────────────────
 function handleModalClick(e) {
-  const btn = e.target.closest('.abtn');
+  const btn = e.target.closest('[data-v]');
   if (btn && modalHandlerRef) {
     modalHandlerRef(btn.getAttribute('data-v'));
   }

@@ -76,11 +76,6 @@
       Setup
     </button>
     <div class="bar-div"></div>
-    <button class="bar-btn" onclick="openLog()">
-      <i class="fas fa-chart-simple" aria-hidden="true"></i>
-      Log<span id="lbdg" style="display:none;font-size:9px;background:var(--bgi);color:var(--ti);border-radius:999px;padding:1px 5px;margin-left:3px;vertical-align:middle;"></span>
-    </button>
-    <div class="bar-div"></div>
     <button class="bar-btn" onclick="openStats()">
       <i class="fas fa-percent" aria-hidden="true"></i>
       Stats
@@ -165,6 +160,7 @@
     <div class="stats-hdr">
       <div style="font-size:17px;font-weight:600;color:var(--t1);">Stats</div>
       <div style="display:flex;align-items:center;gap:8px;">
+        <button class="back-btn" onclick="openLog()" title="Event Log"><i class="fas fa-list-ul"></i><span id="lbdg" style="display:none;font-size:9px;background:var(--bgi);color:var(--ti);border-radius:999px;padding:1px 5px;margin-left:4px;vertical-align:middle;"></span></button>
         <button class="back-btn" onclick="printStats()" title="Share / Save PDF"><i class="fas fa-share-from-square"></i></button>
         <button class="back-btn" onclick="closeStats()"><i class="fas fa-chevron-down"></i></button>
       </div>
@@ -184,64 +180,88 @@
       <div style="font-size:17px;font-weight:600;color:var(--t1);">Setup</div>
       <button class="back-btn" onclick="closeSettings()"><i class="fas fa-chevron-down"></i></button>
     </div>
+    <div class="set-tabs">
+      <button class="set-tab active" data-tab="game"     onclick="switchSetupTab('game')">Game</button>
+      <button class="set-tab"        data-tab="team"     onclick="switchSetupTab('team')">Team</button>
+      <button class="set-tab"        data-tab="transfer" onclick="switchSetupTab('transfer')">Import / Export</button>
+    </div>
     <div class="drw-scroll">
-      <div class="stitle">TEAM NAMES</div>
-      <div style="display:flex;gap:8px;">
-        <div style="flex:1;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Us</div><input class="sinput" id="sun" type="text" placeholder="e.g. Cork" maxlength="24"></div>
-        <div style="flex:1;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Opposition</div><input class="sinput" id="son" type="text" placeholder="e.g. Tipperary" maxlength="24"></div>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:8px;">
-        <div style="flex:1;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Location</div><input class="sinput" id="sloc" type="text" placeholder="e.g. Croke Park" maxlength="40"></div>
-        <div style="flex:1;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Referee</div><input class="sinput" id="sref" type="text" placeholder="e.g. J. Murphy" maxlength="30"></div>
-      </div>
-      <div class="stitle">SPORT</div>
-      <label class="gaa-toggle-wrap">
-        <input type="checkbox" id="sport-chk" onchange="onSportToggle(this.checked)">
-        <div class="gaa-toggle-track">
-          <span class="gaa-toggle-opt"><i class="fa-solid fa-baseball"></i></span>
-          <span class="gaa-toggle-opt"><i class="fa-solid fa-volleyball"></i></span>
-          <span class="gaa-toggle-knob" id="sport-knob"></span>
+
+      <!-- ── GAME TAB ──────────────────────────────────────────────────────── -->
+      <div class="set-tab-pane active" data-tab="game">
+        <div class="stitle">FIXTURE</div>
+        <div style="display:flex;gap:8px;">
+          <div style="flex:1;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Us</div><input class="sinput" id="sun" type="text" placeholder="e.g. Cork" maxlength="24"></div>
+          <div style="flex:1;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Opposition</div><input class="sinput" id="son" type="text" placeholder="e.g. Tipperary" maxlength="24"></div>
         </div>
-      </label>
-      <div class="stitle">TEAM SIZE</div>
-      <label class="gaa-toggle-wrap">
-        <input type="checkbox" id="size-chk" onchange="onSizeToggle(this.checked)">
-        <div class="gaa-toggle-track">
-          <span class="gaa-toggle-opt size-opt">15</span>
-          <span class="gaa-toggle-opt size-opt">13</span>
-          <span class="gaa-toggle-knob" id="size-knob"></span>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <div style="flex:1;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Location</div><input class="sinput" id="sloc" type="text" placeholder="e.g. Croke Park" maxlength="40"></div>
+          <div style="flex:1;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Referee</div><input class="sinput" id="sref" type="text" placeholder="e.g. J. Murphy" maxlength="30"></div>
         </div>
-      </label>
-      <div style="border-top:.5px solid var(--b);margin-top:14px;padding-top:12px;display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-        <i id="shotloc-icon" class="fas fa-toggle-off" style="font-size:26px;color:var(--t3);cursor:pointer;touch-action:manipulation;" onclick="onShotLocToggle()"></i>
-        <span style="font-size:12px;color:var(--t2);">Shot location tracking</span>
-      </div>
-      <div style="font-size:11px;color:var(--t3);line-height:1.4;margin-bottom:2px;">Tag where scores and wides were taken from</div>
-      <div class="stitle">TRANSFER</div>
-      <div style="display:flex;gap:8px;margin-bottom:4px;">
-        <button onclick="exportMatchJSON()" style="flex:1;background:none;border:.5px solid var(--bm);border-radius:8px;padding:9px 8px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;"><i class="fas fa-file-export" style="color:#2E7D32;"></i>Export Match</button>
-        <label style="flex:1;background:none;border:.5px solid var(--bm);border-radius:8px;padding:9px 8px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;">
-          <i class="fas fa-file-import" style="color:#2E7D32;"></i>Import Match
-          <input type="file" accept=".json" style="display:none;" onchange="importMatchJSON(this)">
+        <div style="margin-top:8px;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Competition</div><input class="sinput" id="scomp" type="text" placeholder="e.g. County Championship" maxlength="50"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <div style="flex:1;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Date</div><input class="sinput" id="smdate" type="date"></div>
+          <div style="flex:1;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Age Grade</div><input class="sinput" id="sage" type="text" placeholder="e.g. Senior" maxlength="20"></div>
+        </div>
+        <div class="stitle">SPORT</div>
+        <label class="gaa-toggle-wrap">
+          <input type="checkbox" id="sport-chk" onchange="onSportToggle(this.checked)">
+          <div class="gaa-toggle-track">
+            <span class="gaa-toggle-opt"><i class="fa-solid fa-baseball"></i></span>
+            <span class="gaa-toggle-opt"><i class="fa-solid fa-volleyball"></i></span>
+            <span class="gaa-toggle-knob" id="sport-knob"></span>
+          </div>
         </label>
-      </div>
-      <div style="font-size:11px;color:var(--t3);line-height:1.4;margin-bottom:2px;">Export to move a session between devices &mdash; open in <a href="review.html" target="_blank" style="color:var(--ti);text-decoration:none;">Review View</a></div>
-      <div class="stitle">TEMPLATES</div>
-      <div style="display:flex;gap:8px;margin-bottom:8px;">
-        <input class="sinput" id="tni" type="text" placeholder="Template name" maxlength="30" style="flex:1;">
-        <button onclick="saveTpl()" class="setup-secondary-btn">Save squad</button>
-      </div>
-      <div id="tpllist"><div style="font-size:13px;color:var(--t3);padding:4px 0;">No saved templates</div></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin:14px 0 7px;">
-        <span class="stitle" id="starting-lbl" style="margin:0;">STARTING 15</span>
-        <div style="display:flex;gap:6px;">
-          <button onclick="clearAllNames()" style="background:none;border:.5px solid var(--bm);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;" title="Clear all player names"><i class="fas fa-eraser" style="font-size:11px;"></i>Clear names</button>
-          <button onclick="openLayout()" style="background:none;border:.5px solid var(--bm);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;"><i class="fa-solid fa-shirt" style="font-size:12px;color:#2E7D32;"></i>Line-up</button>
+        <div class="stitle">TEAM SIZE</div>
+        <label class="gaa-toggle-wrap">
+          <input type="checkbox" id="size-chk" onchange="onSizeToggle(this.checked)">
+          <div class="gaa-toggle-track">
+            <span class="gaa-toggle-opt size-opt">15</span>
+            <span class="gaa-toggle-opt size-opt">13</span>
+            <span class="gaa-toggle-knob" id="size-knob"></span>
+          </div>
+        </label>
+        <div class="stitle">TRACKING</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+          <i id="shotloc-icon" class="fas fa-toggle-off" style="font-size:26px;color:var(--t3);cursor:pointer;touch-action:manipulation;" onclick="onShotLocToggle()"></i>
+          <span style="font-size:12px;color:var(--t2);">Shot location tracking</span>
         </div>
+        <div style="font-size:11px;color:var(--t3);line-height:1.4;">Tag where scores and wides were taken from</div>
       </div>
-      <div id="pslist"></div>
-      <div class="stitle">BENCH</div>
-      <div id="bslist"></div>
+
+      <!-- ── TEAM TAB ──────────────────────────────────────────────────────── -->
+      <div class="set-tab-pane" data-tab="team">
+        <div class="stitle">TEMPLATES</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <input class="sinput" id="tni" type="text" placeholder="Template name" maxlength="30" style="flex:1;">
+          <button onclick="saveTpl()" class="setup-secondary-btn">Save squad</button>
+        </div>
+        <div id="tpllist"><div style="font-size:13px;color:var(--t3);padding:4px 0;">No saved templates</div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:14px 0 7px;">
+          <span class="stitle" id="starting-lbl" style="margin:0;">STARTING 15</span>
+          <div style="display:flex;gap:6px;">
+            <button onclick="clearAllNames()" style="background:none;border:.5px solid var(--bm);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;" title="Clear all player names"><i class="fas fa-eraser" style="font-size:11px;"></i>Clear names</button>
+            <button onclick="openLayout()" style="background:none;border:.5px solid var(--bm);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;"><i class="fa-solid fa-shirt" style="font-size:12px;color:#2E7D32;"></i>Line-up</button>
+          </div>
+        </div>
+        <div id="pslist"></div>
+        <div class="stitle">BENCH</div>
+        <div id="bslist"></div>
+      </div>
+
+      <!-- ── IMPORT / EXPORT TAB ───────────────────────────────────────────── -->
+      <div class="set-tab-pane" data-tab="transfer">
+        <div class="stitle">MATCH DATA</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <button onclick="exportMatchJSON()" style="flex:1;background:none;border:.5px solid var(--bm);border-radius:8px;padding:9px 8px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;touch-action:manipulation;"><i class="fas fa-file-export" style="color:#2E7D32;"></i>Export Match</button>
+          <label style="flex:1;background:none;border:.5px solid var(--bm);border-radius:8px;padding:9px 8px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;">
+            <i class="fas fa-file-import" style="color:#2E7D32;"></i>Import Match
+            <input type="file" accept=".json" style="display:none;" onchange="importMatchJSON(this)">
+          </label>
+        </div>
+        <div style="font-size:11px;color:var(--t3);line-height:1.4;">Export to move a session between devices &mdash; open in <a href="review.html" target="_blank" style="color:var(--ti);text-decoration:none;">Review View</a></div>
+      </div>
+
     </div>
   </div>
 

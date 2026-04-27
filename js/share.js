@@ -160,68 +160,74 @@ function _buildLineupGraphicHTML() {
   const snapSlotp   = state.startSlotp || state.slotp;
   const snapCaptain = state.startCaptain != null ? state.startCaptain : state.captain;
 
-  const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
-  const venueHtml = state.location
-    ? `<div style="font-size:13px;color:#888;margin-top:2px;">${esc(state.location)}</div>` : '';
+  // Header — same content and structure as openLayout()
+  const usCrest  = _teamCrest(state.usN);
+  const oppName  = state.oppN && state.oppN !== 'Opposition' ? state.oppN : '';
+  const oppCrest = oppName ? _teamCrest(oppName) : null;
+  const dateStr  = new Date().toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
 
-  const usCrest   = _teamCrest(state.usN);
-  const crestHtml = usCrest
-    ? `<img src="${esc(usCrest)}" style="width:34px;height:34px;object-fit:contain;" onerror="this.style.display='none'">` : '';
+  const usCrestHtml  = usCrest  ? `<img src="${esc(usCrest)}"  alt="${esc(state.usN)}" onerror="this.style.display='none'">` : '';
+  const oppCrestHtml = oppCrest ? `<img src="${esc(oppCrest)}" alt="${esc(oppName)}"   onerror="this.style.display='none'">` : '';
 
-  const shirt = (num, bg, numCol, size) => {
-    const s = size || 32;
-    const numSize = Math.round(s * 0.28);
-    return `<span style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:${s}px;height:${s}px;">`
-      + `<i class="fa-solid fa-shirt" style="font-size:${s}px;color:${bg};line-height:1;"></i>`
-      + `<span style="position:absolute;top:58%;left:50%;transform:translate(-50%,-50%);font-size:${numSize}px;font-weight:700;color:${numCol};font-family:-apple-system,BlinkMacSystemFont,sans-serif;line-height:1;">${num}</span>`
-      + `</span>`;
-  };
+  let vsHtml = oppName ? `vs ${esc(oppName)}<br>` : '';
+  vsHtml += `<span style="font-size:11px;">${esc(dateStr)}</span>`;
+  if (state.location) vsHtml += `<br><span style="font-size:11px;">${esc(state.location)}</span>`;
 
-  let formation = '<div style="display:flex;flex-direction:column;gap:10px;align-items:center;margin-bottom:14px;">';
+  const header = `<div class="layout-team-hdr">`
+    + `<div class="layout-hdr-crest">${usCrestHtml}</div>`
+    + `<div class="layout-hdr-center">`
+    +   `<div class="layout-team-name">${esc(state.usN || '')}</div>`
+    +   `<div class="layout-vs">${vsHtml}</div>`
+    + `</div>`
+    + `<div class="layout-hdr-crest">${oppCrestHtml}</div>`
+    + `</div>`;
+
+  // Formation — same structure and CSS classes as renderLayout()
+  let formation = '<div class="layout-formation">';
   layout.forEach(row => {
-    formation += '<div style="display:flex;gap:10px;justify-content:center;">';
+    formation += '<div class="layout-row">';
     row.forEach(slot => {
       const pi    = snapSlotp ? (snapSlotp[slot] || slot) : slot;
       const name  = gn(pi) || '';
       const isCap = snapCaptain === slot;
       const isGK  = slot === 1;
-      formation += '<div style="display:flex;flex-direction:column;align-items:center;width:44px;">';
-      formation += `<div style="position:relative;width:32px;height:32px;">${shirt(slot, isGK ? '#FDD835' : '#2E7D32', isGK ? '#2E7D32' : '#fff')}`;
-      if (isCap) formation += '<span style="position:absolute;top:-3px;right:-3px;background:#fff;border:1px solid #E2E4DE;border-radius:50%;width:12px;height:12px;font-size:7px;font-weight:700;color:#2E7D32;display:flex;align-items:center;justify-content:center;line-height:1;">C</span>';
+      formation += '<div class="layout-player">';
+      formation += '<div class="layout-shirt-wrap">';
+      if (isCap) formation += '<span class="layout-cap-badge">C</span>';
+      formation += `<i class="fa-solid fa-shirt layout-shirt-icon" style="color:${isGK ? '#FDD835' : '#2E7D32'};"></i>`;
+      formation += `<span class="layout-shirt-num" style="color:${isGK ? '#2E7D32' : '#fff'};">${slot}</span>`;
       formation += '</div>';
-      formation += `<div style="font-size:7px;font-weight:600;color:#1F1F1F;text-align:center;margin-top:2px;line-height:1.2;word-break:break-word;">${esc(name || '—')}</div>`;
+      formation += `<div class="layout-player-name">${esc(name || '—')}</div>`;
       formation += '</div>';
     });
     formation += '</div>';
   });
   formation += '</div>';
 
+  // Subs — same structure as renderLayout()
   let subsHtml = '';
   const subs = [];
   for (let i = 16; i <= (state.maxB || 16); i++) { const n = gn(i); if (n) subs.push({idx: i, name: n}); }
   if (subs.length) {
-    subsHtml = '<div style="border-top:1px solid #EBEBEB;padding-top:10px;">'
-      + '<div style="font-size:10px;font-weight:800;letter-spacing:2px;color:#1F2A24;text-transform:uppercase;margin-bottom:8px;">Subs</div>'
-      + '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+    subsHtml += '<div class="layout-subs-wrap">';
+    subsHtml += '<div class="layout-subs-title">Subs</div>';
+    subsHtml += '<div class="layout-subs-grid">';
     subs.forEach(s => {
-      subsHtml += '<div style="display:flex;flex-direction:column;align-items:center;width:36px;">'
-        + `<div style="width:26px;height:26px;">${shirt(s.idx, '#9E9E9E', '#fff', 26)}</div>`
-        + `<div style="font-size:6.5px;color:#1F1F1F;text-align:center;margin-top:2px;line-height:1.2;word-break:break-word;">${esc(s.name)}</div>`
-        + '</div>';
+      subsHtml += '<div class="layout-sub-player">';
+      subsHtml += '<div class="layout-sub-shirt-wrap">';
+      subsHtml += '<i class="fa-solid fa-shirt layout-sub-shirt"></i>';
+      subsHtml += `<span class="layout-sub-num">${s.idx}</span>`;
+      subsHtml += '</div>';
+      subsHtml += `<div class="layout-sub-name">${esc(s.name)}</div>`;
+      subsHtml += '</div>';
     });
     subsHtml += '</div></div>';
   }
 
-  return `<div style="background:#fff;border-radius:20px;padding:20px;box-shadow:0 2px 24px rgba(0,0,0,0.10);overflow:hidden;">`
-    + `<div style="text-align:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #EBEBEB;">`
-    + `<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#AAA;text-transform:uppercase;">${dateStr}</div>`
-    + venueHtml + `</div>`
-    + `<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;">`
-    + crestHtml
-    + `<div style="font-size:${_htmlNameFS(state.usN)};font-weight:800;color:#1F2A24;letter-spacing:0.5px;text-transform:uppercase;">${esc(state.usN || '')}</div></div>`
+  return `<div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 2px 24px rgba(0,0,0,0.10);">`
+    + header
     + formation + subsHtml
-    + `<div style="margin:14px -20px -20px;height:8px;background:#1F5B3A;"></div></div>`;
+    + `<div style="height:8px;background:#1F5B3A;"></div></div>`;
 }
 
 function showLineupGraphic() {
@@ -235,11 +241,23 @@ function openShareMenu() {
   const hasHT = state.evts.some(ev => ev.badge === '1H' && (ev.desc || '').includes('ended'));
   const hasFT = state.matchState === 'FULL_TIME';
   el.mtitle.textContent = 'Share';
-  let h = '<div class="opts-grid">';
-  h += '<button class="abtn" data-v="lu"><i class="fa-solid fa-shirt"></i> Starting Line-up</button>';
-  h += '<button class="abtn" data-v="curr"><i class="fas fa-clock"></i> Current Score Card</button>';
-  if (hasHT) h += '<button class="abtn" data-v="ht"><i class="fas fa-hourglass-half"></i> Half Time Score Card</button>';
-  if (hasFT) h += '<button class="abtn" data-v="ft"><i class="fas fa-flag-checkered"></i> Full Time Score Card</button>';
+
+  const opts = [
+    { v:'lu',   icon:'fa-solid fa-shirt',     label:'Starting Line-up',     bg:'#E8F5E9', fg:'#2E7D32' },
+    { v:'curr', icon:'fas fa-clock',           label:'Current Score Card',   bg:'#E3F2FD', fg:'#1565C0' },
+    { v:'ht',   icon:'fas fa-hourglass-half',  label:'Half Time Score Card', bg:'#FFFDE7', fg:'#E65100', guard:hasHT },
+    { v:'ft',   icon:'fas fa-flag-checkered',  label:'Full Time Score Card', bg:'#FFEBEE', fg:'#C62828', guard:hasFT },
+  ];
+
+  let h = '<div class="share-opts">';
+  opts.forEach(o => {
+    if (o.guard === false) return;
+    h += `<button class="share-opt" data-v="${o.v}">`;
+    h += `<span class="share-opt-icon" style="background:${o.bg};color:${o.fg};"><i class="${o.icon}"></i></span>`;
+    h += `<span class="share-opt-label">${o.label}</span>`;
+    h += `<i class="fas fa-chevron-right share-opt-arrow"></i>`;
+    h += `</button>`;
+  });
   h += '</div>';
   el.mopts.innerHTML = h;
   modalHandlerRef = (v) => {
