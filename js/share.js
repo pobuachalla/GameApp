@@ -90,6 +90,8 @@ function _buildScoreGraphicHTML(label) {
 
   const now = new Date();
   const dateStr  = now.toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
+  const compHtml = state.competition
+    ? `<div style="font-size:13px;font-weight:700;color:#1F5B3A;margin-bottom:3px;">${esc(state.competition)}</div>` : '';
   const venueHtml = state.location
     ? `<div style="font-size:13px;color:#888;margin-top:2px;">${esc(state.location)}</div>` : '';
 
@@ -124,6 +126,7 @@ function _buildScoreGraphicHTML(label) {
 
   return `<div style="background:#fff;border-radius:20px;padding:20px;box-shadow:0 2px 24px rgba(0,0,0,0.10);overflow:hidden;">`
     + `<div style="text-align:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #EBEBEB;">`
+    + compHtml
     + `<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#AAA;text-transform:uppercase;">${dateStr}</div>`
     + venueHtml + `</div>`
     + `<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;">`
