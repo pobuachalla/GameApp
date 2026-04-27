@@ -9,6 +9,7 @@ function addRow(time, badge, cls, desc) {
   const r = document.createElement('div');
   r.className = 'ev-row'+(selMode?' sel-mode':'');
   r.dataset.evIdx = state.evts.length - 1;
+  // eslint-disable-next-line no-restricted-syntax -- safe: time/cls are internal computed values; badge and desc pass through esc()
   r.innerHTML = '<div class="ev-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ti)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"/></svg></div>'
     +'<span class="ev-time">'+time+'</span>'
     +'<span class="ev-bdg '+cls+'">'+esc(badge)+'</span>'

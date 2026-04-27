@@ -43,6 +43,7 @@ function showOpts(title, opts, handler, rich) {
       html += '</div>';
     }
   }
+  // eslint-disable-next-line no-restricted-syntax -- safe: html is built by callers using static strings and esc()
   el.mopts.innerHTML = html;
   el.modal.style.display = 'block';
   modalHandlerRef = (v) => { handler(v); };

@@ -69,6 +69,7 @@ function showZonePicker() {
   zoneSelectedId     = getZonePreselect(sec);
   zoneSelectedCoords = getZonePreselectCoords(sec) || (zoneSelectedId ? getZoneCellCoords(zoneSelectedId) : null);
 
+  // eslint-disable-next-line no-restricted-syntax -- safe: zoneSelectedId is an internal integer
   document.getElementById('zone-pitch-wrap').innerHTML = buildZoneSVG(zoneSelectedId);
   document.getElementById('zonepanel').classList.add('open');
 }
@@ -128,6 +129,7 @@ function selectZoneCell(id, x, y) {
     zoneSelectedId = id;
     zoneSelectedCoords = {x: parseFloat(x), y: parseFloat(y)};
   }
+  // eslint-disable-next-line no-restricted-syntax -- safe: zoneSelectedId is an internal integer
   document.getElementById('zone-pitch-wrap').innerHTML = buildZoneSVG(zoneSelectedId);
 }
 
@@ -242,6 +244,7 @@ function pickSubOn() {
   }
   if (!avail.length) {
     el.mtitle.textContent='No subs available';
+    // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
     el.mopts.innerHTML='<p style="color:var(--t2);font-size:14px;padding:8px 0 4px;">No players available.</p>';
     return;
   }

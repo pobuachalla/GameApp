@@ -139,10 +139,12 @@ function renderTimerUI() {
   if (isRunning) {
     sc.style.display='';
     sc.className='status-chip running';
+    // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
     sc.innerHTML='<i class="fas fa-clock" aria-hidden="true"></i> Running';
   } else if (isPaused) {
     sc.style.display='';
     sc.className='status-chip paused';
+    // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
     sc.innerHTML='<i class="fas fa-circle-pause" aria-hidden="true"></i> Paused';
   } else {
     sc.style.display='none';
@@ -207,6 +209,7 @@ function timerSecondaryAction() {
 
 function handleEndHalf() {
   el.mtitle.textContent = 'End First Half?';
+  // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
   el.mopts.innerHTML =
     '<p style="font-size:14px;color:var(--t2);padding:4px 0 14px;line-height:1.5;">Start half-time and stop the timer.</p>'
    +'<button class="abtn confirm-action-btn" style="font-weight:600;border-color:var(--bm);"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i> Confirm End Half</button>';
@@ -216,6 +219,7 @@ function handleEndHalf() {
 
 function handleEndMatch() {
   el.mtitle.textContent = 'End Match?';
+  // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
   el.mopts.innerHTML =
     '<p style="font-size:14px;color:var(--t2);padding:4px 0 14px;line-height:1.5;">Mark the game as full-time and stop the timer.</p>'
    +'<button class="abtn confirm-action-btn" style="font-weight:600;border-color:var(--bm);"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i> Confirm End Match</button>';

@@ -45,6 +45,7 @@ function showFullTimeResult() {
   const ub = document.getElementById('undobtn');
   if (ub) {
     ub.id='resetbtn'; ub.disabled=false; ub.classList.remove('danger');
+    // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
     ub.innerHTML='<i class="fas fa-arrows-rotate" aria-hidden="true"></i>Reset';
     ub.onclick=resetMatch;
   }
@@ -54,6 +55,7 @@ function showFullTimeResult() {
 // ─── RESET ────────────────────────────────────────────────────────────────────
 function resetMatch() {
   el.mtitle.textContent = 'Reset match?';
+  // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
   el.mopts.innerHTML = '<p style="font-size:14px;color:var(--t2);padding:4px 0 14px;line-height:1.5;">All scores, events and cards will be cleared. Team and player settings are kept.</p>'
     +'<button class="abtn" style="color:var(--td);border-color:var(--bd);">Clear everything and reset</button>';
   el.modal.style.display = 'block';
@@ -65,6 +67,7 @@ function doReset() {
   upTot();
   state.evts=[]; undos=[];
   state.matchNotes=''; const _mn=document.getElementById('match-notes-input'); if(_mn)_mn.value='';
+  // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
   el.evlog.innerHTML = '<div id="logempty" style="color:var(--t3);font-size:13px;padding:10px 0;">No events recorded yet</div>';
   el.logempty = document.getElementById('logempty');
   syncMeta();
@@ -85,6 +88,7 @@ function doReset() {
   const rb = document.getElementById('resetbtn');
   if (rb) {
     rb.id='undobtn'; rb.classList.add('danger');
+    // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
     rb.innerHTML='<i class="fas fa-rotate-left" aria-hidden="true"></i>Undo';
     rb.onclick=undoLast; rb.disabled=true;
   }
@@ -109,6 +113,7 @@ function openScoreModal(side) {
   html += '<button class="abtn action-btn-neutral" data-v="p-">− Point</button>';
   html += '<button class="abtn action-btn-wide" data-v="w+" style="grid-column:1 / -1;"><i class="fa-solid fa-child-reaching"></i>Wide</button>';
   html += '</div></div>';
+  // eslint-disable-next-line no-restricted-syntax -- safe: all values are internal score tokens
   el.mopts.innerHTML = html;
   el.modal.style.display = 'block';
   modalHandlerRef = (v) => {
@@ -151,6 +156,7 @@ function showScoreHowModal() {
     html += '<button class="abtn" data-v="'+esc(o)+'">'+esc(o)+'</button>';
   });
   html += '</div>';
+  // eslint-disable-next-line no-restricted-syntax -- safe: all option values passed through esc()
   el.mopts.innerHTML = html;
   el.modal.style.display = 'block';
   modalHandlerRef = (how) => {
@@ -214,6 +220,7 @@ function adjFootball(d, side, how) {
 function showRestartModal(side) {
   const label = side==='us' ? "Opposition's Restart" : "Own Restart";
   el.mtitle.textContent = 'Restart won?';
+  // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
   el.mopts.innerHTML = '<div class="opts-grid">'
     +'<button class="abtn" data-v="Won"     style="background:#2E7D32;color:#fff;border-color:#2E7D32;"><i class="fas fa-thumbs-up"></i>Won</button>'
     +'<button class="abtn" data-v="Lost"    style="background:#C62828;color:#fff;border-color:#C62828;"><i class="fas fa-thumbs-down"></i>Lost</button>'

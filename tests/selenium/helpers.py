@@ -15,6 +15,12 @@ from selenium.common.exceptions import NoSuchElementException
 
 TIMEOUT = 8
 
+# Repeated CSS selectors / style strings extracted to avoid duplication warnings
+_MODAL_STYLE_OPEN  = "display: block"
+_TIMER_PRIMARY_BTN = "#timer-primary-btn"
+_STATUS_CHIP       = "#status-chip"
+_HOW_FROM_PLAY     = "From Play"
+
 
 class App:
     def __init__(self, driver):
@@ -68,17 +74,17 @@ class App:
 
     def modal_open(self):
         style = self.d.find_element(By.ID, "modal").get_attribute("style") or ""
-        return "display: block" in style
+        return _MODAL_STYLE_OPEN in style
 
     def wait_modal_open(self):
         WebDriverWait(self.d, TIMEOUT).until(
-            lambda d: "display: block"
+            lambda d: _MODAL_STYLE_OPEN
             in (d.find_element(By.ID, "modal").get_attribute("style") or "")
         )
 
     def wait_modal_closed(self):
         WebDriverWait(self.d, TIMEOUT).until(
-            lambda d: "display: block"
+            lambda d: _MODAL_STYLE_OPEN
             not in (d.find_element(By.ID, "modal").get_attribute("style") or "")
         )
 
@@ -127,31 +133,31 @@ class App:
 
     def start_match(self):
         """Click the primary timer button to start the first half."""
-        self.click("#timer-primary-btn")
+        self.click(_TIMER_PRIMARY_BTN)
         WebDriverWait(self.d, TIMEOUT).until(
             lambda d: "running"
             in (
-                d.find_element(By.CSS_SELECTOR, "#status-chip").get_attribute("class")
+                d.find_element(By.CSS_SELECTOR, _STATUS_CHIP).get_attribute("class")
                 or ""
             )
         )
 
     def pause(self):
-        self.click("#timer-primary-btn")
+        self.click(_TIMER_PRIMARY_BTN)
         WebDriverWait(self.d, TIMEOUT).until(
             lambda d: "paused"
             in (
-                d.find_element(By.CSS_SELECTOR, "#status-chip").get_attribute("class")
+                d.find_element(By.CSS_SELECTOR, _STATUS_CHIP).get_attribute("class")
                 or ""
             )
         )
 
     def resume(self):
-        self.click("#timer-primary-btn")
+        self.click(_TIMER_PRIMARY_BTN)
         WebDriverWait(self.d, TIMEOUT).until(
             lambda d: "running"
             in (
-                d.find_element(By.CSS_SELECTOR, "#status-chip").get_attribute("class")
+                d.find_element(By.CSS_SELECTOR, _STATUS_CHIP).get_attribute("class")
                 or ""
             )
         )
@@ -219,7 +225,7 @@ class App:
 
     # ── Action flows ───────────────────────────────────────────────────────────
 
-    def record_goal(self, slot=2, how="From Play", restart="Won"):
+    def record_goal(self, slot=2, how=_HOW_FROM_PLAY, restart="Won"):
         self.click_player(slot)
         self.click_opt("Goal")
         self.click_opt(how)
@@ -227,7 +233,7 @@ class App:
         self.click_opt(restart)
         self.wait_modal_closed()
 
-    def record_point(self, slot=2, how="From Play", restart="Won"):
+    def record_point(self, slot=2, how=_HOW_FROM_PLAY, restart="Won"):
         self.click_player(slot)
         self.click_opt("Point")
         self.click_opt(how)
@@ -235,7 +241,7 @@ class App:
         self.click_opt(restart)
         self.wait_modal_closed()
 
-    def record_wide(self, slot=2, how="From Play"):
+    def record_wide(self, slot=2, how=_HOW_FROM_PLAY):
         self.click_player(slot)
         self.click_opt("Wide")
         self.click_opt(how)
@@ -273,7 +279,7 @@ class App:
 
     # ── Score adjustments ──────────────────────────────────────────────────────
 
-    def adj_add(self, side, kind, how="From Play", restart="Won"):
+    def adj_add(self, side, kind, how=_HOW_FROM_PLAY, restart="Won"):
         """Add a goal ('g') or point ('p') for 'us' or 'opp' via the edit button."""
         self.click(f".score-adj-btn[onclick=\"openScoreModal('{side}')\"]")
         self.wait_modal_open()
@@ -302,7 +308,7 @@ class App:
 
     def open_log(self):
         self.open_stats()
-        self.click("button[onclick='openLog()']")
+        self.js_click("button[onclick='openLog()']")
         self.wait_panel_open("logpanel")
 
     def close_log(self):
@@ -312,6 +318,12 @@ class App:
     def open_stats(self):
         self.click("button[onclick='openStats()']")
         self.wait_panel_open("statspanel")
+        # Wait for the 300 ms CSS slide-in transition to complete so that
+        # element.text reads correctly (transform:translateY affects innerText).
+        WebDriverWait(self.d, TIMEOUT).until(lambda d: d.execute_script(
+            "return getComputedStyle(document.getElementById('statspanel')).transform"
+            " === 'matrix(1, 0, 0, 1, 0, 0)';"
+        ))
 
     def close_stats(self):
         self.el("#statsoverlay").click()

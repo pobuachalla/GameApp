@@ -194,6 +194,7 @@ function closeStats() {
 }
 
 function renderStats() {
+  // eslint-disable-next-line no-restricted-syntax -- safe: buildStatsHTML() only uses internal counters, no user data interpolated
   document.getElementById('stats-content').innerHTML = buildStatsHTML();
 }
 

@@ -23,6 +23,7 @@ function importMatchJSON(input) {
       const allKeys = new Set([...Object.keys(state), ...Object.keys(data)]);
       allKeys.forEach(k => { if (k in data) state[k] = data[k]; else delete state[k]; });
       buildInitialsCache();
+      // eslint-disable-next-line no-restricted-syntax -- safe: clears element, no user data
       el.evlog.innerHTML = '';
       renderPGrid();
       restoreUI();

@@ -150,16 +150,28 @@ const appGlobals = {
   pickSubOn: 'writable',
   execSub: 'writable',
 
+  // ── clubs.js ──
+  MEATH_CLUBS: 'writable',
+  COUNTIES: 'writable',
+  findCountyCrest: 'writable',
+  findClub: 'writable',
+
   // ── share.js ──
   shareWA: 'writable',
   shareCSV: 'writable',
   openLog: 'writable',
   closeLog: 'writable',
+  showScoreGraphic: 'writable',
+  closeScoreGraphic: 'writable',
+  openCurrentScoreCard: 'writable',
+  showLineupGraphic: 'writable',
+  openShareMenu: 'writable',
 
   // ── settings.js ──
   saveTpl: 'writable',
   loadTpl: 'writable',
   delTpl: 'writable',
+  updateTpl: 'writable',
   renderTpls: 'writable',
   openSettings: 'writable',
   closeSettings: 'writable',
@@ -173,8 +185,12 @@ const appGlobals = {
   buildPlayerRow: 'writable',
   onSizeToggle: 'writable',
   onShotLocToggle: 'writable',
+  onPlayerNumToggle: 'writable',
+  switchSetupTab: 'writable',
+  clearAllNames: 'writable',
 
   // ── layout.js ──
+  _teamCrest: 'writable',
   openLayout: 'writable',
   closeLayout: 'writable',
   renderLayout: 'writable',
@@ -229,6 +245,16 @@ export default [
       'no-var': 'warn',
       // Empty catch blocks are used deliberately to swallow localStorage/WakeLock errors.
       'no-empty': ['error', { allowEmptyCatch: true }],
+      // ── SAST: eval is forbidden — no dynamic code execution.
+      'no-eval': 'error',
+      'no-implied-eval': 'error',
+      // ── SAST: every innerHTML assignment must pass through esc() or the html``
+      // tagged template. Suppress with an explanatory eslint-disable comment once
+      // each site has been audited. New sites must get the same treatment.
+      'no-restricted-syntax': ['warn', {
+        selector: 'AssignmentExpression[left.property.name="innerHTML"]',
+        message: 'innerHTML assignment — ensure all interpolated values are passed through esc() or the html`` tagged template, then suppress with: // eslint-disable-next-line no-restricted-syntax -- safe: <reason>',
+      }],
     },
   },
 ];

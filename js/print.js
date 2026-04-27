@@ -579,6 +579,7 @@ function buildPrintShotMapHTML() {
 
 function printStats() {
   const area = document.getElementById('print-area');
+  // eslint-disable-next-line no-restricted-syntax -- safe: buildPrintHTML() passes all user data through esc()
   area.innerHTML = buildPrintHTML();
   const imgs = Array.from(area.querySelectorAll('img'));
   if (!imgs.length) { window.print(); return; }

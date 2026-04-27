@@ -39,12 +39,14 @@ function restoreUI() {
     const ub = document.getElementById('undobtn');
     if (ub && ub.id === 'undobtn') {
       ub.id='resetbtn'; ub.disabled=false; ub.classList.remove('danger');
+      // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
       ub.innerHTML='<i class="fas fa-arrows-rotate" aria-hidden="true"></i>Reset';
       ub.onclick=resetMatch;
     }
   }
   state.evts.forEach(e => {
     const r=document.createElement('div'); r.className='ev-row';
+    // eslint-disable-next-line no-restricted-syntax -- safe: time/cls are internal computed values; badge and desc pass through esc()
     r.innerHTML='<div class="ev-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ti)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"/></svg></div>'
       +'<span class="ev-time">'+e.time+'</span>'
       +'<span class="ev-bdg '+(e.cls||'bo')+'">'+esc(e.badge||'')+'</span>'
@@ -70,6 +72,7 @@ function restoreUI() {
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 function init() {
   initEl();
+  // eslint-disable-next-line no-restricted-syntax -- safe: PITCH_SVG_INNER is a trusted compile-time constant
   document.getElementById('pitch-main-host').innerHTML =
     `<svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;" preserveAspectRatio="xMidYMid slice">${PITCH_SVG_INNER}</svg>`;
   const restored = loadSavedState();

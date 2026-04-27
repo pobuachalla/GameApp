@@ -65,13 +65,15 @@ function clearAllNames() {
 function renderTpls(){
   const keys=[];
   for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('tpl:'))keys.push(k);}
+  // eslint-disable-next-line no-restricted-syntax -- safe: name displayed via esc(); onclick reads from data-tplname (no user data in JS string)
   if(!keys.length){el.tpllist.innerHTML='<div style="font-size:13px;color:var(--t3);padding:4px 0;">No saved templates</div>';return;}
+  // eslint-disable-next-line no-restricted-syntax -- safe: name in data-tplname via esc(); onclick reads dataset at runtime, not embedded string
   el.tpllist.innerHTML=keys.map(k=>{
     const n=k.replace('tpl:','');
-    return '<div class="tplrow"><span style="flex:1;font-size:14px;color:var(--t1);">'+esc(n)+'</span>'
-      +'<button class="tpl-icon-btn" onclick="loadTpl(\''+esc(n)+'\')" title="Load"><i class="fas fa-file-import"></i></button>'
-      +'<button class="tpl-icon-btn save" onclick="updateTpl(\''+esc(n)+'\')" title="Save current squad to this template"><i class="fas fa-floppy-disk"></i></button>'
-      +'<button class="tpl-icon-btn del" onclick="delTpl(\''+esc(n)+'\')" title="Delete"><i class="fas fa-trash-can"></i></button>'
+    return '<div class="tplrow" data-tplname="'+esc(n)+'"><span style="flex:1;font-size:14px;color:var(--t1);">'+esc(n)+'</span>'
+      +'<button class="tpl-icon-btn" onclick="loadTpl(this.closest(\'.tplrow\').dataset.tplname)" title="Load"><i class="fas fa-file-import"></i></button>'
+      +'<button class="tpl-icon-btn save" onclick="updateTpl(this.closest(\'.tplrow\').dataset.tplname)" title="Save current squad to this template"><i class="fas fa-floppy-disk"></i></button>'
+      +'<button class="tpl-icon-btn del" onclick="delTpl(this.closest(\'.tplrow\').dataset.tplname)" title="Delete"><i class="fas fa-trash-can"></i></button>'
       +'</div>';
   }).join('');
 }
@@ -101,6 +103,7 @@ function openSettings(){
     pnumIcon.style.color = on ? '#2E7D32' : 'var(--t3)';
   }
   el['starting-lbl'].textContent = 'STARTING '+(state.teamSize||15);
+  // eslint-disable-next-line no-restricted-syntax -- safe: clears element, no user data
   el.pslist.innerHTML='';
   const sz = state.teamSize || 15;
   for(let i=1;i<=sz;i++) el.pslist.appendChild(buildPlayerRow(i));
@@ -116,12 +119,14 @@ function closeSettings(){ flushSettings(); document.getElementById('setovly').cl
 function renderBench(){
   // Ensure maxB reflects all named bench slots in case of any desync
   for(let i=16;i<=30;i++){ if(state.pnames[i])state.maxB=Math.max(state.maxB,i+1); }
+  // eslint-disable-next-line no-restricted-syntax -- safe: clears element, no user data
   el.bslist.innerHTML='';
   for(let i=16;i<=state.maxB;i++) addBRow(el.bslist,i);
 }
 
 function addBRow(c,idx){
   const row=document.createElement('div'); row.className='prow'; row.id='br'+idx;
+  // eslint-disable-next-line no-restricted-syntax -- safe: idx is numeric, player name through esc()
   row.innerHTML='<span class="drag-handle" title="Drag to swap player"><i class="fas fa-grip-vertical"></i></span><div class="pbadge sub">'+idx+'</div><input class="sinput" id="sn'+idx+'" type="text" placeholder="'+(idx===16?'Sub GK':'Sub #'+idx)+'" maxlength="30" value="'+esc(gn(idx)||'')+'">';
   c.appendChild(row);
   attachDragHandle(row);
@@ -158,6 +163,7 @@ function onSportToggle(checked) {
 
 function renderPGrid() {
   const layout = GRID_LAYOUTS[state.teamSize] || GRID_LAYOUTS[15];
+  // eslint-disable-next-line no-restricted-syntax -- safe: slot numbers are internal integers, no user data
   el.pgrid.innerHTML = layout.map(row =>
     '<div class="p-row">'+row.map(s =>
       '<button class="pbtn" data-s="'+s+'" onclick="sel('+s+')">'+s+'</button>'
@@ -254,6 +260,7 @@ function attachDragHandle(row) {
 function buildPlayerRow(i) {
   const isCap = state.captain === i;
   const row = document.createElement('div'); row.className='prow';
+  // eslint-disable-next-line no-restricted-syntax -- safe: i is numeric, player name through esc()
   row.innerHTML = '<span class="drag-handle" title="Drag to swap player"><i class="fas fa-grip-vertical"></i></span>'
     +'<div class="pbadge'+(i===1?' gk':'')+'">'+i+'</div>'
     +'<input class="sinput" id="sn'+i+'" type="text" placeholder="'+(i===1?'Goalkeeper':'Player '+i)+'" maxlength="30" value="'+esc(gn(i)||'')+'">'
@@ -269,6 +276,7 @@ function onSizeToggle(checked) {
   el['starting-lbl'].textContent = 'STARTING ' + size;
   renderPGrid();
   // Rebuild player list in settings panel
+  // eslint-disable-next-line no-restricted-syntax -- safe: clears element, no user data
   el.pslist.innerHTML='';
   for(let i=1;i<=size;i++) el.pslist.appendChild(buildPlayerRow(i));
   saveState();
@@ -344,6 +352,7 @@ function _initTypeahead(input) {
 
     if (!matches.length) { close(); return; }
 
+    // eslint-disable-next-line no-restricted-syntax -- safe: all user values through esc()
     drop.innerHTML = matches.map(item =>
       `<div class="ta-item" data-name="${esc(item.name)}" `
       + `style="display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;font-size:14px;color:var(--t1);">`

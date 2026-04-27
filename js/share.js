@@ -70,7 +70,7 @@ function _scoreOutcome(label, u, o) {
 }
 
 function _crestEl(src, name) {
-  const initials = (name || '').split(/[\s\/\-]+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
+  const initials = (name || '').split(/[\s/-]+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
   const fbStyle = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;'
     + 'font-size:18px;font-weight:700;color:#BBBBB4;font-family:Arial,sans-serif;';
   const wrap = 'position:relative;width:60px;height:60px;flex-shrink:0;';
@@ -162,6 +162,7 @@ function _buildScoreGraphicHTML(label) {
 }
 
 function showScoreGraphic(label) {
+  // eslint-disable-next-line no-restricted-syntax -- safe: all user values through esc() inside builder
   document.getElementById('score-graphic-wrap').innerHTML = _buildScoreGraphicHTML(label);
   document.getElementById('score-graphic-panel').classList.add('open');
 }
@@ -252,6 +253,7 @@ function _buildLineupGraphicHTML() {
 }
 
 function showLineupGraphic() {
+  // eslint-disable-next-line no-restricted-syntax -- safe: all user values through esc() inside builder
   document.getElementById('score-graphic-wrap').innerHTML = _buildLineupGraphicHTML();
   document.getElementById('score-graphic-panel').classList.add('open');
 }
@@ -278,6 +280,7 @@ function openShareMenu() {
     h += `</button>`;
   });
   h += '</div>';
+  // eslint-disable-next-line no-restricted-syntax -- safe: all option values are static strings
   el.mopts.innerHTML = h;
   modalHandlerRef = (v) => {
     closeMod();

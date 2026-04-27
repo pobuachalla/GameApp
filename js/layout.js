@@ -16,12 +16,15 @@ function openLayout() {
   const oppName = state.oppN && state.oppN !== 'Opposition' ? state.oppN : '';
   const oppCrest = oppName ? _teamCrest(oppName) : null;
 
+  // eslint-disable-next-line no-restricted-syntax -- safe: _crestImg() passes all values through esc()
   document.getElementById('layout-us-crest').innerHTML  = _crestImg(usCrest, state.usN);
+  // eslint-disable-next-line no-restricted-syntax -- safe: _crestImg() passes all values through esc()
   document.getElementById('layout-opp-crest').innerHTML = _crestImg(oppCrest, oppName);
   document.getElementById('layout-team-name').textContent = state.usN;
 
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  // eslint-disable-next-line no-restricted-syntax -- safe: all user values through esc()
   document.getElementById('layout-vs').innerHTML =
     (oppName ? 'vs ' + esc(oppName) + '<br>' : '') +
     '<span style="font-size:11px;">' + esc(dateStr) + '</span>';
@@ -81,5 +84,6 @@ function renderLayout() {
     h += '</div></div>';
   }
 
+  // eslint-disable-next-line no-restricted-syntax -- safe: all user data through esc() in the builder above
   document.getElementById('layout-content').innerHTML = h;
 }
