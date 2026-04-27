@@ -174,3 +174,39 @@ def test_ft_score_card_opens_graphic_panel(app):
     a.wait_panel_open("score-graphic-panel")
     assert a.panel_open("score-graphic-panel")
     a.click("#score-graphic-continue-btn")
+
+
+# ── All 6 scorers listed on score cards ────────────────────────────────────────
+
+def test_score_card_lists_all_six_scorers(app):
+    """6 different players score; all 6 names must appear in the share graphic."""
+    a = App(app)
+
+    # Name 6 players across different slots
+    names = {
+        2: "Alan Burke",
+        3: "Brian Casey",
+        4: "Conor Daly",
+        5: "Declan Egan",
+        6: "Eoin Flynn",
+        7: "Fionn Gill",
+    }
+    a.open_settings()
+    for slot, name in names.items():
+        a.set_player_name(slot, name)
+    a.close_settings()
+
+    a.start_match()
+    for slot in names:
+        a.record_point(slot=slot)
+
+    a.open_share()
+    a.click_opt("curr")
+    a.wait_modal_closed()
+    a.wait_panel_open("score-graphic-panel")
+
+    wrap_text = a.el("#score-graphic-wrap").text
+    missing = [name for name in names.values() if name.split()[0] not in wrap_text and name.split()[-1] not in wrap_text]
+    assert not missing, f"Scorers missing from share card: {missing}"
+
+    a.click("#score-graphic-continue-btn")

@@ -47,7 +47,6 @@ function _scorerGraphicLine(evts) {
   return Object.values(scorers)
     .filter(s => s.g + s.p > 0)
     .sort((a, b) => (b.g * 3 + b.p) - (a.g * 3 + a.p))
-    .slice(0, 4)
     .map(s => esc(s.name) + ' ' + s.g + '–' + pad(s.p))
     .join(' · ');
 }
