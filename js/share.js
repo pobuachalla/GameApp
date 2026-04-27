@@ -107,7 +107,7 @@ function _buildScoreGraphicHTML(label) {
   const usFmt  = g  + '–' + pad(p);
   const oppFmt = og + '–' + pad(op);
   const outcome    = _scoreOutcome(label, usT, oppT);
-  const scorerLine = _scorerGraphicLine();
+  const scorerLine = _scorerGraphicLine(isHT ? _firstHalfEvts() : state.evts);
 
   const now = new Date();
   const dateStr  = now.toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
