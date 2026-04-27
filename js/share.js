@@ -177,9 +177,9 @@ function openCurrentScoreCard() {
 
 // ─── LINEUP GRAPHIC ───────────────────────────────────────────────────────────
 function _buildLineupGraphicHTML() {
-  const layout      = GRID_LAYOUTS[state.teamSize] || GRID_LAYOUTS[15];
-  const snapSlotp   = state.startSlotp || state.slotp;
-  const snapCaptain = state.startCaptain != null ? state.startCaptain : state.captain;
+  const layout = GRID_LAYOUTS[state.teamSize] || GRID_LAYOUTS[15];
+  const slotp  = state.slotp;
+  const captain = state.captain;
 
   // Header — same content and structure as openLayout()
   const usCrest  = _teamCrest(state.usN);
@@ -208,9 +208,9 @@ function _buildLineupGraphicHTML() {
   layout.forEach(row => {
     formation += '<div class="layout-row">';
     row.forEach(slot => {
-      const pi    = snapSlotp ? (snapSlotp[slot] || slot) : slot;
+      const pi    = slotp ? (slotp[slot] || slot) : slot;
       const name  = gn(pi) || '';
-      const isCap = snapCaptain === slot;
+      const isCap = captain === slot;
       const isGK  = slot === 1;
       formation += '<div class="layout-player">';
       formation += '<div class="layout-shirt-wrap">';
