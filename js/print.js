@@ -27,11 +27,12 @@ function buildPrintTimelineHTML() {
       else if (d.includes('Point removed'))  oppP=Math.max(0,oppP-1);
     } else if (ev.badge==='ADJ') {
       const d=ev.desc||'';
-      if      (d.includes('Goal added'))     { usG++; mType='Goal'; mTeam='us'; }
-      else if (d.includes('2 Point added'))  { usP+=2; mType='2 Point'; mTeam='us'; }
-      else if (d.includes('Point added'))    { usP++; mType='Point'; mTeam='us'; }
-      else if (d.includes('Goal removed'))   usG=Math.max(0,usG-1);
-      else if (d.includes('Point removed'))  usP=Math.max(0,usP-1);
+      const adjOpp = d.startsWith(state.oppN);
+      if      (d.includes('Goal added'))    { if(adjOpp){oppG++;mType='Goal';mTeam='opp';}else{usG++;mType='Goal';mTeam='us';} }
+      else if (d.includes('2 Point added')) { if(adjOpp){oppP+=2;mType='2 Point';mTeam='opp';}else{usP+=2;mType='2 Point';mTeam='us';} }
+      else if (d.includes('Point added'))   { if(adjOpp){oppP++;mType='Point';mTeam='opp';}else{usP++;mType='Point';mTeam='us';} }
+      else if (d.includes('Goal removed'))  { if(adjOpp) oppG=Math.max(0,oppG-1); else usG=Math.max(0,usG-1); }
+      else if (d.includes('Point removed')) { if(adjOpp) oppP=Math.max(0,oppP-1); else usP=Math.max(0,usP-1); }
     } else if (ev.action==='sub')        { subs.push({secs:t}); }
       else if (ev.action==='Red Card')   { reds.push({secs:t}); }
       else if (ev.action==='Black Card') { blacks.push({secs:t}); }
@@ -452,11 +453,12 @@ function buildPrintHTML() {
         else if (d.includes('Point removed')) psOppP=Math.max(0,psOppP-1);
       } else if (ev.badge==='ADJ') {
         const d=ev.desc||'';
-        if      (d.includes('Goal added'))   psUsG++;
-        else if (d.includes('2 Point added'))psUsP+=2;
-        else if (d.includes('Point added'))  psUsP++;
-        else if (d.includes('Goal removed')) psUsG=Math.max(0,psUsG-1);
-        else if (d.includes('Point removed'))psUsP=Math.max(0,psUsP-1);
+        const adjOpp = d.startsWith(state.oppN);
+        if      (d.includes('Goal added'))    { if(adjOpp) psOppG++; else psUsG++; }
+        else if (d.includes('2 Point added')) { if(adjOpp) psOppP+=2; else psUsP+=2; }
+        else if (d.includes('Point added'))   { if(adjOpp) psOppP++; else psUsP++; }
+        else if (d.includes('Goal removed'))  { if(adjOpp) psOppG=Math.max(0,psOppG-1); else psUsG=Math.max(0,psUsG-1); }
+        else if (d.includes('Point removed')) { if(adjOpp) psOppP=Math.max(0,psOppP-1); else psUsP=Math.max(0,psUsP-1); }
       }
       psScoreAt.push({usG:psUsG,usP:psUsP,oppG:psOppG,oppP:psOppP});
     });
@@ -488,6 +490,32 @@ function buildPrintHTML() {
       h += '</div>';
     });
     h += html`<div style="padding:6px 14px;font-size:10px;color:#9A9E99;">After = goals-pts scored from sub on (${state.usN} / ${state.oppN})</div>`;
+    h += '</div></div>';
+  }
+
+  // Play Time
+  const { ptMap: prPtMap } = computePlayTimes();
+  const prPtRows = Object.entries(prPtMap)
+    .map(([pi, t]) => ({pi:+pi, name:gn(+pi), t}))
+    .filter(r => r.name)
+    .sort((a, b) => b.t - a.t || a.name.localeCompare(b.name));
+  if (prPtRows.length) {
+    const prFmtT = secs => { const m=Math.floor(secs/60), sc=Math.round(secs%60); return m+':'+(sc<10?'0':'')+sc; };
+    const prStartPis = new Set(Object.values(state.startSlotp||{}).map(Number));
+    const prMaxT = prPtRows[0].t || 1;
+    h += '<div class="pr-section pr-section-flow">';
+    h += '<div class="pr-section-title">Play Time</div>';
+    h += '<div class="pr-card">';
+    prPtRows.forEach(r => {
+      const pct = Math.round(r.t / prMaxT * 100);
+      const isSub = !prStartPis.has(r.pi);
+      h += '<div style="display:flex;align-items:center;gap:10px;padding:4px 0;">';
+      h += `<div style="font-size:12px;font-weight:${isSub?'400':'600'};color:#1F1F1F;min-width:120px;white-space:nowrap;">${esc(r.name)}</div>`;
+      h += `<div style="flex:1;background:#E8EAE5;border-radius:3px;overflow:hidden;height:7px;"><div style="background:#2E7D32;opacity:${isSub?'.5':'1'};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
+      h += `<div style="font-size:12px;font-weight:700;color:#2E7D32;min-width:38px;text-align:right;">${prFmtT(r.t)}</div>`;
+      h += `<div style="font-size:10px;color:#9A9E99;min-width:22px;">${isSub?'Sub':''}</div>`;
+      h += '</div>';
+    });
     h += '</div></div>';
   }
 

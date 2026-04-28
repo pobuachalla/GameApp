@@ -27,11 +27,12 @@ function buildTimelineHTML() {
       else if (d.includes('Point removed'))  oppP=Math.max(0,oppP-1);
     } else if (ev.badge==='ADJ') {
       const d=ev.desc||'';
-      if      (d.includes('Goal added'))     { usG++; mType='Goal'; mTeam='us'; }
-      else if (d.includes('2 Point added'))  { usP+=2; mType='2 Point'; mTeam='us'; }
-      else if (d.includes('Point added'))    { usP++; mType='Point'; mTeam='us'; }
-      else if (d.includes('Goal removed'))   usG=Math.max(0,usG-1);
-      else if (d.includes('Point removed'))  usP=Math.max(0,usP-1);
+      const adjOpp = d.startsWith(state.oppN);
+      if      (d.includes('Goal added'))    { if(adjOpp){oppG++;mType='Goal';mTeam='opp';}else{usG++;mType='Goal';mTeam='us';} }
+      else if (d.includes('2 Point added')) { if(adjOpp){oppP+=2;mType='2 Point';mTeam='opp';}else{usP+=2;mType='2 Point';mTeam='us';} }
+      else if (d.includes('Point added'))   { if(adjOpp){oppP++;mType='Point';mTeam='opp';}else{usP++;mType='Point';mTeam='us';} }
+      else if (d.includes('Goal removed'))  { if(adjOpp) oppG=Math.max(0,oppG-1); else usG=Math.max(0,usG-1); }
+      else if (d.includes('Point removed')) { if(adjOpp) oppP=Math.max(0,oppP-1); else usP=Math.max(0,usP-1); }
     } else if (ev.action==='sub')        { subs.push({secs:t}); }
       else if (ev.action==='Red Card')   { reds.push({secs:t}); }
       else if (ev.action==='Black Card') { blacks.push({secs:t}); }
@@ -156,6 +157,65 @@ function buildSubTableHTML() {
 
   h+='<div style="padding:7px 12px;font-size:10px;color:var(--t3);">After = goals-pts scored from sub on ('+esc(state.usN)+' / '+esc(state.oppN)+')</div>';
   h+='</div></div>';
+  return h;
+}
+
+// ─── PLAY TIME ────────────────────────────────────────────────────────────────
+function computePlayTimes() {
+  const toSecs = s => { const p=(s||'0:00').split(':'); return parseInt(p[0]||0)*60+parseInt(p[1]||0); };
+  const teamSz = state.teamSize || 15;
+  const curSlotPi = {}, ptStart = {}, ptMap = {};
+
+  for (let sl = 1; sl <= teamSz; sl++) {
+    const pi = (state.startSlotp||{})[sl];
+    if (pi) { curSlotPi[sl] = pi; ptStart[pi] = 0; }
+  }
+
+  let halfSecs = 0, inH2 = false, lastSecs = 0;
+  state.evts.forEach(ev => {
+    let t = toSecs(ev.time);
+    if (ev.badge === '1H') { halfSecs = t; return; }
+    if (ev.badge === '2H') { inH2 = true; return; }
+    if (inH2) t += halfSecs;
+    lastSecs = Math.max(lastSecs, t);
+    if (ev.action === 'sub' && ev.slot != null) {
+      const offPi = curSlotPi[ev.slot];
+      const onM = (ev.desc||'').match(/\(#(\d+)\) on/);
+      const onPi = onM ? +onM[1] : null;
+      if (offPi != null && ptStart[offPi] != null) { ptMap[offPi] = (ptMap[offPi]||0) + (t - ptStart[offPi]); delete ptStart[offPi]; }
+      if (onPi != null) { ptStart[onPi] = t; curSlotPi[ev.slot] = onPi; }
+    }
+  });
+
+  const totalSecs = Math.max(lastSecs, halfSecs || 1);
+  Object.entries(ptStart).forEach(([pi, start]) => { ptMap[+pi] = (ptMap[+pi]||0) + (totalSecs - start); });
+  return { ptMap, totalSecs };
+}
+
+function buildPlayTimeHTML() {
+  if (!state.evts.some(ev => ev.action === 'sub')) return '';
+  const { ptMap } = computePlayTimes();
+  const fmtT = secs => { const m=Math.floor(secs/60), sc=Math.round(secs%60); return m+':'+(sc<10?'0':'')+sc; };
+  const startPis = new Set(Object.values(state.startSlotp||{}).map(Number));
+  const rows = Object.entries(ptMap)
+    .map(([pi, t]) => ({pi:+pi, name:gn(+pi), t}))
+    .filter(r => r.name)
+    .sort((a, b) => b.t - a.t || a.name.localeCompare(b.name));
+  if (!rows.length) return '';
+
+  const maxT = rows[0].t || 1;
+  let h = '<div class="stat-section"><div class="stat-section-title">Play Time</div><div class="stat-card" style="padding:8px 12px;">';
+  rows.forEach(r => {
+    const pct = Math.round(r.t / maxT * 100);
+    const isSub = !startPis.has(r.pi);
+    h += '<div style="display:flex;align-items:center;gap:10px;padding:5px 0;">';
+    h += `<div style="font-size:13px;font-weight:500;color:var(--t1);min-width:110px;white-space:nowrap;">${esc(r.name)}</div>`;
+    h += `<div style="flex:1;background:var(--bg3);border-radius:4px;overflow:hidden;height:8px;"><div style="background:#2E7D32;opacity:${isSub?'.55':'1'};width:${pct}%;height:100%;border-radius:4px;"></div></div>`;
+    h += `<div style="font-size:13px;font-weight:700;color:#2E7D32;min-width:40px;text-align:right;">${fmtT(r.t)}</div>`;
+    h += `<div style="font-size:10px;color:var(--t3);min-width:24px;">${isSub?'Sub':''}</div>`;
+    h += '</div>';
+  });
+  h += '</div></div>';
   return h;
 }
 
@@ -442,6 +502,9 @@ function buildStatsHTML() {
 
   // Substitutions
   h += buildSubTableHTML();
+
+  // Play Time
+  h += buildPlayTimeHTML();
 
   return h;
 }

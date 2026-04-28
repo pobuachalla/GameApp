@@ -224,6 +224,13 @@ function computeStats(st) {
   const tlSubs=[],tlReds=[],tlBlacks=[],tlMk=[];
   let tlUG=0,tlUP=0,tlOG=0,tlOP=0,tlHS=0,tlH2=false;
 
+  // Play time tracking
+  const teamSz=st.teamSize||15;
+  const ptCurSlot={};  // slot → pi currently in that slot
+  const ptStart={};    // pi → absolute secs when current stint began
+  const ptMap={};      // pi → total seconds played
+  for(let sl=1;sl<=teamSz;sl++){const pi=(st.startSlotp||{})[sl];if(pi){ptCurSlot[sl]=pi;ptStart[pi]=0;}}
+
   const shots=[];
   let smH2=false;
 
@@ -270,14 +277,20 @@ function computeStats(st) {
       else if(d.includes('Goal removed'))tlOG=Math.max(0,tlOG-1);
       else if(d.includes('Point removed'))tlOP=Math.max(0,tlOP-1);
     }else if(ev.badge==='ADJ'){
-      const d=ev.desc||'';
-      if(d.includes('Goal added')){tlUG++;mType='Goal';mTeam='us';}
-      else if(d.includes('2 Point added')){tlUP+=2;mType='2 Point';mTeam='us';}
-      else if(d.includes('Point added')){tlUP++;mType='Point';mTeam='us';}
-      else if(d.includes('Goal removed'))tlUG=Math.max(0,tlUG-1);
-      else if(d.includes('Point removed'))tlUP=Math.max(0,tlUP-1);
+      const d=ev.desc||'';const adjOpp=d.startsWith(st.oppN||'');
+      if(d.includes('Goal added')){if(adjOpp){tlOG++;mType='Goal';mTeam='opp';}else{tlUG++;mType='Goal';mTeam='us';}}
+      else if(d.includes('2 Point added')){if(adjOpp){tlOP+=2;mType='2 Point';mTeam='opp';}else{tlUP+=2;mType='2 Point';mTeam='us';}}
+      else if(d.includes('Point added')){if(adjOpp){tlOP++;mType='Point';mTeam='opp';}else{tlUP++;mType='Point';mTeam='us';}}
+      else if(d.includes('Goal removed')){if(adjOpp)tlOG=Math.max(0,tlOG-1);else tlUG=Math.max(0,tlUG-1);}
+      else if(d.includes('Point removed')){if(adjOpp)tlOP=Math.max(0,tlOP-1);else tlUP=Math.max(0,tlUP-1);}
     }else if(ev.action==='sub'){
       tlSubs.push({secs});
+      if(ev.slot!=null){
+        const offPi=ptCurSlot[ev.slot];
+        const onM=(ev.desc||'').match(/\(#(\d+)\) on/);const onPi=onM?+onM[1]:null;
+        if(offPi!=null&&ptStart[offPi]!=null){ptMap[offPi]=(ptMap[offPi]||0)+(secs-ptStart[offPi]);delete ptStart[offPi];}
+        if(onPi!=null){ptStart[onPi]=secs;ptCurSlot[ev.slot]=onPi;}
+      }
     }else if(ev.action==='Yellow Card'){if(p)p.yc++;
     }else if(ev.action==='Black Card'){if(p)p.bc++;tlBlacks.push({secs});
     }else if(ev.action==='Red Card'){if(p)p.rc++;tlReds.push({secs});
@@ -309,10 +322,13 @@ function computeStats(st) {
   const totalSecs=Math.max(tlD.length>1?tlD[tlD.length-1].secs:0,tlHS||0,1);
   tlD.push({secs:totalSecs,us:tlUG*3+tlUP,opp:tlOG*3+tlOP});
 
+  // Close out players still on field at full time
+  Object.entries(ptStart).forEach(([pi,start])=>{ptMap[+pi]=(ptMap[+pi]||0)+(totalSecs-start);});
+
   return {gC,pC,t2C,wC,pgC,ppC,pt2C,pwC,
     ownWon,ownLost,ownUnclear,oppWon,oppLost,oppUnclear,
     twon,tlost,freesConc,freesScored,
-    ps,shots,tlD,tlSubs,tlReds,tlBlacks,tlMk,tlHS,totalSecs,
+    ps,shots,tlD,tlSubs,tlReds,tlBlacks,tlMk,tlHS,totalSecs,ptMap,
     usG:tlUG,usP:tlUP,oppG:tlOG,oppP:tlOP};
 }
 
@@ -421,7 +437,7 @@ function buildReview(st) {
     else if(ev.action==='Point')sUP++;
     else if(ev.action==='2 Point')sUP+=2;
     else if(ev.badge==='OPP'){const d=ev.desc||'';if(d.includes('Goal added'))sOG++;else if(d.includes('2 Point added'))sOP+=2;else if(d.includes('Point added'))sOP++;else if(d.includes('Goal removed'))sOG=Math.max(0,sOG-1);else if(d.includes('Point removed'))sOP=Math.max(0,sOP-1);}
-    else if(ev.badge==='ADJ'){const d=ev.desc||'';if(d.includes('Goal added'))sUG++;else if(d.includes('2 Point added'))sUP+=2;else if(d.includes('Point added'))sUP++;else if(d.includes('Goal removed'))sUG=Math.max(0,sUG-1);else if(d.includes('Point removed'))sUP=Math.max(0,sUP-1);}
+    else if(ev.badge==='ADJ'){const d=ev.desc||'';const adjOpp=d.startsWith(st.oppN||'');if(d.includes('Goal added')){if(adjOpp)sOG++;else sUG++;}else if(d.includes('2 Point added')){if(adjOpp)sOP+=2;else sUP+=2;}else if(d.includes('Point added')){if(adjOpp)sOP++;else sUP++;}else if(d.includes('Goal removed')){if(adjOpp)sOG=Math.max(0,sOG-1);else sUG=Math.max(0,sUG-1);}else if(d.includes('Point removed')){if(adjOpp)sOP=Math.max(0,sOP-1);else sUP=Math.max(0,sUP-1);}}
     sSAt.push({usG:sUG,usP:sUP,oppG:sOG,oppP:sOP});
   });
 
@@ -620,22 +636,28 @@ function buildReview(st) {
 
   h+=`</div>`; // end rv-g3
 
-  // ─── Starting Lineup ─────────────────────────────────────────────────────
-  const teamSz=st.teamSize||15;
-  const hasNames=Object.values(st.pnames||{}).some(n=>n&&n.trim());
-  if(hasNames){
-    h+=`<div class="rv-full rv-card"><div class="rv-ctitle">Starting Line-up &mdash; ${esc(usN)}</div>`;
-    h+=`<div class="rv-lu-grid">`;
-    for(let i=1;i<=teamSz;i++){
-      const nm=gn(st,i)||(i===1?'GK':'#'+i);
-      const isCap=st.captain===i,isGK=i===1;
-      h+=`<div class="rv-lu-p${isGK?' gk':''}">`;
-      h+=`<div class="rv-lu-num">${i}</div>`;
-      h+=`<div class="rv-lu-name${isGK?' gk':''}">${esc(nm)}</div>`;
-      if(isCap)h+=`<div class="rv-lu-cap">© Captain</div>`;
-      h+=`</div>`;
-    }
-    h+=`</div></div>`;
+  // ─── Play Time ───────────────────────────────────────────────────────────
+  const ptRows=Object.entries(s.ptMap)
+    .map(([pi,t])=>({pi:+pi,name:pn(st,+pi),t}))
+    .filter(r=>r.name&&r.name.trim())
+    .sort((a,b)=>b.t-a.t||a.name.localeCompare(b.name));
+  if(ptRows.length){
+    const fmtT=secs=>{const m=Math.floor(secs/60),sc=Math.round(secs%60);return m+':'+(sc<10?'0':'')+sc;};
+    const maxT=ptRows[0].t||1;
+    const startPis=new Set(Object.values(st.startSlotp||{}).map(Number));
+    h+=`<div class="rv-full rv-card"><div class="rv-ctitle">Play Time &mdash; ${esc(usN)}</div>`;
+    h+=`<table style="width:100%;border-collapse:collapse;">`;
+    ptRows.forEach(r=>{
+      const pct=Math.round(r.t/maxT*100);
+      const isSub=!startPis.has(r.pi);
+      h+=`<tr>`;
+      h+=`<td style="padding:7px 12px 7px 0;font-size:13px;font-weight:600;color:var(--t1);white-space:nowrap;width:1%;">${esc(r.name)}</td>`;
+      h+=`<td style="padding:7px 12px;width:100%;"><div style="background:var(--green-l);border-radius:4px;overflow:hidden;height:9px;"><div style="background:var(--green);opacity:${isSub?'.55':'1'};width:${pct}%;height:100%;border-radius:4px;transition:width .3s;"></div></div></td>`;
+      h+=`<td style="padding:7px 0 7px 4px;font-size:13px;font-weight:700;color:var(--green);white-space:nowrap;text-align:right;">${fmtT(r.t)}</td>`;
+      h+=`<td style="padding:7px 0 7px 10px;font-size:11px;color:var(--t3);white-space:nowrap;">${isSub?'Sub':''}</td>`;
+      h+=`</tr>`;
+    });
+    h+=`</table></div>`;
   }
 
   h+=`<div class="rv-foot" style="display:flex;align-items:center;justify-content:center;gap:20px;">`;
