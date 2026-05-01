@@ -8,20 +8,22 @@ const AI_CONFIG = {
   // ── Targets ─────────────────────────────────────────────────────────────────
   targets: [
     {
-      id:    'claude',
-      label: 'Claude',
-      url:   'https://claude.ai/new',
-      icon:  'fa-brands fa-claude',
-      bg:    '#F3E5F5',
-      fg:    '#6A1B9A'
+      id:     'claude',
+      label:  'Claude',
+      url:    'https://claude.ai/new',
+      appUrl: 'claude://',
+      img:    'claude-logo.svg',
+      bg:     '#F3E5F5',
+      fg:     '#6A1B9A'
     },
     {
-      id:    'chatgpt',
-      label: 'ChatGPT',
-      url:   'https://chatgpt.com/',
-      icon:  'fa-brands fa-openai',
-      bg:    '#E8F5E9',
-      fg:    '#1B5E20'
+      id:     'chatgpt',
+      label:  'ChatGPT',
+      url:    'https://chatgpt.com/',
+      appUrl: 'chatgpt://',
+      img:    'openai-logo.svg',
+      bg:     '#E8F5E9',
+      fg:     '#1B5E20'
     }
   ],
 

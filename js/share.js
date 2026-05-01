@@ -310,13 +310,10 @@ function renderShareMainOpts() {
 
 function renderAITargetOpts() {
   let h = '<div class="share-opts">';
-  h += `<button class="share-opt" data-v="__back">`;
-  h += `<span class="share-opt-icon" style="background:#F0F2EE;color:var(--t3);"><i class="fas fa-arrow-left"></i></span>`;
-  h += `<span class="share-opt-label">Back</span><span></span>`;
-  h += `</button>`;
   AI_CONFIG.targets.forEach(t => {
     h += `<button class="share-opt" data-v="${t.id}">`;
-    h += `<span class="share-opt-icon" style="background:${t.bg};color:${t.fg};"><i class="${t.icon}"></i></span>`;
+    const iconHtml = t.img ? `<img src="${t.img}" width="20" height="20" style="display:block;opacity:0.85;">` : `<i class="${t.icon}"></i>`;
+    h += `<span class="share-opt-icon" style="background:${t.bg};color:${t.fg};">${iconHtml}</span>`;
     h += `<span class="share-opt-label">${t.label}</span>`;
     h += `<i class="fas fa-chevron-right share-opt-arrow"></i>`;
     h += `</button>`;
@@ -340,10 +337,27 @@ function shareWithAI(targetId) {
   const target = AI_CONFIG.targets.find(t => t.id === targetId);
   if (!target) return;
   const text = AI_CONFIG.buildPrompt(AI_CONFIG.buildPayload(state));
-  const open = () => { window.open(target.url, '_blank'); closeShareMenu(); };
+
+  const launch = () => {
+    closeShareMenu();
+    if (!target.appUrl || !/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+      window.open(target.url, '_blank');
+      return;
+    }
+    // Try native app; fall back to web if app not installed
+    let appOpened = false;
+    const onHide = () => { appOpened = true; };
+    document.addEventListener('visibilitychange', onHide, { once: true });
+    window.location.href = target.appUrl;
+    setTimeout(() => {
+      document.removeEventListener('visibilitychange', onHide);
+      if (!appOpened) window.open(target.url, '_blank');
+    }, 1200);
+  };
+
   navigator.clipboard.writeText(text)
-    .then(() => { open(); toast('Prompt copied — paste into ' + target.label); })
-    .catch(() => { open(); toast('Open ' + target.label + ' and paste your data'); });
+    .then(() => { toast('Prompt copied — paste into ' + target.label); launch(); })
+    .catch(() => { toast('Open ' + target.label + ' and paste your data'); launch(); });
 }
 
 function closeShareMenu() {
