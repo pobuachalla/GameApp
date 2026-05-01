@@ -21,6 +21,16 @@ function actCb(a) {
     showOpts('Advanced — reason?', advOpts, sub => { logEv('Advanced', sub); closeMod(); }, false);
     return;
   }
+  if (a==='Turnover Won' && state.trackTurnovers) {
+    const opts = ['First to the Ball','Tackle Turnover','Block','Defensive Pressure'];
+    if (state.sport === 'hurling') opts.splice(3, 0, 'Hook');
+    showOpts('Turnover Won — how?', opts, sub => { logEv(a, sub); closeMod(); }, false);
+    return;
+  }
+  if (a==='Turnover Lost' && state.trackTurnovers) {
+    showOpts('Turnover Lost — how?', ['Poor Pass','Lost in Tackle','Second to the Ball','Over Played','Isolated'], sub => { logEv(a, sub); closeMod(); }, false);
+    return;
+  }
   pendAct = a;
   let sec = NS[a];
   if (sec) {

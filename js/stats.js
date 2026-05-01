@@ -264,6 +264,7 @@ function buildStatsHTML() {
   let ownWon=0, ownLost=0, ownUnclear=0;
   let oppWon=0, oppLost=0, oppUnclear=0;
   let turnoversWon=0, turnoversLost=0;
+  const wonCategories = {}, lostCategories = {};
   const pstats = {};
 
   state.evts.forEach(ev => {
@@ -281,7 +282,7 @@ function buildStatsHTML() {
     const pi = ev.pi != null ? ev.pi : state.slotp[ev.slot];
     if (!pi) return;
     const placed = PLACED_BALL.has(ev.sec);
-    if (!pstats[pi]) pstats[pi] = {name:pl(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0,twon:0,tlost:0,frees:{}};
+    if (!pstats[pi]) pstats[pi] = {name:pl(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0,twon:0,tlost:0,twonSec:{},tlostSec:{},frees:{}};
     const ps = pstats[pi];
     if (ev.action === 'Goal')     { goalCount++;   placed ? (placedGoals++,  ps.gPlaced++) : ps.gPlay++; }
     else if (ev.action === 'Point')    { ptCount++;    placed ? (placedPts++,   ps.pPlaced++) : ps.pPlay++; }
@@ -290,8 +291,14 @@ function buildStatsHTML() {
     else if (ev.action === 'Yellow Card') ps.yc++;
     else if (ev.action === 'Red Card')   ps.rc++;
     else if (ev.action === 'Black Card') ps.bc++;
-    else if (ev.action === 'Turnover Won')  { turnoversWon++;  ps.twon++; }
-    else if (ev.action === 'Turnover Lost') { turnoversLost++; ps.tlost++; }
+    else if (ev.action === 'Turnover Won')  {
+      turnoversWon++;  ps.twon++;
+      if (state.trackTurnovers && ev.sec) { wonCategories[ev.sec]=(wonCategories[ev.sec]||0)+1; ps.twonSec[ev.sec]=(ps.twonSec[ev.sec]||0)+1; }
+    }
+    else if (ev.action === 'Turnover Lost') {
+      turnoversLost++; ps.tlost++;
+      if (state.trackTurnovers && ev.sec) { lostCategories[ev.sec]=(lostCategories[ev.sec]||0)+1; ps.tlostSec[ev.sec]=(ps.tlostSec[ev.sec]||0)+1; }
+    }
     else if (ev.action === 'Free') { const ft = ev.sec || 'Other'; ps.frees[ft] = (ps.frees[ft]||0) + 1; }
   });
 
@@ -440,8 +447,31 @@ function buildStatsHTML() {
         if (p.twon  > 0) h += `<span class="stat-tag green">+${p.twon}</span>`;
         if (p.tlost > 0) h += `<span class="stat-tag red">-${p.tlost}</span>`;
         h += '</div></div>';
+        if (state.trackTurnovers) {
+          const wonSecs  = Object.entries(p.twonSec).sort((a,b)=>b[1]-a[1]);
+          const lostSecs = Object.entries(p.tlostSec).sort((a,b)=>b[1]-a[1]);
+          if (wonSecs.length || lostSecs.length) {
+            h += '<div style="display:flex;gap:6px;flex-wrap:wrap;padding:2px 0 6px 2px;">';
+            wonSecs.forEach(([cat,n])  => h += `<span class="stat-tag green" style="font-size:10px;">${esc(cat)}${n>1?' ×'+n:''}</span>`);
+            lostSecs.forEach(([cat,n]) => h += `<span class="stat-tag red"   style="font-size:10px;">${esc(cat)}${n>1?' ×'+n:''}</span>`);
+            h += '</div>';
+          }
+        }
       });
       h += '</div>';
+    }
+    // Donut charts — only when detailed tracking is on and there is categorised data
+    if (state.trackTurnovers) {
+      const wonEntries  = Object.entries(wonCategories);
+      const lostEntries = Object.entries(lostCategories);
+      if (wonEntries.length || lostEntries.length) {
+        const WON_COLORS  = {'First to the Ball':'#1B5E20','Tackle Turnover':'#388E3C','Block':'#66BB6A','Hook':'#00897B','Defensive Pressure':'#A5D6A7'};
+        const LOST_COLORS = {'Poor Pass':'#B71C1C','Lost in Tackle':'#E53935','Second to the Ball':'#EF9A9A','Over Played':'#E65100','Isolated':'#FFAB91'};
+        h += '<div style="border-top:.5px solid var(--b);margin-top:12px;padding-top:12px;display:flex;gap:8px;justify-content:space-around;flex-wrap:wrap;">';
+        if (wonEntries.length)  h += buildTurnoverDonut('Won by type',  wonEntries,  WON_COLORS,  '#2E7D32');
+        if (lostEntries.length) h += buildTurnoverDonut('Lost by type', lostEntries, LOST_COLORS, '#C62828');
+        h += '</div>';
+      }
     }
     h += '</div></div>';
   }
@@ -507,6 +537,59 @@ function buildStatsHTML() {
   h += buildPlayTimeHTML();
 
   return h;
+}
+
+// ─── TURNOVER DONUT ───────────────────────────────────────────────────────────
+function buildTurnoverDonut(title, entries, colorMap, fallback) {
+  const total = entries.reduce((s, [,n]) => s + n, 0);
+  if (total === 0) return '';
+
+  const CX = 54, CY = 54, R = 46, IR = 24;
+  const GAP = 0.025; // radians gap between segments
+  let svg = `<svg width="108" height="108" viewBox="0 0 108 108" style="display:block;margin:0 auto;">`;
+
+  let angle = -Math.PI / 2;
+  entries.forEach(([cat, n]) => {
+    const sweep = (n / total) * 2 * Math.PI - (entries.length > 1 ? GAP : 0);
+    const a1 = angle + (entries.length > 1 ? GAP / 2 : 0);
+    const a2 = a1 + sweep;
+    const x1 = CX + R  * Math.cos(a1), y1 = CY + R  * Math.sin(a1);
+    const x2 = CX + R  * Math.cos(a2), y2 = CY + R  * Math.sin(a2);
+    const ix1= CX + IR * Math.cos(a2), iy1= CY + IR * Math.sin(a2);
+    const ix2= CX + IR * Math.cos(a1), iy2= CY + IR * Math.sin(a1);
+    const large = sweep > Math.PI ? 1 : 0;
+    const color = colorMap[cat] || fallback;
+    svg += `<path d="M${x1} ${y1} A${R} ${R} 0 ${large} 1 ${x2} ${y2} L${ix1} ${iy1} A${IR} ${IR} 0 ${large} 0 ${ix2} ${iy2}Z" fill="${color}"/>`;
+    if (sweep > 0.38) {
+      const midA = a1 + sweep / 2;
+      const lr = (R + IR) / 2;
+      svg += `<text x="${(CX + lr * Math.cos(midA)).toFixed(1)}" y="${(CY + lr * Math.sin(midA) + 3).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="600" fill="rgba(255,255,255,0.82)">${n}</text>`;
+    }
+    angle += (n / total) * 2 * Math.PI;
+  });
+
+  // Centre label
+  svg += `<text x="${CX}" y="${CY - 5}" text-anchor="middle" font-size="14" font-weight="700" fill="var(--t1)">${total}</text>`;
+  svg += `<text x="${CX}" y="${CY + 9}" text-anchor="middle" font-size="8"  fill="var(--t2)">total</text>`;
+  svg += '</svg>';
+
+  // Legend
+  let legend = '<div style="margin-top:6px;">';
+  entries.sort((a, b) => b[1] - a[1]).forEach(([cat, n]) => {
+    const pct = Math.round(n / total * 100);
+    const color = colorMap[cat] || fallback;
+    legend += `<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">
+      <span style="width:9px;height:9px;border-radius:50%;background:${color};flex-shrink:0;"></span>
+      <span style="font-size:10px;color:var(--t2);flex:1;line-height:1.3;">${esc(cat)}</span>
+      <span style="font-size:10px;font-weight:700;color:var(--t1);">${pct}%</span>
+    </div>`;
+  });
+  legend += '</div>';
+
+  return `<div style="flex:1;min-width:120px;max-width:160px;">
+    <div style="font-size:11px;font-weight:700;color:var(--t2);text-align:center;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">${esc(title)}</div>
+    ${svg}${legend}
+  </div>`;
 }
 
 // ─── SHOT MAP ─────────────────────────────────────────────────────────────────

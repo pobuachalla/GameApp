@@ -176,6 +176,7 @@ function buildPrintHTML() {
   let ownWon=0, ownLost=0, ownUnclear=0;
   let oppWon=0, oppLost=0, oppUnclear=0;
   let turnoversWon=0, turnoversLost=0;
+  const wonCategories = {}, lostCategories = {};
   const pstats = {};
 
   state.evts.forEach(ev => {
@@ -193,7 +194,7 @@ function buildPrintHTML() {
     const pi = ev.pi != null ? ev.pi : state.slotp[ev.slot];
     if (!pi) return;
     const placed = PLACED_BALL.has(ev.sec);
-    if (!pstats[pi]) pstats[pi] = {name:pl(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0,twon:0,tlost:0,frees:{}};
+    if (!pstats[pi]) pstats[pi] = {name:pl(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0,twon:0,tlost:0,twonSec:{},tlostSec:{},frees:{}};
     const ps = pstats[pi];
     if (ev.action === 'Goal')        { goalCount++;   placed ? (placedGoals++,  ps.gPlaced++) : ps.gPlay++; }
     else if (ev.action === 'Point')       { ptCount++;    placed ? (placedPts++,   ps.pPlaced++) : ps.pPlay++; }
@@ -202,8 +203,14 @@ function buildPrintHTML() {
     else if (ev.action === 'Yellow Card') ps.yc++;
     else if (ev.action === 'Red Card')    ps.rc++;
     else if (ev.action === 'Black Card')  ps.bc++;
-    else if (ev.action === 'Turnover Won')  { turnoversWon++;  ps.twon++; }
-    else if (ev.action === 'Turnover Lost') { turnoversLost++; ps.tlost++; }
+    else if (ev.action === 'Turnover Won')  {
+      turnoversWon++;  ps.twon++;
+      if (state.trackTurnovers && ev.sec) { wonCategories[ev.sec]=(wonCategories[ev.sec]||0)+1; ps.twonSec[ev.sec]=(ps.twonSec[ev.sec]||0)+1; }
+    }
+    else if (ev.action === 'Turnover Lost') {
+      turnoversLost++; ps.tlost++;
+      if (state.trackTurnovers && ev.sec) { lostCategories[ev.sec]=(lostCategories[ev.sec]||0)+1; ps.tlostSec[ev.sec]=(ps.tlostSec[ev.sec]||0)+1; }
+    }
     else if (ev.action === 'Free') { const ft = ev.sec || 'Other'; ps.frees[ft] = (ps.frees[ft]||0) + 1; }
   });
 
@@ -383,7 +390,29 @@ function buildPrintHTML() {
       if (p.twon  > 0) h += `<span class="pr-tag" style="margin-right:4px;">+${p.twon}</span>`;
       if (p.tlost > 0) h += `<span class="pr-tag" style="background:#F8D7D7;color:#991B1B;">-${p.tlost}</span>`;
       h += '</span></div>';
+      if (state.trackTurnovers) {
+        const wonSecs  = Object.entries(p.twonSec).sort((a,b)=>b[1]-a[1]);
+        const lostSecs = Object.entries(p.tlostSec).sort((a,b)=>b[1]-a[1]);
+        if (wonSecs.length || lostSecs.length) {
+          h += '<div style="display:flex;gap:5px;flex-wrap:wrap;padding:2px 0 4px 2px;">';
+          wonSecs.forEach(([cat,n])  => h += `<span class="pr-tag" style="font-size:10px;background:#DFF3E3;color:#2E7D32;">${esc(cat)}${n>1?' ×'+n:''}</span>`);
+          lostSecs.forEach(([cat,n]) => h += `<span class="pr-tag" style="font-size:10px;background:#F8D7D7;color:#991B1B;">${esc(cat)}${n>1?' ×'+n:''}</span>`);
+          h += '</div>';
+        }
+      }
     });
+    if (state.trackTurnovers) {
+      const wonEntries  = Object.entries(wonCategories);
+      const lostEntries = Object.entries(lostCategories);
+      if (wonEntries.length || lostEntries.length) {
+        const WON_COLORS  = {'First to the Ball':'#1B5E20','Tackle Turnover':'#388E3C','Block':'#66BB6A','Hook':'#00897B','Defensive Pressure':'#A5D6A7'};
+        const LOST_COLORS = {'Poor Pass':'#B71C1C','Lost in Tackle':'#E53935','Second to the Ball':'#EF9A9A','Over Played':'#E65100','Isolated':'#FFAB91'};
+        h += '<div style="border-top:1px solid #E2E4DE;margin-top:10px;padding-top:12px;display:flex;gap:8px;justify-content:space-around;flex-wrap:wrap;">';
+        if (wonEntries.length)  h += buildTurnoverDonut('Won by type',  wonEntries,  WON_COLORS,  '#2E7D32');
+        if (lostEntries.length) h += buildTurnoverDonut('Lost by type', lostEntries, LOST_COLORS, '#C62828');
+        h += '</div>';
+      }
+    }
     h += '</div></div>';
   }
 

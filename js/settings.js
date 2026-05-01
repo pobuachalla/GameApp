@@ -102,6 +102,11 @@ function openSettings(){
     pnumIcon.className = on ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
     pnumIcon.style.color = on ? '#2E7D32' : 'var(--t3)';
   }
+  const turnoverIcon = document.getElementById('turnover-icon');
+  if (turnoverIcon) {
+    turnoverIcon.className = state.trackTurnovers ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
+    turnoverIcon.style.color = state.trackTurnovers ? '#2E7D32' : 'var(--t3)';
+  }
   el['starting-lbl'].textContent = 'STARTING '+(state.teamSize||15);
   // eslint-disable-next-line no-restricted-syntax -- safe: clears element, no user data
   el.pslist.innerHTML='';
@@ -302,6 +307,16 @@ function onPlayerNumToggle() {
     icon.style.color = on ? '#2E7D32' : 'var(--t3)';
   }
   refAllBtns();
+}
+
+function onTurnoverToggle() {
+  state.trackTurnovers = !state.trackTurnovers;
+  saveState();
+  const icon = document.getElementById('turnover-icon');
+  if (icon) {
+    icon.className = state.trackTurnovers ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
+    icon.style.color = state.trackTurnovers ? '#2E7D32' : 'var(--t3)';
+  }
 }
 
 // ─── TEAM NAME TYPEAHEAD ──────────────────────────────────────────────────────

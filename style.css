@@ -141,16 +141,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .overtime{animation:flash-red 1s ease-in-out infinite;color:#E24B4A;}
 .gaa-toggle-wrap{display:block;width:100%;position:relative;cursor:pointer;user-select:none;}
 .gaa-toggle-wrap input{display:none;}
-.gaa-toggle-track{width:100%;height:52px;border-radius:var(--rl);background:var(--bg3);border:1.5px solid var(--bm);display:flex;align-items:center;position:relative;overflow:hidden;}
-.gaa-toggle-opt{flex:1;display:flex;align-items:center;justify-content:center;font-size:22px;position:relative;z-index:1;pointer-events:none;transition:color .25s;color:var(--t2);}
-.gaa-toggle-knob{position:absolute;top:4px;bottom:4px;width:calc(50% - 4px);left:4px;border-radius:calc(var(--rl) - 2px);background:#2E7D32;box-shadow:0 1px 6px rgba(0,0,0,.18);transition:left .25s;z-index:0;}
+.gaa-toggle-track{width:100%;height:40px;border-radius:var(--rl);background:var(--bg3);border:1.5px solid var(--bm);display:flex;align-items:center;position:relative;overflow:hidden;}
+.gaa-toggle-opt{flex:1;display:flex;align-items:center;justify-content:center;font-size:17px;position:relative;z-index:1;pointer-events:none;transition:color .25s;color:var(--t2);}
+.gaa-toggle-knob{position:absolute;top:3px;bottom:3px;width:calc(50% - 4px);left:4px;border-radius:calc(var(--rl) - 2px);background:#2E7D32;box-shadow:0 1px 6px rgba(0,0,0,.18);transition:left .25s;z-index:0;}
 .gaa-toggle-wrap input:checked + .gaa-toggle-track .gaa-toggle-knob{left:50%;}
 /* Hurling selected: baseball yellow */
 .gaa-toggle-wrap input:not(:checked) + .gaa-toggle-track .gaa-toggle-opt:nth-of-type(1){color:#FDD835;}
 /* Football selected: volleyball white */
 .gaa-toggle-wrap input:checked + .gaa-toggle-track .gaa-toggle-opt:nth-of-type(2){color:#fff;}
 /* Size opt text */
-.gaa-toggle-opt.size-opt{font-size:15px;font-weight:700;}
+.gaa-toggle-opt.size-opt{font-size:13px;font-weight:700;}
 /* Size: active number white */
 .gaa-toggle-wrap input:not(:checked) + .gaa-toggle-track .gaa-toggle-opt.size-opt:nth-of-type(1){color:#fff;}
 .gaa-toggle-wrap input:checked + .gaa-toggle-track .gaa-toggle-opt.size-opt:nth-of-type(2){color:#fff;}
@@ -183,14 +183,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ── Stats panel ──────────────────────────────────────────────────────────── */
 .drw-overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.42);z-index:72;}
 .drw-overlay.open{display:block;}
-.drw-panel{position:absolute;left:0;right:0;bottom:0;background:var(--bg1);border-radius:18px 18px 0 0;z-index:73;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);max-height:90%;display:flex;flex-direction:column;}
+.drw-panel{position:absolute;left:0;right:0;bottom:0;background:var(--bg1);border-radius:18px 18px 0 0;z-index:73;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);height:90%;display:flex;flex-direction:column;}
 .drw-panel.open{transform:translateY(0);}
 .drw-handle{width:40px;height:4px;background:var(--bm);border-radius:2px;margin:12px auto 4px;flex-shrink:0;cursor:pointer;}
 .drw-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 14px 10px;flex-shrink:0;border-bottom:.5px solid var(--b);}
 .drw-scroll{flex:1;overflow-y:auto;padding:14px 14px 32px;}
-.set-tabs{display:flex;gap:6px;padding:10px 14px;flex-shrink:0;border-bottom:.5px solid var(--b);}
-.set-tab{flex:1;padding:7px 0;border-radius:999px;border:.5px solid var(--bm);background:none;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:inherit;touch-action:manipulation;transition:background .15s,color .15s,border-color .15s;}
-.set-tab.active{background:#1F5B3A;color:#fff;border-color:#1F5B3A;}
+.set-tabs{display:flex;flex-shrink:0;border-bottom:1.5px solid var(--b);padding:0 4px;}
+.set-tab{flex:1;padding:11px 4px 9px;border:none;border-bottom:3px solid transparent;margin-bottom:-1.5px;background:none;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:inherit;touch-action:manipulation;transition:color .15s,border-color .15s;}
+.set-tab.active{color:#1F5B3A;border-bottom-color:#1F5B3A;font-weight:600;}
 .set-tab-pane{display:none;}
 .set-tab-pane.active{display:block;}
 .stats-overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.42);z-index:70;}

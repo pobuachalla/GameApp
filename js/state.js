@@ -20,6 +20,7 @@ const state = {
   captain:null,    // slot number of captain, or null
   trackShotLocations:false,
   showPlayerNumbers:true,
+  trackTurnovers:false,
 };
 for (let i = 1; i <= 15; i++) state.slotp[i] = i;
 

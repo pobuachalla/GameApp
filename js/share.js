@@ -10,8 +10,12 @@ function shareWA() {
 
 function shareCSV() {
   const csvEsc = v => '"' + String(v||'').replace(/"/g,'""') + '"';
-  const rows = [['Time','Event','Description','zone_id','zone_x','zone_y']];
-  state.evts.forEach(e => rows.push([e.time, e.badge, e.desc, e.zone?e.zone.id:'', e.zone?e.zone.coords.x.toFixed(4):'', e.zone?e.zone.coords.y.toFixed(4):'']));
+  const rows = [['Time','Event','Description','Action','Type','zone_id','zone_x','zone_y']];
+  state.evts.forEach(e => rows.push([
+    e.time, e.badge, e.desc,
+    e.action||'', e.sec||'',
+    e.zone?e.zone.id:'', e.zone?e.zone.coords.x.toFixed(4):'', e.zone?e.zone.coords.y.toFixed(4):''
+  ]));
   const csv = rows.map(r => r.map(csvEsc).join(',')).join('\r\n');
   const date = new Date().toISOString().slice(0,10);
   const safe = (state.usN||'match').replace(/[^a-z0-9]/gi,'_');
