@@ -263,15 +263,22 @@ function showLineupGraphic() {
 }
 
 function openShareMenu() {
-  const hasHT = state.evts.some(ev => ev.badge === '1H' && (ev.desc || '').includes('ended'));
-  const hasFT = state.matchState === 'FULL_TIME';
-  el.mtitle.textContent = 'Share';
+  document.getElementById('sharovly').classList.add('open');
+  el.sharpanel.classList.add('open');
+  renderShareMainOpts();
+}
+
+function renderShareMainOpts() {
+  const hasHT    = state.evts.some(ev => ev.badge === '1H' && (ev.desc || '').includes('ended'));
+  const hasFT    = state.matchState === 'FULL_TIME';
+  const hasEvts  = state.evts.length > 0;
 
   const opts = [
-    { v:'lu',   icon:'fa-solid fa-shirt',     label:'Starting Line-up',     bg:'#E8F5E9', fg:'#2E7D32' },
-    { v:'curr', icon:'fas fa-clock',           label:'Current Score Card',   bg:'#E3F2FD', fg:'#1565C0' },
-    { v:'ht',   icon:'fas fa-hourglass-half',  label:'Half Time Score Card', bg:'#FFFDE7', fg:'#E65100', guard:hasHT },
-    { v:'ft',   icon:'fas fa-flag-checkered',  label:'Full Time Score Card', bg:'#FFEBEE', fg:'#C62828', guard:hasFT },
+    { v:'lu',   icon:'fa-solid fa-shirt',       label:'Starting Line-up',     bg:'#E8F5E9', fg:'#2E7D32' },
+    { v:'curr', icon:'fas fa-clock',             label:'Current Score Card',   bg:'#E3F2FD', fg:'#1565C0' },
+    { v:'ht',   icon:'fas fa-hourglass-half',    label:'Half Time Score Card', bg:'#FFFDE7', fg:'#E65100', guard:hasHT },
+    { v:'ft',   icon:'fas fa-flag-checkered',    label:'Full Time Score Card', bg:'#FFEBEE', fg:'#C62828', guard:hasFT },
+    { v:'ai',   icon:'fas fa-brain',             label:'Analyse with AI',      bg:'#EDE7F6', fg:'#6A1B9A', guard:hasEvts },
   ];
 
   let h = '<div class="share-opts">';
@@ -284,17 +291,64 @@ function openShareMenu() {
     h += `</button>`;
   });
   h += '</div>';
+
+  const wrap = document.getElementById('share-opts-wrap');
   // eslint-disable-next-line no-restricted-syntax -- safe: all option values are static strings
-  el.mopts.innerHTML = h;
-  modalHandlerRef = (v) => {
-    closeMod();
+  wrap.innerHTML = h;
+  wrap.onclick = e => {
+    const btn = e.target.closest('[data-v]');
+    if (!btn) return;
+    const v = btn.dataset.v;
+    if (v === 'ai')   { renderAITargetOpts(); return; }
+    closeShareMenu();
     if (v === 'lu')   showLineupGraphic();
     if (v === 'curr') openCurrentScoreCard();
     if (v === 'ht')   showScoreGraphic('HT');
     if (v === 'ft')   showScoreGraphic('FT');
   };
-  el.mopts.addEventListener('click', handleModalClick);
-  el.modal.style.display = 'block';
+}
+
+function renderAITargetOpts() {
+  let h = '<div class="share-opts">';
+  h += `<button class="share-opt" data-v="__back">`;
+  h += `<span class="share-opt-icon" style="background:#F0F2EE;color:var(--t3);"><i class="fas fa-arrow-left"></i></span>`;
+  h += `<span class="share-opt-label">Back</span><span></span>`;
+  h += `</button>`;
+  AI_CONFIG.targets.forEach(t => {
+    h += `<button class="share-opt" data-v="${t.id}">`;
+    h += `<span class="share-opt-icon" style="background:${t.bg};color:${t.fg};"><i class="${t.icon}"></i></span>`;
+    h += `<span class="share-opt-label">${t.label}</span>`;
+    h += `<i class="fas fa-chevron-right share-opt-arrow"></i>`;
+    h += `</button>`;
+  });
+  h += '<div style="font-size:11px;color:var(--t3);line-height:1.5;padding:10px 4px 2px;">The match prompt and data will be copied to your clipboard. Paste it into the chat to begin analysis.</div>';
+  h += '</div>';
+
+  const wrap = document.getElementById('share-opts-wrap');
+  // eslint-disable-next-line no-restricted-syntax -- safe: all option values are static strings
+  wrap.innerHTML = h;
+  wrap.onclick = e => {
+    const btn = e.target.closest('[data-v]');
+    if (!btn) return;
+    const v = btn.dataset.v;
+    if (v === '__back') { renderShareMainOpts(); return; }
+    shareWithAI(v);
+  };
+}
+
+function shareWithAI(targetId) {
+  const target = AI_CONFIG.targets.find(t => t.id === targetId);
+  if (!target) return;
+  const text = AI_CONFIG.buildPrompt(AI_CONFIG.buildPayload(state));
+  const open = () => { window.open(target.url, '_blank'); closeShareMenu(); };
+  navigator.clipboard.writeText(text)
+    .then(() => { open(); toast('Prompt copied — paste into ' + target.label); })
+    .catch(() => { open(); toast('Open ' + target.label + ' and paste your data'); });
+}
+
+function closeShareMenu() {
+  document.getElementById('sharovly').classList.remove('open');
+  el.sharpanel.classList.remove('open');
 }
 
 // ─── LOG PANEL ────────────────────────────────────────────────────────────────

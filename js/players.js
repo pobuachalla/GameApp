@@ -2,8 +2,9 @@
 
 // ─── PLAYER ACTIONS ───────────────────────────────────────────────────────────
 function sel(s) {
-  const isHT = state.matchState === 'HALF_TIME';
-  if ((!tRun && !isHT) || state.rcarded[state.slotp[s]]) return;
+  const isHT     = state.matchState === 'HALF_TIME';
+  const isPaused = state.matchState === 'PAUSED_FIRST_HALF' || state.matchState === 'PAUSED_SECOND_HALF';
+  if ((!tRun && !isHT && !isPaused) || state.rcarded[state.slotp[s]]) return;
   selSlot = s;
   if (isHT) { subOff = selSlot; pickSubOn(); return; }
   const acts = state.sport==='football' ? ACTS : ACTS.filter(a => a !== '2 Point');

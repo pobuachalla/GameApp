@@ -45,7 +45,7 @@ function initEl() {
   ['timer-display','gc','pc','og','op','utotal','ototal','uslbl','opplbl',
    'evlog','logempty','lcnt','lbdg','toast','modal','mtitle','mopts',
    'period-badge','status-chip','timer-primary-btn','timer-secondary-btn',
-   'pgrid','logpanel','setpanel','seltoggle',
+   'pgrid','logpanel','setpanel','sharpanel','seltoggle',
    'removebar','removelbl','sun','son','pslist','bslist','tpllist','tni','starting-lbl'
   ].forEach(id => { el[id] = document.getElementById(id); });
 }

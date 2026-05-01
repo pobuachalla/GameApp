@@ -27,10 +27,7 @@ function importMatchJSON(input) {
       el.evlog.innerHTML = '';
       renderPGrid();
       restoreUI();
-      // Close settings panel directly — closeSettings() calls flushSettings() which
-      // would overwrite the freshly-imported state.pnames with stale DOM input values.
-      document.getElementById('setovly').classList.remove('open');
-      el.setpanel.classList.remove('open');
+      closeShareMenu();
       saveState();
       toast('Loaded: ' + (state.oppN || 'match'));
     } catch (err) {
