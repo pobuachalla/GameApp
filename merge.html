@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Match File Merger</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --green:#1a6b2f;
+  --green-d:#155225;
+  --green-bg:#f0faf2;
+  --red:#c0392b;
+  --amber:#b7770d;
+  --amber-bg:#fff8e1;
+  --bg:#eff1ef;
+  --surface:#fff;
+  --border:#dde3dd;
+  --text:#111;
+  --muted:#5a6b5a;
+  --radius:14px;
+  --shadow:0 2px 10px rgba(0,0,0,.09);
+}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  padding:16px 16px 40px;
+  max-width:560px;
+  margin:0 auto;
+  min-height:100vh;
+  font-size:16px;
+  line-height:1.5;
+}
+
+/* ── Header ── */
+header{padding:12px 0 4px;margin-bottom:4px}
+header h1{font-size:1.35rem;font-weight:800;color:var(--green);letter-spacing:-.3px}
+header p{font-size:.85rem;color:var(--muted);margin-top:1px}
+
+/* ── Step indicator ── */
+.steps{display:flex;align-items:center;margin:14px 0 18px}
+.step{
+  flex:0 0 auto;
+  font-size:.72rem;
+  font-weight:700;
+  color:var(--muted);
+  padding:5px 11px;
+  border-radius:20px;
+  background:var(--surface);
+  border:2px solid var(--border);
+  white-space:nowrap;
+  letter-spacing:.2px;
+}
+.step.active{color:#fff;background:var(--green);border-color:var(--green)}
+.step.done{color:var(--green);border-color:var(--green)}
+.step-line{flex:1;height:2px;background:var(--border);margin:0 4px}
+
+/* ── Cards ── */
+.card{background:var(--surface);border-radius:var(--radius);padding:20px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card h2{font-size:1rem;font-weight:700;margin-bottom:12px}
+.help{font-size:.82rem;color:var(--muted);margin-bottom:12px;line-height:1.5}
+
+/* ── File drop zone ── */
+.drop-zone{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:2px dashed var(--border);border-radius:12px;
+  padding:30px 16px;cursor:pointer;
+  transition:border-color .18s,background .18s;
+  margin-bottom:14px;
+  -webkit-tap-highlight-color:transparent;
+}
+.drop-zone:active,.drop-zone.over{border-color:var(--green);background:var(--green-bg)}
+.drop-zone input{display:none}
+.drop-icon{font-size:2.2rem;margin-bottom:8px;line-height:1}
+.drop-text{font-weight:700;font-size:1rem;color:var(--green)}
+.drop-sub{font-size:.8rem;color:var(--muted);margin-top:3px}
+
+/* ── File list ── */
+.file-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:9px;background:#f6f8f6;
+  margin-bottom:8px;font-size:.85rem;
+}
+.file-item .fname{flex:1;font-weight:600;word-break:break-all;line-height:1.4}
+.fbadge{font-size:.68rem;padding:3px 9px;border-radius:12px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.fbadge.ok{background:#e8f5e9;color:#1b5e20}
+.fbadge.err{background:#ffebee;color:#b71c1c}
+.fbadge.primary{background:var(--green);color:#fff}
+.file-rm{background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--muted);padding:4px 2px;line-height:1;flex-shrink:0}
+
+/* ── Warning / info boxes ── */
+.warn-box{background:var(--amber-bg);border-left:4px solid var(--amber);border-radius:8px;padding:10px 13px;font-size:.82rem;color:#5d4037;margin-bottom:12px;line-height:1.5}
+.info-box{background:var(--green-bg);border-left:4px solid var(--green);border-radius:8px;padding:10px 13px;font-size:.82rem;color:#1b4d27;margin-bottom:12px;line-height:1.5}
+
+/* ── Buttons ── */
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  min-height:52px;padding:12px 20px;
+  border-radius:11px;border:none;
+  font-size:1rem;font-weight:700;cursor:pointer;width:100%;
+  margin-top:10px;transition:opacity .12s,background .12s;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn:active:not(:disabled){opacity:.72}
+.btn-primary{background:var(--green);color:#fff}
+.btn-ghost{background:transparent;border:2px solid var(--green);color:var(--green)}
+.btn-red{background:var(--red);color:#fff}
+.btn-amber{background:var(--amber);color:#fff}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.btn-row .btn{margin-top:0}
+
+/* ── Options ── */
+.opt-group{margin-bottom:20px}
+.opt-label{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:.9rem;margin-bottom:8px}
+.opt-label .val{font-weight:800;color:var(--green);font-size:1rem}
+input[type=range]{width:100%;height:6px;accent-color:var(--green);cursor:pointer}
+.toggle-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:0}
+.tog{
+  min-height:56px;padding:10px 12px;border-radius:9px;
+  border:2px solid var(--border);background:var(--surface);
+  font-size:.88rem;font-weight:700;cursor:pointer;color:var(--muted);
+  transition:.15s;text-align:center;line-height:1.35;
+  -webkit-tap-highlight-color:transparent;
+}
+.tog .sub{font-size:.72rem;font-weight:400;display:block;margin-top:2px}
+.tog.on{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+
+/* ── Primary radio list ── */
+.primary-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;border-radius:10px;border:2px solid var(--border);
+  margin-bottom:8px;cursor:pointer;transition:.15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.primary-item.on{border-color:var(--green);background:var(--green-bg)}
+.primary-item .pname{flex:1;font-size:.85rem;font-weight:600;word-break:break-all}
+.radio-circle{
+  width:22px;height:22px;border-radius:50%;border:2px solid var(--border);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:.15s;
+}
+.primary-item.on .radio-circle{border-color:var(--green);background:var(--green)}
+.radio-dot{width:8px;height:8px;border-radius:50%;background:#fff}
+
+/* ── Conflict cards ── */
+.conflict-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.conflict-hdr h2{margin-bottom:0}
+.conflict-count{font-size:.8rem;color:var(--muted);font-weight:600;white-space:nowrap;padding-top:3px}
+.c-badge{
+  display:inline-block;padding:4px 12px;border-radius:20px;
+  font-size:.8rem;font-weight:800;background:#eee;color:#333;
+  margin-bottom:6px;letter-spacing:.5px;
+}
+.c-event{font-size:1rem;font-weight:700;margin-bottom:2px}
+.c-time{font-size:.82rem;color:var(--muted);margin-bottom:16px}
+.c-options{display:flex;flex-direction:column;gap:9px}
+.c-opt{
+  display:flex;align-items:center;gap:12px;padding:13px 14px;
+  border-radius:10px;border:2px solid var(--border);cursor:pointer;
+  transition:.15s;-webkit-tap-highlight-color:transparent;
+}
+.c-opt.sel{border-color:var(--green);background:var(--green-bg)}
+.c-opt-src{font-size:.72rem;color:var(--muted);font-weight:700;min-width:54px;line-height:1.4}
+.c-opt-detail{flex:1}
+.c-opt-player{font-weight:700;font-size:.9rem}
+.c-opt-meta{font-size:.75rem;color:var(--muted);margin-top:1px}
+.c-opt-note{font-size:.78rem;color:var(--muted);font-style:italic}
+
+/* ── Summary table ── */
+.sum-table{width:100%;border-collapse:collapse;font-size:.88rem;margin-bottom:4px}
+.sum-table td{padding:8px 2px;border-bottom:1px solid var(--border)}
+.sum-table td:last-child{text-align:right;font-weight:800;color:var(--green)}
+.sum-table tr:last-child td{border-bottom:none}
+.sum-divider td{border-bottom:2px solid var(--border)!important;padding-bottom:10px}
+
+.game-meta{font-size:.85rem;color:var(--muted);line-height:1.8}
+.game-meta strong{color:var(--text)}
+
+.conflict-log-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;border-radius:8px;background:#f6f8f6;
+  margin-bottom:7px;font-size:.82rem;
+}
+.conflict-log-item .cldesc{flex:1;line-height:1.4;color:var(--text)}
+.conflict-log-item .clres{flex-shrink:0}
+
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Match File Merger</h1>
+  <p>Combine tracking files from multiple coaches</p>
+</header>
+
+<div class="steps">
+  <div class="step active" id="s1">Files</div>
+  <div class="step-line"></div>
+  <div class="step" id="s2">Options</div>
+  <div class="step-line"></div>
+  <div class="step" id="s3">Review</div>
+  <div class="step-line"></div>
+  <div class="step" id="s4">Export</div>
+</div>
+
+<!-- ───────── STEP 1: Upload ───────── -->
+<div id="v1">
+  <div class="card">
+    <h2>Load Files</h2>
+    <p class="help">Select 2 or more game JSON files exported from the app. Files must be for the same match.</p>
+    <label class="drop-zone" id="drop-zone">
+      <input type="file" id="file-input" multiple accept=".json">
+      <span class="drop-icon">📂</span>
+      <span class="drop-text">Tap to select files</span>
+      <span class="drop-sub">or drag &amp; drop here</span>
+    </label>
+    <div id="file-list"></div>
+    <div id="file-warn" class="warn-box hidden"></div>
+    <button class="btn btn-primary" id="btn-to-2" disabled>Continue →</button>
+  </div>
+</div>
+
+<!-- ───────── STEP 2: Options ───────── -->
+<div id="v2" class="hidden">
+  <div class="card" id="game-card"></div>
+  <div class="card">
+    <h2>Merge Options</h2>
+
+    <div class="opt-group">
+      <div class="opt-label">Time tolerance <span class="val" id="tol-val">30s</span></div>
+      <input type="range" id="tol-range" min="5" max="90" value="30" step="5">
+      <p class="help" style="margin-top:8px">Events within this window are treated as the same action. 30s works well for most sideline reaction times.</p>
+    </div>
+
+    <div class="opt-group">
+      <div class="opt-label">Conflict mode</div>
+      <div class="toggle-row">
+        <button class="tog on" id="tog-interactive" onclick="setMode('interactive')">
+          Interactive
+          <span class="sub">Review each conflict</span>
+        </button>
+        <button class="tog" id="tog-auto" onclick="setMode('auto')">
+          Auto
+          <span class="sub">Primary file wins</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="opt-group" id="primary-group">
+      <div class="opt-label">Primary file</div>
+      <p class="help" style="margin-top:-6px">Metadata and tie-breaks come from this file.</p>
+      <div id="primary-list"></div>
+    </div>
+
+    <button class="btn btn-primary" id="btn-merge">Merge Files</button>
+    <button class="btn btn-ghost" id="btn-back-1" style="margin-top:8px">← Back</button>
+  </div>
+</div>
+
+<!-- ───────── STEP 3: Conflicts ───────── -->
+<div id="v3" class="hidden">
+  <div class="card">
+    <div class="conflict-hdr">
+      <h2>Resolve Conflicts</h2>
+      <span class="conflict-count" id="c-counter"></span>
+    </div>
+    <p class="help">Same event type, different players. Choose which version to keep.</p>
+    <div id="c-body"></div>
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn btn-ghost" id="btn-cprev" disabled>← Prev</button>
+      <button class="btn btn-primary" id="btn-cnext">Next →</button>
+    </div>
+    <button class="btn btn-ghost" id="btn-finish-c" style="margin-top:8px">Finish &amp; Export →</button>
+  </div>
+</div>
+
+<!-- ───────── STEP 4: Results ───────── -->
+<div id="v4" class="hidden">
+  <div class="card">
+    <h2>Merge Complete</h2>
+    <table class="sum-table" id="sum-table"></table>
+  </div>
+  <div class="card hidden" id="conflict-log-card">
+    <h2>Conflict Log</h2>
+    <div id="conflict-log"></div>
+  </div>
+  <div class="card">
+    <button class="btn btn-primary" id="btn-dl">↓ Download Merged File</button>
+    <button class="btn btn-ghost" id="btn-restart" style="margin-top:8px">Start Over</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ─── Constants ────────────────────────────────
+const STRUCTURAL = new Set(['1H', '2H', 'END']);
+
+// ─── App state ────────────────────────────────
+const S = {
+  files: [],          // [{name, data}] — only valid files stored
+  raw: [],            // [{name, data|error}] — all attempted
+  opts: { tol: 30, mode: 'interactive', priIdx: 0 },
+  analysis: null,
+  resolutions: [],    // 'primary'|'secondary'|'both'|'skip' per conflict index
+  curConflict: 0,
+  merged: null        // final output data object
+};
+
+// ─── Helpers ─────────────────────────────────
+const $ = id => document.getElementById(id);
+const hidden = (el, v) => el.classList.toggle('hidden', v);
+
+function timeToSecs(t) {
+  if (!t) return 0;
+  const p = String(t).split(':');
+  return parseInt(p[0] || 0, 10) * 60 + parseInt(p[1] || 0, 10);
+}
+
+function playerLabel(data, slot) {
+  if (slot == null) return null;
+  const name = (data.pnames || {})[String(slot)];
+  return name ? `${name} (#${slot})` : `#${slot}`;
+}
+
+// ─── File loading ─────────────────────────────
+const dropZone = $('drop-zone');
+const fileInput = $('file-input');
+
+fileInput.addEventListener('change', e => readFiles(e.target.files));
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('over'); readFiles(e.dataTransfer.files); });
+
+function readFiles(list) {
+  const promises = Array.from(list).map(f => new Promise(res => {
+    if (S.files.find(x => x.name === f.name)) { res(null); return; }
+    const r = new FileReader();
+    r.onload = e => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (!Array.isArray(data.evts)) throw new Error('Missing evts array');
+        res({ name: f.name, data });
+      } catch (err) {
+        res({ name: f.name, error: err.message });
+      }
+    };
+    r.readAsText(f);
+  }));
+
+  Promise.all(promises).then(results => {
+    for (const r of results) {
+      if (!r) continue;
+      if (!S.files.find(x => x.name === r.name) && !r.error) S.files.push(r);
+      if (!S.raw.find(x => x.name === r.name)) S.raw.push(r);
+    }
+    renderFileList();
+    validateStep1();
+    // Reset file input so same files can be re-selected
+    fileInput.value = '';
+  });
+}
+
+function removeFile(name) {
+  S.files = S.files.filter(f => f.name !== name);
+  S.raw = S.raw.filter(f => f.name !== name);
+  renderFileList();
+  validateStep1();
+}
+
+function renderFileList() {
+  const el = $('file-list');
+  if (!S.raw.length) { el.innerHTML = ''; return; }
+  el.innerHTML = S.raw.map(f => `
+    <div class="file-item">
+      <span class="fname">${f.name}</span>
+      ${f.error
+        ? `<span class="fbadge err">Invalid</span>`
+        : `<span class="fbadge ok">${f.data.evts.length} events</span>`}
+      <button class="file-rm" onclick="removeFile('${f.name.replace(/'/g,"\\'")}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function validateStep1() {
+  const btn = $('btn-to-2');
+  const warn = $('file-warn');
+
+  if (S.files.length < 2) {
+    btn.disabled = true;
+    hidden(warn, true);
+    return;
+  }
+
+  // Check same game (opponent + date)
+  const ref = S.files[0].data;
+  const mismatch = S.files.some(f => f.data.oppN !== ref.oppN || f.data.matchDate !== ref.matchDate);
+  if (mismatch) {
+    warn.textContent = '⚠ Files may not be from the same match — opponent or date differs. Double-check before merging.';
+    hidden(warn, false);
+  } else {
+    hidden(warn, true);
+  }
+
+  btn.disabled = false;
+}
+
+// ─── Navigation ───────────────────────────────
+function setStep(n) {
+  [1,2,3,4].forEach(i => {
+    hidden($(`v${i}`), i !== n);
+    const s = $(`s${i}`);
+    s.classList.toggle('active', i === n);
+    s.classList.toggle('done', i < n);
+  });
+}
+
+$('btn-to-2').addEventListener('click', () => { buildStep2(); setStep(2); });
+$('btn-back-1').addEventListener('click', () => setStep(1));
+$('btn-merge').addEventListener('click', runMerge);
+$('btn-restart').addEventListener('click', restart);
+
+function restart() {
+  S.files = []; S.raw = []; S.analysis = null; S.resolutions = []; S.merged = null; S.curConflict = 0;
+  renderFileList();
+  validateStep1();
+  setStep(1);
+}
+
+// ─── Step 2: Options ─────────────────────────
+function buildStep2() {
+  const ref = S.files[0].data;
+
+  // Game card
+  $('game-card').innerHTML = `
+    <h2>Match</h2>
+    <div class="game-meta">
+      <strong>${ref.usN || 'Team'}</strong> vs <strong>${ref.oppN || 'Opposition'}</strong><br>
+      ${ref.matchDate || 'Date unknown'}${ref.competition ? ' · ' + ref.competition : ''}${ref.location ? ' · ' + ref.location : ''}
+    </div>
+  `;
+
+  // Primary file list
+  $('primary-list').innerHTML = S.files.map((f, i) => `
+    <div class="primary-item ${i === S.opts.priIdx ? 'on' : ''}" id="pri-item-${i}" onclick="setPrimary(${i})">
+      <div class="radio-circle"><div class="radio-dot" style="display:${i === S.opts.priIdx ? 'block' : 'none'}"></div></div>
+      <span class="pname">${f.name}</span>
+      <span class="fbadge ${i === S.opts.priIdx ? 'primary' : 'ok'}">${f.data.evts.length} evt</span>
+    </div>
+  `).join('');
+}
+
+function setPrimary(idx) {
+  S.opts.priIdx = idx;
+  S.files.forEach((_, i) => {
+    const el = $(`pri-item-${i}`);
+    if (!el) return;
+    el.classList.toggle('on', i === idx);
+    const dot = el.querySelector('.radio-dot');
+    const badge = el.querySelector('.fbadge');
+    if (dot) dot.style.display = i === idx ? 'block' : 'none';
+    if (badge) { badge.className = `fbadge ${i === idx ? 'primary' : 'ok'}`; }
+  });
+}
+
+function setMode(mode) {
+  S.opts.mode = mode;
+  $('tog-interactive').classList.toggle('on', mode === 'interactive');
+  $('tog-auto').classList.toggle('on', mode === 'auto');
+}
+
+$('tol-range').addEventListener('input', e => {
+  S.opts.tol = parseInt(e.target.value, 10);
+  $('tol-val').textContent = `${S.opts.tol}s`;
+});
+
+// ─── Core merge algorithm ─────────────────────
+
+function findBestMatch(ev, candidates, used, tol) {
+  const evSec = timeToSecs(ev.time);
+  let bestIdx = -1, bestScore = -Infinity;
+  candidates.forEach((c, i) => {
+    if (used.has(i) || c.badge !== ev.badge) return;
+    const dt = Math.abs(timeToSecs(c.time) - evSec);
+    if (dt > tol) return;
+    // Higher score = closer in time + bonus for same player slot
+    const score = (tol - dt) + (ev.slot != null && c.slot != null && ev.slot === c.slot ? 1000 : 0);
+    if (score > bestScore) { bestScore = score; bestIdx = i; }
+  });
+  return bestIdx;
+}
+
+function analyze(files, tol, priIdx) {
+  const pri = files[priIdx] || files[0];
+  const secs = files.filter((_, i) => i !== (priIdx < files.length ? priIdx : 0));
+
+  const priEvts = pri.data.evts || [];
+  const priStructural = priEvts.filter(e => STRUCTURAL.has(e.badge));
+  const priGame = priEvts.filter(e => !STRUCTURAL.has(e.badge));
+
+  // Track which primary game events are claimed
+  const usedInPri = new Set();
+  const matched = [];     // { pri, sec } — same event, deduplicated
+  const conflicts = [];   // { pri, sec, priFile, secFile } — same event, different player
+  const uniqueSec = [];   // events missed by primary
+
+  for (const secFile of secs) {
+    const secEvts = (secFile.data.evts || []).filter(e => !STRUCTURAL.has(e.badge));
+    const usedInSec = new Set();
+
+    for (let si = 0; si < secEvts.length; si++) {
+      const sev = secEvts[si];
+      const pi = findBestMatch(sev, priGame, usedInPri, tol);
+
+      if (pi >= 0) {
+        usedInPri.add(pi);
+        usedInSec.add(si);
+        const pev = priGame[pi];
+        const playerConflict = pev.slot != null && sev.slot != null && pev.slot !== sev.slot;
+
+        if (playerConflict) {
+          conflicts.push({ pri: pev, sec: sev, priFile: pri, secFile });
+        } else {
+          // Deduplicate — record enrichment candidates from secondary
+          matched.push({
+            pri: pev,
+            sec: sev,
+            zone: pev.zone || sev.zone,
+            slot: pev.slot ?? sev.slot,
+            pi_: pev.pi ?? sev.pi
+          });
+        }
+      } else if (!usedInSec.has(si)) {
+        uniqueSec.push({ ev: sev, file: secFile });
+      }
+    }
+  }
+
+  // Primary events that weren't matched or conflicted
+  const conflictPriEvts = new Set(conflicts.map(c => c.pri));
+  const uniquePri = priGame.filter((e, i) => !usedInPri.has(i) && !conflictPriEvts.has(e));
+
+  return { pri, secs, priStructural, priGame, matched, conflicts, uniqueSec, uniquePri };
+}
+
+function buildOutput(analysis, resolutions) {
+  const a = analysis;
+  const events = [];
+
+  // 1. Structural from primary (half-time, full-time markers)
+  events.push(...a.priStructural.map(e => ({ ...e })));
+
+  // 2. Matched events — use primary as base, fill in any gaps from secondary
+  for (const m of a.matched) {
+    const ev = { ...m.pri };
+    if (m.zone) ev.zone = m.zone;
+    if (m.slot != null) ev.slot = m.slot;
+    if (m.pi_ != null) ev.pi = m.pi_;
+    events.push(ev);
+  }
+
+  // 3. Primary-only events
+  events.push(...a.uniquePri.map(e => ({ ...e })));
+
+  // 4. Secondary-only events (missed by primary coach)
+  events.push(...a.uniqueSec.map(({ ev }) => ({ ...ev })));
+
+  // 5. Conflict resolutions
+  for (let i = 0; i < a.conflicts.length; i++) {
+    const { pri, sec } = a.conflicts[i];
+    const res = resolutions[i] || 'primary';
+    if (res === 'primary')   events.push({ ...pri });
+    if (res === 'secondary') events.push({ ...sec });
+    if (res === 'both')      { events.push({ ...pri }); events.push({ ...sec }); }
+    // 'skip' → omit
+  }
+
+  // Sort all events by time
+  events.sort((a, b) => timeToSecs(a.time) - timeToSecs(b.time));
+
+  // Recalculate scores:
+  // Start from primary's scores, then add for events unique to secondary,
+  // then subtract for any scoring events skipped via conflict resolution.
+  let { goals = 0, pts = 0, og = 0, op_ = 0 } = a.pri.data;
+
+  for (const { ev } of a.uniqueSec) {
+    if (ev.badge === 'G') goals++;
+    else if (ev.badge === 'P') pts++;
+    else if (ev.badge === 'OPP') {
+      if ((ev.desc || '').toLowerCase().includes('goal')) og++;
+      else op_++;
+    }
+  }
+
+  for (let i = 0; i < a.conflicts.length; i++) {
+    const res = resolutions[i] || 'primary';
+    if (res !== 'skip') continue;
+    const { pri } = a.conflicts[i];
+    // Skipping a primary scoring event means removing it from the count
+    if (pri.badge === 'G') goals--;
+    else if (pri.badge === 'P') pts--;
+    else if (pri.badge === 'OPP') {
+      if ((pri.desc || '').toLowerCase().includes('goal')) og--;
+      else op_--;
+    }
+  }
+
+  return {
+    ...a.pri.data,
+    goals, pts, og, op_,
+    evts: events,
+    _mergedFrom: [a.pri.name, ...a.secs.map(f => f.name)],
+    _mergedAt: new Date().toISOString()
+  };
+}
+
+// ─── Run merge ────────────────────────────────
+function runMerge() {
+  const { tol, mode, priIdx } = S.opts;
+  S.analysis = analyze(S.files, tol, priIdx);
+  S.resolutions = new Array(S.analysis.conflicts.length).fill(null);
+
+  if (mode === 'auto' || S.analysis.conflicts.length === 0) {
+    S.resolutions.fill('primary');
+    S.merged = buildOutput(S.analysis, S.resolutions);
+    buildStep4();
+    setStep(4);
+  } else {
+    S.curConflict = 0;
+    buildStep3();
+    setStep(3);
+  }
+}
+
+// ─── Step 3: Conflict resolution UI ──────────
+function buildStep3() {
+  renderConflict(0);
+
+  $('btn-cprev').addEventListener('click', () => {
+    if (S.curConflict > 0) { S.curConflict--; renderConflict(S.curConflict); }
+  });
+  $('btn-cnext').addEventListener('click', () => {
+    if (S.curConflict < S.analysis.conflicts.length - 1) {
+      S.curConflict++;
+      renderConflict(S.curConflict);
+    }
+  });
+  $('btn-finish-c').addEventListener('click', finalise);
+}
+
+function renderConflict(idx) {
+  const a = S.analysis;
+  const c = a.conflicts[idx];
+  const total = a.conflicts.length;
+
+  $('c-counter').textContent = `${idx + 1} / ${total}`;
+  $('btn-cprev').disabled = idx === 0;
+  $('btn-cnext').disabled = idx === total - 1;
+  // Show finish button only on last conflict
+  hidden($('btn-finish-c'), idx < total - 1);
+
+  const priLabel = playerLabel(c.priFile.data, c.pri.slot) || 'Unknown player';
+  const secLabel = playerLabel(c.secFile.data, c.sec.slot) || 'Unknown player';
+  const isScoring = ['G', 'P', 'OPP'].includes(c.pri.badge);
+  const cur = S.resolutions[idx];
+
+  const opts = [
+    {
+      id: 'primary',
+      src: shortName(c.priFile.name) + ' (primary)',
+      player: priLabel,
+      time: c.pri.time,
+      note: null
+    },
+    {
+      id: 'secondary',
+      src: shortName(c.secFile.name),
+      player: secLabel,
+      time: c.sec.time,
+      note: null
+    },
+    {
+      id: 'both',
+      src: 'Keep both',
+      player: null,
+      time: null,
+      note: isScoring ? '⚠ Will double-count this score' : 'Adds both versions to the log'
+    },
+    {
+      id: 'skip',
+      src: 'Skip both',
+      player: null,
+      time: null,
+      note: isScoring ? '⚠ Removes this score from the total' : 'Removes this event entirely'
+    }
+  ];
+
+  $('c-body').innerHTML = `
+    <span class="c-badge">${c.pri.badge}</span>
+    <div class="c-event">${c.pri.action || c.pri.desc || c.pri.badge}</div>
+    <div class="c-time">~${c.pri.time} &mdash; same event, different player attribution</div>
+    <div class="c-options">
+      ${opts.map(o => `
+        <div class="c-opt ${cur === o.id ? 'sel' : ''}" onclick="selectRes(${idx}, '${o.id}')">
+          <span class="c-opt-src">${o.src}</span>
+          <div class="c-opt-detail">
+            ${o.player != null
+              ? `<div class="c-opt-player">${o.player}</div>
+                 <div class="c-opt-meta">at ${o.time}</div>`
+              : `<div class="c-opt-note">${o.note || ''}</div>`
+            }
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function selectRes(idx, choice) {
+  S.resolutions[idx] = choice;
+  renderConflict(idx);
+}
+
+function finalise() {
+  // Default any untouched conflicts to primary
+  S.resolutions = S.resolutions.map(r => r || 'primary');
+  S.merged = buildOutput(S.analysis, S.resolutions);
+  buildStep4();
+  setStep(4);
+}
+
+function shortName(filename) {
+  return filename.replace(/\.json$/i, '').replace(/^gaa-/i, '');
+}
+
+// ─── Step 4: Results ─────────────────────────
+function buildStep4() {
+  const a = S.analysis;
+  const m = S.merged;
+  const secTotal = a.secs.reduce((n, f) => n + (f.data.evts || []).length, 0);
+
+  const rows = [
+    ['Events in primary file', (a.priGame.length + a.priStructural.length), false],
+    ['Events in other file(s)', secTotal, false],
+    ['Deduplicated (same event, same player)', a.matched.length, false],
+    ['Conflicts resolved', a.conflicts.length, false],
+    null, // divider
+    ['Added from other file(s)', a.uniqueSec.length, false],
+    ['Final merged events', m.evts.length, true]
+  ];
+
+  $('sum-table').innerHTML = rows.map((r, i) => {
+    if (!r) return `<tr class="sum-divider"><td colspan="2"></td></tr>`;
+    return `<tr ${r[2] ? 'style="font-size:.95rem"' : ''}><td>${r[0]}</td><td>${r[1]}</td></tr>`;
+  }).join('');
+
+  // Conflict log
+  const logCard = $('conflict-log-card');
+  if (a.conflicts.length) {
+    hidden(logCard, false);
+    $('conflict-log').innerHTML = a.conflicts.map((c, i) => {
+      const res = S.resolutions[i] || 'primary';
+      const priP = playerLabel(c.priFile.data, c.pri.slot) || `#${c.pri.slot}`;
+      const secP = playerLabel(c.secFile.data, c.sec.slot) || `#${c.sec.slot}`;
+      const resLabel = { primary: 'Used primary', secondary: 'Used other', both: 'Kept both', skip: 'Skipped' }[res];
+      return `
+        <div class="conflict-log-item">
+          <div class="cldesc">
+            <strong>${c.pri.badge}</strong> at ~${c.pri.time}
+            <span style="color:var(--muted)"> · ${priP} vs ${secP}</span>
+          </div>
+          <span class="fbadge ok clres">${resLabel}</span>
+        </div>
+      `;
+    }).join('');
+  } else {
+    hidden(logCard, true);
+  }
+
+  // Build filename and wire download
+  const opp = (a.pri.data.oppN || 'match').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  const date = a.pri.data.matchDate || new Date().toISOString().split('T')[0];
+  const filename = `gaa-${opp}-${date}-merged.json`;
+
+  $('btn-dl').onclick = () => {
+    const blob = new Blob([JSON.stringify(S.merged, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  };
+}
+</script>
+</body>
+</html>
