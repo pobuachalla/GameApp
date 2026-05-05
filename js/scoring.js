@@ -64,7 +64,7 @@ function showConfirmDrawer(title, message, btnLabel, isDanger, onConfirm) {
   // eslint-disable-next-line no-restricted-syntax -- safe: message/btnLabel passed through esc()
   body.innerHTML =
     '<p class="cfm-msg">' + esc(message) + '</p>' +
-    '<button class="cfm-btn' + (isDanger ? ' cfm-btn-danger' : ' cfm-btn-confirm') + '">' + esc(btnLabel) + '</button>';
+    '<button class="cfm-btn' + (isDanger ? ' cfm-btn-danger' : ' btn-primary') + '">' + esc(btnLabel) + '</button>';
   body.querySelector('.cfm-btn').onclick = () => { closeConfirmDrawer(); onConfirm(); };
   document.getElementById('cfmpanel').classList.add('open');
   document.getElementById('cfmovly').classList.add('open');

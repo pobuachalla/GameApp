@@ -136,7 +136,7 @@
       <div id="removebar" class="remove-bar">
         <span id="removelbl" class="remove-bar-label">0 selected</span>
         <div style="display:flex;gap:8px;">
-          <button onclick="clearSelection()" style="padding:7px 14px;border-radius:999px;background:none;color:var(--td);border:1px solid var(--bd);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">Clear</button>
+          <button onclick="clearSelection()" class="log-clear-btn">Clear</button>
           <button class="remove-bar-btn" onclick="removeSelected()">Remove</button>
         </div>
       </div>
@@ -165,8 +165,8 @@
     <div style="border-top:.5px solid var(--b);padding:14px 14px 24px;">
       <div class="stitle" style="margin-bottom:10px;">MATCH DATA</div>
       <div style="display:flex;gap:8px;margin-bottom:8px;">
-        <button onclick="exportMatchJSON()" style="flex:1;background:none;border:.5px solid var(--bm);border-radius:8px;padding:9px 8px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;touch-action:manipulation;"><i class="fas fa-file-export" style="color:#2E7D32;"></i>Export Match</button>
-        <label style="flex:1;background:none;border:.5px solid var(--bm);border-radius:8px;padding:9px 8px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;">
+        <button onclick="exportMatchJSON()" class="btn-secondary" style="flex:1;"><i class="fas fa-file-export" style="color:#2E7D32;"></i>Export Match</button>
+        <label class="btn-secondary" style="flex:1;">
           <i class="fas fa-file-import" style="color:#2E7D32;"></i>Import Match
           <input type="file" accept=".json" style="display:none;" onchange="importMatchJSON(this)">
         </label>
@@ -362,13 +362,13 @@
         <div class="stitle">TEMPLATES</div>
         <div style="display:flex;gap:8px;margin-bottom:8px;">
           <input class="sinput" id="tni" type="text" placeholder="Template name" maxlength="30" style="flex:1;">
-          <button onclick="saveTpl()" class="setup-secondary-btn">Save squad</button>
+          <button onclick="saveTpl()" class="btn-primary" style="padding:9px 18px;font-size:14px;">Save squad</button>
         </div>
         <div id="tpllist"><div style="font-size:13px;color:var(--t3);padding:4px 0;">No saved templates</div></div>
         <div class="stitle" id="starting-lbl">STARTING 15</div>
         <div style="display:flex;gap:8px;margin-bottom:8px;">
-          <button onclick="clearAllNames()" style="flex:1;background:none;border:.5px solid var(--bm);border-radius:8px;padding:9px 8px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;touch-action:manipulation;"><i class="fas fa-eraser" style="color:#2E7D32;"></i>Clear Names</button>
-          <button onclick="openLayout()" style="flex:1;background:none;border:.5px solid var(--bm);border-radius:8px;padding:9px 8px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;touch-action:manipulation;"><i class="fa-solid fa-shirt" style="color:#2E7D32;"></i>Line-up</button>
+          <button onclick="clearAllNames()" class="btn-secondary" style="flex:1;"><i class="fas fa-eraser" style="color:#2E7D32;"></i>Clear Names</button>
+          <button onclick="openLayout()" class="btn-secondary" style="flex:1;"><i class="fa-solid fa-shirt" style="color:#2E7D32;"></i>Line-up</button>
         </div>
         <div id="pslist"></div>
         <div class="stitle">BENCH</div>
@@ -395,8 +395,8 @@
     <div id="zone-hdr" class="ply-hdr"></div>
     <div id="zone-pitch-wrap" style="flex:1;min-height:0;padding:0 10px 4px;display:flex;align-items:stretch;"></div>
     <div style="display:flex;gap:10px;padding:12px 14px;padding-bottom:max(16px,env(safe-area-inset-bottom));flex-shrink:0;">
-      <button onclick="skipZone()" style="flex:1;padding:14px;border-radius:var(--rl);border:1.5px solid var(--bm);background:var(--bg2);color:var(--t2);font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;touch-action:manipulation;">Skip</button>
-      <button onclick="confirmZone()" style="flex:2;padding:14px;border-radius:var(--rl);background:#2E7D32;color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;touch-action:manipulation;">Select</button>
+      <button onclick="skipZone()" class="btn-secondary" style="flex:1;padding:14px;font-size:15px;">Skip</button>
+      <button onclick="confirmZone()" class="btn-primary" style="flex:2;padding:14px;">Select</button>
     </div>
   </div>
 
