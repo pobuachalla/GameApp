@@ -1,7 +1,7 @@
 'use strict';
 
 // ─── ACTION CONSTANTS ─────────────────────────────────────────────────────────
-const ACTS  = ['Goal','Point','2 Point','Wide','Short','Saved','Free','Advanced','Card','Substitution','Turnover Won','Turnover Lost'];
+const ACTS  = ['Goal','Point','2 Point','Wide','Short','Saved','Free','Mark','Advanced','Card','Substitution','Turnover Won','Turnover Lost'];
 const SSEC  = ['From Play','From Free','From Sideline','From Penalty','From 65'];
 const FSEC  = ['Push','Chop','Steps','Tackle','Pickup','Throw','Other'];
 const NS    = {Goal:SSEC,Point:SSEC,'2 Point':SSEC,Wide:SSEC,Short:SSEC,Saved:SSEC,Free:FSEC};
@@ -68,4 +68,14 @@ const ACTION_META = {
   'Substitution':  {cls:'action-btn-sub',          icon:'<i class="fas fa-people-arrows"></i>'},
   'Turnover Won':  {cls:'action-btn-turnover-won',  icon:'<i class="fas fa-turn-up"></i>'},
   'Turnover Lost': {cls:'action-btn-turnover-lost', icon:'<i class="fas fa-turn-down"></i>'},
+  'Mark':          {cls:'action-btn-neutral',icon:'<i class="fas fa-hand-sparkles"></i>'},
 };
+
+// ─── SLOT POSITIONS ───────────────────────────────────────────────────────────
+const SLOT_POS = [
+  '','Goalkeeper','Right Corner-Back','Full Back','Left Corner-Back',
+  'Right Half-Back','Centre Half-Back','Left Half-Back',
+  'Midfield','Midfield',
+  'Right Half-Forward','Centre Half-Forward','Left Half-Forward',
+  'Right Corner-Forward','Full Forward','Left Corner-Forward',
+];

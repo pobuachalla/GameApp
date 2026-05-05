@@ -7,8 +7,202 @@ function sel(s) {
   if ((!tRun && !isHT && !isPaused) || state.rcarded[state.slotp[s]]) return;
   selSlot = s;
   if (isHT) { subOff = selSlot; pickSubOn(); return; }
-  const acts = state.sport==='football' ? ACTS : ACTS.filter(a => a !== '2 Point');
-  showOpts(pl(state.slotp[s])+' — select action', acts, actCb, false);
+  openPlayerSheet(s);
+}
+
+// ─── PLAYER SHEET ─────────────────────────────────────────────────────────────
+function openPlayerSheet(s) {
+  selSlot = s;
+  const pi       = state.slotp[s];
+  const name     = gn(pi) || ('#' + pi);
+  const ini      = gi(pi);
+  const {g, p}   = playerScore(pi);
+  const scoreVal = g + '-' + String(p).padStart(2, '0');
+  const pos      = SLOT_POS[s] || ('Position ' + s);
+
+  // Header
+  // eslint-disable-next-line no-restricted-syntax -- safe: name/ini/pos are escaped below; scoreVal is numeric
+  document.getElementById('ply-hdr').innerHTML =
+    `<div class="ply-avatar">${esc(ini)}<span class="ply-avatar-num">${s}</span></div>` +
+    `<div class="ply-info"><div class="ply-name">${esc(name)}</div><div class="ply-pos">${esc(pos)}</div></div>` +
+    `<div class="ply-score"><div class="ply-score-val">${esc(scoreVal)}</div><div class="ply-score-lbl">today</div></div>` +
+    `<button class="ply-close" onclick="closePlayerSheetAndReset()"><i class="fas fa-xmark"></i></button>`;
+
+  // Body
+  const isFball = state.sport === 'football';
+  const bigCols = isFball ? '1fr 1fr 1fr' : '1fr 1fr';
+  const twoPBtn = isFball
+    ? `<button class="ps-btn ps-btn-big ps-btn-2p" onclick="psAction('2 Point')">` +
+      `<span class="ps-btn-icon"><i class="fas fa-flag"></i></span>` +
+      `<span class="ps-btn-lbl">2 Point</span><span class="ps-btn-sub">2 points</span></button>`
+    : '';
+
+  // eslint-disable-next-line no-restricted-syntax -- safe: all dynamic values are static strings or esc()
+  document.getElementById('ply-body').innerHTML =
+    // SCORE
+    `<div class="ps-sec">` +
+      `<div class="ps-sec-hdr"><span class="ps-lbl">SCORE</span></div>` +
+      `<div class="ps-score-grid-big" style="grid-template-columns:${bigCols};">` +
+        `<button class="ps-btn ps-btn-big ps-btn-goal" onclick="psAction('Goal')"><span class="ps-btn-icon"><i class="fas fa-flag"></i></span><span class="ps-btn-lbl">Goal</span><span class="ps-btn-sub">3 points</span></button>` +
+        `<button class="ps-btn ps-btn-big ps-btn-point" onclick="psAction('Point')"><span class="ps-btn-icon"><i class="far fa-flag"></i></span><span class="ps-btn-lbl">Point</span><span class="ps-btn-sub">1 point</span></button>` +
+        twoPBtn +
+      `</div>` +
+      `<div class="ps-score-grid-sm">` +
+        `<button class="ps-btn ps-btn-sm" onclick="psAction('Wide')"><span class="ps-btn-icon"><i class="fa-solid fa-child-reaching"></i></span><span class="ps-btn-lbl">Wide</span></button>` +
+        `<button class="ps-btn ps-btn-sm" onclick="psAction('Short')"><span class="ps-btn-icon"><i class="fas fa-arrow-down"></i></span><span class="ps-btn-lbl">Short</span></button>` +
+        `<button class="ps-btn ps-btn-sm" onclick="psAction('Saved')"><span class="ps-btn-icon"><i class="fas fa-hand"></i></span><span class="ps-btn-lbl">Saved</span></button>` +
+      `</div>` +
+    `</div>` +
+    // POSSESSION
+    `<div class="ps-sec">` +
+      `<div class="ps-sec-hdr"><span class="ps-lbl">POSSESSION</span></div>` +
+      `<div class="ps-poss">` +
+        `<button class="ps-poss-btn ps-poss-won" onclick="psAction('Turnover Won')"><span class="ps-poss-icon"><i class="fas fa-turn-up"></i></span>Turnover won</button>` +
+        `<button class="ps-poss-btn ps-poss-lost" onclick="psAction('Turnover Lost')"><span class="ps-poss-icon"><i class="fas fa-turn-down"></i></span>Turnover lost</button>` +
+      `</div>` +
+    `</div>` +
+    // DISCIPLINE
+    `<div class="ps-sec">` +
+      `<div class="ps-sec-hdr"><span class="ps-lbl">DISCIPLINE</span></div>` +
+      `<div class="ps-disc">` +
+        `<button class="ps-btn ps-btn-sm" onclick="psAction('Free')"><span class="ps-btn-icon"><i class="fas fa-whistle"></i></span><span class="ps-btn-lbl">Free</span></button>` +
+        `<button class="ps-btn ps-btn-sm" onclick="psAction('Advanced')"><span class="ps-btn-icon"><i class="fas fa-forward-step"></i></span><span class="ps-btn-lbl">Advanced</span></button>` +
+        `<button class="ps-btn ps-btn-sm" onclick="psAction('Card')"><span class="ps-btn-icon" style="display:flex;gap:2px;align-items:center;"><i class="fas fa-square" style="font-size:9px;color:#FDD835;"></i><i class="fas fa-square" style="font-size:9px;color:#2c2c2a;"></i><i class="fas fa-square" style="font-size:9px;color:#E53935;"></i></span><span class="ps-btn-lbl">Card</span></button>` +
+      `</div>` +
+    `</div>` +
+    // PERSONNEL
+    `<div class="ps-sec">` +
+      `<div class="ps-sec-hdr"><span class="ps-lbl">PERSONNEL</span></div>` +
+      `<button class="ps-pers-btn" onclick="psAction('Substitution')">` +
+        `<span class="ps-pers-icon"><i class="fas fa-people-arrows"></i></span>` +
+        `Substitute off<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i>` +
+      `</button>` +
+    `</div>`;
+
+  document.getElementById('plyovly').classList.add('open');
+  el.plysheet.classList.add('open');
+}
+
+function closePlayerSheet() {
+  document.getElementById('plyovly').classList.remove('open');
+  el.plysheet.classList.remove('open');
+}
+
+function closePlayerSheetAndReset() {
+  closePlayerSheet();
+  const body = document.getElementById('ply-body');
+  if (body) body.onclick = null;
+  selSlot = null;
+}
+
+// ─── SHEET SUB-OPTIONS ────────────────────────────────────────────────────────
+function showPSOpts(title, opts, handler, layout) {
+  let h = '<div class="ps-sub-wrap">';
+  h += '<div class="ps-sub-nav">';
+  h += '<button class="ps-sub-back" onclick="psActionBack()"><i class="fas fa-chevron-left"></i></button>';
+  h += `<span class="ps-sub-title">${esc(title)}</span>`;
+  h += '</div>';
+  if (layout === 'grid') {
+    h += '<div class="ps-sub-grid">';
+    opts.forEach(o => {
+      const val   = typeof o === 'string' ? o : o.val;
+      const label = typeof o === 'string' ? o : o.label;
+      // eslint-disable-next-line no-restricted-syntax -- safe: val/label escaped
+      h += `<button class="ps-sub-card" data-v="${esc(val)}">${esc(label)}</button>`;
+    });
+    h += '</div>';
+  } else {
+    h += '<div class="ps-sub-opts">';
+    opts.forEach(o => {
+      const val   = typeof o === 'string' ? o : o.val;
+      const label = typeof o === 'string' ? o : o.label;
+      const pre   = (typeof o === 'object' && o.pre) ? o.pre : '';
+      // eslint-disable-next-line no-restricted-syntax -- safe: val/label escaped, pre is trusted static HTML
+      h += `<button class="ps-sub-opt" data-v="${esc(val)}">${pre}${esc(label)}<i class="fas fa-chevron-right ps-sub-arrow"></i></button>`;
+    });
+    h += '</div>';
+  }
+  h += '</div>';
+  // eslint-disable-next-line no-restricted-syntax -- safe: built from static strings and esc()
+  document.getElementById('ply-body').innerHTML = h;
+  const body = document.getElementById('ply-body');
+  body.onclick = e => {
+    const btn = e.target.closest('[data-v]');
+    if (!btn) return;
+    body.onclick = null;
+    handler(btn.getAttribute('data-v'));
+  };
+}
+
+function psActionBack() { openPlayerSheet(selSlot); }
+
+function psAction(a) {
+  if (a === 'Card') {
+    showPSOpts('Card — colour?', [
+      {val:'Yellow Card', label:'Yellow Card', pre:'<i class="fas fa-square ps-card-y"></i>'},
+      {val:'Black Card',  label:'Black Card',  pre:'<i class="fas fa-square ps-card-b"></i>'},
+      {val:'Red Card',    label:'Red Card',    pre:'<i class="fas fa-square ps-card-r"></i>'},
+    ], colour => { logEv(colour, null); closePlayerSheetAndReset(); });
+    return;
+  }
+  if (a === 'Advanced') {
+    const opts = state.sport === 'football' ? ['Dissent','Ball Handover','Sideline'] : ['Dissent','Sideline'];
+    showPSOpts('Advanced — reason?', opts, sub => { logEv('Advanced', sub); closePlayerSheetAndReset(); });
+    return;
+  }
+  if (a === 'Turnover Won' && state.trackTurnovers) {
+    const opts = ['First to the Ball','Tackle Turnover','Block','Defensive Pressure'];
+    if (state.sport === 'hurling') opts.splice(3, 0, 'Hook');
+    showPSOpts('Turnover Won — how?', opts, sub => { logEv('Turnover Won', sub); closePlayerSheetAndReset(); });
+    return;
+  }
+  if (a === 'Turnover Lost' && state.trackTurnovers) {
+    showPSOpts('Turnover Lost — how?', ['Poor Pass','Lost in Tackle','Second to the Ball','Over Played','Isolated'],
+      sub => { logEv('Turnover Lost', sub); closePlayerSheetAndReset(); });
+    return;
+  }
+  if (a === 'Free') {
+    let opts = FSEC.slice();
+    if (state.sport === 'football') opts = opts.filter(o => o !== 'Chop');
+    showPSOpts('Free — reason?', opts, sub => { logEv('Free', sub); closePlayerSheetAndReset(); });
+    return;
+  }
+  const SCORE_ACTS = new Set(['Goal','Point','2 Point','Wide','Short','Saved']);
+  if (SCORE_ACTS.has(a)) {
+    pendAct = a;
+    const from65 = state.sport === 'football' ? 'From 45' : 'From 65';
+    let opts = a === '2 Point'
+      ? ['From Play','From Free','From Sideline']
+      : SSEC.map(o => o === 'From 65' ? from65 : o);
+    const titles = {
+      Goal:'Goal — how scored?', Point:'Point — how scored?', '2 Point':'2 Point — how scored?',
+      Wide:'Wide — how attempted?', Short:'Short — how attempted?', Saved:'Saved — how attempted?',
+    };
+    showPSOpts(titles[a], opts, sec => {
+      if (state.trackShotLocations && ZONE_ACTS.has(a)) {
+        pendActSaved  = a;
+        pendSecVal    = sec;
+        pendSlotSaved = selSlot;
+        closePlayerSheet();
+        selSlot = null;
+        showZonePicker();
+      } else {
+        logEv(a, sec);
+        closePlayerSheetAndReset();
+        if (RESTART_ACTS.has(a)) showRestartModal('us');
+      }
+    }, 'grid');
+    return;
+  }
+  if (a === 'Substitution') {
+    subOff = selSlot;
+    closePlayerSheet();
+    pickSubOn();
+    return;
+  }
+  // Turnover Won/Lost without detailed tracking — log directly
+  logEv(a, null);
+  closePlayerSheetAndReset();
 }
 
 function actCb(a) {
@@ -83,6 +277,7 @@ function showZonePicker() {
   // eslint-disable-next-line no-restricted-syntax -- safe: zoneSelectedId is an internal integer
   document.getElementById('zone-pitch-wrap').innerHTML = buildZoneSVG(zoneSelectedId);
   document.getElementById('zonepanel').classList.add('open');
+  document.getElementById('zoneovly').classList.add('open');
 }
 
 function getZonePreselect(sec) {
@@ -146,6 +341,7 @@ function selectZoneCell(id, x, y) {
 
 function closeZone() {
   document.getElementById('zonepanel').classList.remove('open');
+  document.getElementById('zoneovly').classList.remove('open');
 }
 
 function confirmZone() {
@@ -237,6 +433,44 @@ function logEv(action, sec, zone) {
 }
 
 // ─── SUBSTITUTION ─────────────────────────────────────────────────────────────
+// ─── SUBSTITUTION DRAWER ──────────────────────────────────────────────────────
+function showSubDrawer(title, avail, onPick) {
+  document.getElementById('sub-title').textContent = title;
+  const list = document.getElementById('sub-list');
+  if (!avail.length) {
+    // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
+    list.innerHTML = '<p style="color:var(--t2);font-size:14px;padding:4px 0;">No players available.</p>';
+    list.onclick = null;
+  } else {
+    list.innerHTML = avail.map(o =>
+      `<button class="ps-sub-opt" data-v="${esc(String(o.val))}">` +
+        (o.num != null ? `<div class="sub-num">${o.num}</div>` : '') +
+        `<div style="flex:1;min-width:0;">` +
+          (o.label ? `<div style="font-size:15px;font-weight:500;color:var(--t1);">${esc(o.label)}</div>` : '') +
+          (o.sub ? `<div style="font-size:12px;color:var(--t2);margin-top:2px;">${esc(o.sub)}</div>` : '') +
+        `</div>` +
+        `<i class="fas fa-chevron-right ps-sub-arrow"></i>` +
+      `</button>`
+    ).join('');
+    list.onclick = e => {
+      const btn = e.target.closest('[data-v]');
+      if (!btn) return;
+      list.onclick = null;
+      onPick(btn.getAttribute('data-v'));
+    };
+  }
+  document.getElementById('subpanel').classList.add('open');
+  document.getElementById('subovly').classList.add('open');
+}
+
+function closeSubDrawer() {
+  document.getElementById('subpanel').classList.remove('open');
+  document.getElementById('subovly').classList.remove('open');
+  const list = document.getElementById('sub-list');
+  if (list) list.onclick = null;
+  subOff = null; selSlot = null; postSubCb = null;
+}
+
 function pickSubOn() {
   const used={};
   const sz=state.teamSize||15; for (let s=1; s<=sz; s++) used[state.slotp[s]]=true;
@@ -245,21 +479,15 @@ function pickSubOn() {
     if(used[idx])continue;
     const n=gn(idx); if(!n&&idx>state.maxB)continue;
     const gks=idx===16; if(isGK&&!gks)continue; if(!isGK&&gks)continue;
-    avail.push({val:String(idx),label:(n||'#'+idx),sub:gks?'Sub GK':'Outfield sub'});
+    avail.push({val:String(idx),label:n,num:idx,sub:gks?'Sub GK':'Outfield sub'});
   }
   for (let pidx in state.suboff) {
     pidx=parseInt(pidx); if(used[pidx])continue;
     if(isGK!==(state.suboff[pidx]===1))continue;
     if(state.rcarded[pidx])continue;
-    avail.push({val:String(pidx),label:(gn(pidx)||'#'+pidx),sub:'Previously subbed off'});
+    avail.push({val:String(pidx),label:gn(pidx),num:pidx,sub:'Previously subbed off'});
   }
-  if (!avail.length) {
-    el.mtitle.textContent='No subs available';
-    // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
-    el.mopts.innerHTML='<p style="color:var(--t2);font-size:14px;padding:8px 0 4px;">No players available.</p>';
-    return;
-  }
-  showOpts('Who comes on?', avail, v => execSub(parseInt(v)), true);
+  showSubDrawer('Who comes on?', avail, v => execSub(parseInt(v)));
 }
 
 function execSub(bi) {
@@ -277,5 +505,8 @@ function execSub(bi) {
     if(b2){ b2.classList.remove('sub'); if(state.ubench[co])b2.classList.add('sub'); }
     refBtn(cs);
   });
-  refBtn(sl); closeMod();
+  refBtn(sl);
+  const cb = postSubCb;
+  closeSubDrawer();
+  if (cb) cb();
 }

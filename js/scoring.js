@@ -217,21 +217,49 @@ function adjFootball(d, side, how) {
 }
 
 // ─── RESTART ──────────────────────────────────────────────────────────────────
+function closeRestartDrawer() {
+  document.getElementById('rstpanel').classList.remove('open');
+  document.getElementById('rstovly').classList.remove('open');
+}
+
 function showRestartModal(side) {
   const label = side==='us' ? "Opposition's Restart" : "Own Restart";
-  el.mtitle.textContent = 'Restart won?';
-  // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
-  el.mopts.innerHTML = '<div class="opts-grid">'
-    +'<button class="abtn" data-v="Won"     style="background:#2E7D32;color:#fff;border-color:#2E7D32;"><i class="fas fa-thumbs-up"></i>Won</button>'
-    +'<button class="abtn" data-v="Lost"    style="background:#C62828;color:#fff;border-color:#C62828;"><i class="fas fa-thumbs-down"></i>Lost</button>'
-    +'<button class="abtn" data-v="Unclear" style="grid-column:1 / -1;">Unclear</button>'
-    +'</div>';
-  el.modal.style.display = 'block';
-  modalHandlerRef = (result) => {
-    closeMod();
+  const pick = (result) => {
+    closeRestartDrawer();
     const desc = label+': '+result;
     addRow(fmt(state.secs),'RSTR','brstr',desc);
     pushUndo(desc,()=>{});
   };
-  el.mopts.addEventListener('click', handleModalClick);
+  const body = document.getElementById('rst-body');
+  // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
+  body.innerHTML =
+    '<div class="ps-poss">'
+      +'<button class="ps-poss-btn ps-poss-won"><span class="ps-poss-icon"><i class="fas fa-thumbs-up"></i></span>Won</button>'
+      +'<button class="ps-poss-btn ps-poss-lost"><span class="ps-poss-icon"><i class="fas fa-thumbs-down"></i></span>Lost</button>'
+    +'</div>'
+    +'<button class="ps-poss-btn" style="width:100%;background:var(--bg2);color:var(--t2);"><span class="ps-poss-icon" style="background:var(--bg3);"><i class="fas fa-circle-question"></i></span>Unclear</button>'
+    +'<button class="ps-pers-btn"><span class="ps-pers-icon"><i class="fas fa-people-arrows"></i></span>Substitution<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i></button>';
+  body.querySelector('.ps-poss-won').onclick    = () => pick('Won');
+  body.querySelector('.ps-poss-lost').onclick   = () => pick('Lost');
+  body.querySelectorAll('.ps-poss-btn')[2].onclick = () => pick('Unclear');
+  body.querySelector('.ps-pers-btn').onclick    = () => startRestartSub(side);
+  document.getElementById('rstpanel').classList.add('open');
+  document.getElementById('rstovly').classList.add('open');
+}
+
+function startRestartSub(side) {
+  closeRestartDrawer();
+  const sz = state.teamSize || 15;
+  const avail = [];
+  for (let s = 1; s <= sz; s++) {
+    const pi = state.slotp[s];
+    if (!pi) continue;
+    const n = gn(pi);
+    avail.push({ val: String(s), label: n, num: pi, sub: SLOT_POS[s] || '' });
+  }
+  postSubCb = () => showRestartModal(side);
+  showSubDrawer('Who comes off?', avail, slot => {
+    subOff = parseInt(slot);
+    pickSubOn();
+  });
 }

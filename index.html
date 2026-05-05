@@ -102,6 +102,14 @@
     </div>
   </div>
 
+  <!-- Player action sheet -->
+  <div id="plyovly" class="drw-overlay ps-overlay" onclick="closePlayerSheetAndReset()"></div>
+  <div id="plysheet" class="drw-panel ps-panel">
+    <div class="drw-handle" onclick="closePlayerSheetAndReset()"></div>
+    <div id="ply-hdr" class="ply-hdr"></div>
+    <div id="ply-body" class="ply-body"></div>
+  </div>
+
   <!-- Log panel -->
   <div id="logovly" class="drw-overlay" onclick="closeLog()"></div>
   <div id="logpanel" class="drw-panel">
@@ -216,8 +224,8 @@
         <label class="gaa-toggle-wrap">
           <input type="checkbox" id="sport-chk" onchange="onSportToggle(this.checked)">
           <div class="gaa-toggle-track">
-            <span class="gaa-toggle-opt"><i class="fa-solid fa-baseball"></i> Hurling</span>
-            <span class="gaa-toggle-opt"><i class="fa-solid fa-volleyball"></i> Football</span>
+            <span class="gaa-toggle-opt"><i class="fa-solid fa-baseball" style="margin-right:6px"></i>Hurling</span>
+            <span class="gaa-toggle-opt"><i class="fa-solid fa-volleyball" style="margin-right:6px"></i>Football</span>
             <span class="gaa-toggle-knob" id="sport-knob"></span>
           </div>
         </label>
@@ -281,8 +289,8 @@
         <label class="gaa-toggle-wrap">
           <input type="checkbox" id="size-chk" onchange="onSizeToggle(this.checked)">
           <div class="gaa-toggle-track">
-            <span class="gaa-toggle-opt size-opt">15</span>
-            <span class="gaa-toggle-opt size-opt">13</span>
+            <span class="gaa-toggle-opt size-opt">15 a-side</span>
+            <span class="gaa-toggle-opt size-opt">13 a-side</span>
             <span class="gaa-toggle-knob" id="size-knob"></span>
           </div>
         </label>
@@ -315,19 +323,37 @@
     </div>
   </div>
 
-  <!-- Zone picker panel -->
-  <div id="zonepanel" class="full-panel" style="padding:0;">
-    <div class="panel-hdr" style="padding:14px 14px 10px;flex-shrink:0;">
+  <!-- Zone picker drawer -->
+  <div id="zoneovly" class="drw-overlay" style="z-index:55;" onclick="skipZone()"></div>
+  <div id="zonepanel" class="drw-panel" style="z-index:56;">
+    <div class="drw-handle" onclick="skipZone()"></div>
+    <div class="drw-hdr">
       <div style="flex:1;min-width:0;">
-        <div style="font-size:17px;font-weight:500;color:var(--t1);">Tag shot location</div>
+        <div style="font-size:17px;font-weight:600;color:var(--t1);">Tag shot location</div>
         <div id="zone-ctx" style="font-size:12px;color:var(--t2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
       </div>
     </div>
-    <div id="zone-pitch-wrap" style="flex:1;min-height:0;padding:0 10px;display:flex;align-items:stretch;"></div>
+    <div id="zone-pitch-wrap" style="flex:1;min-height:0;padding:0 10px 4px;display:flex;align-items:stretch;"></div>
     <div style="display:flex;gap:10px;padding:12px 14px;padding-bottom:max(16px,env(safe-area-inset-bottom));flex-shrink:0;">
       <button onclick="skipZone()" style="flex:1;padding:14px;border-radius:var(--rl);border:1.5px solid var(--bm);background:var(--bg2);color:var(--t2);font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;touch-action:manipulation;">Skip</button>
       <button onclick="confirmZone()" style="flex:2;padding:14px;border-radius:var(--rl);background:#2E7D32;color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;touch-action:manipulation;">Select</button>
     </div>
+  </div>
+
+  <!-- Substitution drawer -->
+  <div id="subovly" class="drw-overlay" style="z-index:47;" onclick="closeSubDrawer()"></div>
+  <div id="subpanel" class="drw-panel" style="z-index:48;height:auto;max-height:calc(100% - 220px);">
+    <div class="drw-handle" onclick="closeSubDrawer()"></div>
+    <div class="drw-hdr"><div id="sub-title" style="font-size:17px;font-weight:600;color:var(--t1);"></div></div>
+    <div id="sub-list" class="drw-scroll" style="display:flex;flex-direction:column;gap:6px;"></div>
+  </div>
+
+  <!-- Restart drawer -->
+  <div id="rstovly" class="drw-overlay" style="z-index:44;" onclick="closeRestartDrawer()"></div>
+  <div id="rstpanel" class="drw-panel" style="z-index:45;height:auto;">
+    <div class="drw-handle" onclick="closeRestartDrawer()"></div>
+    <div class="drw-hdr"><div style="font-size:17px;font-weight:600;color:var(--t1);">Restart won?</div></div>
+    <div id="rst-body" style="padding:14px 14px 32px;display:flex;flex-direction:column;gap:10px;"></div>
   </div>
 </div>
 

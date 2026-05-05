@@ -55,7 +55,7 @@ function closeMod() {
   el.modal.style.display = 'none';
   modalHandlerRef = null;
   el.mopts.removeEventListener('click', handleModalClick);
-  selSlot=null; pendAct=null; subOff=null;
+  selSlot=null; pendAct=null; subOff=null; postSubCb=null;
   // Reset cancel button text
   const cancelBtn = el.modal.querySelector('button[onclick="closeMod()"]');
   if (cancelBtn) cancelBtn.textContent = 'Cancel';
