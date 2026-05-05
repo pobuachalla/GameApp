@@ -52,14 +52,33 @@ function showFullTimeResult() {
   showScoreGraphic('FT');
 }
 
+// ─── CONFIRM DRAWER ───────────────────────────────────────────────────────────
+function closeConfirmDrawer() {
+  document.getElementById('cfmpanel').classList.remove('open');
+  document.getElementById('cfmovly').classList.remove('open');
+}
+
+function showConfirmDrawer(title, message, btnLabel, isDanger, onConfirm) {
+  document.getElementById('cfm-title').textContent = title;
+  const body = document.getElementById('cfm-body');
+  // eslint-disable-next-line no-restricted-syntax -- safe: message/btnLabel passed through esc()
+  body.innerHTML =
+    '<p class="cfm-msg">' + esc(message) + '</p>' +
+    '<button class="cfm-btn' + (isDanger ? ' cfm-btn-danger' : ' cfm-btn-confirm') + '">' + esc(btnLabel) + '</button>';
+  body.querySelector('.cfm-btn').onclick = () => { closeConfirmDrawer(); onConfirm(); };
+  document.getElementById('cfmpanel').classList.add('open');
+  document.getElementById('cfmovly').classList.add('open');
+}
+
 // ─── RESET ────────────────────────────────────────────────────────────────────
 function resetMatch() {
-  el.mtitle.textContent = 'Reset match?';
-  // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
-  el.mopts.innerHTML = '<p style="font-size:14px;color:var(--t2);padding:4px 0 14px;line-height:1.5;">All scores, events and cards will be cleared. Team and player settings are kept.</p>'
-    +'<button class="abtn" style="color:var(--td);border-color:var(--bd);">Clear everything and reset</button>';
-  el.modal.style.display = 'block';
-  el.mopts.querySelector('.abtn').addEventListener('click', () => { closeMod(); doReset(); });
+  showConfirmDrawer(
+    'Reset match?',
+    'All scores, events and cards will be cleared. Team and player settings are kept.',
+    'Clear everything and reset',
+    true,
+    doReset
+  );
 }
 
 function doReset() {
@@ -82,7 +101,7 @@ function doReset() {
   setGrid(false);
   state.rcarded={}; state.ycarded={}; state.bcarded={};
   const sz = state.teamSize || 15;
-  for (let s=1; s<=sz; s++) state.slotp[s]=s;
+  (TEAM_SLOTS[sz]||TEAM_SLOTS[15]).forEach(s=>{state.slotp[s]=s;});
   renderPGrid();
   state.ubench={}; state.suboff={}; state.maxB=17;
   const rb = document.getElementById('resetbtn');
@@ -97,40 +116,58 @@ function doReset() {
   toast('Match reset');
 }
 
-// ─── SCORE ADJUST ─────────────────────────────────────────────────────────────
+// ─── SCORE ADJUST DRAWER ──────────────────────────────────────────────────────
+function closeScoreDrawer() {
+  document.getElementById('scrpanel').classList.remove('open');
+  document.getElementById('scrovly').classList.remove('open');
+  const body = document.getElementById('scr-body');
+  if (body) body.onclick = null;
+  pendScoreAdj = null;
+}
+
 function openScoreModal(side) {
-  const isUs = side==='us';
-  const name = isUs ? state.usN : state.oppN;
-  el.mtitle.textContent = esc(name)+' — adjust score';
-  let html = '<div class="action-group"><div class="action-group-label">Scores</div><div class="opts-grid">';
-  html += '<button class="abtn score-btn-goal" data-v="g+"><i class="fas fa-flag fa-beat-fade"></i>+ Goal</button>';
-  html += '<button class="abtn action-btn-neutral" data-v="g-">− Goal</button>';
-  if (state.sport==='football') {
-    html += '<button class="abtn score-btn-2p" data-v="f+"><i class="fas fa-flag fa-beat-fade"></i>+ 2 Point</button>';
-    html += '<button class="abtn action-btn-neutral" data-v="f-">− 2 Point</button>';
-  }
-  html += '<button class="abtn score-btn-point" data-v="p+"><i class="far fa-flag fa-beat-fade"></i>+ Point</button>';
-  html += '<button class="abtn action-btn-neutral" data-v="p-">− Point</button>';
-  html += '<button class="abtn action-btn-wide" data-v="w+" style="grid-column:1 / -1;"><i class="fa-solid fa-child-reaching"></i>Wide</button>';
-  html += '</div></div>';
-  // eslint-disable-next-line no-restricted-syntax -- safe: all values are internal score tokens
-  el.mopts.innerHTML = html;
-  el.modal.style.display = 'block';
-  modalHandlerRef = (v) => {
-    closeMod();
-    if (v==='w+') {
+  const isUs = side === 'us';
+  document.getElementById('scr-title').textContent = (isUs ? state.usN : state.oppN) + ' — adjust score';
+  const body = document.getElementById('scr-body');
+  // eslint-disable-next-line no-restricted-syntax -- safe: static HTML with internal score tokens only
+  body.innerHTML =
+    '<div class="ps-poss">'
+      + '<button class="ps-poss-btn ps-poss-won" data-act="g+"><span class="ps-poss-icon"><i class="fas fa-flag fa-beat-fade"></i></span>+ Goal</button>'
+      + '<button class="ps-poss-btn ps-poss-lost" data-act="g-"><span class="ps-poss-icon"><i class="fas fa-minus"></i></span>− Goal</button>'
+    + '</div>'
+    + (state.sport === 'football'
+      ? '<div class="ps-poss">'
+          + '<button class="ps-poss-btn ps-poss-won" data-act="f+"><span class="ps-poss-icon"><i class="fas fa-flag fa-beat-fade"></i></span>+ 2 Point</button>'
+          + '<button class="ps-poss-btn ps-poss-lost" data-act="f-"><span class="ps-poss-icon"><i class="fas fa-minus"></i></span>− 2 Point</button>'
+        + '</div>'
+      : '')
+    + '<div class="ps-poss">'
+      + '<button class="ps-poss-btn ps-poss-won" data-act="p+"><span class="ps-poss-icon"><i class="far fa-flag fa-beat-fade"></i></span>+ Point</button>'
+      + '<button class="ps-poss-btn ps-poss-lost" data-act="p-"><span class="ps-poss-icon"><i class="fas fa-minus"></i></span>− Point</button>'
+    + '</div>'
+    + '<button class="ps-poss-btn" style="width:100%;background:var(--bg2);color:var(--t2);" data-act="w+">'
+      + '<span class="ps-poss-icon" style="background:var(--bg3);"><i class="fa-solid fa-child-reaching"></i></span>Wide'
+    + '</button>';
+  body.onclick = e => {
+    const btn = e.target.closest('[data-act]');
+    if (!btn) return;
+    body.onclick = null;
+    const v = btn.getAttribute('data-act');
+    if (v === 'w+') {
+      closeScoreDrawer();
       const wTeam = isUs ? state.usN : state.oppN;
       const wBadge = isUs ? 'ADJ' : 'OPP';
       const wCls   = isUs ? 'badj' : 'bopp';
       const wDesc  = wTeam + ': Wide';
       addRow(fmt(state.secs), wBadge, wCls, wDesc);
       const wEv = state.evts[state.evts.length - 1];
-      wEv.action = 'Wide';
-      wEv.side = side;
+      wEv.action = 'Wide'; wEv.side = side;
       pushUndo(wDesc, () => {});
-      return showRestartModal(side);
+      showRestartModal(side);
+      return;
     }
     if (v.endsWith('-')) {
+      closeScoreDrawer();
       if (v.startsWith('f')) { adjFootball(-2, side, null); }
       else { if (isUs) adjUs(v[0], -1, side, null); else adjOpp(v[0], -1, side, null); }
     } else {
@@ -138,32 +175,37 @@ function openScoreModal(side) {
       showScoreHowModal();
     }
   };
-  el.mopts.addEventListener('click', handleModalClick);
+  document.getElementById('scrpanel').classList.add('open');
+  document.getElementById('scrovly').classList.add('open');
 }
 
 function showScoreHowModal() {
-  const isFb = pendScoreAdj.isFb;
-  el.mtitle.textContent = 'How scored?';
-  let opts;
-  if (isFb) {
-    opts = ['From Play', 'From Free'];
-  } else {
-    const from65label = state.sport==='football' ? 'From 45' : 'From 65';
-    opts = ['From Play', 'From Free', from65label, 'From Penalty'];
-  }
-  let html = '<div class="opts-grid">';
-  opts.forEach(o => {
-    html += '<button class="abtn" data-v="'+esc(o)+'">'+esc(o)+'</button>';
-  });
-  html += '</div>';
-  // eslint-disable-next-line no-restricted-syntax -- safe: all option values passed through esc()
-  el.mopts.innerHTML = html;
-  el.modal.style.display = 'block';
-  modalHandlerRef = (how) => {
-    closeMod();
-    completeScoreAdj(how);
+  const {isFb, side} = pendScoreAdj;
+  document.getElementById('scr-title').textContent = 'How scored?';
+  const from65label = state.sport === 'football' ? 'From 45' : 'From 65';
+  const opts = isFb ? ['From Play', 'From Free'] : ['From Play', 'From Free', from65label, 'From Penalty'];
+  const body = document.getElementById('scr-body');
+  // eslint-disable-next-line no-restricted-syntax -- safe: opts are static strings, side is 'us'|'opp'
+  body.innerHTML =
+    '<div class="ps-sub-nav">'
+      + '<button class="ps-sub-back" onclick="openScoreModal(\'' + side + '\')"><i class="fas fa-chevron-left"></i></button>'
+      + '<span class="ps-sub-title">How scored?</span>'
+    + '</div>'
+    + '<div class="ps-sub-opts">'
+    + opts.map(o =>
+        '<button class="ps-sub-opt" data-how="' + esc(o) + '">'
+          + '<div style="flex:1;">' + esc(o) + '</div>'
+          + '<i class="fas fa-chevron-right ps-sub-arrow"></i>'
+        + '</button>'
+      ).join('')
+    + '</div>';
+  body.onclick = e => {
+    const btn = e.target.closest('[data-how]');
+    if (!btn) return;
+    body.onclick = null;
+    closeScoreDrawer();
+    completeScoreAdj(btn.getAttribute('data-how'));
   };
-  el.mopts.addEventListener('click', handleModalClick);
 }
 
 function completeScoreAdj(how) {
@@ -251,12 +293,12 @@ function startRestartSub(side) {
   closeRestartDrawer();
   const sz = state.teamSize || 15;
   const avail = [];
-  for (let s = 1; s <= sz; s++) {
+  (TEAM_SLOTS[sz]||TEAM_SLOTS[15]).forEach(s => {
     const pi = state.slotp[s];
-    if (!pi) continue;
+    if (!pi) return;
     const n = gn(pi);
     avail.push({ val: String(s), label: n, num: pi, sub: SLOT_POS[s] || '' });
-  }
+  });
   postSubCb = () => showRestartModal(side);
   showSubDrawer('Who comes off?', avail, slot => {
     subOff = parseInt(slot);

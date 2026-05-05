@@ -140,7 +140,7 @@ function renderTimerUI() {
     sc.style.display='';
     sc.className='status-chip running';
     // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
-    sc.innerHTML='<i class="fas fa-clock" aria-hidden="true"></i> Running';
+    sc.innerHTML='<i class="fas fa-clock" aria-hidden="true"></i> Live';
   } else if (isPaused) {
     sc.style.display='';
     sc.className='status-chip paused';
@@ -208,23 +208,23 @@ function timerSecondaryAction() {
 }
 
 function handleEndHalf() {
-  el.mtitle.textContent = 'End First Half?';
-  // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
-  el.mopts.innerHTML =
-    '<p style="font-size:14px;color:var(--t2);padding:4px 0 14px;line-height:1.5;">Start half-time and stop the timer.</p>'
-   +'<button class="abtn confirm-action-btn" style="font-weight:600;border-color:var(--bm);"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i> Confirm End Half</button>';
-  el.modal.style.display = 'block';
-  el.mopts.querySelector('.confirm-action-btn').addEventListener('click', () => { closeMod(); transition('HALF_TIME'); });
+  showConfirmDrawer(
+    'End First Half?',
+    'Start half-time and stop the timer.',
+    'Confirm End Half',
+    false,
+    () => transition('HALF_TIME')
+  );
 }
 
 function handleEndMatch() {
-  el.mtitle.textContent = 'End Match?';
-  // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
-  el.mopts.innerHTML =
-    '<p style="font-size:14px;color:var(--t2);padding:4px 0 14px;line-height:1.5;">Mark the game as full-time and stop the timer.</p>'
-   +'<button class="abtn confirm-action-btn" style="font-weight:600;border-color:var(--bm);"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i> Confirm End Match</button>';
-  el.modal.style.display = 'block';
-  el.mopts.querySelector('.confirm-action-btn').addEventListener('click', () => { closeMod(); transition('FULL_TIME'); });
+  showConfirmDrawer(
+    'End Match?',
+    'Mark the game as full-time and stop the timer.',
+    'Confirm End Match',
+    false,
+    () => transition('FULL_TIME')
+  );
 }
 
 function startInterval() {

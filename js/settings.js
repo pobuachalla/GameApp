@@ -91,27 +91,13 @@ function openSettings(){
   const is13 = state.teamSize === 13;
   document.getElementById('sport-chk').checked = isFootball;
   document.getElementById('size-chk').checked = is13;
-  const shotlocIcon = document.getElementById('shotloc-icon');
-  if (shotlocIcon) {
-    shotlocIcon.className = state.trackShotLocations ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
-    shotlocIcon.style.color = state.trackShotLocations ? '#2E7D32' : 'var(--t3)';
-  }
-  const pnumIcon = document.getElementById('pnum-icon');
-  if (pnumIcon) {
-    const on = state.showPlayerNumbers !== false;
-    pnumIcon.className = on ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
-    pnumIcon.style.color = on ? '#2E7D32' : 'var(--t3)';
-  }
-  const turnoverIcon = document.getElementById('turnover-icon');
-  if (turnoverIcon) {
-    turnoverIcon.className = state.trackTurnovers ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
-    turnoverIcon.style.color = state.trackTurnovers ? '#2E7D32' : 'var(--t3)';
-  }
+  syncTrackingUI();
+  updatePresetUI();
   el['starting-lbl'].textContent = 'STARTING '+(state.teamSize||15);
   // eslint-disable-next-line no-restricted-syntax -- safe: clears element, no user data
   el.pslist.innerHTML='';
   const sz = state.teamSize || 15;
-  for(let i=1;i<=sz;i++) el.pslist.appendChild(buildPlayerRow(i));
+  (TEAM_SLOTS[sz]||TEAM_SLOTS[15]).forEach(i => el.pslist.appendChild(buildPlayerRow(i)));
   renderBench(); renderTpls();
   document.getElementById('setovly').classList.add('open');
   el.setpanel.classList.add('open');
@@ -268,7 +254,7 @@ function buildPlayerRow(i) {
   // eslint-disable-next-line no-restricted-syntax -- safe: i is numeric, player name through esc()
   row.innerHTML = '<span class="drag-handle" title="Drag to swap player"><i class="fas fa-grip-vertical"></i></span>'
     +'<div class="pbadge'+(i===1?' gk':'')+'">'+i+'</div>'
-    +'<input class="sinput" id="sn'+i+'" type="text" placeholder="'+(i===1?'Goalkeeper':'Player '+i)+'" maxlength="30" value="'+esc(gn(i)||'')+'">'
+    +'<input class="sinput" id="sn'+i+'" type="text" placeholder="'+(SLOT_POS[i]||'Player '+i)+'" maxlength="30" value="'+esc(gn(i)||'')+'">'
     +'<button type="button" class="cap-btn '+(isCap?'active':'inactive')+'" data-cap="'+i+'" onclick="setCaptain('+i+')" title="Set captain"><i class="fa-regular '+(isCap?'fa-copyright':'fa-circle')+'"></i></button>';
   attachDragHandle(row);
   return row;
@@ -283,40 +269,72 @@ function onSizeToggle(checked) {
   // Rebuild player list in settings panel
   // eslint-disable-next-line no-restricted-syntax -- safe: clears element, no user data
   el.pslist.innerHTML='';
-  for(let i=1;i<=size;i++) el.pslist.appendChild(buildPlayerRow(i));
+  (TEAM_SLOTS[size]||TEAM_SLOTS[15]).forEach(i => el.pslist.appendChild(buildPlayerRow(i)));
   saveState();
 }
 
-function onShotLocToggle() {
-  state.trackShotLocations = !state.trackShotLocations;
+function onShotLocToggle(checked) {
+  state.trackShotLocations = checked;
+  updatePresetUI();
   saveState();
-  const icon = document.getElementById('shotloc-icon');
-  if (icon) {
-    icon.className = state.trackShotLocations ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
-    icon.style.color = state.trackShotLocations ? '#2E7D32' : 'var(--t3)';
-  }
 }
 
-function onPlayerNumToggle() {
-  state.showPlayerNumbers = !state.showPlayerNumbers;
-  saveState();
-  const icon = document.getElementById('pnum-icon');
-  if (icon) {
-    const on = state.showPlayerNumbers !== false;
-    icon.className = on ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
-    icon.style.color = on ? '#2E7D32' : 'var(--t3)';
-  }
+function onPlayerNumToggle(checked) {
+  state.showPlayerNumbers = checked;
+  updatePresetUI();
   refAllBtns();
+  saveState();
 }
 
-function onTurnoverToggle() {
-  state.trackTurnovers = !state.trackTurnovers;
+function onTurnoverToggle(checked) {
+  state.trackTurnovers = checked;
+  updatePresetUI();
   saveState();
-  const icon = document.getElementById('turnover-icon');
-  if (icon) {
-    icon.className = state.trackTurnovers ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
-    icon.style.color = state.trackTurnovers ? '#2E7D32' : 'var(--t3)';
-  }
+}
+
+// ─── TRACKING PRESET HELPERS ─────────────────────────────────────────────────
+const _TRK_PRESETS = {
+  quick:    {showPlayerNumbers: false, trackShotLocations: false, trackTurnovers: false},
+  standard: {showPlayerNumbers: true,  trackShotLocations: true,  trackTurnovers: false},
+  detailed: {showPlayerNumbers: true,  trackShotLocations: true,  trackTurnovers: true},
+};
+const _TRK_DESCS = {
+  quick:    'Scores only — no jersey numbers, shot locations, or turnover detail.',
+  standard: 'Captures scores, jersey numbers, and shot locations.',
+  detailed: 'Full tracking — everything in Standard plus turnover breakdowns.',
+};
+
+function applyTrackingPreset(mode) {
+  const p = _TRK_PRESETS[mode]; if (!p) return;
+  Object.assign(state, p);
+  syncTrackingUI();
+  updatePresetUI();
+  refAllBtns();
+  saveState();
+}
+
+function syncTrackingUI() {
+  const pnum = document.getElementById('pnum-chk');
+  if (pnum) pnum.checked = state.showPlayerNumbers !== false;
+  const shot = document.getElementById('shotloc-chk');
+  if (shot) shot.checked = !!state.trackShotLocations;
+  const turn = document.getElementById('turnover-chk');
+  if (turn) turn.checked = !!state.trackTurnovers;
+}
+
+function updatePresetUI() {
+  const pnum = state.showPlayerNumbers !== false;
+  const shot = !!state.trackShotLocations;
+  const turn = !!state.trackTurnovers;
+  let active = null;
+  if (!pnum && !shot && !turn) active = 'quick';
+  else if (pnum && shot && !turn) active = 'standard';
+  else if (pnum && shot && turn)  active = 'detailed';
+  document.querySelectorAll('.trk-preset-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.preset === active);
+  });
+  const desc = document.getElementById('trk-preset-desc');
+  if (desc) desc.textContent = active ? _TRK_DESCS[active] : '';
 }
 
 // ─── TEAM NAME TYPEAHEAD ──────────────────────────────────────────────────────
@@ -361,9 +379,10 @@ function _initTypeahead(input) {
     const q = input.value.trim().toLowerCase();
     if (q.length < 1) { close(); return; }
 
-    const starts   = _TA_ITEMS.filter(i => i.name.toLowerCase().startsWith(q));
+    const exact    = _TA_ITEMS.filter(i => i.name.toLowerCase() === q);
+    const starts   = _TA_ITEMS.filter(i => i.name.toLowerCase() !== q && i.name.toLowerCase().startsWith(q));
     const contains = _TA_ITEMS.filter(i => !i.name.toLowerCase().startsWith(q) && i.name.toLowerCase().includes(q));
-    const matches  = [...starts, ...contains].slice(0, 8);
+    const matches  = [...exact, ...starts, ...contains].slice(0, 8);
 
     if (!matches.length) { close(); return; }
 

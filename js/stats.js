@@ -166,10 +166,10 @@ function computePlayTimes() {
   const teamSz = state.teamSize || 15;
   const curSlotPi = {}, ptStart = {}, ptMap = {};
 
-  for (let sl = 1; sl <= teamSz; sl++) {
+  (TEAM_SLOTS[teamSz]||TEAM_SLOTS[15]).forEach(sl => {
     const pi = (state.startSlotp||{})[sl];
     if (pi) { curSlotPi[sl] = pi; ptStart[pi] = 0; }
-  }
+  });
 
   let halfSecs = 0, inH2 = false, lastSecs = 0;
   state.evts.forEach(ev => {

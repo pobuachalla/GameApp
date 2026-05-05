@@ -36,7 +36,6 @@ let zoneSelectedId = null, zoneSelectedCoords = null;
 let shotMapTeamFilter = 'all', shotMapHalfFilter = 'all', shotMapPlayerFilter = 'all';
 let tInt    = null;
 let tRun    = false;
-let modalHandlerRef = null;
 let initialsCache = {};
 let postSubCb = null;
 
@@ -44,7 +43,7 @@ let postSubCb = null;
 const el = {};
 function initEl() {
   ['timer-display','gc','pc','og','op','utotal','ototal','uslbl','opplbl',
-   'evlog','logempty','lcnt','lbdg','toast','modal','mtitle','mopts',
+   'evlog','logempty','lcnt','lbdg','toast',
    'period-badge','status-chip','timer-primary-btn','timer-secondary-btn',
    'pgrid','logpanel','setpanel','sharpanel','plysheet','seltoggle',
    'removebar','removelbl','sun','son','pslist','bslist','tpllist','tni','starting-lbl'

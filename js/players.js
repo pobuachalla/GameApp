@@ -10,23 +10,28 @@ function sel(s) {
   openPlayerSheet(s);
 }
 
-// ─── PLAYER SHEET ─────────────────────────────────────────────────────────────
-function openPlayerSheet(s) {
-  selSlot = s;
-  const pi       = state.slotp[s];
-  const name     = gn(pi) || ('#' + pi);
+// ─── PLAYER HEADER BUILDER ────────────────────────────────────────────────────
+function buildPlyrHdr(slot, onClose) {
+  const pi       = state.slotp[slot];
+  const name     = gn(pi) || SLOT_POS[slot] || ('Pos ' + slot);
   const ini      = gi(pi);
   const {g, p}   = playerScore(pi);
   const scoreVal = g + '-' + String(p).padStart(2, '0');
-  const pos      = SLOT_POS[s] || ('Position ' + s);
-
-  // Header
-  // eslint-disable-next-line no-restricted-syntax -- safe: name/ini/pos are escaped below; scoreVal is numeric
-  document.getElementById('ply-hdr').innerHTML =
-    `<div class="ply-avatar">${esc(ini)}<span class="ply-avatar-num">${s}</span></div>` +
+  const pos      = SLOT_POS[slot] || ('Position ' + slot);
+  // eslint-disable-next-line no-restricted-syntax -- safe: name/ini/pos escaped; scoreVal numeric; onClose is a trusted static string
+  return (
+    `<div class="ply-avatar">${esc(ini)}<span class="ply-avatar-num">${slot}</span></div>` +
     `<div class="ply-info"><div class="ply-name">${esc(name)}</div><div class="ply-pos">${esc(pos)}</div></div>` +
     `<div class="ply-score"><div class="ply-score-val">${esc(scoreVal)}</div><div class="ply-score-lbl">today</div></div>` +
-    `<button class="ply-close" onclick="closePlayerSheetAndReset()"><i class="fas fa-xmark"></i></button>`;
+    `<button class="ply-close" onclick="${onClose}"><i class="fas fa-xmark"></i></button>`
+  );
+}
+
+// ─── PLAYER SHEET ─────────────────────────────────────────────────────────────
+function openPlayerSheet(s) {
+  selSlot = s;
+
+  document.getElementById('ply-hdr').innerHTML = buildPlyrHdr(s, 'closePlayerSheetAndReset()');
 
   // Body
   const isFball = state.sport === 'football';
@@ -205,70 +210,13 @@ function psAction(a) {
   closePlayerSheetAndReset();
 }
 
-function actCb(a) {
-  if (a==='Substitution') { subOff=selSlot; pickSubOn(); return; }
-  if (a==='Card') {
-    showOpts('Card — colour?', ['Yellow Card','Black Card','Red Card'], colour => { logEv(colour, null); closeMod(); }, false);
-    return;
-  }
-  if (a==='Advanced') {
-    const advOpts = state.sport==='football' ? ['Dissent','Ball Handover','Sideline'] : ['Dissent','Sideline'];
-    showOpts('Advanced — reason?', advOpts, sub => { logEv('Advanced', sub); closeMod(); }, false);
-    return;
-  }
-  if (a==='Turnover Won' && state.trackTurnovers) {
-    const opts = ['First to the Ball','Tackle Turnover','Block','Defensive Pressure'];
-    if (state.sport === 'hurling') opts.splice(3, 0, 'Hook');
-    showOpts('Turnover Won — how?', opts, sub => { logEv(a, sub); closeMod(); }, false);
-    return;
-  }
-  if (a==='Turnover Lost' && state.trackTurnovers) {
-    showOpts('Turnover Lost — how?', ['Poor Pass','Lost in Tackle','Second to the Ball','Over Played','Isolated'], sub => { logEv(a, sub); closeMod(); }, false);
-    return;
-  }
-  pendAct = a;
-  let sec = NS[a];
-  if (sec) {
-    // For 2 Point, restrict to From Play and From Free only
-    if (a==='2 Point') {
-      sec = ['From Play', 'From Free', 'From Sideline'];
-    } else {
-      // Convert From 65 to From 45 for Football for other scoring actions
-      const from65 = state.sport==='football' ? 'From 45' : 'From 65';
-      sec = sec.map(o => o==='From 65' ? from65 : o);
-      // Chop is not a football foul
-      if (a==='Free' && state.sport==='football') sec = sec.filter(o => o !== 'Chop');
-    }
-    const titles = {Goal:'Goal — how scored?',Point:'Point — how scored?','2 Point':'2 Point — how scored?',Wide:'Wide — how attempted?',Short:'Short — how attempted?',Saved:'Saved — how attempted?',Free:'Free — reason?'};
-    showOpts(titles[a], sec, secCb, false);
-  } else { logEv(a,null); closeMod(); }
-}
-
 const ZONE_ACTS    = new Set(['Goal','Point','2 Point','Wide','Short','Saved']);
 const RESTART_ACTS = new Set(['Goal','Point','2 Point','Wide']);
-
-function secCb(s) {
-  const act = pendAct;
-  if (state.trackShotLocations && ZONE_ACTS.has(act)) {
-    // Save all session state before closeMod() clears it
-    pendActSaved  = act;
-    pendSecVal    = s;
-    pendSlotSaved = selSlot;
-    closeMod();
-    showZonePicker();
-  } else {
-    logEv(act, s);
-    closeMod();
-    if (RESTART_ACTS.has(act)) showRestartModal('us');
-  }
-}
 
 // ─── ZONE PICKER ──────────────────────────────────────────────────────────────
 function showZonePicker() {
   const act = pendActSaved, sec = pendSecVal, slot = pendSlotSaved;
-  const pi   = state.slotp[slot];
-  const name = gn(pi) ? gn(pi)+' (#'+pi+')' : '#'+pi;
-  document.getElementById('zone-ctx').textContent = act + '  ·  ' + name;
+  document.getElementById('zone-hdr').innerHTML = buildPlyrHdr(slot, 'skipZone()');
 
   // Preselect cell based on how the shot was taken
   zoneSelectedId     = getZonePreselect(sec);
@@ -459,6 +407,14 @@ function showSubDrawer(title, avail, onPick) {
       onPick(btn.getAttribute('data-v'));
     };
   }
+  const hdr = document.getElementById('sub-hdr');
+  if (subOff != null) {
+    hdr.innerHTML = buildPlyrHdr(subOff, 'closeSubDrawer()');
+    hdr.style.display = '';
+  } else {
+    hdr.innerHTML = '';
+    hdr.style.display = 'none';
+  }
   document.getElementById('subpanel').classList.add('open');
   document.getElementById('subovly').classList.add('open');
 }
@@ -473,7 +429,7 @@ function closeSubDrawer() {
 
 function pickSubOn() {
   const used={};
-  const sz=state.teamSize||15; for (let s=1; s<=sz; s++) used[state.slotp[s]]=true;
+  const sz=state.teamSize||15; (TEAM_SLOTS[sz]||TEAM_SLOTS[15]).forEach(s=>{used[state.slotp[s]]=true;});
   const isGK = subOff===1, avail=[];
   for (let idx=16; idx<=state.maxB+5; idx++) {
     if(used[idx])continue;

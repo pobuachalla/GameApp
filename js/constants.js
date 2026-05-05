@@ -31,8 +31,12 @@ const PLACED_BALL = new Set(['From Free','From Sideline','From Penalty','From 65
 // ─── TEAM FORMATIONS ──────────────────────────────────────────────────────────
 const GRID_LAYOUTS = {
   15: [[1],[2,3,4],[5,6,7],[8,9],[10,11,12],[13,14,15]],
-  13: [[1],[2,3],[4,5,6],[7,8],[9,10,11],[12,13]],
+  13: [[1],[2,4],[5,6,7],[8,9],[10,11,12],[13,15]],
 };
+
+// Flat ordered slot lists derived from GRID_LAYOUTS — use instead of for(1..teamSize)
+const TEAM_SLOTS = {};
+Object.keys(GRID_LAYOUTS).forEach(k => { TEAM_SLOTS[+k] = GRID_LAYOUTS[k].flat(); });
 
 // ─── STATE MACHINE ────────────────────────────────────────────────────────────
 const VALID_TRANSITIONS = {
@@ -73,9 +77,20 @@ const ACTION_META = {
 
 // ─── SLOT POSITIONS ───────────────────────────────────────────────────────────
 const SLOT_POS = [
-  '','Goalkeeper','Right Corner-Back','Full Back','Left Corner-Back',
-  'Right Half-Back','Centre Half-Back','Left Half-Back',
-  'Midfield','Midfield',
-  'Right Half-Forward','Centre Half-Forward','Left Half-Forward',
-  'Right Corner-Forward','Full Forward','Left Corner-Forward',
+  '',                     // 0 (unused)
+  'Goalkeeper',           // 1
+  'Left Corner-Back',     // 2
+  'Full Back',            // 3
+  'Right Corner-Back',    // 4
+  'Left Wing-Back',       // 5
+  'Centre Back',          // 6
+  'Right Wing-Back',      // 7
+  'Midfield',             // 8
+  'Midfield',             // 9
+  'Left Wing-Forward',    // 10
+  'Centre Forward',       // 11
+  'Right Wing-Forward',   // 12
+  'Left Corner-Forward',  // 13
+  'Full Forward',         // 14
+  'Right Corner-Forward', // 15
 ];

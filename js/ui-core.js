@@ -141,4 +141,4 @@ function refBtn(s) {
   }
   b.appendChild(wrap);
 }
-const refAllBtns = () => { const sz=state.teamSize||15; for (let s=1; s<=sz; s++) refBtn(s); };
+const refAllBtns = () => { const sz=state.teamSize||15; (TEAM_SLOTS[sz]||TEAM_SLOTS[15]).forEach(s=>refBtn(s)); };

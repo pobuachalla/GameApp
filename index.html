@@ -94,12 +94,20 @@
   </div>
 
   <!-- Modal -->
-  <div id="modal" class="overlay">
-    <div class="modal-box">
-      <div id="mtitle" style="font-size:14px;font-weight:500;color:var(--t2);margin-bottom:11px;padding-bottom:9px;border-bottom:.5px solid var(--b);"></div>
-      <div id="mopts"></div>
-      <button onclick="closeMod()" style="display:block;width:100%;padding:13px;border-radius:var(--r);background:none;border:.5px solid var(--bm);color:var(--t2);font-size:14px;cursor:pointer;margin-top:8px;font-family:inherit;">Cancel</button>
-    </div>
+  <!-- Confirm drawer (End Half / End Match / Reset) -->
+  <div id="cfmovly" class="drw-overlay" style="z-index:76;" onclick="closeConfirmDrawer()"></div>
+  <div id="cfmpanel" class="drw-panel" style="z-index:77;height:auto;">
+    <div class="drw-handle" onclick="closeConfirmDrawer()"></div>
+    <div class="drw-hdr"><div id="cfm-title" style="font-size:17px;font-weight:600;color:var(--t1);"></div></div>
+    <div id="cfm-body" style="padding:14px 14px 32px;display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+
+  <!-- Score adjust drawer -->
+  <div id="scrovly" class="drw-overlay" style="z-index:74;" onclick="closeScoreDrawer()"></div>
+  <div id="scrpanel" class="drw-panel" style="z-index:75;height:auto;max-height:calc(100% - 220px);">
+    <div class="drw-handle" onclick="closeScoreDrawer()"></div>
+    <div class="drw-hdr"><div id="scr-title" style="font-size:17px;font-weight:600;color:var(--t1);"></div></div>
+    <div id="scr-body" style="padding:14px 14px 32px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>
   </div>
 
   <!-- Player action sheet -->
@@ -118,7 +126,7 @@
       <div style="font-size:17px;font-weight:600;color:var(--t1);">Event log <span id="lcnt" style="font-size:12px;font-weight:400;color:var(--t3);"></span></div>
       <div style="display:flex;align-items:center;gap:8px;">
         <button id="seltoggle" class="sel-toggle" onclick="toggleSelMode()">Select</button>
-        <button class="back-btn" onclick="closeLog()"><i class="fas fa-chevron-down"></i></button>
+        <button class="back-btn" onclick="closeLog()"><i class="fas fa-xmark"></i></button>
       </div>
     </div>
     <div style="flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;">
@@ -151,7 +159,7 @@
     <div class="drw-handle" onclick="closeShareMenu()"></div>
     <div class="drw-hdr">
       <div style="font-size:17px;font-weight:600;color:var(--t1);">Share</div>
-      <button class="back-btn" onclick="closeShareMenu()"><i class="fas fa-chevron-down"></i></button>
+      <button class="back-btn" onclick="closeShareMenu()"><i class="fas fa-xmark"></i></button>
     </div>
     <div class="drw-scroll" id="share-opts-wrap"></div>
     <div style="border-top:.5px solid var(--b);padding:14px 14px 24px;">
@@ -193,7 +201,7 @@
       <div style="display:flex;align-items:center;gap:8px;">
         <button class="back-btn" onclick="openLog()" title="Event Log" style="width:auto;min-width:36px;border-radius:999px;padding:0 10px;gap:6px;"><i class="fas fa-list-ul"></i><span id="lbdg" style="display:none;font-size:9px;font-weight:600;background:var(--bgi);color:var(--ti);border-radius:999px;padding:1px 5px;"></span></button>
         <button class="back-btn" onclick="printStats()" title="Share / Save PDF"><i class="fas fa-share-from-square"></i></button>
-        <button class="back-btn" onclick="closeStats()"><i class="fas fa-chevron-down"></i></button>
+        <button class="back-btn" onclick="closeStats()"><i class="fas fa-xmark"></i></button>
       </div>
     </div>
     <div class="stats-scroll" id="stats-content"></div>
@@ -209,75 +217,132 @@
     <div class="drw-handle" onclick="closeSettings()"></div>
     <div class="drw-hdr">
       <div style="font-size:17px;font-weight:600;color:var(--t1);">Setup</div>
-      <button class="back-btn" onclick="closeSettings()"><i class="fas fa-chevron-down"></i></button>
+      <button class="back-btn" onclick="closeSettings()"><i class="fas fa-xmark"></i></button>
     </div>
     <div class="set-tabs">
-      <button class="set-tab active" data-tab="game"     onclick="switchSetupTab('game')">Game</button>
-      <button class="set-tab"        data-tab="tracking" onclick="switchSetupTab('tracking')">Tracking</button>
-      <button class="set-tab"        data-tab="team"     onclick="switchSetupTab('team')">Team</button>
+      <button class="set-tab active" data-tab="game"     onclick="switchSetupTab('game')"><i class="fas fa-calendar-days"></i>Game</button>
+      <button class="set-tab"        data-tab="tracking" onclick="switchSetupTab('tracking')"><i class="fas fa-sliders"></i>Tracking</button>
+      <button class="set-tab"        data-tab="team"     onclick="switchSetupTab('team')"><i class="fas fa-shirt"></i>Team</button>
     </div>
     <div class="drw-scroll">
 
       <!-- ── GAME TAB ──────────────────────────────────────────────────────── -->
       <div class="set-tab-pane active" data-tab="game">
-        <div class="stitle">SPORT</div>
-        <label class="gaa-toggle-wrap">
-          <input type="checkbox" id="sport-chk" onchange="onSportToggle(this.checked)">
-          <div class="gaa-toggle-track">
-            <span class="gaa-toggle-opt"><i class="fa-solid fa-baseball" style="margin-right:6px"></i>Hurling</span>
-            <span class="gaa-toggle-opt"><i class="fa-solid fa-volleyball" style="margin-right:6px"></i>Football</span>
-            <span class="gaa-toggle-knob" id="sport-knob"></span>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+
+          <!-- Sport card -->
+          <div class="setup-card">
+            <div class="setup-card-lbl">SPORT</div>
+            <label class="gaa-toggle-wrap">
+              <input type="checkbox" id="sport-chk" onchange="onSportToggle(this.checked)">
+              <div class="gaa-toggle-track">
+                <span class="gaa-toggle-opt"><i class="fa-solid fa-baseball" style="margin-right:6px"></i>Hurling</span>
+                <span class="gaa-toggle-opt"><i class="fa-solid fa-volleyball" style="margin-right:6px"></i>Football</span>
+                <span class="gaa-toggle-knob" id="sport-knob"></span>
+              </div>
+            </label>
           </div>
-        </label>
-        <div class="stitle">FIXTURE</div>
-        <div style="display:flex;gap:8px;">
-          <div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Us</div><input class="sinput" id="sun" type="text" placeholder="e.g. Cork" maxlength="24"></div>
-          <div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Opposition</div><input class="sinput" id="son" type="text" placeholder="e.g. Tipperary" maxlength="24"></div>
+
+          <!-- Match card -->
+          <div class="setup-card">
+            <div class="setup-card-lbl">MATCH</div>
+            <div style="display:flex;gap:8px;">
+              <div style="flex:1;min-width:0;"><div class="setup-field-lbl">Us</div><input class="sinput" id="sun" type="text" placeholder="e.g. Cork" maxlength="24"></div>
+              <div style="flex:1;min-width:0;"><div class="setup-field-lbl">Opposition</div><input class="sinput" id="son" type="text" placeholder="e.g. Tipperary" maxlength="24"></div>
+            </div>
+          </div>
+
+          <!-- Competition card -->
+          <div class="setup-card">
+            <div class="setup-card-lbl">COMPETITION</div>
+            <div style="display:flex;gap:8px;">
+              <div style="flex:2;min-width:0;"><div class="setup-field-lbl">Competition</div><input class="sinput" id="scomp" type="text" placeholder="e.g. County Championship" maxlength="50"></div>
+              <div style="flex:1;min-width:0;"><div class="setup-field-lbl">Date</div><input class="sinput" id="smdate" type="date"></div>
+            </div>
+            <div style="margin-top:8px;"><div class="setup-field-lbl">Age Grade</div><input class="sinput" id="sage" type="text" placeholder="e.g. Senior" maxlength="20"></div>
+          </div>
+
+          <!-- Venue & Officials card -->
+          <div class="setup-card">
+            <div class="setup-card-lbl">VENUE &amp; OFFICIALS</div>
+            <div style="margin-bottom:8px;"><div class="setup-field-lbl">Location</div><input class="sinput" id="sloc" type="text" placeholder="e.g. Croke Park" maxlength="40"></div>
+            <div><div class="setup-field-lbl">Referee</div><input class="sinput" id="sref" type="text" placeholder="e.g. J. Murphy" maxlength="30"></div>
+          </div>
+
         </div>
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Location</div><input class="sinput" id="sloc" type="text" placeholder="e.g. Croke Park" maxlength="40"></div>
-          <div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Referee</div><input class="sinput" id="sref" type="text" placeholder="e.g. J. Murphy" maxlength="30"></div>
-        </div>
-        <div style="margin-top:8px;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Competition</div><input class="sinput" id="scomp" type="text" placeholder="e.g. County Championship" maxlength="50"></div>
-        <div style="margin-top:8px;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Date</div><input class="sinput" id="smdate" type="date"></div>
-        <div style="margin-top:8px;"><div style="font-size:12px;color:var(--t2);margin-bottom:4px;">Age Grade</div><input class="sinput" id="sage" type="text" placeholder="e.g. Senior" maxlength="20"></div>
       </div>
 
       <!-- ── TRACKING TAB ─────────────────────────────────────────────────── -->
       <div class="set-tab-pane" data-tab="tracking">
-        <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;flex-direction:column;gap:10px;">
 
-          <div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border-radius:12px;padding:12px 14px;">
-            <div style="width:38px;height:38px;border-radius:50%;background:#E8F5E9;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <i class="fas fa-circle-info" style="font-size:18px;color:#2E7D32;"></i>
+          <!-- Preset selector -->
+          <div class="setup-card">
+            <div class="setup-card-lbl">TRACKING DEPTH</div>
+            <div class="trk-preset-row">
+              <button class="trk-preset-btn" data-preset="quick"    onclick="applyTrackingPreset('quick')">Quick</button>
+              <button class="trk-preset-btn" data-preset="standard" onclick="applyTrackingPreset('standard')">Standard</button>
+              <button class="trk-preset-btn" data-preset="detailed" onclick="applyTrackingPreset('detailed')">Detailed</button>
             </div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:14px;font-weight:600;color:var(--t1);margin-bottom:2px;">Numbers in Bubbles</div>
-              <div style="font-size:11px;color:var(--t3);line-height:1.4;">Show jersey number above player initials</div>
-            </div>
-            <i id="pnum-icon" class="fas fa-toggle-on" style="font-size:28px;color:#2E7D32;cursor:pointer;touch-action:manipulation;flex-shrink:0;" onclick="onPlayerNumToggle()"></i>
+            <div id="trk-preset-desc" class="trk-preset-desc"></div>
           </div>
 
-          <div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border-radius:12px;padding:12px 14px;">
-            <div style="width:38px;height:38px;border-radius:50%;background:#E8F5E9;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <i class="fas fa-location-dot" style="font-size:18px;color:#2E7D32;"></i>
+          <!-- Jersey numbers card -->
+          <div class="trk-card">
+            <div class="trk-card-top">
+              <div class="trk-icon-wrap"><i class="fas fa-shirt"></i></div>
+              <div class="trk-card-text">
+                <div class="trk-card-title">Show jersey numbers</div>
+                <div class="trk-card-desc">Display each player's number above their initials.</div>
+              </div>
+              <label class="trk-toggle" aria-label="Show jersey numbers">
+                <input type="checkbox" id="pnum-chk" onchange="onPlayerNumToggle(this.checked)">
+                <span class="trk-toggle-thumb"></span>
+              </label>
             </div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:14px;font-weight:600;color:var(--t1);margin-bottom:2px;">Shot Tracking</div>
-              <div style="font-size:11px;color:var(--t3);line-height:1.4;">Tag where scores and wides were taken from</div>
+            <div class="trk-hint">
+              <div class="trk-hint-avatar">AK<span class="trk-hint-num">7</span></div>
+              <span class="trk-hint-text">Numbers appear on player bubbles</span>
             </div>
-            <i id="shotloc-icon" class="fas fa-toggle-off" style="font-size:28px;color:var(--t3);cursor:pointer;touch-action:manipulation;flex-shrink:0;" onclick="onShotLocToggle()"></i>
           </div>
 
-          <div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border-radius:12px;padding:12px 14px;">
-            <div style="width:38px;height:38px;border-radius:50%;background:#E8F5E9;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <i class="fas fa-circle-question" style="font-size:18px;color:#2E7D32;"></i>
+          <!-- Shot location card -->
+          <div class="trk-card">
+            <div class="trk-card-top">
+              <div class="trk-icon-wrap"><i class="fas fa-location-dot"></i></div>
+              <div class="trk-card-text">
+                <div class="trk-card-title">Tag shot location</div>
+                <div class="trk-card-desc">After each score or wide, mark where on the pitch it came from.</div>
+              </div>
+              <label class="trk-toggle" aria-label="Tag shot location">
+                <input type="checkbox" id="shotloc-chk" onchange="onShotLocToggle(this.checked)">
+                <span class="trk-toggle-thumb"></span>
+              </label>
             </div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:14px;font-weight:600;color:var(--t1);margin-bottom:2px;">Detailed Turnovers</div>
-              <div style="font-size:11px;color:var(--t3);line-height:1.4;">Record the type of each turnover won and lost</div>
+            <div class="trk-hint">
+              <svg viewBox="0 0 44 30" width="44" height="30" style="border-radius:4px;flex-shrink:0;"><rect width="44" height="30" fill="#4C9A3A" rx="3"/><line x1="0" y1="15" x2="44" y2="15" stroke="rgba(255,255,255,0.5)" stroke-width="0.8"/><rect x="2" y="2" width="40" height="26" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="0.8"/><circle cx="16" cy="10" r="2.5" fill="#FDD835"/><circle cx="28" cy="20" r="2.5" fill="#E53935"/></svg>
+              <span class="trk-hint-text">Builds a shot map</span>
             </div>
-            <i id="turnover-icon" class="fas fa-toggle-off" style="font-size:28px;color:var(--t3);cursor:pointer;touch-action:manipulation;flex-shrink:0;" onclick="onTurnoverToggle()"></i>
+          </div>
+
+          <!-- Detailed turnovers card -->
+          <div class="trk-card">
+            <div class="trk-card-top">
+              <div class="trk-icon-wrap"><i class="fas fa-arrows-rotate"></i></div>
+              <div class="trk-card-text">
+                <div class="trk-card-title">Detailed turnovers</div>
+                <div class="trk-card-desc">Record the type of each turnover (e.g. tackle, intercept, foul).</div>
+              </div>
+              <label class="trk-toggle" aria-label="Detailed turnovers">
+                <input type="checkbox" id="turnover-chk" onchange="onTurnoverToggle(this.checked)">
+                <span class="trk-toggle-thumb"></span>
+              </label>
+            </div>
+            <div class="trk-hint">
+              <i class="fas fa-turn-up"   style="color:#2E7D32;font-size:14px;"></i>
+              <i class="fas fa-turn-down" style="color:#c0392b;font-size:14px;"></i>
+              <span class="trk-hint-text">Won &amp; lost breakdowns</span>
+            </div>
           </div>
 
         </div>
@@ -327,12 +392,7 @@
   <div id="zoneovly" class="drw-overlay" style="z-index:55;" onclick="skipZone()"></div>
   <div id="zonepanel" class="drw-panel" style="z-index:56;">
     <div class="drw-handle" onclick="skipZone()"></div>
-    <div class="drw-hdr">
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:17px;font-weight:600;color:var(--t1);">Tag shot location</div>
-        <div id="zone-ctx" style="font-size:12px;color:var(--t2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
-      </div>
-    </div>
+    <div id="zone-hdr" class="ply-hdr"></div>
     <div id="zone-pitch-wrap" style="flex:1;min-height:0;padding:0 10px 4px;display:flex;align-items:stretch;"></div>
     <div style="display:flex;gap:10px;padding:12px 14px;padding-bottom:max(16px,env(safe-area-inset-bottom));flex-shrink:0;">
       <button onclick="skipZone()" style="flex:1;padding:14px;border-radius:var(--rl);border:1.5px solid var(--bm);background:var(--bg2);color:var(--t2);font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;touch-action:manipulation;">Skip</button>
@@ -344,6 +404,7 @@
   <div id="subovly" class="drw-overlay" style="z-index:47;" onclick="closeSubDrawer()"></div>
   <div id="subpanel" class="drw-panel" style="z-index:48;height:auto;max-height:calc(100% - 220px);">
     <div class="drw-handle" onclick="closeSubDrawer()"></div>
+    <div id="sub-hdr" class="ply-hdr" style="display:none;"></div>
     <div class="drw-hdr"><div id="sub-title" style="font-size:17px;font-weight:600;color:var(--t1);"></div></div>
     <div id="sub-list" class="drw-scroll" style="display:flex;flex-direction:column;gap:6px;"></div>
   </div>
@@ -365,7 +426,7 @@
 <script src="js/wakelock.js"></script>
 <script src="js/persistence.js"></script>
 <script src="js/ui-core.js"></script>
-<script src="js/modal.js"></script>
+<script src="js/modal.js"></script><!-- modal.js kept for safety; closeMod/showOpts no longer called by live code -->
 <script src="js/timer.js"></script>
 <script src="js/events.js"></script>
 <script src="js/scoring.js"></script>

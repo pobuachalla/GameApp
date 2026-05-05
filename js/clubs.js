@@ -83,8 +83,7 @@ function findClub(name) {
   if (!name) return null;
   const norm = s => s.toLowerCase().replace(/\s*[/–-]\s*/g, '/').replace(/['''.]/g, '').replace(/\s+/g, ' ').trim();
   const n = norm(name);
-  return MEATH_CLUBS.find(c => {
-    const cn = norm(c.name);
-    return cn === n || cn.includes(n) || n.includes(cn);
-  }) || null;
+  const exact = MEATH_CLUBS.find(c => norm(c.name) === n);
+  if (exact) return exact;
+  return MEATH_CLUBS.find(c => n.includes(norm(c.name))) || null;
 }
