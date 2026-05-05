@@ -72,7 +72,7 @@ function openPlayerSheet(s) {
       `<div class="ps-disc">` +
         `<button class="ps-btn ps-btn-sm" onclick="psAction('Free')"><span class="ps-btn-icon"><i class="fas fa-whistle"></i></span><span class="ps-btn-lbl">Free</span></button>` +
         `<button class="ps-btn ps-btn-sm" onclick="psAction('Advanced')"><span class="ps-btn-icon"><i class="fas fa-forward-step"></i></span><span class="ps-btn-lbl">Advanced</span></button>` +
-        `<button class="ps-btn ps-btn-sm" onclick="psAction('Card')"><span class="ps-btn-icon" style="display:flex;gap:2px;align-items:center;"><i class="fas fa-square" style="font-size:9px;color:#FDD835;"></i><i class="fas fa-square" style="font-size:9px;color:#2c2c2a;"></i><i class="fas fa-square" style="font-size:9px;color:#E53935;"></i></span><span class="ps-btn-lbl">Card</span></button>` +
+        `<button class="ps-btn ps-btn-sm" onclick="psAction('Card')"><span class="ps-btn-icon" style="display:flex;gap:2px;align-items:center;"><i class="fas fa-square" style="font-size:9px;color:${CARD_YELLOW};"></i><i class="fas fa-square" style="font-size:9px;color:${CARD_BLACK};"></i><i class="fas fa-square" style="font-size:9px;color:${CARD_RED};"></i></span><span class="ps-btn-lbl">Card</span></button>` +
       `</div>` +
     `</div>` +
     // PERSONNEL

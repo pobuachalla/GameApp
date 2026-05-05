@@ -51,7 +51,7 @@ function renderLayout() {
       h += '<div class="layout-player">';
       h += '<div class="layout-shirt-wrap">';
       if (isCap) h += '<span class="layout-cap-badge">C</span>';
-      h += '<i class="fa-solid fa-shirt layout-shirt-icon" style="color:'+(slot===1?'#FDD835':'#2E7D32')+';"></i>';
+      h += `<i class="fa-solid fa-shirt layout-shirt-icon" style="color:${slot===1?CARD_YELLOW:'#2E7D32'};"></i>`;
       h += '<span class="layout-shirt-num" style="color:'+(slot===1?'#2E7D32':'#fff')+';">'+slot+'</span>';
       h += '</div>';
       h += '<div class="layout-player-name">'+esc(name || '—')+'</div>';

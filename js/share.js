@@ -220,7 +220,7 @@ function _buildLineupGraphicHTML() {
       formation += '<div class="layout-player">';
       formation += '<div class="layout-shirt-wrap">';
       if (isCap) formation += '<span class="layout-cap-badge">C</span>';
-      formation += `<i class="fa-solid fa-shirt layout-shirt-icon" style="color:${isGK ? '#FDD835' : '#2E7D32'};"></i>`;
+      formation += `<i class="fa-solid fa-shirt layout-shirt-icon" style="color:${isGK ? CARD_YELLOW : '#2E7D32'};"></i>`;
       formation += `<span class="layout-shirt-num" style="color:${isGK ? '#2E7D32' : '#fff'};">${slot}</span>`;
       formation += '</div>';
       formation += `<div class="layout-player-name">${esc(name || '—')}</div>`;

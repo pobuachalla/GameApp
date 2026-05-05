@@ -67,8 +67,8 @@ function buildTimelineHTML() {
   }
   svg+=`<text x="${x(totalSecs)}" y="${H-2}" text-anchor="middle" font-size="9" fill="var(--t3)">${Math.round(totalSecs/60)}'</text>`;
   subs.forEach(e   => { const sx=x(e.secs); svg+=`<line x1="${sx}" y1="${PT}" x2="${sx}" y2="${PT+ch}" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="2 2"/>`; });
-  reds.forEach(e   => { const sx=x(e.secs); svg+=`<line x1="${sx}" y1="${PT}" x2="${sx}" y2="${PT+ch}" stroke="#E53935" stroke-width="1.5" stroke-dasharray="2 2"/>`; });
-  blacks.forEach(e => { const sx=x(e.secs); svg+=`<line x1="${sx}" y1="${PT}" x2="${sx}" y2="${PT+ch}" stroke="#2c2c2a" stroke-width="1.5" stroke-dasharray="2 2"/>`; });
+  reds.forEach(e   => { const sx=x(e.secs); svg+=`<line x1="${sx}" y1="${PT}" x2="${sx}" y2="${PT+ch}" stroke="${CARD_RED}" stroke-width="1.5" stroke-dasharray="2 2"/>`; });
+  blacks.forEach(e => { const sx=x(e.secs); svg+=`<line x1="${sx}" y1="${PT}" x2="${sx}" y2="${PT+ch}" stroke="${CARD_BLACK}" stroke-width="1.5" stroke-dasharray="2 2"/>`; });
   svg+=`<polyline points="${oppLine}" fill="none" stroke="#C62828" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
   svg+=`<polyline points="${usLine}"  fill="none" stroke="#2E7D32" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
   markers.forEach(m => {
@@ -86,8 +86,8 @@ function buildTimelineHTML() {
   h+=`<span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:16px;height:2px;background:#2E7D32;border-radius:1px;vertical-align:middle;"></span>${esc(state.usN)}</span>`;
   h+=`<span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:16px;height:2px;background:#C62828;border-radius:1px;vertical-align:middle;"></span>${esc(state.oppN)}</span>`;
   if (subs.length)   h+=`<span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:14px;height:0;border-top:2px dashed #F59E0B;vertical-align:middle;"></span>Sub</span>`;
-  if (reds.length)   h+=`<span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:14px;height:0;border-top:2px dashed #E53935;vertical-align:middle;"></span>Red</span>`;
-  if (blacks.length) h+=`<span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:14px;height:0;border-top:2px dashed #2c2c2a;vertical-align:middle;"></span>Black</span>`;
+  if (reds.length)   h+=`<span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:14px;height:0;border-top:2px dashed ${CARD_RED};vertical-align:middle;"></span>Red</span>`;
+  if (blacks.length) h+=`<span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:14px;height:0;border-top:2px dashed ${CARD_BLACK};vertical-align:middle;"></span>Black</span>`;
   h+='</div></div></div>';
   return h;
 }
@@ -466,7 +466,7 @@ function buildStatsHTML() {
       const lostEntries = Object.entries(lostCategories);
       if (wonEntries.length || lostEntries.length) {
         const WON_COLORS  = {'First to the Ball':'#1B5E20','Tackle Turnover':'#388E3C','Block':'#66BB6A','Hook':'#00897B','Defensive Pressure':'#A5D6A7'};
-        const LOST_COLORS = {'Poor Pass':'#B71C1C','Lost in Tackle':'#E53935','Second to the Ball':'#EF9A9A','Over Played':'#E65100','Isolated':'#FFAB91'};
+        const LOST_COLORS = {'Poor Pass':'#B71C1C','Lost in Tackle':CARD_RED,'Second to the Ball':'#EF9A9A','Over Played':'#E65100','Isolated':'#FFAB91'};
         h += '<div style="border-top:.5px solid var(--b);margin-top:12px;padding-top:12px;display:flex;gap:8px;justify-content:space-around;flex-wrap:wrap;">';
         if (wonEntries.length)  h += buildTurnoverDonut('Won by type',  wonEntries,  WON_COLORS,  '#2E7D32');
         if (lostEntries.length) h += buildTurnoverDonut('Lost by type', lostEntries, LOST_COLORS, '#C62828');
@@ -509,9 +509,9 @@ function buildStatsHTML() {
         h += '<div class="disc-row">';
         if (p.yc+p.bc+p.rc > 0) {
           h += '<span style="display:flex;gap:3px;flex-shrink:0;">';
-          for (let i=0;i<p.yc;i++) h += '<span class="disc-chip" style="background:#FDD835;" title="Yellow Card"></span>';
-          for (let i=0;i<p.bc;i++) h += '<span class="disc-chip" style="background:#2c2c2a;" title="Black Card"></span>';
-          for (let i=0;i<p.rc;i++) h += '<span class="disc-chip" style="background:#E53935;" title="Red Card"></span>';
+          for (let i=0;i<p.yc;i++) h += `<span class="disc-chip" style="background:${CARD_YELLOW};" title="Yellow Card"></span>`;
+          for (let i=0;i<p.bc;i++) h += `<span class="disc-chip" style="background:${CARD_BLACK};" title="Black Card"></span>`;
+          for (let i=0;i<p.rc;i++) h += `<span class="disc-chip" style="background:${CARD_RED};" title="Red Card"></span>`;
           h += '</span>';
         }
         h += html`<span class="stat-pname" style="flex:1;">${p.name}</span>`;
