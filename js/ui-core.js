@@ -20,6 +20,24 @@ function html(strings, ...vals) {
 }
 html.safe = v => ({ __safe: String(v) });
 
+// ─── HOW-TAKEN / HOW-SCORED GRID ─────────────────────────────────────────────
+// Shared template for both the player sheet and the team adjustments drawer.
+// backOnclick is a trusted internal JS expression (not user input).
+function buildHowGrid(title, opts, backOnclick) {
+  // eslint-disable-next-line no-restricted-syntax -- backOnclick is a trusted internal JS expression
+  return '<div class="ps-sub-nav">'
+    + '<button class="ps-sub-back" onclick="' + backOnclick + '"><i class="fas fa-chevron-left"></i></button>'
+    + '<span class="ps-sub-title">' + esc(title) + '</span>'
+    + '</div>'
+    + '<div class="ps-sub-grid">'
+    + opts.map(o => {
+        const val   = typeof o === 'string' ? o : o.val;
+        const label = typeof o === 'string' ? o : o.label;
+        return '<button class="ps-sub-card" data-v="' + esc(val) + '">' + esc(label) + '</button>';
+      }).join('')
+    + '</div>';
+}
+
 // ─── TOAST ────────────────────────────────────────────────────────────────────
 function toast(m) {
   el.toast.textContent = m; el.toast.classList.add('show');

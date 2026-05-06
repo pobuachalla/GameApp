@@ -103,21 +103,14 @@ function closePlayerSheetAndReset() {
 // ─── SHEET SUB-OPTIONS ────────────────────────────────────────────────────────
 function showPSOpts(title, opts, handler, layout) {
   let h = '<div class="ps-sub-wrap">';
-  h += '<div class="ps-sub-nav">';
-  h += '<button class="ps-sub-back" onclick="psActionBack()"><i class="fas fa-chevron-left"></i></button>';
-  h += `<span class="ps-sub-title">${esc(title)}</span>`;
-  h += '</div>';
   if (layout === 'grid') {
-    h += '<div class="ps-sub-grid">';
-    opts.forEach(o => {
-      const val   = typeof o === 'string' ? o : o.val;
-      const label = typeof o === 'string' ? o : o.label;
-      // eslint-disable-next-line no-restricted-syntax -- safe: val/label escaped
-      h += `<button class="ps-sub-card" data-v="${esc(val)}">${esc(label)}</button>`;
-    });
-    h += '</div>';
+    h += buildHowGrid(title, opts, 'psActionBack()');
   } else {
-    h += '<div class="ps-sub-opts">';
+    h += '<div class="ps-sub-nav">'
+      + '<button class="ps-sub-back" onclick="psActionBack()"><i class="fas fa-chevron-left"></i></button>'
+      + `<span class="ps-sub-title">${esc(title)}</span>`
+      + '</div>'
+      + '<div class="ps-sub-opts">';
     opts.forEach(o => {
       const val   = typeof o === 'string' ? o : o.val;
       const label = typeof o === 'string' ? o : o.label;
@@ -135,7 +128,7 @@ function showPSOpts(title, opts, handler, layout) {
     const btn = e.target.closest('[data-v]');
     if (!btn) return;
     body.onclick = null;
-    handler(btn.getAttribute('data-v'));
+    handler(btn.dataset.v);
   };
 }
 

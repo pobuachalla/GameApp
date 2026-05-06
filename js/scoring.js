@@ -154,16 +154,7 @@ function openScoreModal(side) {
     body.onclick = null;
     const v = btn.getAttribute('data-act');
     if (v === 'w+') {
-      closeScoreDrawer();
-      const wTeam = isUs ? state.usN : state.oppN;
-      const wBadge = isUs ? 'ADJ' : 'OPP';
-      const wCls   = isUs ? 'badj' : 'bopp';
-      const wDesc  = wTeam + ': Wide';
-      addRow(fmt(state.secs), wBadge, wCls, wDesc);
-      const wEv = state.evts[state.evts.length - 1];
-      wEv.action = 'Wide'; wEv.side = side;
-      pushUndo(wDesc, () => {});
-      showRestartModal(side);
+      showWideHowModal(side, isUs);
       return;
     }
     if (v.endsWith('-')) {
@@ -181,30 +172,43 @@ function openScoreModal(side) {
 
 function showScoreHowModal() {
   const {isFb, side} = pendScoreAdj;
-  document.getElementById('scr-title').textContent = 'How scored?';
   const from65label = state.sport === 'football' ? 'From 45' : 'From 65';
-  const opts = isFb ? ['From Play', 'From Free'] : ['From Play', 'From Free', from65label, 'From Penalty'];
+  const opts = isFb
+    ? ['From Play', 'From Free', 'From Sideline']
+    : SSEC.map(o => o === 'From 65' ? from65label : o);
   const body = document.getElementById('scr-body');
-  // eslint-disable-next-line no-restricted-syntax -- safe: opts are static strings, side is 'us'|'opp'
-  body.innerHTML =
-    '<div class="ps-sub-nav">'
-      + '<button class="ps-sub-back" onclick="openScoreModal(\'' + side + '\')"><i class="fas fa-chevron-left"></i></button>'
-      + '<span class="ps-sub-title">How scored?</span>'
-    + '</div>'
-    + '<div class="ps-sub-opts">'
-    + opts.map(o =>
-        '<button class="ps-sub-opt" data-how="' + esc(o) + '">'
-          + '<div style="flex:1;">' + esc(o) + '</div>'
-          + '<i class="fas fa-chevron-right ps-sub-arrow"></i>'
-        + '</button>'
-      ).join('')
-    + '</div>';
+  // eslint-disable-next-line no-restricted-syntax -- side is 'us'|'opp'
+  body.innerHTML = buildHowGrid('How scored?', opts, "openScoreModal('" + side + "')");
   body.onclick = e => {
-    const btn = e.target.closest('[data-how]');
+    const btn = e.target.closest('[data-v]');
     if (!btn) return;
     body.onclick = null;
-    completeScoreAdj(btn.getAttribute('data-how'));
+    completeScoreAdj(btn.dataset.v);
     closeScoreDrawer();
+  };
+}
+
+function showWideHowModal(side, isUs) {
+  const from65label = state.sport === 'football' ? 'From 45' : 'From 65';
+  const opts = SSEC.map(o => o === 'From 65' ? from65label : o);
+  const body = document.getElementById('scr-body');
+  // eslint-disable-next-line no-restricted-syntax -- side is 'us'|'opp'
+  body.innerHTML = buildHowGrid('Wide — how taken?', opts, "openScoreModal('" + side + "')");
+  body.onclick = e => {
+    const btn = e.target.closest('[data-v]');
+    if (!btn) return;
+    body.onclick = null;
+    const how = btn.dataset.v;
+    const wTeam  = isUs ? state.usN : state.oppN;
+    const wBadge = isUs ? 'ADJ' : 'OPP';
+    const wCls   = isUs ? 'badj' : 'bopp';
+    const wDesc  = wTeam + ': Wide · ' + how;
+    addRow(fmt(state.secs), wBadge, wCls, wDesc);
+    const wEv = state.evts[state.evts.length - 1];
+    wEv.action = 'Wide'; wEv.sec = how; wEv.side = side;
+    pushUndo(wDesc, () => {});
+    closeScoreDrawer();
+    showRestartModal(side);
   };
 }
 
