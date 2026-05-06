@@ -39,7 +39,8 @@ function loadTpl(name) {
         const s = parseInt(b.dataset.cap);
         const isCap = state.captain === s;
         b.className = 'cap-btn ' + (isCap ? 'active' : 'inactive');
-        b.querySelector('i').className = 'fa-regular ' + (isCap ? 'fa-copyright' : 'fa-circle');
+        // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
+        b.innerHTML = '<i class="fa-regular ' + (isCap ? 'fa-copyright' : 'fa-circle') + '"></i>';
       });
     }
     toast('Loaded "'+name+'"');
@@ -171,7 +172,8 @@ function setCaptain(slot) {
     const s = parseInt(b.dataset.cap);
     const isCap = state.captain === s;
     b.className = 'cap-btn ' + (isCap ? 'active' : 'inactive');
-    b.querySelector('i').className = 'fa-regular ' + (isCap ? 'fa-copyright' : 'fa-circle');
+    // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
+    b.innerHTML = '<i class="fa-regular ' + (isCap ? 'fa-copyright' : 'fa-circle') + '"></i>';
   });
   refAllBtns();
   saveState();
@@ -214,7 +216,8 @@ function _dragEnd() {
       const s = parseInt(b.dataset.cap);
       const isCap = state.captain === s;
       b.className = 'cap-btn '+(isCap?'active':'inactive');
-      b.querySelector('i').className = 'fa-regular '+(isCap?'fa-copyright':'fa-circle');
+      // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
+      b.innerHTML = '<i class="fa-regular '+(isCap?'fa-copyright':'fa-circle')+'"></i>';
     });
   }
   row.classList.remove('dragging');
