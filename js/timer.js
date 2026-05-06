@@ -152,7 +152,6 @@ function renderTimerUI() {
 
   // Primary button
   const primBtn = el['timer-primary-btn'];
-  const primIcon = document.getElementById('timer-primary-icon');
   const primMap  = {
     PRE_MATCH:           {icon:'fa-play',    cls:'green'},
     RUNNING_FIRST_HALF:  {icon:'fa-pause',   cls:'amber'},
@@ -165,25 +164,24 @@ function renderTimerUI() {
   if (pc) {
     primBtn.style.visibility='';
     primBtn.className='timer-primary-btn '+pc.cls;
-    primIcon.className='fas '+pc.icon;
+    // eslint-disable-next-line no-restricted-syntax -- safe: pc.icon is a static string from primMap
+    primBtn.innerHTML='<i class="fas '+pc.icon+'" id="timer-primary-icon" aria-hidden="true"></i>';
   } else {
     primBtn.style.visibility='hidden';
   }
 
   // Secondary button
-  const secBtn  = el['timer-secondary-btn'];
-  const secIcon = document.getElementById('timer-secondary-icon');
-  const secLbl  = document.getElementById('timer-secondary-label');
+  const secBtn = el['timer-secondary-btn'];
   if (inFirst) {
     secBtn.style.visibility='';
     secBtn.className='timer-secondary-btn end-half';
-    secIcon.className='fas fa-hourglass-half';
-    secLbl.textContent='End Half';
+    // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
+    secBtn.innerHTML='<i class="fas fa-hourglass-half" id="timer-secondary-icon" aria-hidden="true"></i><span id="timer-secondary-label">End Half</span>';
   } else if (inSecond) {
     secBtn.style.visibility='';
     secBtn.className='timer-secondary-btn end-match';
-    secIcon.className='fas fa-flag-checkered';
-    secLbl.textContent='End Match';
+    // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
+    secBtn.innerHTML='<i class="fas fa-flag-checkered" id="timer-secondary-icon" aria-hidden="true"></i><span id="timer-secondary-label">End Match</span>';
   } else {
     secBtn.style.visibility='hidden';
     secBtn.className='timer-secondary-btn';

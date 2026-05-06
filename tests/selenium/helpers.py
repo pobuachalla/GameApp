@@ -11,12 +11,10 @@ Usage:
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 TIMEOUT = 8
 
-# Repeated CSS selectors / style strings extracted to avoid duplication warnings
-_MODAL_STYLE_OPEN  = "display: block"
 _TIMER_PRIMARY_BTN = "#timer-primary-btn"
 _STATUS_CHIP       = "#status-chip"
 _HOW_FROM_PLAY     = "From Play"
@@ -70,47 +68,6 @@ class App:
         except NoSuchElementException:
             return False
 
-    # ── Modal helpers ──────────────────────────────────────────────────────────
-
-    def modal_open(self):
-        style = self.d.find_element(By.ID, "modal").get_attribute("style") or ""
-        return _MODAL_STYLE_OPEN in style
-
-    def wait_modal_open(self):
-        WebDriverWait(self.d, TIMEOUT).until(
-            lambda d: _MODAL_STYLE_OPEN
-            in (d.find_element(By.ID, "modal").get_attribute("style") or "")
-        )
-
-    def wait_modal_closed(self):
-        WebDriverWait(self.d, TIMEOUT).until(
-            lambda d: _MODAL_STYLE_OPEN
-            not in (d.find_element(By.ID, "modal").get_attribute("style") or "")
-        )
-
-    def modal_title(self):
-        return self.text("#mtitle")
-
-    def click_opt(self, data_v):
-        """Click a modal option button by its data-v attribute value."""
-        sel = f'#mopts [data-v="{data_v}"]'
-        self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, sel))).click()
-
-    def dismiss(self):
-        """Close the modal by clicking the Cancel button."""
-        self.wait.until(
-            EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, "button[onclick='closeMod()']")
-            )
-        ).click()
-        self.wait_modal_closed()
-
-    def confirm(self):
-        """Click the primary confirmation button (.confirm-action-btn)."""
-        self.wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, ".confirm-action-btn"))
-        ).click()
-
     # ── Panel helpers (all panels use the .open class) ─────────────────────────
 
     def panel_open(self, panel_id):
@@ -128,6 +85,79 @@ class App:
             lambda d: "open"
             not in (d.find_element(By.ID, panel_id).get_attribute("class") or "").split()
         )
+
+    # ── Confirm drawer (cfmpanel) ──────────────────────────────────────────────
+
+    def wait_modal_open(self):
+        """Waits for the confirm drawer (cfmpanel) to open."""
+        self.wait_panel_open("cfmpanel")
+
+    def wait_modal_closed(self):
+        """Waits for the confirm drawer (cfmpanel) to close."""
+        self.wait_panel_closed("cfmpanel")
+
+    def modal_open(self):
+        return self.panel_open("cfmpanel")
+
+    def modal_title(self):
+        return self.text("#cfm-title")
+
+    def confirm(self):
+        """Click the confirm button in cfmpanel."""
+        self.wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "#cfmpanel .cfm-btn"))
+        ).click()
+
+    def dismiss(self):
+        """Dismiss the currently open panel by clicking its overlay."""
+        for oid in ("cfmovly", "rstovly", "scrovly", "sharovly", "plyovly", "subovly"):
+            try:
+                overlay = self.d.find_element(By.ID, oid)
+                cls = overlay.get_attribute("class") or ""
+                if "open" in cls.split():
+                    self.d.execute_script("arguments[0].click();", overlay)
+                    return
+            except NoSuchElementException:
+                continue
+
+    # ── Click options (data-v across all visible panels / psAction buttons) ─────
+
+    def click_opt(self, data_v):
+        """Click an option by data-v value across all open panels, or by psAction."""
+        # psAction buttons in player sheet
+        ps_sel = f'[onclick="psAction(\'{data_v}\')"]'
+        # data-v in any panel body
+        dv_sel = (
+            f'#ply-body [data-v="{data_v}"], '
+            f'#scr-body [data-v="{data_v}"], '
+            f'#sub-list [data-v="{data_v}"], '
+            f'#share-opts-wrap [data-v="{data_v}"], '
+            f'#sharpanel [data-v="{data_v}"]'
+        )
+        # Restart special cases
+        if data_v in ("Won", "Win"):
+            self.wait.until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "#rstpanel .ps-poss-won"))
+            ).click()
+            return
+        if data_v in ("Lost", "Loss"):
+            self.wait.until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "#rstpanel .ps-poss-lost"))
+            ).click()
+            return
+        # Try psAction button first
+        try:
+            btn = WebDriverWait(self.d, 2).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, ps_sel))
+            )
+            btn.click()
+            return
+        except TimeoutException:
+            pass
+        # Fall back to data-v selector
+        self.wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, dv_sel))
+        ).click()
 
     # ── Timer / state-machine helpers ──────────────────────────────────────────
 
@@ -163,22 +193,22 @@ class App:
         )
 
     def end_half(self, dismiss_graphic=True):
-        """End the first half via the secondary button and confirm the modal."""
+        """End the first half via the secondary button and confirm."""
         self.click("#timer-secondary-btn")
-        self.wait_modal_open()
+        self.wait_panel_open("cfmpanel")
         self.confirm()
-        self.wait_modal_closed()
+        self.wait_panel_closed("cfmpanel")
         if dismiss_graphic:
             self.wait_panel_open("score-graphic-panel")
             self.click("#score-graphic-continue-btn")
             self.wait_panel_closed("score-graphic-panel")
 
     def end_match(self, dismiss_graphic=True):
-        """End the match via the secondary button and confirm the modal."""
+        """End the match via the secondary button and confirm."""
         self.click("#timer-secondary-btn")
-        self.wait_modal_open()
+        self.wait_panel_open("cfmpanel")
         self.confirm()
-        self.wait_modal_closed()
+        self.wait_panel_closed("cfmpanel")
         if dismiss_graphic:
             self.wait_panel_open("score-graphic-panel")
             self.click("#score-graphic-continue-btn")
@@ -199,7 +229,14 @@ class App:
             "opp_tot": int(self.text("#ototal").strip("()")),
         }
 
-    # ── Player helpers ─────────────────────────────────────────────────────────
+    # ── Player sheet helpers ───────────────────────────────────────────────────
+
+    def click_player(self, slot):
+        """Click a player button; waits for player sheet to open."""
+        self.wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, f'[data-s="{slot}"]'))
+        ).click()
+        self.wait_panel_open("plysheet")
 
     def player_classes(self, slot):
         return (
@@ -217,84 +254,124 @@ class App:
             By.CSS_SELECTOR, f'[data-s="{slot}"]'
         ).is_enabled()
 
-    def click_player(self, slot):
-        self.wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, f'[data-s="{slot}"]'))
-        ).click()
-        self.wait_modal_open()
+    def _pick_restart(self, result="Won"):
+        """Pick a restart result in the restart drawer."""
+        self.wait_panel_open("rstpanel")
+        if result in ("Won", "Win"):
+            self.wait.until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "#rstpanel .ps-poss-won"))
+            ).click()
+        elif result in ("Lost", "Loss"):
+            self.wait.until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "#rstpanel .ps-poss-lost"))
+            ).click()
+        else:
+            # "Unclear" — third poss button
+            btns = self.d.find_elements(By.CSS_SELECTOR, "#rstpanel .ps-poss-btn")
+            if len(btns) > 2:
+                btns[2].click()
+        self.wait_panel_closed("rstpanel")
+
+    def _close_player_sheet(self):
+        self.wait_panel_closed("plysheet")
 
     # ── Action flows ───────────────────────────────────────────────────────────
 
     def record_goal(self, slot=2, how=_HOW_FROM_PLAY, restart="Won"):
         self.click_player(slot)
         self.click_opt("Goal")
-        self.click_opt(how)
-        self.wait_modal_open()
-        self.click_opt(restart)
-        self.wait_modal_closed()
+        # Wait for sub-options grid then click how
+        self.wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, f'#ply-body [data-v="{how}"]'))
+        ).click()
+        self._pick_restart(restart)
+        self._close_player_sheet()
 
     def record_point(self, slot=2, how=_HOW_FROM_PLAY, restart="Won"):
         self.click_player(slot)
         self.click_opt("Point")
-        self.click_opt(how)
-        self.wait_modal_open()
-        self.click_opt(restart)
-        self.wait_modal_closed()
+        self.wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, f'#ply-body [data-v="{how}"]'))
+        ).click()
+        self._pick_restart(restart)
+        self._close_player_sheet()
 
     def record_wide(self, slot=2, how=_HOW_FROM_PLAY):
         self.click_player(slot)
         self.click_opt("Wide")
-        self.click_opt(how)
-        self.wait_modal_open()
-        self.dismiss()
+        self.wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, f'#ply-body [data-v="{how}"]'))
+        ).click()
+        # Wide triggers a restart panel — dismiss by picking a result
+        self._pick_restart("Won")
+        self._close_player_sheet()
 
     def yellow_card(self, slot=2):
         self.click_player(slot)
         self.click_opt("Card")
-        self.click_opt("Yellow Card")
-        self.wait_modal_closed()
+        self.wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, '#ply-body [data-v="Yellow Card"]'))
+        ).click()
+        self._close_player_sheet()
 
     def black_card(self, slot=2):
         self.click_player(slot)
         self.click_opt("Card")
-        self.click_opt("Black Card")
-        self.wait_modal_closed()
+        self.wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, '#ply-body [data-v="Black Card"]'))
+        ).click()
+        self._close_player_sheet()
 
     def red_card(self, slot=2):
         self.click_player(slot)
         self.click_opt("Card")
-        self.click_opt("Red Card")
-        self.wait_modal_closed()
+        self.wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, '#ply-body [data-v="Red Card"]'))
+        ).click()
+        self._close_player_sheet()
 
     def substitute(self, slot_off=2, sub_on=17):
         """Sub player at slot_off off; bring bench player sub_on on."""
         self.click_player(slot_off)
         self.click_opt("Substitution")
+        self.wait_panel_open("subpanel")
         self.wait.until(
             EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, f'#mopts .abtn[data-v="{sub_on}"]')
+                (By.CSS_SELECTOR, f'#sub-list [data-v="{sub_on}"]')
             )
         ).click()
-        self.wait_modal_closed()
+        self.wait_panel_closed("subpanel")
 
     # ── Score adjustments ──────────────────────────────────────────────────────
 
     def adj_add(self, side, kind, how=_HOW_FROM_PLAY, restart="Won"):
         """Add a goal ('g') or point ('p') for 'us' or 'opp' via the edit button."""
         self.click(f".score-adj-btn[onclick=\"openScoreModal('{side}')\"]")
-        self.wait_modal_open()
-        self.click_opt(f"{kind}+")
-        self.click_opt(how)
-        self.wait_modal_open()
-        self.click_opt(restart)
-        self.wait_modal_closed()
+        self.wait_panel_open("scrpanel")
+        # Click the data-act button (g+, p+)
+        self.wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, f'#scr-body [data-act="{kind}+"]')
+            )
+        ).click()
+        # Wait for how-scored sub-view then click how
+        self.wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, f'#scr-body [data-v="{how}"]')
+            )
+        ).click()
+        self._pick_restart(restart)
 
     def adj_remove(self, side, kind):
         """Remove a goal ('g') or point ('p') for 'us' or 'opp'."""
         self.click(f".score-adj-btn[onclick=\"openScoreModal('{side}')\"]")
-        self.wait_modal_open()
-        self.click_opt(f"{kind}-")
-        self.wait_modal_closed()
+        self.wait_panel_open("scrpanel")
+        self.wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, f'#scr-body [data-act="{kind}-"]')
+            )
+        ).click()
+        self.wait_panel_closed("scrpanel")
 
     # ── Panel controls ─────────────────────────────────────────────────────────
 
@@ -331,7 +408,7 @@ class App:
 
     def open_share(self):
         self.click("button[onclick='openShareMenu()']")
-        self.wait_modal_open()
+        self.wait_panel_open("sharpanel")
 
     # ── Settings helpers ───────────────────────────────────────────────────────
 

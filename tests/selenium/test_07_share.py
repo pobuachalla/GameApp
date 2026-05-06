@@ -7,54 +7,59 @@ sys.path.insert(0, os.path.dirname(__file__))
 from selenium.webdriver.common.by import By
 from helpers import App
 
+_SHARE_OPTS = "#share-opts-wrap [data-v]"
 
-# ── Share modal ────────────────────────────────────────────────────────────────
+
+# ── Share panel ────────────────────────────────────────────────────────────────
 
 def test_share_menu_modal_opens(app):
     a = App(app)
     a.open_share()
-    assert a.modal_open()
+    assert a.panel_open("sharpanel")
 
 
 def test_share_menu_title_is_share(app):
     a = App(app)
     a.open_share()
-    assert a.modal_title().lower() == "share"
+    title_el = app.find_element(By.CSS_SELECTOR, "#sharpanel .drw-hdr div")
+    assert "share" in title_el.text.strip().lower()
 
 
 def test_share_menu_has_current_score_option(app):
     a = App(app)
     a.open_share()
-    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts [data-v]")]
+    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, _SHARE_OPTS)]
     assert "curr" in opts
 
 
 def test_share_menu_has_lineup_option(app):
     a = App(app)
     a.open_share()
-    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts [data-v]")]
+    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, _SHARE_OPTS)]
     assert "lu" in opts
 
 
 def test_share_menu_no_ht_option_before_half_time(app):
     a = App(app)
     a.open_share()
-    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts [data-v]")]
+    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, _SHARE_OPTS)]
     assert "ht" not in opts
 
 
 def test_share_menu_no_ft_option_before_full_time(app):
     a = App(app)
     a.open_share()
-    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts [data-v]")]
+    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, _SHARE_OPTS)]
     assert "ft" not in opts
 
 
 def test_share_menu_cancel_closes_modal(app):
     a = App(app)
     a.open_share()
-    a.dismiss()
-    assert not a.modal_open()
+    # Dismiss via the overlay
+    app.find_element(By.ID, "sharovly").click()
+    a.wait_panel_closed("sharpanel")
+    assert not a.panel_open("sharpanel")
 
 
 # ── Current score card ─────────────────────────────────────────────────────────
@@ -63,7 +68,7 @@ def test_current_score_card_opens_graphic_panel(app):
     a = App(app)
     a.open_share()
     a.click_opt("curr")
-    a.wait_modal_closed()
+    a.wait_panel_closed("sharpanel")
     a.wait_panel_open("score-graphic-panel")
     assert a.panel_open("score-graphic-panel")
 
@@ -74,7 +79,7 @@ def test_score_graphic_contains_score_numbers(app):
     a.record_goal(slot=2)
     a.open_share()
     a.click_opt("curr")
-    a.wait_modal_closed()
+    a.wait_panel_closed("sharpanel")
     a.wait_panel_open("score-graphic-panel")
     wrap_text = a.el("#score-graphic-wrap").text
     assert "1" in wrap_text  # goal count
@@ -84,7 +89,7 @@ def test_score_graphic_continue_btn_closes_panel(app):
     a = App(app)
     a.open_share()
     a.click_opt("curr")
-    a.wait_modal_closed()
+    a.wait_panel_closed("sharpanel")
     a.wait_panel_open("score-graphic-panel")
     a.click("#score-graphic-continue-btn")
     a.wait_panel_closed("score-graphic-panel")
@@ -97,7 +102,7 @@ def test_lineup_graphic_opens_panel(app):
     a = App(app)
     a.open_share()
     a.click_opt("lu")
-    a.wait_modal_closed()
+    a.wait_panel_closed("sharpanel")
     a.wait_panel_open("score-graphic-panel")
     assert a.panel_open("score-graphic-panel")
 
@@ -106,7 +111,7 @@ def test_lineup_graphic_contains_player_slots(app):
     a = App(app)
     a.open_share()
     a.click_opt("lu")
-    a.wait_modal_closed()
+    a.wait_panel_closed("sharpanel")
     a.wait_panel_open("score-graphic-panel")
     wrap_html = a.el("#score-graphic-wrap").get_attribute("innerHTML")
     # The lineup renders SVG shirt elements
@@ -117,7 +122,7 @@ def test_lineup_close_button_closes_panel(app):
     a = App(app)
     a.open_share()
     a.click_opt("lu")
-    a.wait_modal_closed()
+    a.wait_panel_closed("sharpanel")
     a.wait_panel_open("score-graphic-panel")
     a.click("#score-graphic-continue-btn")
     a.wait_panel_closed("score-graphic-panel")
@@ -131,8 +136,9 @@ def test_ht_share_option_appears_after_half_time(app):
     a.start_match()
     a.end_half()
     a.open_share()
-    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts [data-v]")]
-    a.dismiss()
+    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, _SHARE_OPTS)]
+    app.find_element(By.ID, "sharovly").click()
+    a.wait_panel_closed("sharpanel")
     assert "ht" in opts
 
 
@@ -142,7 +148,7 @@ def test_ht_score_card_opens_graphic_panel(app):
     a.end_half()
     a.open_share()
     a.click_opt("ht")
-    a.wait_modal_closed()
+    a.wait_panel_closed("sharpanel")
     a.wait_panel_open("score-graphic-panel")
     assert a.panel_open("score-graphic-panel")
     a.click("#score-graphic-continue-btn")
@@ -157,8 +163,9 @@ def test_ft_share_option_appears_after_full_time(app):
     a.start_match()
     a.end_match()
     a.open_share()
-    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, "#mopts [data-v]")]
-    a.dismiss()
+    opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, _SHARE_OPTS)]
+    app.find_element(By.ID, "sharovly").click()
+    a.wait_panel_closed("sharpanel")
     assert "ft" in opts
 
 
@@ -170,7 +177,7 @@ def test_ft_score_card_opens_graphic_panel(app):
     a.end_match()
     a.open_share()
     a.click_opt("ft")
-    a.wait_modal_closed()
+    a.wait_panel_closed("sharpanel")
     a.wait_panel_open("score-graphic-panel")
     assert a.panel_open("score-graphic-panel")
     a.click("#score-graphic-continue-btn")
@@ -202,7 +209,7 @@ def test_score_card_lists_all_six_scorers(app):
 
     a.open_share()
     a.click_opt("curr")
-    a.wait_modal_closed()
+    a.wait_panel_closed("sharpanel")
     a.wait_panel_open("score-graphic-panel")
 
     wrap_text = a.el("#score-graphic-wrap").text
