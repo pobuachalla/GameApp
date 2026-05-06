@@ -370,9 +370,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ps-poss-btn{display:flex;flex:1;align-items:center;gap:8px;padding:13px 10px;border-radius:12px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;border:none;text-align:left;}
 .ps-poss-btn:active{opacity:.8;}
 .ps-poss-won{background:#2E7D32;color:#fff;}
+.ps-poss-orange{background:#FFF1D6;color:#D97706;border:.5px solid rgba(217,119,6,0.35);}
+.ps-poss-neutral{background:var(--bg1);color:var(--t1);border:.5px solid var(--bm);}
 .ps-poss-lost{background:#FFEBEE;color:#C62828;border:.5px solid rgba(198,40,40,0.18)!important;}
 .ps-poss-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
 .ps-poss-won .ps-poss-icon{background:rgba(255,255,255,0.18);}
+.ps-poss-orange .ps-poss-icon{background:rgba(217,119,6,0.12);color:#D97706;}
+.ps-poss-neutral .ps-poss-icon{background:var(--bg2);color:#2E7D32;}
 .ps-poss-lost .ps-poss-icon{background:rgba(198,40,40,0.1);color:#C62828;}
 .ps-disc{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
 .ps-pers-btn{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;border:1.5px dashed var(--b);background:var(--bg1);cursor:pointer;font-family:inherit;font-size:14px;font-weight:500;color:var(--t1);width:100%;text-align:left;}

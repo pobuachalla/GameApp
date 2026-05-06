@@ -137,12 +137,12 @@ function openScoreModal(side) {
     + '</div>'
     + (state.sport === 'football'
       ? '<div class="ps-poss">'
-          + '<button class="ps-poss-btn ps-poss-won" data-act="f+"><span class="ps-poss-icon"><i class="fas fa-flag fa-beat-fade"></i></span>+ 2 Point</button>'
+          + '<button class="ps-poss-btn ps-poss-orange" data-act="f+"><span class="ps-poss-icon"><i class="fas fa-flag fa-beat-fade"></i></span>+ 2 Point</button>'
           + '<button class="ps-poss-btn ps-poss-lost" data-act="f-"><span class="ps-poss-icon"><i class="fas fa-minus"></i></span>− 2 Point</button>'
         + '</div>'
       : '')
     + '<div class="ps-poss">'
-      + '<button class="ps-poss-btn ps-poss-won" data-act="p+"><span class="ps-poss-icon"><i class="far fa-flag fa-beat-fade"></i></span>+ Point</button>'
+      + '<button class="ps-poss-btn ps-poss-neutral" data-act="p+"><span class="ps-poss-icon"><i class="far fa-flag fa-beat-fade"></i></span>+ Point</button>'
       + '<button class="ps-poss-btn ps-poss-lost" data-act="p-"><span class="ps-poss-icon"><i class="fas fa-minus"></i></span>− Point</button>'
     + '</div>'
     + '<button class="ps-poss-btn" style="width:100%;background:var(--bg2);color:var(--t2);" data-act="w+">'
@@ -203,8 +203,8 @@ function showScoreHowModal() {
     const btn = e.target.closest('[data-how]');
     if (!btn) return;
     body.onclick = null;
-    closeScoreDrawer();
     completeScoreAdj(btn.getAttribute('data-how'));
+    closeScoreDrawer();
   };
 }
 
