@@ -82,7 +82,17 @@ function openPlayerSheet(s) {
         `<span class="ps-pers-icon"><i class="fas fa-people-arrows"></i></span>` +
         `Substitute off<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i>` +
       `</button>` +
-    `</div>`;
+    `</div>` +
+    // GOALKEEPING (slot 1 only)
+    (s === 1
+      ? `<div class="ps-sec">` +
+          `<div class="ps-sec-hdr"><span class="ps-lbl">GOALKEEPING</span></div>` +
+          `<button class="ps-pers-btn ps-btn-gk" onclick="psAction('GK Save')">` +
+            `<span class="ps-pers-icon"><i class="fas fa-hand"></i></span>` +
+            `Rate a save<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i>` +
+          `</button>` +
+        `</div>`
+      : '');
 
   document.getElementById('plyovly').classList.add('open');
   el.plysheet.classList.add('open');
@@ -135,6 +145,12 @@ function showPSOpts(title, opts, handler, layout) {
 function psActionBack() { openPlayerSheet(selSlot); }
 
 function psAction(a) {
+  if (a === 'GK Save') {
+    const slot = selSlot;
+    closePlayerSheetAndReset();
+    openGKSaveFlow(slot);
+    return;
+  }
   if (a === 'Card') {
     showPSOpts('Card — colour?', [
       {val:'Yellow Card', label:'Yellow Card', pre:'<i class="fas fa-square ps-card-y"></i>'},

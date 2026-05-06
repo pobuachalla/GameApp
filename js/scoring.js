@@ -244,7 +244,8 @@ function adjOpp(t, d, side, how) {
   addRow(fmt(state.secs),'OPP','bopp',desc);
   const ct=t,cp=prev;
   pushUndo(desc,()=>{ if(ct==='g') setOppGoals(cp); else setOppPts(cp); upTot(); });
-  if (d>0) showRestartModal(side||'opp');
+  if (d>0 && t==='g') openGKGoalFlow(state.evts.length - 1, side||'opp');
+  else if (d>0) showRestartModal(side||'opp');
 }
 
 function adjFootball(d, side, how) {
