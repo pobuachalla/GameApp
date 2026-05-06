@@ -346,6 +346,25 @@
             </div>
           </div>
 
+          <!-- GK performance card (only shown when slot 1 has a player) -->
+          <div id="gkperf-card" class="trk-card" style="display:none;">
+            <div class="trk-card-top">
+              <div class="trk-icon-wrap"><i class="fas fa-hand"></i></div>
+              <div class="trk-card-text">
+                <div class="trk-card-title">Goalkeeper performance</div>
+                <div class="trk-card-desc">Auto-rate the goalkeeper on each opposition goal conceded.</div>
+              </div>
+              <label class="trk-toggle" aria-label="Goalkeeper performance">
+                <input type="checkbox" id="gkperf-chk" onchange="onGKPerfToggle(this.checked)">
+                <span class="trk-toggle-thumb"></span>
+              </label>
+            </div>
+            <div class="trk-hint">
+              <i class="fas fa-shield-halved" style="color:#0277BD;font-size:14px;"></i>
+              <span class="trk-hint-text">Opens rating sheet after each conceded goal</span>
+            </div>
+          </div>
+
         </div>
       </div>
 

@@ -295,6 +295,11 @@ function onTurnoverToggle(checked) {
   saveState();
 }
 
+function onGKPerfToggle(checked) {
+  state.trackGKPerformance = checked;
+  saveState();
+}
+
 // ─── TRACKING PRESET HELPERS ─────────────────────────────────────────────────
 const _TRK_PRESETS = {
   quick:    {showPlayerNumbers: false, trackShotLocations: false, trackTurnovers: false},
@@ -323,6 +328,11 @@ function syncTrackingUI() {
   if (shot) shot.checked = !!state.trackShotLocations;
   const turn = document.getElementById('turnover-chk');
   if (turn) turn.checked = !!state.trackTurnovers;
+  const gkCard = document.getElementById('gkperf-card');
+  const gkChk  = document.getElementById('gkperf-chk');
+  const gkAvail = !!(state.pnames && state.pnames[1]);
+  if (gkCard) gkCard.style.display = gkAvail ? '' : 'none';
+  if (gkChk)  gkChk.checked = !!state.trackGKPerformance;
 }
 
 function updatePresetUI() {
