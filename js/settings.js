@@ -297,19 +297,20 @@ function onTurnoverToggle(checked) {
 
 function onGKPerfToggle(checked) {
   state.trackGKPerformance = checked;
+  updatePresetUI();
   saveState();
 }
 
 // ─── TRACKING PRESET HELPERS ─────────────────────────────────────────────────
 const _TRK_PRESETS = {
-  quick:    {showPlayerNumbers: false, trackShotLocations: false, trackTurnovers: false},
-  standard: {showPlayerNumbers: true,  trackShotLocations: true,  trackTurnovers: false},
-  detailed: {showPlayerNumbers: true,  trackShotLocations: true,  trackTurnovers: true},
+  quick:    {showPlayerNumbers: false, trackShotLocations: false, trackTurnovers: false, trackGKPerformance: false},
+  standard: {showPlayerNumbers: true,  trackShotLocations: true,  trackTurnovers: false, trackGKPerformance: false},
+  detailed: {showPlayerNumbers: true,  trackShotLocations: true,  trackTurnovers: true,  trackGKPerformance: true},
 };
 const _TRK_DESCS = {
   quick:    'Scores only — no jersey numbers, shot locations, or turnover detail.',
   standard: 'Captures scores, jersey numbers, and shot locations.',
-  detailed: 'Full tracking — everything in Standard plus turnover breakdowns.',
+  detailed: 'Full tracking — everything in Standard plus turnover breakdowns and goalkeeper performance.',
 };
 
 function applyTrackingPreset(mode) {
@@ -335,13 +336,14 @@ function syncTrackingUI() {
 }
 
 function updatePresetUI() {
-  const pnum = state.showPlayerNumbers !== false;
-  const shot = !!state.trackShotLocations;
-  const turn = !!state.trackTurnovers;
+  const pnum  = state.showPlayerNumbers !== false;
+  const shot  = !!state.trackShotLocations;
+  const turn  = !!state.trackTurnovers;
+  const gkp   = !!state.trackGKPerformance;
   let active = null;
-  if (!pnum && !shot && !turn) active = 'quick';
-  else if (pnum && shot && !turn) active = 'standard';
-  else if (pnum && shot && turn)  active = 'detailed';
+  if (!pnum && !shot && !turn && !gkp) active = 'quick';
+  else if (pnum && shot && !turn && !gkp) active = 'standard';
+  else if (pnum && shot && turn  &&  gkp) active = 'detailed';
   document.querySelectorAll('.trk-preset-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.preset === active);
   });
