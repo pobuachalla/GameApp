@@ -42,7 +42,8 @@ function _gkFg(bv)  { return bv >= 6 ? '#fff' : '#1f1f1f'; }
 // ── Labels ────────────────────────────────────────────────────────────────────
 const _I_LBL  = ['','Easy','Low difficulty','Mid difficulty','Hard shot','Unstoppable'];
 const _S_LBL  = ['','Beaten','Parried','Loose ball','Pushed clear','Full control'];
-const _S2_LBL = ['','Scored rebound','Poor clearance','Neutral','Good clearance','Brilliant'];
+const _S2_LBL    = ['','Scored rebound','Poor clearance','Neutral','Good clearance','Brilliant'];
+const _S2_COLORS = ['','#C62828','#E57310','#888888','#388E3C','#1B5E20'];
 
 // ── Open / close ──────────────────────────────────────────────────────────────
 function openGKSaveFlow(slot) {
@@ -199,18 +200,22 @@ function _gkUpdateSecondary() {
 }
 
 function _gkRenderSecondary() {
-  const row = document.getElementById('gk-secondary-row');
-  let html  = '';
-  for (let s = 1; s <= 5; s++) {
-    const sel = _gkSecondary === s;
-    html +=
-      '<button class="gk-sec-btn' + (sel ? ' gk-sec-btn-sel' : '') + '" onclick="gkSecTap(' + s + ')">' +
-      '<span class="gk-sec-num">' + s + '</span>' +
-      '<span class="gk-sec-lbl">' + _S2_LBL[s] + '</span>' +
-      '</button>';
+  if (_gkSecondary == null) {
+    _gkSecondary = 3;
+    _gkUpdateSubmitBtn();
   }
-  // eslint-disable-next-line no-restricted-syntax -- safe: all computed from numbers / static arrays
-  row.innerHTML = html;
+  const val   = _gkSecondary;
+  const color = _S2_COLORS[val];
+  // eslint-disable-next-line no-restricted-syntax -- safe: val is 1-5 integer, color/label from static arrays
+  document.getElementById('gk-secondary-row').innerHTML =
+    '<div class="gk-sec-slider-wrap">' +
+      '<div class="gk-sec-display" id="gk-sec-display">' +
+        '<span class="gk-sec-num-big" style="color:' + color + ';">' + val + '</span>' +
+        '<span class="gk-sec-lbl-big" style="color:' + color + ';">' + _S2_LBL[val] + '</span>' +
+      '</div>' +
+      '<input type="range" class="gk-sec-slider" min="1" max="5" step="1" value="' + val + '" oninput="gkSecSlide(+this.value)">' +
+      '<div class="gk-sec-ticks"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>' +
+    '</div>';
 }
 
 function _gkUpdateSubmitBtn() {
@@ -240,9 +245,16 @@ function gkCellTap(intensity, save) {
   _gkUpdateSubmitBtn();
 }
 
-function gkSecTap(s) {
-  _gkSecondary = s;
-  _gkRenderSecondary();
+function gkSecSlide(val) {
+  _gkSecondary = val;
+  const color   = _S2_COLORS[val];
+  const display = document.getElementById('gk-sec-display');
+  if (display) {
+    // eslint-disable-next-line no-restricted-syntax -- safe: val is 1-5 integer, color/label from static arrays
+    display.innerHTML =
+      '<span class="gk-sec-num-big" style="color:' + color + ';">' + val + '</span>' +
+      '<span class="gk-sec-lbl-big" style="color:' + color + ';">' + _S2_LBL[val] + '</span>';
+  }
   _gkUpdateReadout();
   _gkUpdateSubmitBtn();
 }
