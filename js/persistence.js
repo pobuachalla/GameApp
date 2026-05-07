@@ -8,12 +8,12 @@ function serializeState() {
          period,secs,matchState,tPausedAt,tWallStart,
          usN,oppN,location,referee,competition,matchDate,ageGrade,matchNotes,
          pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
-         maxB,evts,sport,teamSize,captain,startSlotp,startCaptain,trackShotLocations,showPlayerNumbers,trackTurnovers} = state;
+         maxB,evts,sport,teamSize,captain,startSlotp,startCaptain,trackShotLocations,showPlayerNumbers,trackTurnovers,trackGKPerformance} = state;
   return {goals,pts,og,op_,htGoals,htPts,htOg,htOp,ftGoals,ftPts,ftOg,ftOp,
           period,secs,matchState,tPausedAt,tWallStart,
           usN,oppN,location,referee,competition,matchDate,ageGrade,matchNotes,
           pnames,slotp,ubench,suboff,rcarded,ycarded,bcarded,
-          maxB,evts,sport,teamSize,captain,startSlotp,startCaptain,trackShotLocations,showPlayerNumbers,trackTurnovers};
+          maxB,evts,sport,teamSize,captain,startSlotp,startCaptain,trackShotLocations,showPlayerNumbers,trackTurnovers,trackGKPerformance};
 }
 
 function saveState() {
