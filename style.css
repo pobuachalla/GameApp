@@ -432,7 +432,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 #gkovly{z-index:77;}
 #gkpanel{z-index:78;}
 .bgk{background:#0277BD;color:#fff;}
-.gk-scroll{flex:1;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:12px;padding:14px;}
+.gk-scroll{flex:1;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:10px;padding:10px 14px;}
+.gk-body-row{display:flex;gap:10px;align-items:flex-start;}
+.gk-matrix-col{flex:0 0 63%;display:flex;flex-direction:column;gap:4px;}
+.gk-detail-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;padding-top:18px;}
 .gk-tag{background:#0277BD;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;letter-spacing:.04em;}
 .gk-subtitle{font-size:13px;color:var(--t2);line-height:1.5;}
 .gk-lock-pills{display:flex;gap:8px;flex-wrap:wrap;}
@@ -440,7 +443,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .gk-pill-locked{background:var(--bgw);color:var(--tw);border-color:var(--bw);}
 .gk-matrix-wrap{display:flex;flex-direction:column;gap:4px;}
 .gk-x-label{font-size:10px;color:var(--t3);text-align:center;letter-spacing:.04em;}
-.gk-matrix{display:grid;grid-template-columns:22px repeat(5,1fr);grid-template-rows:22px repeat(5,1fr);gap:3px;aspect-ratio:1;}
+.gk-matrix{display:grid;grid-template-columns:16px repeat(5,1fr);grid-template-rows:16px repeat(5,1fr);gap:2px;aspect-ratio:1;}
 .gk-col-hdr{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--t2);}
 .gk-hdr-dim{opacity:.3;}
 .gk-row-hdr{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--t2);}
@@ -452,7 +455,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .gk-cell-diag{outline:2px dashed rgba(0,0,0,.25);outline-offset:-3px;}
 .gk-cell-sel{box-shadow:0 0 0 2px #F59E0B;transform:scale(1.08);}
 .gk-cell-sel:active{transform:scale(1.00);}
-.gk-readout{background:var(--bg2);border-radius:var(--r);padding:10px 12px;display:flex;flex-direction:column;gap:3px;}
+.gk-readout{background:var(--bg2);border-radius:var(--r);padding:8px 10px;display:flex;flex-direction:column;gap:3px;}
 .gk-readout-text{font-size:13px;color:var(--t1);font-weight:500;}
 .gk-readout-code{font-size:12px;color:var(--t2);font-variant-numeric:tabular-nums;}
 .gk-readout-v{font-weight:700;}

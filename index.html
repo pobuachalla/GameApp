@@ -444,16 +444,20 @@
     <div id="gk-ply-hdr" class="ply-hdr"></div>
     <div class="gk-scroll">
       <p id="gk-subtitle" class="gk-subtitle"></p>
-      <div class="gk-matrix-wrap">
-        <div class="gk-x-label">Save quality →</div>
-        <div id="gk-matrix" class="gk-matrix"></div>
-        <div class="gk-x-label">↑ Intensity ↑</div>
-      </div>
-      <div id="gk-readout" class="gk-readout" style="display:none;"></div>
-      <button id="gk-secondary-toggle" class="gk-secondary-toggle" onclick="gkToggleSecondary()" style="display:none;"><span class="gk-toggle-btn">+ Add secondary outcome</span></button>
-      <div id="gk-secondary-wrap" class="gk-secondary-wrap" style="display:none;">
-        <p class="gk-sec-prompt">Secondary outcome (what happened next?):</p>
-        <div id="gk-secondary-row" class="gk-secondary-row"></div>
+      <div class="gk-body-row">
+        <div class="gk-matrix-col">
+          <div class="gk-x-label">Save quality →</div>
+          <div id="gk-matrix" class="gk-matrix"></div>
+          <div class="gk-x-label">↑ Intensity ↑</div>
+        </div>
+        <div class="gk-detail-col">
+          <div id="gk-readout" class="gk-readout" style="display:none;"></div>
+          <button id="gk-secondary-toggle" class="gk-secondary-toggle" onclick="gkToggleSecondary()" style="display:none;"><span class="gk-toggle-btn">+ Add secondary outcome</span></button>
+          <div id="gk-secondary-wrap" class="gk-secondary-wrap" style="display:none;">
+            <p class="gk-sec-prompt">Secondary outcome:</p>
+            <div id="gk-secondary-row" class="gk-secondary-row"></div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="gk-footer">
