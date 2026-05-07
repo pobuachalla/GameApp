@@ -78,45 +78,23 @@ function _gkRender() {
   const isGoal = _gkFlow === 'goal';
   const pi     = state.slotp[_gkSlot];
 
-  // Title + subtitle
-  document.getElementById('gk-panel-title').textContent = isGoal ? 'Rate the goal' : 'Rate the save';
+  // Player header (same format as player sheet)
+  const ini  = gi(pi);
+  const name = gn(pi) || ('GK ' + _gkSlot);
+  const gkEvts = state.evts.filter(e => e.gkOutcome != null);
+  const saves  = gkEvts.filter(e => e.gkOutcome === 'save').length;
+  const shots  = gkEvts.length;
+  // eslint-disable-next-line no-restricted-syntax -- safe: esc() on all user values; numbers are ints
+  document.getElementById('gk-ply-hdr').innerHTML =
+    '<div class="ply-avatar">' + esc(ini) + '<span class="ply-avatar-num">' + _gkSlot + '</span></div>' +
+    '<div class="ply-info"><div class="ply-name">' + esc(name) + '</div><div class="ply-pos">Goalkeeper</div></div>' +
+    '<div class="ply-score"><div class="ply-score-val">' + saves + ' from ' + shots + '</div><div class="ply-score-lbl">saves</div></div>' +
+    '<button class="ply-close" onclick="closeGKModal()"><i class="fas fa-xmark" aria-hidden="true"></i></button>';
+
+  // Subtitle
   document.getElementById('gk-subtitle').textContent = isGoal
     ? 'Save score is locked at 1 — pick how preventable this was.'
     : 'Pick the cell that matches shot intensity and how well it was dealt with.';
-
-  // Goal-against context banner
-  const banner = document.getElementById('gk-goal-banner');
-  if (isGoal && _gkGoalEvtIdx != null) {
-    const ev = state.evts[_gkGoalEvtIdx];
-    // eslint-disable-next-line no-restricted-syntax -- safe: esc() on ev.desc
-    banner.innerHTML = '<i class="fas fa-shield-halved" aria-hidden="true"></i> ' + esc(ev ? ev.desc : '');
-    banner.style.display = '';
-  } else {
-    banner.style.display = 'none';
-  }
-
-  // Player header
-  const ini  = gi(pi);
-  const name = gn(pi) || ('#' + pi);
-  // eslint-disable-next-line no-restricted-syntax -- safe: esc() on all user values; slot is a number
-  document.getElementById('gk-player-hdr').innerHTML =
-    '<div class="gk-plr-bubble">' +
-      '<span class="gk-plr-ini">' + esc(ini) + '</span>' +
-      '<span class="gk-plr-num">' + _gkSlot + '</span>' +
-    '</div>' +
-    '<div class="gk-plr-info">' +
-      '<div class="gk-plr-name">' + esc(name) + '</div>' +
-      '<div class="gk-plr-pos">Goalkeeper <span class="gk-tag">GK</span></div>' +
-    '</div>';
-
-  // Lock pills — goal flow shows intensity pill that updates live
-  const pills = document.getElementById('gk-lock-pills');
-  if (isGoal) {
-    _gkUpdatePills();
-    pills.style.display = '';
-  } else {
-    pills.style.display = 'none';
-  }
 
   _gkRenderMatrix();
   _gkUpdateReadout();
@@ -139,12 +117,6 @@ function _gkRender() {
   }
 }
 
-function _gkUpdatePills() {
-  // eslint-disable-next-line no-restricted-syntax -- safe: static HTML; _gkIntensity is a number|null
-  document.getElementById('gk-lock-pills').innerHTML =
-    '<span class="gk-pill gk-pill-locked">Save score: 1 🔒</span>' +
-    '<span class="gk-pill">Intensity: ' + (_gkIntensity != null ? _gkIntensity : '?') + '</span>';
-}
 
 function _gkRenderMatrix() {
   const isGoal = _gkFlow === 'goal';
@@ -257,7 +229,6 @@ function _gkUpdateSubmitBtn() {
 function gkCellTap(intensity, save) {
   if (_gkFlow === 'goal') {
     _gkIntensity = intensity;
-    _gkUpdatePills();
   } else {
     if (_gkSaveScore !== save) { _gkSecondary = null; _gkSecondaryVis = false; }
     _gkIntensity = intensity;

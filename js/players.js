@@ -44,6 +44,16 @@ function openPlayerSheet(s) {
 
   // eslint-disable-next-line no-restricted-syntax -- safe: all dynamic values are static strings or esc()
   document.getElementById('ply-body').innerHTML =
+    // GOALKEEPING (slot 1, tracking enabled)
+    (s === 1 && !!state.trackGKPerformance
+      ? `<div class="ps-sec">` +
+          `<div class="ps-sec-hdr"><span class="ps-lbl">GOALKEEPING</span></div>` +
+          `<button class="ps-pers-btn ps-btn-gk" onclick="psAction('GK Save')">` +
+            `<span class="ps-pers-icon"><i class="fas fa-hand"></i></span>` +
+            `Rate a save<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i>` +
+          `</button>` +
+        `</div>`
+      : '') +
     // SCORE
     `<div class="ps-sec">` +
       `<div class="ps-sec-hdr"><span class="ps-lbl">SCORE</span></div>` +
@@ -82,17 +92,7 @@ function openPlayerSheet(s) {
         `<span class="ps-pers-icon"><i class="fas fa-people-arrows"></i></span>` +
         `Substitute off<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i>` +
       `</button>` +
-    `</div>` +
-    // GOALKEEPING (slot 1 only)
-    (s === 1
-      ? `<div class="ps-sec">` +
-          `<div class="ps-sec-hdr"><span class="ps-lbl">GOALKEEPING</span></div>` +
-          `<button class="ps-pers-btn ps-btn-gk" onclick="psAction('GK Save')">` +
-            `<span class="ps-pers-icon"><i class="fas fa-hand"></i></span>` +
-            `Rate a save<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i>` +
-          `</button>` +
-        `</div>`
-      : '');
+    `</div>`;
 
   document.getElementById('plyovly').classList.add('open');
   el.plysheet.classList.add('open');

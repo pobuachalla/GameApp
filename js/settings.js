@@ -330,8 +330,7 @@ function syncTrackingUI() {
   if (turn) turn.checked = !!state.trackTurnovers;
   const gkCard = document.getElementById('gkperf-card');
   const gkChk  = document.getElementById('gkperf-chk');
-  const gkAvail = !!(state.pnames && state.pnames[1]);
-  if (gkCard) gkCard.style.display = gkAvail ? '' : 'none';
+  if (gkCard) gkCard.style.display = '';
   if (gkChk)  gkChk.checked = !!state.trackGKPerformance;
 }
 

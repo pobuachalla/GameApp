@@ -437,17 +437,12 @@
     <div id="rst-body" style="padding:14px 14px 32px;display:flex;flex-direction:column;gap:10px;"></div>
   </div>
 
-  <!-- GK Shot-Stopping modal -->
-  <div id="gkovly" onclick="closeGKModal()"></div>
-  <div id="gkpanel" class="full-panel">
-    <div class="gk-hdr">
-      <span id="gk-panel-title" style="font-size:17px;font-weight:600;color:var(--t1);"></span>
-      <button class="back-btn" onclick="closeGKModal()"><i class="fas fa-xmark"></i></button>
-    </div>
+  <!-- GK Shot-Stopping drawer -->
+  <div id="gkovly" class="drw-overlay" style="z-index:77;" onclick="closeGKModal()"></div>
+  <div id="gkpanel" class="drw-panel" style="z-index:78;">
+    <div class="drw-handle" onclick="closeGKModal()"></div>
+    <div id="gk-ply-hdr" class="ply-hdr"></div>
     <div class="gk-scroll">
-      <div id="gk-goal-banner" class="gk-goal-banner" style="display:none;"></div>
-      <div id="gk-player-hdr" class="gk-player-hdr"></div>
-      <div id="gk-lock-pills" class="gk-lock-pills" style="display:none;"></div>
       <p id="gk-subtitle" class="gk-subtitle"></p>
       <div class="gk-matrix-wrap">
         <div class="gk-x-label">Save quality →</div>

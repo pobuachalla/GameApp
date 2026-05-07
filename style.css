@@ -428,20 +428,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .log-clear-btn:active{opacity:.75;}
 
 /* ─── GK SHOT-STOPPING ──────────────────────────────────────────────────────── */
-#gkovly{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:77;}
-#gkovly.open{display:block;}
-#gkpanel{z-index:78;padding:0;}
+#gkovly{z-index:77;}
+#gkpanel{z-index:78;}
 .bgk{background:#0277BD;color:#fff;}
-.gk-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 0;flex-shrink:0;}
 .gk-scroll{flex:1;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:12px;padding:14px;}
-.gk-goal-banner{background:var(--bgd);color:var(--td);border-radius:var(--r);padding:10px 12px;font-size:13px;font-weight:500;line-height:1.45;display:flex;align-items:flex-start;gap:8px;}
-.gk-player-hdr{display:flex;align-items:center;gap:10px;background:var(--bg2);border-radius:var(--rl);padding:10px 12px;}
-.gk-plr-bubble{width:44px;height:44px;border-radius:50%;background:var(--bg3);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
-.gk-plr-ini{font-size:11px;font-weight:700;color:var(--t1);line-height:1;}
-.gk-plr-num{font-size:10px;color:var(--t2);line-height:1;}
-.gk-plr-info{flex:1;min-width:0;}
-.gk-plr-name{font-size:15px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.gk-plr-pos{font-size:12px;color:var(--t2);display:flex;align-items:center;gap:5px;margin-top:2px;}
 .gk-tag{background:#0277BD;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;letter-spacing:.04em;}
 .gk-subtitle{font-size:13px;color:var(--t2);line-height:1.5;}
 .gk-lock-pills{display:flex;gap:8px;flex-wrap:wrap;}
