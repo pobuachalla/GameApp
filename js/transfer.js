@@ -20,8 +20,9 @@ function importMatchJSON(input) {
     try {
       const data = JSON.parse(e.target.result);
       if (!Array.isArray(data.evts)) { toast('Not a valid match file'); return; }
-      const allKeys = new Set([...Object.keys(state), ...Object.keys(data)]);
-      allKeys.forEach(k => { if (k in data) state[k] = data[k]; else delete state[k]; });
+      // Merge imported data over current state — Object.assign preserves any new
+      // state fields (trackGKPerformance, etc.) that didn't exist in older exported files.
+      Object.assign(state, data);
       buildInitialsCache();
       // eslint-disable-next-line no-restricted-syntax -- safe: clears element, no user data
       el.evlog.innerHTML = '';

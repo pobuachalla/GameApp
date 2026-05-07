@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Save Scale — Definitions</title>
+<style>
+  :root {
+    --green-deep: #1f4d34;
+    --green: #2d6a4f;
+    --green-pitch: #3a7d52;
+    --green-pitch-dark: #2c6240;
+    --green-soft: #e8f0eb;
+    --green-tint: #d6e6dc;
+    --gold: #e9c46a;
+    --gold-deep: #b8954f;
+    --red: #c75146;
+    --red-soft: #fde8e6;
+    --amber: #d99a3e;
+    --amber-soft: #faecd0;
+    --cream: #f5f2ea;
+    --paper: #ffffff;
+    --ink: #131613;
+    --ink-muted: #6b6f6c;
+    --ink-soft: #9a9d99;
+    --line: #e6e3dc;
+    --line-strong: #d2cec4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #ebe7dc;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 24px 14px 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  /* ── Header ── */
+  .page-hdr {
+    max-width: 760px;
+    width: 100%;
+    text-align: center;
+  }
+  .page-hdr .eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 6px;
+  }
+  .page-hdr h1 {
+    font-weight: 700;
+    font-size: 24px;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--ink);
+  }
+  .page-hdr p {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--ink-muted);
+    line-height: 1.5;
+  }
+
+  /* ── Principle box ── */
+  .principle {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 18px;
+    max-width: 760px;
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .principle .pill {
+    background: var(--green-soft);
+    color: var(--green-deep);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 5px;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .principle p {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .principle b { font-weight: 700; color: var(--green-deep); }
+
+  /* ── Section header ── */
+  .section-hdr {
+    max-width: 760px;
+    width: 100%;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    padding-top: 4px;
+  }
+
+  /* ── Save score ladder ── */
+  .ladder {
+    width: 100%;
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .rung {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 80px 1fr 180px;
+    align-items: stretch;
+    min-height: 130px;
+  }
+  @media (max-width: 560px) {
+    .rung { grid-template-columns: 64px 1fr; }
+    .rung .visual { grid-column: 1 / -1; border-left: none; border-top: 1px solid var(--line); height: 120px; }
+  }
+
+  .score-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 10px;
+    color: #fff;
+  }
+  .score-block.s1 { background: linear-gradient(135deg, #d96b5e 0%, var(--red) 100%); }
+  .score-block.s2 { background: linear-gradient(135deg, #e89767 0%, #d4793f 100%); }
+  .score-block.s3 { background: linear-gradient(135deg, #e8b961 0%, #c49030 100%); }
+  .score-block.s4 { background: linear-gradient(135deg, #8fb89a 0%, #5a9472 100%); }
+  .score-block.s5 { background: linear-gradient(135deg, #4a8a64 0%, var(--green-deep) 100%); }
+  .score-block .num {
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+  }
+  .score-block .of {
+    font-size: 8px;
+    font-weight: 700;
+    opacity: 0.8;
+    margin-top: 5px;
+    letter-spacing: 0.06em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .info {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+  }
+  .info .title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+  .info .desc {
+    font-size: 12px;
+    color: var(--ink-muted);
+    line-height: 1.5;
+  }
+  .info .desc b { color: var(--ink); font-weight: 600; }
+  .info .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 3px;
+  }
+  .meta-tag {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .meta-tag.danger-high  { background: var(--red-soft); color: var(--red); }
+  .meta-tag.danger-med   { background: var(--amber-soft); color: #7a4d10; }
+  .meta-tag.danger-low   { background: var(--green-soft); color: var(--green-deep); }
+  .meta-tag.danger-none  { background: var(--green-soft); color: var(--green-deep); }
+  .meta-tag.danger-goal  { background: var(--ink); color: #fff; }
+  .meta-tag.sec-yes      { background: var(--ink); color: #fff; }
+  .meta-tag.sec-opt      { background: var(--cream); color: var(--ink-muted); border: 1px solid var(--line); }
+  .meta-tag.sec-no       { background: var(--cream); color: var(--ink-muted); border: 1px solid var(--line); }
+  .meta-tag.sec-na       { background: var(--cream); color: var(--ink-soft); border: 1px dashed var(--line-strong); }
+
+  /* ── Goalmouth visual ── */
+  .visual {
+    background:
+      repeating-linear-gradient(
+        180deg,
+        var(--green-pitch),
+        var(--green-pitch) 9px,
+        var(--green-pitch-dark) 9px,
+        var(--green-pitch-dark) 18px
+      );
+    position: relative;
+    overflow: hidden;
+    border-left: 1px solid var(--line);
+  }
+  .goal-frame {
+    position: absolute;
+    top: 12px; left: 50%;
+    transform: translateX(-50%);
+    width: 80px; height: 4px;
+    background: #fff;
+    border-radius: 2px;
+  }
+  .goal-area {
+    position: absolute;
+    top: 12px; left: 50%;
+    transform: translateX(-50%);
+    width: 100px; height: 32px;
+    border: 1.5px solid rgba(255,255,255,0.6);
+    border-top: none;
+  }
+  .small-rect {
+    position: absolute;
+    top: 12px; left: 50%;
+    transform: translateX(-50%);
+    width: 50px; height: 16px;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-top: none;
+  }
+  .keeper {
+    position: absolute;
+    top: 38px; left: 50%;
+    transform: translateX(-50%);
+    width: 18px; height: 18px;
+    background: var(--gold);
+    border: 2px solid var(--gold-deep);
+    border-radius: 50%;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    font-size: 7px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .ball {
+    position: absolute;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1.5px solid var(--ink);
+    z-index: 4;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .traj {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .traj svg { width: 100%; height: 100%; overflow: visible; }
+  .traj path { fill: none; }
+  .traj path.shot      { stroke: var(--gold); stroke-width: 1.4; stroke-dasharray: 3 2; }
+  .traj path.rebound   { stroke: var(--red); stroke-width: 1.4; stroke-dasharray: 2 2; opacity: 0.85; }
+  .traj path.clearance { stroke: #6db58a; stroke-width: 1.4; stroke-dasharray: 2 2; opacity: 0.85; }
+  .danger-zone {
+    position: absolute;
+    border-radius: 50%;
+    z-index: 1;
+  }
+  .danger-zone.high   { background: radial-gradient(circle, rgba(199,81,70,.55) 0%, rgba(199,81,70,0) 70%); }
+  .danger-zone.medium { background: radial-gradient(circle, rgba(217,154,62,.5)  0%, rgba(217,154,62,0)  70%); }
+  .danger-zone.low    { background: radial-gradient(circle, rgba(143,184,154,.5) 0%, rgba(143,184,154,0) 70%); }
+  .conceded-flash {
+    position: absolute; inset: 0;
+    background: rgba(199,81,70,.18);
+    z-index: 0;
+  }
+  .conceded-x {
+    position: absolute;
+    top: 14px; left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+    text-shadow: 0 0 10px rgba(0,0,0,.5);
+    z-index: 5;
+  }
+  .caught-glow {
+    position: absolute;
+    top: 38px; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 12px var(--gold);
+    z-index: 2;
+    animation: pulse-glow 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse-glow {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    50%       { transform: translate(-50%, -50%) scale(1.15); opacity: 0.7; }
+  }
+  .trigger-badge {
+    position: absolute;
+    bottom: 7px; left: 7px; right: 7px;
+    background: rgba(0,0,0,.55);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 4px 7px;
+    border-radius: 5px;
+    text-align: center;
+    letter-spacing: 0.02em;
+  }
+  .trigger-badge b { color: var(--gold); font-weight: 700; }
+
+  /* ── Cheat / quick-ref table ── */
+  .cheat {
+    width: 100%;
+    max-width: 760px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 20px;
+  }
+  .cheat h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .cheat-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  .cheat-table th, .cheat-table td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: middle;
+  }
+  .cheat-table thead th {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: var(--cream);
+  }
+  .cheat-table tbody tr:last-child td { border-bottom: none; }
+  .cheat-table .score-cell {
+    font-size: 15px;
+    font-weight: 800;
+    width: 36px;
+    text-align: center;
+  }
+  .score-1 { color: var(--red); }
+  .score-2 { color: #c4671c; }
+  .score-3 { color: #996818; }
+  .score-4 { color: #4a8060; }
+  .score-5 { color: var(--green-deep); }
+
+  /* ── Heuristic ── */
+  .heuristic {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, var(--green-soft) 0%, var(--cream) 100%);
+    border: 1px solid var(--green-tint);
+    border-radius: 10px;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+  .heuristic b { color: var(--green-deep); }
+  .heuristic .q {
+    display: block;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--green-deep);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  /* ── Intensity & secondary tables ── */
+  .int-table {
+    width: 100%;
+    max-width: 760px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .int-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .int-row:last-child { border-bottom: none; }
+  .int-num {
+    width: 52px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    font-weight: 800;
+    padding: 12px 0;
+    color: var(--ink);
+    background: var(--cream);
+    border-right: 1px solid var(--line);
+  }
+  .int-text {
+    padding: 10px 14px;
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    line-height: 1.5;
+  }
+  .int-text strong { color: var(--ink); }
+
+  /* Secondary colour pills */
+  .sec-c1 { color: var(--red); }
+  .sec-c2 { color: #c4671c; }
+  .sec-c3 { color: var(--ink-soft); }
+  .sec-c4 { color: #4a8060; }
+  .sec-c5 { color: var(--green-deep); }
+
+  /* ── Footer ── */
+  footer {
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    text-align: center;
+    padding-top: 8px;
+  }
+
+  @media (max-width: 480px) {
+    body { padding: 14px 8px 40px; }
+    .page-hdr h1 { font-size: 20px; }
+    .cheat-table { font-size: 11.5px; }
+    .cheat-table th, .cheat-table td { padding: 7px 6px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-hdr">
+  <div class="eyebrow">GK Shot-Stopping · Save Score 1–5</div>
+  <h1>The five points, with examples</h1>
+  <p>Each score answers: <em>how much danger remains after the keeper's first touch?</em></p>
+</div>
+
+<div class="principle">
+  <span class="pill">Key idea</span>
+  <p>The save score measures <b>residual danger</b> — not difficulty. Shot difficulty is captured separately by Intensity. This separation is what makes the matrix work.</p>
+</div>
+
+<div class="section-hdr">Save Score — quality of the keeper's action</div>
+
+<div class="ladder">
+
+  <!-- 1 -->
+  <div class="rung">
+    <div class="score-block s1">
+      <div class="num">1</div>
+      <div class="of">Not saved</div>
+    </div>
+    <div class="info">
+      <div class="title">Beaten — goal conceded</div>
+      <div class="desc">The shot finds the net. <b>Set automatically</b> when an opposition goal is recorded — the keeper doesn't select this themselves.</div>
+      <div class="meta-row">
+        <span class="meta-tag danger-goal">Outcome: Goal</span>
+        <span class="meta-tag sec-na">Secondary: n/a</span>
+      </div>
+    </div>
+    <div class="visual">
+      <div class="conceded-flash"></div>
+      <div class="goal-area"></div>
+      <div class="small-rect"></div>
+      <div class="goal-frame"></div>
+      <div class="keeper" style="left:38%;">GK</div>
+      <div class="conceded-x">✗</div>
+      <div class="ball" style="top:16px;left:60%;"></div>
+      <div class="traj">
+        <svg viewBox="0 0 200 130" preserveAspectRatio="none">
+          <path class="shot" d="M 30 110 Q 100 50 122 18"/>
+        </svg>
+      </div>
+      <div class="trigger-badge">Triggered by <b>Opposition score</b></div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="rung">
+    <div class="score-block s2">
+      <div class="num">2</div>
+      <div class="of">Parried into danger</div>
+    </div>
+    <div class="info">
+      <div class="title">Got a touch — rebound in the danger zone</div>
+      <div class="desc">Keeper deflected the shot but it breaks into a high-threat area. <b>Opposition is favourite to gather and score.</b></div>
+      <div class="meta-row">
+        <span class="meta-tag danger-high">Danger: High</span>
+        <span class="meta-tag sec-yes">Secondary: Required</span>
+      </div>
+    </div>
+    <div class="visual">
+      <div class="danger-zone high" style="width:100px;height:80px;top:30px;left:50%;transform:translateX(-50%);"></div>
+      <div class="goal-area"></div>
+      <div class="small-rect"></div>
+      <div class="goal-frame"></div>
+      <div class="keeper">GK</div>
+      <div class="ball" style="top:50px;left:60%;"></div>
+      <div class="traj">
+        <svg viewBox="0 0 200 130" preserveAspectRatio="none">
+          <path class="shot"    d="M 30 110 Q 70 80 92 50"/>
+          <path class="rebound" d="M 96 50 Q 110 55 125 65"/>
+        </svg>
+      </div>
+      <div class="trigger-badge"><b>Auto-prompts</b> for secondary action</div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="rung">
+    <div class="score-block s3">
+      <div class="num">3</div>
+      <div class="of">Loose ball</div>
+    </div>
+    <div class="info">
+      <div class="title">Saved, but rebound is loose / 50-50</div>
+      <div class="desc">Keeper stopped it but couldn't gather. The ball is live in front of goal — <b>whoever reaches it first decides what happens next.</b></div>
+      <div class="meta-row">
+        <span class="meta-tag danger-med">Danger: Medium</span>
+        <span class="meta-tag sec-yes">Secondary: Required</span>
+      </div>
+    </div>
+    <div class="visual">
+      <div class="danger-zone medium" style="width:80px;height:60px;top:50px;left:50%;transform:translateX(-50%);"></div>
+      <div class="goal-area"></div>
+      <div class="small-rect"></div>
+      <div class="goal-frame"></div>
+      <div class="keeper">GK</div>
+      <div class="ball" style="top:70px;left:50%;transform:translateX(-50%);"></div>
+      <div class="traj">
+        <svg viewBox="0 0 200 130" preserveAspectRatio="none">
+          <path class="shot"    d="M 30 110 Q 70 80 95 47"/>
+          <path class="rebound" d="M 95 50 Q 100 60 100 75"/>
+        </svg>
+      </div>
+      <div class="trigger-badge"><b>Auto-prompts</b> for secondary action</div>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="rung">
+    <div class="score-block s4">
+      <div class="num">4</div>
+      <div class="of">Pushed clear</div>
+    </div>
+    <div class="info">
+      <div class="title">Saved cleanly into a safe area</div>
+      <div class="desc">Tipped over the bar, pushed wide for a 45, or parried to a teammate. <b>Threat is largely neutralised</b> — ball still in play but no second-chance risk.</div>
+      <div class="meta-row">
+        <span class="meta-tag danger-low">Danger: Low</span>
+        <span class="meta-tag sec-opt">Secondary: Optional</span>
+      </div>
+    </div>
+    <div class="visual">
+      <div class="danger-zone low" style="width:60px;height:40px;top:70px;left:18%;"></div>
+      <div class="goal-area"></div>
+      <div class="small-rect"></div>
+      <div class="goal-frame"></div>
+      <div class="keeper">GK</div>
+      <div class="ball" style="top:80px;left:22%;"></div>
+      <div class="traj">
+        <svg viewBox="0 0 200 130" preserveAspectRatio="none">
+          <path class="shot"      d="M 30 110 Q 70 80 93 47"/>
+          <path class="clearance" d="M 95 50 Q 80 65 50 80"/>
+        </svg>
+      </div>
+      <div class="trigger-badge">Optional secondary if teammate gathers</div>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="rung">
+    <div class="score-block s5">
+      <div class="num">5</div>
+      <div class="of">Full control</div>
+    </div>
+    <div class="info">
+      <div class="title">Caught / smothered — keeper has the ball</div>
+      <div class="desc">Clean catch, smothered at feet, gathered securely. <b>Possession retained, danger over.</b> Team now starts the next attack from a kickout or puck-out.</div>
+      <div class="meta-row">
+        <span class="meta-tag danger-none">Danger: None</span>
+        <span class="meta-tag sec-no">Secondary: Not needed</span>
+      </div>
+    </div>
+    <div class="visual">
+      <div class="goal-area"></div>
+      <div class="small-rect"></div>
+      <div class="goal-frame"></div>
+      <div class="caught-glow"></div>
+      <div class="keeper">GK</div>
+      <div class="traj">
+        <svg viewBox="0 0 200 130" preserveAspectRatio="none">
+          <path class="shot" d="M 30 110 Q 70 80 95 47"/>
+        </svg>
+      </div>
+      <div class="trigger-badge">Closes event — straight to kickout / puck-out</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Quick-ref table -->
+<div class="cheat">
+  <h3>Save score — quick reference</h3>
+  <table class="cheat-table">
+    <thead>
+      <tr>
+        <th>Score</th>
+        <th>One-liner</th>
+        <th>Residual danger</th>
+        <th>Secondary action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="score-cell score-1">1</td>
+        <td>Beaten — goal in</td>
+        <td>Goal scored</td>
+        <td>Not applicable</td>
+      </tr>
+      <tr>
+        <td class="score-cell score-2">2</td>
+        <td>Rebound in the danger zone</td>
+        <td>High</td>
+        <td><b>Auto-prompted</b></td>
+      </tr>
+      <tr>
+        <td class="score-cell score-3">3</td>
+        <td>Loose / 50-50 ball in front of goal</td>
+        <td>Medium</td>
+        <td><b>Auto-prompted</b></td>
+      </tr>
+      <tr>
+        <td class="score-cell score-4">4</td>
+        <td>Pushed clear — over, wide, or to teammate</td>
+        <td>Low</td>
+        <td>Optional</td>
+      </tr>
+      <tr>
+        <td class="score-cell score-5">5</td>
+        <td>Caught / smothered — full control</td>
+        <td>None</td>
+        <td>Not needed</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="heuristic">
+    <span class="q">"Where is the ball one second after the keeper's first touch?"</span>
+    <b>In the net</b> → 1 &nbsp;·&nbsp; <b>Loose in the danger zone</b> → 2 &nbsp;·&nbsp; <b>50-50 in front of goal</b> → 3 &nbsp;·&nbsp; <b>Out / cleared safely</b> → 4 &nbsp;·&nbsp; <b>In the keeper's hands</b> → 5
+  </div>
+</div>
+
+<div class="section-hdr">Intensity — difficulty of the shot</div>
+
+<div class="int-table">
+  <div class="int-row"><span class="int-num">5</span><div class="int-text"><strong>Exceptional</strong> — top-corner strike, point-blank, or a shot the keeper could not have anticipated. Scoring was the expected outcome.</div></div>
+  <div class="int-row"><span class="int-num">4</span><div class="int-text"><strong>Difficult</strong> — low drive, fast ground shot, or a significant deflection. Required meaningful skill to stop.</div></div>
+  <div class="int-row"><span class="int-num">3</span><div class="int-text"><strong>Moderate</strong> — standard shot within the keeper's range. Expected to be dealt with, but not trivial.</div></div>
+  <div class="int-row"><span class="int-num">2</span><div class="int-text"><strong>Routine</strong> — straightforward attempt at the keeper's body or near at hand. Comfortable to hold.</div></div>
+  <div class="int-row"><span class="int-num">1</span><div class="int-text"><strong>Minimal</strong> — tame attempt, weak shot, or speculative long-range effort with little pace or placement.</div></div>
+</div>
+
+<div class="section-hdr">Secondary Outcome — what happened next?</div>
+<div class="int-table">
+  <div class="int-row"><span class="int-num sec-c1">1</span><div class="int-text"><strong>Opposition scored</strong> — the rebound was converted. Adds −2 to the event value.</div></div>
+  <div class="int-row"><span class="int-num sec-c2">2</span><div class="int-text"><strong>Danger continues</strong> — opposition retained ball in a threatening position. Adds −1.</div></div>
+  <div class="int-row"><span class="int-num sec-c3">3</span><div class="int-text"><strong>Neutral</strong> — ball went dead (wide, over the bar) or situation reset. No adjustment.</div></div>
+  <div class="int-row"><span class="int-num sec-c4">4</span><div class="int-text"><strong>Team retained</strong> — own team regained possession. Adds +1.</div></div>
+  <div class="int-row"><span class="int-num sec-c5">5</span><div class="int-text"><strong>Attack launched</strong> — team immediately transitioned into attack from the save. Adds +2.</div></div>
+</div>
+
+<footer>GAA GameApp · GK Save Rating Reference · For sideline use during tracking sessions</footer>
+
+</body>
+</html>

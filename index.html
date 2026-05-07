@@ -441,6 +441,155 @@
   <div id="gkpanel" class="drw-panel" style="z-index:78;">
     <div class="drw-handle" onclick="closeGKModal()"></div>
     <div id="gk-ply-hdr" class="ply-hdr"></div>
+    <!-- Help overlay — inline content with goalmouth visuals -->
+    <div id="gk-help-view" class="gk-help-view" style="display:none;">
+      <div class="gk-help-hdr">
+        <button class="gk-help-back" onclick="gkHelpClose()"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back</button>
+        <span class="gk-help-title">Save Rating Guide</span>
+        <a href="gk-save-guide.html" target="_blank" rel="noopener" class="gk-help-ext" aria-label="Open standalone guide"><i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
+      </div>
+      <div class="gk-help-scroll">
+
+        <p class="gk-help-principle"><span class="gk-help-pill">Key idea</span> The save score measures <strong>residual danger</strong> after the keeper's touch — not how difficult the save was. Shot difficulty is captured separately by Intensity.</p>
+
+        <div class="gk-help-lbl">Save Score — quality of the keeper's action</div>
+
+        <!-- Score 1 -->
+        <div class="gk-hr">
+          <div class="gk-hr-top">
+            <div class="gk-hr-score s1">1</div>
+            <div class="gk-hr-info">
+              <div class="gk-hr-title">Beaten — goal conceded</div>
+              <div class="gk-hr-desc">Ball is in the net. <strong>Set automatically</strong> when an opposition goal is recorded.</div>
+              <div class="gk-hr-tags"><span class="gk-ht goal">Goal</span><span class="gk-ht sec-na">Secondary: n/a</span></div>
+            </div>
+          </div>
+          <div class="gk-pitch">
+            <div class="gk-conceded-flash"></div>
+            <div class="gk-goal-area"></div><div class="gk-small-rect"></div><div class="gk-goal-frame"></div>
+            <div class="gk-keeper" style="left:38%;">GK</div>
+            <div class="gk-conceded-x">✗</div>
+            <div class="gk-ball" style="top:16px;left:60%;"></div>
+            <svg class="gk-traj" viewBox="0 0 300 90" preserveAspectRatio="none"><path class="gk-shot" d="M 40 80 Q 130 35 175 12"/></svg>
+            <div class="gk-tbadge">Triggered by <strong>Opposition score</strong></div>
+          </div>
+        </div>
+
+        <!-- Score 2 -->
+        <div class="gk-hr">
+          <div class="gk-hr-top">
+            <div class="gk-hr-score s2">2</div>
+            <div class="gk-hr-info">
+              <div class="gk-hr-title">Parried into danger</div>
+              <div class="gk-hr-desc">Keeper got a touch but the ball breaks into a high-threat area. <strong>Opposition favourite to score.</strong></div>
+              <div class="gk-hr-tags"><span class="gk-ht danger-h">Danger: High</span><span class="gk-ht sec-req">Secondary required</span></div>
+            </div>
+          </div>
+          <div class="gk-pitch">
+            <div class="gk-dz high" style="width:100px;height:76px;top:24px;left:50%;transform:translateX(-50%);"></div>
+            <div class="gk-goal-area"></div><div class="gk-small-rect"></div><div class="gk-goal-frame"></div>
+            <div class="gk-keeper">GK</div>
+            <div class="gk-ball" style="top:46px;left:60%;"></div>
+            <svg class="gk-traj" viewBox="0 0 300 90" preserveAspectRatio="none">
+              <path class="gk-shot"    d="M 40 80 Q 100 55 138 36"/>
+              <path class="gk-rebound" d="M 142 36 Q 165 40 185 50"/>
+            </svg>
+            <div class="gk-tbadge"><strong>Auto-prompts</strong> for secondary action</div>
+          </div>
+        </div>
+
+        <!-- Score 3 -->
+        <div class="gk-hr">
+          <div class="gk-hr-top">
+            <div class="gk-hr-score s3">3</div>
+            <div class="gk-hr-info">
+              <div class="gk-hr-title">Loose ball / scrappy</div>
+              <div class="gk-hr-desc">Stopped but couldn't gather. Ball is live in front of goal — <strong>whoever reaches it decides.</strong></div>
+              <div class="gk-hr-tags"><span class="gk-ht danger-m">Danger: Medium</span><span class="gk-ht sec-req">Secondary required</span></div>
+            </div>
+          </div>
+          <div class="gk-pitch">
+            <div class="gk-dz medium" style="width:80px;height:56px;top:40px;left:50%;transform:translateX(-50%);"></div>
+            <div class="gk-goal-area"></div><div class="gk-small-rect"></div><div class="gk-goal-frame"></div>
+            <div class="gk-keeper">GK</div>
+            <div class="gk-ball" style="top:60px;left:50%;transform:translateX(-50%);"></div>
+            <svg class="gk-traj" viewBox="0 0 300 90" preserveAspectRatio="none">
+              <path class="gk-shot"    d="M 40 80 Q 100 55 142 35"/>
+              <path class="gk-rebound" d="M 142 38 Q 150 48 150 60"/>
+            </svg>
+            <div class="gk-tbadge"><strong>Auto-prompts</strong> for secondary action</div>
+          </div>
+        </div>
+
+        <!-- Score 4 -->
+        <div class="gk-hr">
+          <div class="gk-hr-top">
+            <div class="gk-hr-score s4">4</div>
+            <div class="gk-hr-info">
+              <div class="gk-hr-title">Pushed / deflected clear</div>
+              <div class="gk-hr-desc">Tipped over, pushed wide, or parried to a safe area. <strong>Threat neutralised</strong> — no second-chance risk.</div>
+              <div class="gk-hr-tags"><span class="gk-ht danger-l">Danger: Low</span><span class="gk-ht sec-opt">Secondary: optional</span></div>
+            </div>
+          </div>
+          <div class="gk-pitch">
+            <div class="gk-dz low" style="width:56px;height:40px;top:56px;left:18%;"></div>
+            <div class="gk-goal-area"></div><div class="gk-small-rect"></div><div class="gk-goal-frame"></div>
+            <div class="gk-keeper">GK</div>
+            <div class="gk-ball" style="top:68px;left:22%;"></div>
+            <svg class="gk-traj" viewBox="0 0 300 90" preserveAspectRatio="none">
+              <path class="gk-shot"      d="M 40 80 Q 100 55 140 35"/>
+              <path class="gk-clearance" d="M 142 38 Q 120 52 78 66"/>
+            </svg>
+            <div class="gk-tbadge">Optional secondary if teammate gathers</div>
+          </div>
+        </div>
+
+        <!-- Score 5 -->
+        <div class="gk-hr">
+          <div class="gk-hr-top">
+            <div class="gk-hr-score s5">5</div>
+            <div class="gk-hr-info">
+              <div class="gk-hr-title">Caught / full control</div>
+              <div class="gk-hr-desc">Clean catch or smothered. <strong>Possession secure, danger over.</strong> Straight to kickout or puck-out.</div>
+              <div class="gk-hr-tags"><span class="gk-ht danger-n">Danger: None</span><span class="gk-ht sec-no">Secondary: not needed</span></div>
+            </div>
+          </div>
+          <div class="gk-pitch">
+            <div class="gk-goal-area"></div><div class="gk-small-rect"></div><div class="gk-goal-frame"></div>
+            <div class="gk-caught-glow"></div>
+            <div class="gk-keeper">GK</div>
+            <svg class="gk-traj" viewBox="0 0 300 90" preserveAspectRatio="none">
+              <path class="gk-shot" d="M 40 80 Q 100 55 142 35"/>
+            </svg>
+            <div class="gk-tbadge">Closes event — straight to kickout / puck-out</div>
+          </div>
+        </div>
+
+        <div class="gk-help-lbl">Intensity — difficulty of the shot</div>
+        <div class="gk-int-list">
+          <div class="gk-int-row"><span class="gk-int-n">5</span><div><strong>Exceptional</strong> — top corner, point-blank, or unanticipated. Scoring was the likely outcome.</div></div>
+          <div class="gk-int-row"><span class="gk-int-n">4</span><div><strong>Difficult</strong> — low drive, fast ground shot, or significant deflection.</div></div>
+          <div class="gk-int-row"><span class="gk-int-n">3</span><div><strong>Moderate</strong> — standard shot within the keeper's range. Expected to be dealt with.</div></div>
+          <div class="gk-int-row"><span class="gk-int-n">2</span><div><strong>Routine</strong> — at the keeper's body or near at hand. Comfortable to hold.</div></div>
+          <div class="gk-int-row"><span class="gk-int-n">1</span><div><strong>Minimal</strong> — tame shot, little pace or placement.</div></div>
+        </div>
+
+        <div class="gk-help-lbl">Secondary Outcome — what happened next?</div>
+        <div class="gk-int-list">
+          <div class="gk-int-row"><span class="gk-int-n" style="color:#C62828;">1</span><div><strong>Opposition scored</strong> — rebound converted (−2)</div></div>
+          <div class="gk-int-row"><span class="gk-int-n" style="color:#E57310;">2</span><div><strong>Danger continues</strong> — opposition retained in danger (−1)</div></div>
+          <div class="gk-int-row"><span class="gk-int-n" style="color:#888;">3</span><div><strong>Neutral</strong> — ball went dead or situation reset (0)</div></div>
+          <div class="gk-int-row"><span class="gk-int-n" style="color:#388E3C;">4</span><div><strong>Team retained</strong> — own team regained (+1)</div></div>
+          <div class="gk-int-row"><span class="gk-int-n" style="color:#1B5E20;">5</span><div><strong>Attack launched</strong> — immediate counter-attack (+2)</div></div>
+        </div>
+
+        <div class="gk-help-heuristic">
+          <em>"Where is the ball one second after the keeper's first touch?"</em><br>
+          In the net → 1 · Loose in danger → 2 · 50-50 in front → 3 · Cleared safely → 4 · In keeper's hands → 5
+        </div>
+
+      </div>
+    </div>
     <div class="gk-scroll">
       <p id="gk-subtitle" class="gk-subtitle"></p>
       <div class="gk-matrix-wrap">

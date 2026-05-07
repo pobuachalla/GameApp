@@ -63,11 +63,20 @@ function openGKGoalFlow(evtIdx, restartSide) {
   document.getElementById('gkpanel').classList.add('open');
 }
 
+function gkHelpOpen() {
+  document.getElementById('gk-help-view').style.display = '';
+}
+
+function gkHelpClose() {
+  document.getElementById('gk-help-view').style.display = 'none';
+}
+
 function closeGKModal() {
   const wasGoalFlow  = _gkFlow === 'goal';
   const restartSide  = _pendingRestartSide;
   document.getElementById('gkovly').classList.remove('open');
   document.getElementById('gkpanel').classList.remove('open');
+  document.getElementById('gk-help-view').style.display = 'none';
   _gkFlow = null; _gkSlot = null; _gkGoalEvtIdx = null;
   _gkIntensity = null; _gkSaveScore = null; _gkSecondary = null; _gkSecondaryVis = false;
   _pendingRestartSide = null;
@@ -90,6 +99,7 @@ function _gkRender() {
     '<div class="ply-avatar">' + esc(ini) + '<span class="ply-avatar-num">' + _gkSlot + '</span></div>' +
     '<div class="ply-info"><div class="ply-name">' + esc(name) + '</div><div class="ply-pos">Goalkeeper</div></div>' +
     '<div class="ply-score"><div class="ply-score-val">' + saves + ' from ' + shots + '</div><div class="ply-score-lbl">saves</div></div>' +
+    '<button class="gk-info-btn" onclick="gkHelpOpen()" aria-label="Save rating guide"><i class="fas fa-circle-info" aria-hidden="true"></i></button>' +
     '<button class="ply-close" onclick="closeGKModal()"><i class="fas fa-xmark" aria-hidden="true"></i></button>';
 
   // Subtitle

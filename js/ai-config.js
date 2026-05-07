@@ -208,7 +208,7 @@ ${payload.squad}
 
 EVENT LOG (time  player  action  sub-type  [pitch zone if tagged]):
 ${payload.eventLog}
-`;
+${payload.gkContext ? `\nGOALKEEPER PERFORMANCE (mention only where relevant — do not dedicate a section to this unless it was decisive):\n${payload.gkContext}` : ''}`;
   },
 
   // ── Zone label ────────────────────────────────────────────────────────────────
@@ -256,7 +256,9 @@ ${payload.eventLog}
       const action  = ev.action || ev.badge || '?';
       const sub     = ev.sec ? ` (${ev.sec})` : '';
       const zoneLbl = ev.zone ? `  [${this._zoneLabel(ev.zone)}]` : '';
-      const extra   = ev.action === 'sub' ? `  ${ev.desc || ''}` : '';
+      const extra   = ev.action === 'sub'     ? `  ${ev.desc || ''}`
+                    : ev.action === 'GK Save' ? `  [I·${ev.gkIntensity} S·${ev.gkSaveScore} V·${ev.gkFinalValue}${ev.gkSecondary != null ? ' S2·' + ev.gkSecondary : ''}]`
+                    : '';
       return `${t}  ${player}  ${action}${sub}${zoneLbl}${extra}`;
     }).join('\n');
   },
@@ -278,13 +280,41 @@ ${payload.eventLog}
       state.ageGrade    ? `  Age grade:   ${state.ageGrade}`    : null,
     ].filter(Boolean).join('\n');
 
+    // GK context — only include when the keeper had a notably good or bad game (outside the average band)
+    let gkContext = null;
+    if (state.trackGKPerformance) {
+      const gkEvts = (state.evts || []).filter(e => e.gkOutcome != null && e.gkFinalValue != null);
+      if (gkEvts.length >= 3) {
+        let wSum = 0, wTot = 0, saves = 0, goals = 0;
+        gkEvts.forEach(e => {
+          const wt = 1 + ((e.gkIntensity || 3) - 1) * 0.4;
+          wSum += (e.gkFinalValue - 4) * wt;
+          wTot += wt;
+          if (e.gkOutcome === 'save') saves++; else goals++;
+        });
+        const rating = Math.round(50 + (Math.max(-4, Math.min(4, wTot > 0 ? wSum / wTot : 0)) / 4) * 50);
+        const label  = rating >= 80 ? 'Outstanding' : rating >= 65 ? 'Very Good' : rating >= 55 ? 'Good'
+          : rating >= 45 ? 'Average' : rating >= 35 ? 'Below Average' : rating >= 20 ? 'Poor' : 'Very Poor';
+        if (rating >= 65 || rating <= 35) {
+          const shots    = saves + goals;
+          const gkPi     = (state.slotp || {})[1];
+          const gkName   = (state.pnames && gkPi && state.pnames[gkPi]) ? state.pnames[gkPi].trim() : 'Goalkeeper';
+          const hardSaves = gkEvts.filter(e => e.gkOutcome === 'save' && (e.gkIntensity || 0) >= 4).length;
+          gkContext = `${gkName} rated ${rating}/100 (${label}) across ${shots} tracked shots (${saves} saves, ${goals} goals conceded).`;
+          if (rating >= 65 && hardSaves > 0) gkContext += ` Made ${hardSaves} save${hardSaves !== 1 ? 's' : ''} from difficult or exceptional shots.`;
+          if (rating <= 35) gkContext += ` Conceded ${goals} goal${goals !== 1 ? 's' : ''} including from shots rated as preventable.`;
+        }
+      }
+    }
+
     return {
       fixture,
-      ageGrade: state.ageGrade || '',
-      result:   `  ${state.usN || 'Us'}: ${state.goals}-${state.pts} (${state.goals * 3 + state.pts}pts)` +
-                `\n  ${state.oppN || 'Opposition'}: ${state.og}-${state.op_} (${state.og * 3 + state.op_}pts)`,
-      squad:    squadLines,
-      eventLog: this.buildEventLog(state)
+      ageGrade:   state.ageGrade || '',
+      result:     `  ${state.usN || 'Us'}: ${state.goals}-${state.pts} (${state.goals * 3 + state.pts}pts)` +
+                  `\n  ${state.oppN || 'Opposition'}: ${state.og}-${state.op_} (${state.og * 3 + state.op_}pts)`,
+      squad:      squadLines,
+      eventLog:   this.buildEventLog(state),
+      gkContext,
     };
   }
 
