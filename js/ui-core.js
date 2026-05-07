@@ -33,7 +33,9 @@ function buildHowGrid(title, opts, backOnclick) {
     + opts.map(o => {
         const val   = typeof o === 'string' ? o : o.val;
         const label = typeof o === 'string' ? o : o.label;
-        return '<button class="ps-sub-card" data-v="' + esc(val) + '">' + esc(label) + '</button>';
+        const pre   = typeof o === 'object' && o.pre ? o.pre : '';
+        // eslint-disable-next-line no-restricted-syntax -- pre is trusted static HTML (card icon tags)
+        return '<button class="ps-sub-card" data-v="' + esc(val) + '">' + pre + esc(label) + '</button>';
       }).join('')
     + '</div>';
 }

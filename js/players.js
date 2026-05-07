@@ -59,8 +59,8 @@ function openPlayerSheet(s) {
       `<div class="ps-sec-hdr"><span class="ps-lbl">SCORE</span></div>` +
       `<div class="ps-score-grid-big" style="grid-template-columns:${bigCols};">` +
         `<button class="ps-btn ps-btn-big ps-btn-goal" onclick="psAction('Goal')"><span class="ps-btn-icon"><i class="fas fa-flag"></i></span><span class="ps-btn-lbl">Goal</span><span class="ps-btn-sub">3 points</span></button>` +
-        `<button class="ps-btn ps-btn-big ps-btn-point" onclick="psAction('Point')"><span class="ps-btn-icon"><i class="far fa-flag"></i></span><span class="ps-btn-lbl">Point</span><span class="ps-btn-sub">1 point</span></button>` +
         twoPBtn +
+        `<button class="ps-btn ps-btn-big ps-btn-point" onclick="psAction('Point')"><span class="ps-btn-icon"><i class="far fa-flag"></i></span><span class="ps-btn-lbl">Point</span><span class="ps-btn-sub">1 point</span></button>` +
       `</div>` +
       `<div class="ps-score-grid-sm">` +
         `<button class="ps-btn ps-btn-sm" onclick="psAction('Wide')"><span class="ps-btn-icon"><i class="fa-solid fa-child-reaching"></i></span><span class="ps-btn-lbl">Wide</span></button>` +
@@ -156,29 +156,29 @@ function psAction(a) {
       {val:'Yellow Card', label:'Yellow Card', pre:'<i class="fas fa-square ps-card-y"></i>'},
       {val:'Black Card',  label:'Black Card',  pre:'<i class="fas fa-square ps-card-b"></i>'},
       {val:'Red Card',    label:'Red Card',    pre:'<i class="fas fa-square ps-card-r"></i>'},
-    ], colour => { logEv(colour, null); closePlayerSheetAndReset(); });
+    ], colour => { logEv(colour, null); closePlayerSheetAndReset(); }, 'grid');
     return;
   }
   if (a === 'Advanced') {
     const opts = state.sport === 'football' ? ['Dissent','Ball Handover','Sideline'] : ['Dissent','Sideline'];
-    showPSOpts('Advanced — reason?', opts, sub => { logEv('Advanced', sub); closePlayerSheetAndReset(); });
+    showPSOpts('Advanced — reason?', opts, sub => { logEv('Advanced', sub); closePlayerSheetAndReset(); }, 'grid');
     return;
   }
   if (a === 'Turnover Won' && state.trackTurnovers) {
     const opts = ['First to the Ball','Tackle Turnover','Block','Defensive Pressure'];
     if (state.sport === 'hurling') opts.splice(3, 0, 'Hook');
-    showPSOpts('Turnover Won — how?', opts, sub => { logEv('Turnover Won', sub); closePlayerSheetAndReset(); });
+    showPSOpts('Turnover Won — how?', opts, sub => { logEv('Turnover Won', sub); closePlayerSheetAndReset(); }, 'grid');
     return;
   }
   if (a === 'Turnover Lost' && state.trackTurnovers) {
     showPSOpts('Turnover Lost — how?', ['Poor Pass','Lost in Tackle','Second to the Ball','Over Played','Isolated'],
-      sub => { logEv('Turnover Lost', sub); closePlayerSheetAndReset(); });
+      sub => { logEv('Turnover Lost', sub); closePlayerSheetAndReset(); }, 'grid');
     return;
   }
   if (a === 'Free') {
     let opts = FSEC.slice();
     if (state.sport === 'football') opts = opts.filter(o => o !== 'Chop');
-    showPSOpts('Free — reason?', opts, sub => { logEv('Free', sub); closePlayerSheetAndReset(); });
+    showPSOpts('Free — reason?', opts, sub => { logEv('Free', sub); closePlayerSheetAndReset(); }, 'grid');
     return;
   }
   const SCORE_ACTS = new Set(['Goal','Point','2 Point','Wide','Short','Saved']);
