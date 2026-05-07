@@ -305,6 +305,54 @@ function buildGKStatHTML() {
   return h;
 }
 
+// ─── OPPOSITION SCORING PROFILE ───────────────────────────────────────────────
+function buildOppScorerHTML() {
+  if (!state.trackOppScorers) return '';
+  const scorerEvts = state.evts.filter(e => e.oppScorer);
+  if (scorerEvts.length === 0) return '';
+
+  // Aggregate by position label
+  const map = {}; // label → { num, label, goals, pts }
+  scorerEvts.forEach(e => {
+    const s = e.oppScorer;
+    const key = s.label + ' (' + s.num + ')';
+    if (!map[key]) map[key] = { num: s.num, label: s.label, goals: 0, pts: 0 };
+    const action = e.action || '';
+    if (action === 'Goal')    map[key].goals++;
+    else if (action === '2 Point') map[key].pts += 2;
+    else                      map[key].pts++;
+  });
+
+  const rows = Object.values(map).sort((a, b) => {
+    const ta = a.goals * 3 + a.pts, tb = b.goals * 3 + b.pts;
+    return tb !== ta ? tb - ta : a.num - b.num;
+  });
+
+  let h = '<div class="stat-section"><div class="stat-section-title">Opposition Scoring Profile</div>';
+  h += '<div class="stat-card" style="padding:0;overflow:hidden;">';
+
+  rows.forEach((r, i) => {
+    const total = r.goals * 3 + r.pts;
+    const scoreStr = r.goals + '-' + r.pts;
+    const border = i < rows.length - 1 ? 'border-bottom:.5px solid var(--b);' : '';
+    h += `<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;${border}">`;
+    h += `<div style="width:28px;height:28px;border-radius:50%;background:#6A1B9A22;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#6A1B9A;flex-shrink:0;">${r.num}</div>`;
+    h += `<div style="flex:1;min-width:0;">`;
+    h += `<div style="font-size:13px;font-weight:600;color:var(--t1);">${esc(r.label)}</div>`;
+    h += `<div style="font-size:11px;color:var(--t2);">${scoreStr} &nbsp;·&nbsp; ${total} pt${total !== 1 ? 's' : ''}</div>`;
+    h += `</div>`;
+    // Mini bar scaled to max total
+    const maxTot = rows[0].goals * 3 + rows[0].pts;
+    const pct = maxTot > 0 ? Math.round(total / maxTot * 100) : 0;
+    h += `<div style="width:60px;background:var(--bg3);border-radius:3px;overflow:hidden;height:6px;">`;
+    h += `<div style="background:#6A1B9A;width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
+    h += `</div>`;
+  });
+
+  h += '</div></div>';
+  return h;
+}
+
 // ─── STATS PANEL ──────────────────────────────────────────────────────────────
 function openStats() {
   renderStats();
@@ -552,6 +600,10 @@ function buildStatsHTML() {
   // Goalkeeper Performance
   const gkStatHtml = buildGKStatHTML();
   if (gkStatHtml) h += gkStatHtml;
+
+  // Opposition Scoring Profile
+  const oscHtml = buildOppScorerHTML();
+  if (oscHtml) h += oscHtml;
 
   // Discipline
   const discPlayers = Object.values(pstats).filter(p =>

@@ -301,16 +301,22 @@ function onGKPerfToggle(checked) {
   saveState();
 }
 
+function onOppScorerToggle(checked) {
+  state.trackOppScorers = checked;
+  updatePresetUI();
+  saveState();
+}
+
 // ─── TRACKING PRESET HELPERS ─────────────────────────────────────────────────
 const _TRK_PRESETS = {
-  quick:    {showPlayerNumbers: false, trackShotLocations: false, trackTurnovers: false, trackGKPerformance: false},
-  standard: {showPlayerNumbers: true,  trackShotLocations: true,  trackTurnovers: false, trackGKPerformance: false},
-  detailed: {showPlayerNumbers: true,  trackShotLocations: true,  trackTurnovers: true,  trackGKPerformance: true},
+  quick:    {showPlayerNumbers: false, trackShotLocations: false, trackTurnovers: false, trackGKPerformance: false, trackOppScorers: false},
+  standard: {showPlayerNumbers: true,  trackShotLocations: true,  trackTurnovers: false, trackGKPerformance: false, trackOppScorers: false},
+  detailed: {showPlayerNumbers: true,  trackShotLocations: true,  trackTurnovers: true,  trackGKPerformance: true,  trackOppScorers: true},
 };
 const _TRK_DESCS = {
   quick:    'Scores only — no jersey numbers, shot locations, or turnover detail.',
   standard: 'Captures scores, jersey numbers, and shot locations.',
-  detailed: 'Full tracking — everything in Standard plus turnover breakdowns and goalkeeper performance.',
+  detailed: 'Full tracking — everything in Standard plus turnover breakdowns, goalkeeper performance, and opposition scorers.',
 };
 
 function applyTrackingPreset(mode) {
@@ -333,6 +339,8 @@ function syncTrackingUI() {
   const gkChk  = document.getElementById('gkperf-chk');
   if (gkCard) gkCard.style.display = '';
   if (gkChk)  gkChk.checked = !!state.trackGKPerformance;
+  const oscChk = document.getElementById('oppscorer-chk');
+  if (oscChk) oscChk.checked = !!state.trackOppScorers;
 }
 
 function updatePresetUI() {
@@ -340,10 +348,11 @@ function updatePresetUI() {
   const shot  = !!state.trackShotLocations;
   const turn  = !!state.trackTurnovers;
   const gkp   = !!state.trackGKPerformance;
+  const osc   = !!state.trackOppScorers;
   let active = null;
-  if (!pnum && !shot && !turn && !gkp) active = 'quick';
-  else if (pnum && shot && !turn && !gkp) active = 'standard';
-  else if (pnum && shot && turn  &&  gkp) active = 'detailed';
+  if (!pnum && !shot && !turn && !gkp && !osc) active = 'quick';
+  else if (pnum && shot && !turn && !gkp && !osc) active = 'standard';
+  else if (pnum && shot && turn  &&  gkp &&  osc) active = 'detailed';
   document.querySelectorAll('.trk-preset-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.preset === active);
   });

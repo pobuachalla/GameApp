@@ -242,9 +242,11 @@ function adjOpp(t, d, side, how) {
   let desc = state.oppN+': '+type+' '+(nxt>prev?'added':'removed');
   if (how && nxt>prev) desc += ' · '+how;
   addRow(fmt(state.secs),'OPP','bopp',desc);
+  if (nxt>prev) state.evts[state.evts.length-1].action = type;
   const ct=t,cp=prev;
   pushUndo(desc,()=>{ if(ct==='g') setOppGoals(cp); else setOppPts(cp); upTot(); });
   if (d>0 && t==='g' && state.trackGKPerformance) openGKGoalFlow(state.evts.length - 1, side||'opp');
+  else if (d>0 && state.trackOppScorers) openOscModal(state.evts.length - 1, () => showRestartModal(side||'opp'));
   else if (d>0) showRestartModal(side||'opp');
 }
 
@@ -258,9 +260,11 @@ function adjFootball(d, side, how) {
   let desc = team+': 2 Point '+(d>0?'added':'removed');
   if (how && d>0) desc += ' · '+how;
   addRow(fmt(state.secs),'ADJ','badj',desc);
+  if (nxt>prev && !isUs) state.evts[state.evts.length-1].action = '2 Point';
   const cp=prev;
   pushUndo(desc,()=>{ if(isUs) setUsPts(cp); else setOppPts(cp); upTot(); });
-  if (d>0) showRestartModal(side||'us');
+  if (d>0 && !isUs && state.trackOppScorers) openOscModal(state.evts.length - 1, () => showRestartModal(side||'us'));
+  else if (d>0) showRestartModal(side||'us');
 }
 
 // ─── RESTART ──────────────────────────────────────────────────────────────────

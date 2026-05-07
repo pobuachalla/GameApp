@@ -60,6 +60,11 @@ const appGlobals = {
   ACTION_GROUPS: 'writable',
   ACTION_META: 'writable',
   ZONE_ACTS: 'writable',
+  TEAM_SLOTS: 'writable',
+  SLOT_POS: 'writable',
+  CARD_YELLOW: 'writable',
+  CARD_BLACK: 'writable',
+  CARD_RED: 'writable',
 
   // ── wakelock.js ──
   wakeLock: 'writable',
@@ -126,16 +131,21 @@ const appGlobals = {
   doReset: 'writable',
   openScoreModal: 'writable',
   showScoreHowModal: 'writable',
+  showWideHowModal: 'writable',
+  buildHowGrid: 'writable',
   completeScoreAdj: 'writable',
   adjUs: 'writable',
   adjOpp: 'writable',
   adjFootball: 'writable',
   showRestartModal: 'writable',
+  startRestartSub: 'writable',
 
   // ── players.js ──
   sel: 'writable',
   actCb: 'writable',
   secCb: 'writable',
+  postSubCb: 'writable',
+  showSubDrawer: 'writable',
   showZonePicker: 'writable',
   getZonePreselect: 'writable',
   getZonePreselectCoords: 'writable',
@@ -186,8 +196,19 @@ const appGlobals = {
   onSizeToggle: 'writable',
   onShotLocToggle: 'writable',
   onPlayerNumToggle: 'writable',
+  onTurnoverToggle: 'writable',
+  onGKPerfToggle: 'writable',
+  onOppScorerToggle: 'writable',
+  applyTrackingPreset: 'writable',
   switchSetupTab: 'writable',
   clearAllNames: 'writable',
+
+  // ── osc.js ──
+  OSC_POSITIONS: 'writable',
+  OSC_ROWS: 'writable',
+  openOscModal: 'writable',
+  oscSkip: 'writable',
+  oscSelectPos: 'writable',
 
   // ── layout.js ──
   _teamCrest: 'writable',
@@ -213,6 +234,18 @@ const appGlobals = {
   buildPrintHTML: 'writable',
   buildPrintShotMapHTML: 'writable',
   printStats: 'writable',
+
+  // ── gk.js ──
+  openGKSaveFlow: 'writable',
+  openGKGoalFlow: 'writable',
+  closeGKModal: 'writable',
+  gkHelpOpen: 'writable',
+  gkHelpClose: 'writable',
+  gkCellTap: 'writable',
+  gkSecSlide: 'writable',
+  gkToggleSecondary: 'writable',
+  gkSkip: 'writable',
+  gkSubmit: 'writable',
 
   // ── app.js ──
   restoreUI: 'writable',

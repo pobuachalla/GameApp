@@ -545,3 +545,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .gk-int-row:last-child{border-bottom:none;}
 .gk-int-n{width:40px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;padding:10px 0;background:var(--bg3);border-right:.5px solid var(--b);color:var(--t1);}
 .gk-int-row > div{padding:8px 10px;}
+/* ─── OPPOSITION SCORER MODAL ────────────────────────────────────────────── */
+.osc-formation{display:flex;flex-direction:column;gap:6px;}
+.osc-row{display:flex;gap:6px;justify-content:center;}
+.osc-pos-btn{flex:1;max-width:110px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 6px;background:var(--bg2);border:1.5px solid var(--b);border-radius:10px;cursor:pointer;font-family:inherit;transition:transform .1s,border-color .1s;}
+.osc-pos-btn:active{transform:scale(.95);border-color:#6A1B9A;}
+.osc-pos-num{font-size:18px;font-weight:800;color:var(--t1);line-height:1;}
+.osc-pos-lbl{font-size:10px;font-weight:500;color:var(--t2);text-align:center;line-height:1.2;}

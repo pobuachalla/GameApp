@@ -74,13 +74,17 @@ function gkHelpClose() {
 function closeGKModal() {
   const wasGoalFlow  = _gkFlow === 'goal';
   const restartSide  = _pendingRestartSide;
+  const goalEvtIdx   = _gkGoalEvtIdx;
   document.getElementById('gkovly').classList.remove('open');
   document.getElementById('gkpanel').classList.remove('open');
   document.getElementById('gk-help-view').style.display = 'none';
   _gkFlow = null; _gkSlot = null; _gkGoalEvtIdx = null;
   _gkIntensity = null; _gkSaveScore = null; _gkSecondary = null; _gkSecondaryVis = false;
   _pendingRestartSide = null;
-  if (wasGoalFlow && restartSide != null) showRestartModal(restartSide);
+  if (wasGoalFlow && restartSide != null) {
+    if (state.trackOppScorers) openOscModal(goalEvtIdx, () => showRestartModal(restartSide));
+    else showRestartModal(restartSide);
+  }
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────

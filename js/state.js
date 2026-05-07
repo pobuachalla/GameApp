@@ -22,6 +22,7 @@ const state = {
   showPlayerNumbers:true,
   trackTurnovers:false,
   trackGKPerformance:false,
+  trackOppScorers:false,
 };
 for (let i = 1; i <= 15; i++) state.slotp[i] = i;
 

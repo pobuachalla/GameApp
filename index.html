@@ -364,6 +364,25 @@
             </div>
           </div>
 
+          <!-- Opposition scorers card -->
+          <div class="trk-card">
+            <div class="trk-card-top">
+              <div class="trk-icon-wrap"><i class="fas fa-person-running"></i></div>
+              <div class="trk-card-text">
+                <div class="trk-card-title">Track opposition scorers</div>
+                <div class="trk-card-desc">Record the position of each opposition scorer to build a defensive vulnerability profile.</div>
+              </div>
+              <label class="trk-toggle" aria-label="Track opposition scorers">
+                <input type="checkbox" id="oppscorer-chk" onchange="onOppScorerToggle(this.checked)">
+                <span class="trk-toggle-thumb"></span>
+              </label>
+            </div>
+            <div class="trk-hint">
+              <i class="fas fa-magnifying-glass-chart" style="color:#6A1B9A;font-size:20px;flex-shrink:0;" aria-hidden="true"></i>
+              <span class="trk-hint-text">See which positions are hurting your defence</span>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -434,6 +453,15 @@
     <div class="drw-handle" onclick="closeRestartDrawer()"></div>
     <div class="drw-hdr"><div style="font-size:17px;font-weight:600;color:var(--t1);">Restart won?</div></div>
     <div id="rst-body" style="padding:14px 14px 32px;display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+
+  <!-- Opposition scorer drawer -->
+  <div id="oscopanel" class="drw-panel" style="z-index:47;height:auto;max-height:calc(100% - 80px);">
+    <div class="drw-handle" onclick="oscSkip()"></div>
+    <div class="drw-hdr">
+      <div id="osc-title" style="font-size:17px;font-weight:600;color:var(--t1);"></div>
+    </div>
+    <div id="osc-body" style="padding:10px 14px 32px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>
   </div>
 
   <!-- GK Shot-Stopping drawer -->
@@ -633,6 +661,7 @@
 <script src="js/print.js"></script>
 <script src="js/transfer.js"></script>
 <script src="js/gk.js"></script>
+<script src="js/osc.js"></script>
 <script src="js/app.js"></script>
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4e27a1466ecf4893866bc3012206399a"}'></script>
 </body>
