@@ -240,6 +240,71 @@ function rstBlock(label, won, lost, unclear, total) {
   return out;
 }
 
+// ─── GOALKEEPER PERFORMANCE STAT ─────────────────────────────────────────────
+function buildGKStatHTML() {
+  if (!state.trackGKPerformance) return '';
+  const ratedEvts = state.evts.filter(e => e.gkOutcome != null && e.gkFinalValue != null);
+  if (ratedEvts.length === 0) return '';
+
+  let weightedDevSum = 0, totalWeight = 0, saves = 0, goals = 0;
+  ratedEvts.forEach(e => {
+    const dev = e.gkFinalValue - 4;
+    const wt = 1 + ((e.gkIntensity || 3) - 1) * 0.4;
+    weightedDevSum += dev * wt;
+    totalWeight += wt;
+    if (e.gkOutcome === 'save') saves++; else goals++;
+  });
+
+  const avgDev = totalWeight > 0 ? weightedDevSum / totalWeight : 0;
+  const rating = Math.round(50 + (Math.max(-4, Math.min(4, avgDev)) / 4) * 50);
+  const label = rating >= 80 ? 'Outstanding' : rating >= 65 ? 'Very Good' : rating >= 55 ? 'Good'
+    : rating >= 45 ? 'Average' : rating >= 35 ? 'Below Average' : rating >= 20 ? 'Poor' : 'Very Poor';
+  const ratingColor = rating >= 65 ? '#2E7D32' : rating >= 45 ? '#F59E0B' : '#C62828';
+  const gkName = gn(1) || 'Goalkeeper';
+  const shots = saves + goals;
+  const saveRate = shots > 0 ? Math.round(saves / shots * 100) : 0;
+  const intensityLabels = ['', 'Routine', 'Moderate', 'Challenging', 'Difficult', 'Exceptional'];
+
+  let h = '<div class="stat-section"><div class="stat-section-title">Goalkeeper Performance</div>';
+  h += '<div class="stat-card">';
+  h += `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">`;
+  h += html`<div style="font-size:14px;font-weight:600;color:var(--t1);">${gkName}</div>`;
+  h += `<div style="font-size:12px;color:var(--t3);">${saves} save${saves !== 1 ? 's' : ''} / ${goals} goal${goals !== 1 ? 's' : ''} conceded (${saveRate}%)</div>`;
+  h += `</div>`;
+  h += `<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px;">`;
+  h += `<div style="font-size:40px;font-weight:800;color:${ratingColor};line-height:1;">${rating}</div>`;
+  h += `<div style="font-size:15px;font-weight:700;color:${ratingColor};">${label}</div>`;
+  h += `<div style="font-size:11px;color:var(--t3);margin-left:auto;">/ 100</div>`;
+  h += `</div>`;
+  h += `<div class="gk-rating-bar-wrap"><div class="gk-rating-bar"></div>`;
+  h += `<div class="gk-rating-marker" style="left:${rating}%;background:${ratingColor};"></div></div>`;
+  h += `<div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:var(--t3);">`;
+  h += `<span>Struggling</span><span>Average</span><span>Excellent</span></div>`;
+
+  if (ratedEvts.length >= 3) {
+    const levels = [5, 4, 3, 2, 1].filter(i => ratedEvts.some(e => (e.gkIntensity || 3) === i));
+    if (levels.length) {
+      h += `<div style="border-top:.5px solid var(--b);margin-top:14px;padding-top:10px;">`;
+      h += `<div class="stat-sub-hdr" style="margin-top:0;margin-bottom:8px;">By shot difficulty</div>`;
+      levels.forEach(intensity => {
+        const lvl = ratedEvts.filter(e => (e.gkIntensity || 3) === intensity);
+        const sv = lvl.filter(e => e.gkOutcome === 'save').length;
+        const pct = Math.round(sv / lvl.length * 100);
+        const bc = pct >= 70 ? '#2E7D32' : pct >= 40 ? '#F59E0B' : '#C62828';
+        h += `<div style="display:flex;align-items:center;gap:8px;padding:3px 0;">`;
+        h += html`<div style="font-size:12px;color:var(--t2);min-width:96px;">${intensityLabels[intensity]}</div>`;
+        h += `<div style="flex:1;background:var(--bg3);border-radius:3px;overflow:hidden;height:6px;"><div style="background:${bc};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
+        h += `<div style="font-size:12px;font-weight:600;color:${bc};min-width:36px;text-align:right;">${sv}/${lvl.length}</div>`;
+        h += `</div>`;
+      });
+      h += `</div>`;
+    }
+  }
+
+  h += '</div></div>';
+  return h;
+}
+
 // ─── STATS PANEL ──────────────────────────────────────────────────────────────
 function openStats() {
   renderStats();
@@ -483,6 +548,10 @@ function buildStatsHTML() {
   h += '<div style="border-top:.5px solid var(--b);margin:6px 0 10px;"></div>';
   h += rstBlock('Opposition '+rstLabel+'s', oppWon, oppLost, oppUnclear, oppTotal);
   h += '</div></div>';
+
+  // Goalkeeper Performance
+  const gkStatHtml = buildGKStatHTML();
+  if (gkStatHtml) h += gkStatHtml;
 
   // Discipline
   const discPlayers = Object.values(pstats).filter(p =>

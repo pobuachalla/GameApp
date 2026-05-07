@@ -471,3 +471,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .gk-footer .btn-primary{flex:1;}
 .gk-submit-danger{background:var(--td)!important;border-color:var(--td)!important;}
 .ps-btn-gk .ps-pers-icon{background:#e3f2fd;color:#014f8f;}
+.gk-rating-bar-wrap{position:relative;height:10px;border-radius:5px;margin-bottom:2px;}
+.gk-rating-bar{height:10px;border-radius:5px;background:linear-gradient(to right,#C62828 0%,#F59E0B 45%,#4CAF50 100%);}
+.gk-rating-marker{position:absolute;top:-3px;width:4px;height:16px;border-radius:2px;transform:translateX(-50%);box-shadow:0 1px 3px rgba(0,0,0,.35);}

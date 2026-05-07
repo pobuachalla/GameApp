@@ -432,6 +432,62 @@ function buildPrintHTML() {
     h += '</div></div>';
   }
 
+  // Goalkeeper Performance
+  if (state.trackGKPerformance) {
+    const prGkEvts = state.evts.filter(e => e.gkOutcome != null && e.gkFinalValue != null);
+    if (prGkEvts.length > 0) {
+      let prWtdSum = 0, prWtd = 0, prSaves = 0, prGoals = 0;
+      prGkEvts.forEach(e => {
+        const dev = e.gkFinalValue - 4;
+        const wt = 1 + ((e.gkIntensity || 3) - 1) * 0.4;
+        prWtdSum += dev * wt; prWtd += wt;
+        if (e.gkOutcome === 'save') prSaves++; else prGoals++;
+      });
+      const prRating = Math.round(50 + (Math.max(-4, Math.min(4, prWtd > 0 ? prWtdSum / prWtd : 0)) / 4) * 50);
+      const prLabel = prRating >= 80 ? 'Outstanding' : prRating >= 65 ? 'Very Good' : prRating >= 55 ? 'Good'
+        : prRating >= 45 ? 'Average' : prRating >= 35 ? 'Below Average' : prRating >= 20 ? 'Poor' : 'Very Poor';
+      const prRatingCol = prRating >= 65 ? '#2E7D32' : prRating >= 45 ? '#E65100' : '#C62828';
+      const prGkName = gn(1) || 'Goalkeeper';
+      const prShots = prSaves + prGoals;
+      const prSaveRate = prShots > 0 ? Math.round(prSaves / prShots * 100) : 0;
+      const prIntLabels = ['', 'Routine', 'Moderate', 'Challenging', 'Difficult', 'Exceptional'];
+      h += '<div class="pr-section">';
+      h += '<div class="pr-section-title">Goalkeeper Performance</div>';
+      h += '<div class="pr-card">';
+      h += html`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><span style="font-size:14px;font-weight:600;color:#1F1F1F;">${prGkName}</span><span style="font-size:12px;color:#6B6F66;">${prSaves} save${prSaves!==1?'s':''} / ${prGoals} goal${prGoals!==1?'s':''} conceded (${prSaveRate}%)</span></div>`;
+      h += `<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px;">`;
+      h += `<span style="font-size:36px;font-weight:800;color:${prRatingCol};line-height:1;">${prRating}</span>`;
+      h += `<span style="font-size:14px;font-weight:700;color:${prRatingCol};">${prLabel}</span>`;
+      h += `<span style="font-size:11px;color:#9A9E99;margin-left:auto;">/ 100</span>`;
+      h += `</div>`;
+      h += `<div style="position:relative;height:10px;margin-bottom:4px;">`;
+      h += `<div style="height:10px;border-radius:5px;background:linear-gradient(to right,#C62828 0%,#F59E0B 45%,#4CAF50 100%);"></div>`;
+      h += `<div style="position:absolute;top:-3px;left:${prRating}%;width:4px;height:16px;background:${prRatingCol};border-radius:2px;transform:translateX(-50%);box-shadow:0 1px 3px rgba(0,0,0,.35);"></div>`;
+      h += `</div>`;
+      h += `<div style="display:flex;justify-content:space-between;font-size:10px;color:#9A9E99;margin-bottom:4px;"><span>Struggling</span><span>Average</span><span>Excellent</span></div>`;
+      if (prGkEvts.length >= 3) {
+        const prLevels = [5, 4, 3, 2, 1].filter(i => prGkEvts.some(e => (e.gkIntensity || 3) === i));
+        if (prLevels.length) {
+          h += `<div style="border-top:1px solid #E2E4DE;margin-top:10px;padding-top:8px;">`;
+          h += `<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;margin-bottom:8px;">By shot difficulty</div>`;
+          prLevels.forEach(intensity => {
+            const lvl = prGkEvts.filter(e => (e.gkIntensity || 3) === intensity);
+            const sv = lvl.filter(e => e.gkOutcome === 'save').length;
+            const pct = Math.round(sv / lvl.length * 100);
+            const bc = pct >= 70 ? '#2E7D32' : pct >= 40 ? '#E65100' : '#C62828';
+            h += `<div style="display:flex;align-items:center;gap:8px;padding:3px 0;">`;
+            h += html`<div style="font-size:12px;color:#4A4A4A;min-width:96px;">${prIntLabels[intensity]}</div>`;
+            h += `<div style="flex:1;background:#E8EAE5;border-radius:3px;overflow:hidden;height:6px;"><div style="background:${bc};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
+            h += `<div style="font-size:12px;font-weight:600;color:${bc};min-width:36px;text-align:right;">${sv}/${lvl.length}</div>`;
+            h += `</div>`;
+          });
+          h += `</div>`;
+        }
+      }
+      h += '</div></div>';
+    }
+  }
+
   if (discPlayers.length > 0 || freesConc > 0) {
     h += '<div class="pr-section">';
     h += '<div class="pr-section-title">Discipline</div>';
