@@ -353,11 +353,12 @@ function updatePresetUI() {
   if (!pnum && !shot && !turn && !gkp && !osc) active = 'quick';
   else if (pnum && shot && !turn && !gkp && !osc) active = 'standard';
   else if (pnum && shot && turn  &&  gkp &&  osc) active = 'detailed';
+  else active = 'custom';
   document.querySelectorAll('.trk-preset-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.preset === active);
   });
   const desc = document.getElementById('trk-preset-desc');
-  if (desc) desc.textContent = active ? _TRK_DESCS[active] : '';
+  if (desc) desc.textContent = _TRK_DESCS[active] || 'Custom mix of tracking options.';
 }
 
 // ─── TEAM NAME TYPEAHEAD ──────────────────────────────────────────────────────

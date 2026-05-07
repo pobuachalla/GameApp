@@ -65,14 +65,14 @@ reasonable pressure — these require different interventions. Frame the scoring
 around decision quality and efficiency, and be direct if the team is leaving scoreable \
 chances behind.`;
     }
-    return null;
+    return '';
   },
 
   // ── Prompt template ──────────────────────────────────────────────────────────
   // Receives the match payload object and returns the full prompt string.
   buildPrompt(payload) {
     const ageCtx = this._ageGradeGuidance(payload.ageGrade);
-    return `You are an expert GAA (Gaelic Athletic Association) match analyst. Your job is to identify \
+    let prompt = `You are an expert GAA (Gaelic Athletic Association) match analyst. Your job is to identify \
 patterns, turning points, and momentum shifts — not to narrate what happened. A coach reading this \
 already knows the result; they need to understand the underlying dynamics that produced it.
 
@@ -207,8 +207,14 @@ SQUAD (position number → player name):
 ${payload.squad}
 
 EVENT LOG (time  player  action  sub-type  [pitch zone if tagged]):
-${payload.eventLog}
-${payload.gkContext ? `\nGOALKEEPER PERFORMANCE (mention only where relevant — do not dedicate a section to this unless it was decisive):\n${payload.gkContext}` : ''}`;
+${payload.eventLog}`;
+    if (payload.gkContext) {
+      prompt += '\n\nGOALKEEPER PERFORMANCE (mention only where relevant — do not dedicate a section to this unless it was decisive):\n' + payload.gkContext;
+    }
+    if (payload.oppScorerContext) {
+      prompt += '\n\nOPPOSITION SCORING THREAT (only comment on this if the data shows a clear standout — do not mention it if scoring was evenly spread across positions):\n' + payload.oppScorerContext;
+    }
+    return prompt;
   },
 
   // ── Zone label ────────────────────────────────────────────────────────────────
@@ -250,7 +256,10 @@ ${payload.gkContext ? `\nGOALKEEPER PERFORMANCE (mention only where relevant —
       if (ev.badge === '2H')  return `${t}  ───  SECOND HALF BEGINS`;
       if (ev.badge === 'END') return `${t}  ───  FULL TIME`;
       if (ev.badge === 'OPP') return `${t}  Opposition        ${ev.desc || ''}`;
-      if (ev.badge === 'ADJ') return `${t}  Score adjustment  ${ev.desc || ''}`;
+      if (ev.badge === 'ADJ') {
+        const adjDesc = ev.desc || '';
+        return `${t}  Score adjustment  ${adjDesc}`;
+      }
       if (ev.badge === 'RSTR') return `${t}  Restart           ${ev.desc || ''}`;
       const player  = (playerOf(ev) || '—').padEnd(22);
       const action  = ev.action || ev.badge || '?';
@@ -307,6 +316,40 @@ ${payload.gkContext ? `\nGOALKEEPER PERFORMANCE (mention only where relevant —
       }
     }
 
+    // Opposition scorer context — only surface when one position is a standout threat
+    let oppScorerContext = null;
+    if (state.trackOppScorers) {
+      const oscEvts = (state.evts || []).filter(e => e.oppScorer);
+      if (oscEvts.length > 0) {
+        const oscMap = {};
+        oscEvts.forEach(e => {
+          const s = e.oppScorer;
+          const key = s.label + ' (' + s.num + ')';
+          if (!oscMap[key]) oscMap[key] = { num: s.num, label: s.label, goals: 0, pts: 0 };
+          const a = e.action || '';
+          if (a === 'Goal') oscMap[key].goals++;
+          else if (a === '2 Point') oscMap[key].pts += 2;
+          else oscMap[key].pts++;
+        });
+        const oscRows = Object.values(oscMap)
+          .map(r => ({ ...r, total: r.goals * 3 + r.pts }))
+          .sort((a, b) => b.total - a.total);
+        const grandTotal = oscRows.reduce((s, r) => s + r.total, 0);
+        const top = oscRows[0];
+        // Flag as standout if top scorer contributed ≥40% of tracked opp scoring, or scored a goal
+        const isStandout = grandTotal > 0 && (top.goals > 0 || top.total / grandTotal >= 0.4);
+        if (isStandout) {
+          const scoreStr = top.goals + '-' + top.pts + ' (' + top.total + 'pts)';
+          const pct = Math.round(top.total / grandTotal * 100);
+          oppScorerContext = `${top.label} (#${top.num}) was the primary scoring threat for ${state.oppN || 'the opposition'}, contributing ${scoreStr} — ${pct}% of tracked opposition scoring.`;
+          if (oscRows.length > 1) {
+            const others = oscRows.slice(1).map(r => r.label + ' (#' + r.num + ') ' + r.goals + '-' + r.pts).join(', ');
+            oppScorerContext += ` Other recorded scorers: ${others}.`;
+          }
+        }
+      }
+    }
+
     return {
       fixture,
       ageGrade:   state.ageGrade || '',
@@ -315,6 +358,7 @@ ${payload.gkContext ? `\nGOALKEEPER PERFORMANCE (mention only where relevant —
       squad:      squadLines,
       eventLog:   this.buildEventLog(state),
       gkContext,
+      oppScorerContext,
     };
   }
 

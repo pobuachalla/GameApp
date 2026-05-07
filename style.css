@@ -127,6 +127,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .trk-preset-row{display:flex;background:var(--bg3);border-radius:10px;padding:3px;gap:3px;}
 .trk-preset-btn{flex:1;padding:8px 4px;border:none;border-radius:8px;background:transparent;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:inherit;transition:background .18s,color .18s;touch-action:manipulation;}
 .trk-preset-btn.active{background:#2E7D32;color:#fff;font-weight:600;}
+.trk-preset-custom{cursor:default;}
+.trk-preset-custom.active{background:#6A1B9A;}
 .trk-preset-desc{font-size:12px;color:var(--t3);line-height:1.5;margin-top:10px;min-height:1.5em;}
 .trk-card{background:var(--bg1);border:1px solid var(--b);border-radius:14px;padding:14px;}
 .trk-card-top{display:flex;align-items:flex-start;gap:12px;}

@@ -57,9 +57,18 @@ function oscSkip() {
 function oscSelectPos(num) {
   const pos = OSC_POSITIONS[num];
   if (!pos) return;
-  // Enrich the event
+  // Enrich the event with scorer data and append to visible description
   if (_oscEvtIdx != null && _oscEvtIdx < state.evts.length) {
-    state.evts[_oscEvtIdx].oppScorer = { num: pos.num, label: pos.label };
+    const ev = state.evts[_oscEvtIdx];
+    ev.oppScorer = { num: pos.num, label: pos.label };
+    const scorerSuffix = ' \xB7 ' + pos.label + ' (#' + pos.num + ')';
+    ev.desc += scorerSuffix;
+    // Update the DOM row so the log reflects it immediately
+    const row = el.evlog.querySelector('[data-ev-idx="' + _oscEvtIdx + '"]');
+    if (row) {
+      const descEl = row.querySelector('span:last-child');
+      if (descEl) descEl.textContent = ev.desc;
+    }
   }
   saveState();
   _oscClose();

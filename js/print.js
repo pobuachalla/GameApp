@@ -488,6 +488,35 @@ function buildPrintHTML() {
     }
   }
 
+  // Opposition Scoring Profile
+  if (state.trackOppScorers) {
+    const prOscEvts = state.evts.filter(e => e.oppScorer);
+    if (prOscEvts.length > 0) {
+      const prOscMap = {};
+      prOscEvts.forEach(e => {
+        const s = e.oppScorer;
+        const key = s.label + ' (' + s.num + ')';
+        if (!prOscMap[key]) prOscMap[key] = { num: s.num, label: s.label, goals: 0, pts: 0 };
+        const a = e.action || '';
+        if (a === 'Goal') prOscMap[key].goals++;
+        else if (a === '2 Point') prOscMap[key].pts += 2;
+        else prOscMap[key].pts++;
+      });
+      const prOscRows = Object.values(prOscMap).sort((a, b) => {
+        const ta = a.goals * 3 + a.pts, tb = b.goals * 3 + b.pts;
+        return tb !== ta ? tb - ta : a.num - b.num;
+      });
+      h += '<div class="pr-section">';
+      h += '<div class="pr-section-title">Opposition Scoring Profile</div>';
+      h += '<div class="pr-card">';
+      prOscRows.forEach(r => {
+        const total = r.goals * 3 + r.pts;
+        h += html`<div class="pr-row"><span>#${r.num} ${r.label}</span><span class="pr-tag" style="background:#EDE7F6;color:#4A148C;">${r.goals}-${r.pts} (${total}pts)</span></div>`;
+      });
+      h += '</div></div>';
+    }
+  }
+
   if (discPlayers.length > 0 || freesConc > 0) {
     h += '<div class="pr-section">';
     h += '<div class="pr-section-title">Discipline</div>';
