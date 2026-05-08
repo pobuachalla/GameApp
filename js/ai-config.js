@@ -68,6 +68,40 @@ chances behind.`;
     return '';
   },
 
+  // ── Tone guidance ─────────────────────────────────────────────────────────────
+  // Returns the closing tone instruction for the prompt — calibrated to age grade.
+  // Younger = constructive and encouraging. Older = direct, no cushioning.
+  _toneGuidance(ag) {
+    if (!ag) return 'Keep the tone direct — this report will be used in a coaching session, not published.';
+    const s = ag.toLowerCase().replaceAll(/[^a-z0-9]/g, '');
+    const m = s.match(/u(\d+)/) || s.match(/under(\d+)/);
+    const age   = m ? Number.parseInt(m[1]) : null;
+    const minor = s.includes('minor');
+    const adult = s.includes('junior') || s.includes('senior') || s.includes('adult');
+
+    if (age !== null && age <= 14) {
+      return `TONE: This report may be shared with young players in a team setting. \
+Lead every section with what the team did well before identifying areas for improvement. \
+Use constructive, encouraging language throughout — do not frame turnovers, wides, or free \
+concessions as failures, but as specific and solvable learning moments. The overall tone \
+should leave players feeling capable and motivated, not criticised.`;
+    }
+    if (age !== null && age <= 16) {
+      return `TONE: This is a developmental coaching report. Acknowledge what the team executed \
+well, then be clear and specific about patterns that need to change. Avoid harsh or deflating \
+language, but do not bury problems in qualifications. A coach and young players will read this \
+together — be honest but supportive. Do not over-praise, and do not over-criticise.`;
+    }
+    if (minor || adult || (age !== null && age >= 17)) {
+      return `TONE: This is a competitive report for experienced coaches. Be direct. Do not \
+soften negative findings with positive framing, do not use "however" or "despite" to cushion a \
+problem, and do not open paragraphs with praise before arriving at the issue. If an area of \
+play was poor, say so plainly and without qualification. Coaches at this level need accurate \
+analysis, not encouragement.`;
+    }
+    return 'Keep the tone direct — this report will be used in a coaching session, not published.';
+  },
+
   // ── Prompt template ──────────────────────────────────────────────────────────
   // Receives the match payload object and returns the full prompt string.
   buildPrompt(payload) {
@@ -180,7 +214,7 @@ first/second half" or "the opening ten minutes" rather than quoting raw timestam
 Where several similar events cluster, describe them as a group in one sentence.
 
 Ground every observation in actual sequences from the event log. \
-Keep the tone direct — this report will be used in a coaching session, not published.
+${this._toneGuidance(payload.ageGrade)}
 
 End the report with the following disclaimer, reproduced exactly and in full:
 

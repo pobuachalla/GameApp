@@ -182,6 +182,7 @@ const appGlobals = {
   openShareMenu: 'writable',
 
   // ── settings.js ──
+  ageGradePick: 'writable',
   saveTpl: 'writable',
   loadTpl: 'writable',
   delTpl: 'writable',

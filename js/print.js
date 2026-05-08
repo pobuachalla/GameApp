@@ -14,11 +14,7 @@ function buildPrintTimelineHTML() {
     if (inH2) t += halfSecs;
     const prevUs=usG*3+usP, prevOpp=oppG*3+oppP;
     let mType=null, mTeam='us';
-    if      (ev.action==='Goal')      { usG++; mType='Goal'; mTeam='us'; }
-    else if (ev.action==='Point')     { usP++; mType='Point'; mTeam='us'; }
-    else if (ev.action==='2 Point')   { usP+=2; mType='2 Point'; mTeam='us'; }
-    else if (ev.action==='Wide')      { mType='Wide'; mTeam=(ev.badge==='OPP')?'opp':'us'; }
-    else if (ev.badge==='OPP') {
+    if (ev.badge==='OPP') {
       const d=ev.desc||'';
       if      (d.includes('Goal added'))     { oppG++; mType='Goal'; mTeam='opp'; }
       else if (d.includes('2 Point added'))  { oppP+=2; mType='2 Point'; mTeam='opp'; }
@@ -33,9 +29,13 @@ function buildPrintTimelineHTML() {
       else if (d.includes('Point added'))   { if(adjOpp){oppP++;mType='Point';mTeam='opp';}else{usP++;mType='Point';mTeam='us';} }
       else if (d.includes('Goal removed'))  { if(adjOpp) oppG=Math.max(0,oppG-1); else usG=Math.max(0,usG-1); }
       else if (d.includes('Point removed')) { if(adjOpp) oppP=Math.max(0,oppP-1); else usP=Math.max(0,usP-1); }
-    } else if (ev.action==='sub')        { subs.push({secs:t}); }
-      else if (ev.action==='Red Card')   { reds.push({secs:t}); }
-      else if (ev.action==='Black Card') { blacks.push({secs:t}); }
+    } else if (ev.action==='Goal')      { usG++; mType='Goal'; mTeam='us'; }
+      else if (ev.action==='Point')     { usP++; mType='Point'; mTeam='us'; }
+      else if (ev.action==='2 Point')   { usP+=2; mType='2 Point'; mTeam='us'; }
+      else if (ev.action==='Wide')      { mType='Wide'; mTeam='us'; }
+      else if (ev.action==='sub')       { subs.push({secs:t}); }
+      else if (ev.action==='Red Card')  { reds.push({secs:t}); }
+      else if (ev.action==='Black Card'){ blacks.push({secs:t}); }
     const curUs=usG*3+usP, curOpp=oppG*3+oppP;
     if (mType) markers.push({secs:t, team:mTeam, type:mType, usScore:curUs, oppScore:curOpp});
     if (curUs!==prevUs||curOpp!==prevOpp||mType==='Wide') data.push({secs:t,us:curUs,opp:curOpp});
@@ -565,10 +565,7 @@ function buildPrintHTML() {
     let psUsG=0,psUsP=0,psOppG=0,psOppP=0;
     const psScoreAt=[];
     state.evts.forEach(ev => {
-      if      (ev.action==='Goal')      psUsG++;
-      else if (ev.action==='Point')     psUsP++;
-      else if (ev.action==='2 Point')   psUsP+=2;
-      else if (ev.badge==='OPP') {
+      if (ev.badge==='OPP') {
         const d=ev.desc||'';
         if      (d.includes('Goal added'))    psOppG++;
         else if (d.includes('2 Point added')) psOppP+=2;
@@ -583,7 +580,9 @@ function buildPrintHTML() {
         else if (d.includes('Point added'))   { if(adjOpp) psOppP++; else psUsP++; }
         else if (d.includes('Goal removed'))  { if(adjOpp) psOppG=Math.max(0,psOppG-1); else psUsG=Math.max(0,psUsG-1); }
         else if (d.includes('Point removed')) { if(adjOpp) psOppP=Math.max(0,psOppP-1); else psUsP=Math.max(0,psUsP-1); }
-      }
+      } else if (ev.action==='Goal')      psUsG++;
+        else if (ev.action==='Point')     psUsP++;
+        else if (ev.action==='2 Point')   psUsP+=2;
       psScoreAt.push({usG:psUsG,usP:psUsP,oppG:psOppG,oppP:psOppP});
     });
     const fPsUsG=psUsG,fPsUsP=psUsP,fPsOppG=psOppG,fPsOppP=psOppP;

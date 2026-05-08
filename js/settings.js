@@ -1,5 +1,11 @@
 'use strict';
 
+// ─── AGE GRADE PILLS ──────────────────────────────────────────────────────────
+function ageGradePick(btn) {
+  document.querySelectorAll('#sage-pills .age-grade-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
 // ─── SETUP TABS ───────────────────────────────────────────────────────────────
 function switchSetupTab(name) {
   document.querySelectorAll('.set-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
@@ -87,7 +93,14 @@ function openSettings(){
   document.getElementById('sref').value=state.referee||'';
   document.getElementById('scomp').value=state.competition||'';
   document.getElementById('smdate').value=state.matchDate||'';
-  document.getElementById('sage').value=state.ageGrade||'';
+  const _ageVal = (state.ageGrade || '').toLowerCase();
+  let _ageMatched = false;
+  document.querySelectorAll('#sage-pills .age-grade-pill').forEach(b => {
+    const match = b.dataset.val.toLowerCase() === _ageVal;
+    b.classList.toggle('active', match);
+    if (match) _ageMatched = true;
+  });
+  if (!_ageMatched) document.querySelector('#sage-pills .age-grade-pill').classList.add('active');
   const isFootball = state.sport === 'football';
   const is13 = state.teamSize === 13;
   document.getElementById('sport-chk').checked = isFootball;
@@ -138,7 +151,8 @@ function flushSettings() {
   state.referee    = (document.getElementById('sref').value||'').trim();
   state.competition= (document.getElementById('scomp').value||'').trim();
   state.matchDate  = (document.getElementById('smdate').value||'').trim();
-  state.ageGrade   = (document.getElementById('sage').value||'').trim();
+  const _agePill = document.querySelector('#sage-pills .age-grade-pill.active');
+  state.ageGrade   = _agePill ? _agePill.dataset.val : '';
   el.uslbl.textContent=state.usN.toUpperCase();
   el.opplbl.textContent=state.oppN.toUpperCase();
   for(let i=1;i<=state.maxB+2;i++){const inp=document.getElementById('sn'+i);if(inp)state.pnames[i]=inp.value.trim();}

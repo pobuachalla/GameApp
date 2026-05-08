@@ -259,7 +259,21 @@
               <div style="flex:2;min-width:0;"><div class="setup-field-lbl">Competition</div><input class="sinput" id="scomp" type="text" placeholder="e.g. County Championship" maxlength="50"></div>
               <div style="flex:1;min-width:0;"><div class="setup-field-lbl">Date</div><input class="sinput" id="smdate" type="date"></div>
             </div>
-            <div style="margin-top:8px;"><div class="setup-field-lbl">Age Grade</div><input class="sinput" id="sage" type="text" placeholder="e.g. Senior" maxlength="20"></div>
+            <div style="margin-top:8px;">
+              <div class="setup-field-lbl">Age Grade</div>
+              <div class="age-grade-pills" id="sage-pills">
+                <button type="button" class="age-grade-pill active" data-val="" onclick="ageGradePick(this)">—</button>
+                <button type="button" class="age-grade-pill" data-val="U8" onclick="ageGradePick(this)">U8</button>
+                <button type="button" class="age-grade-pill" data-val="U10" onclick="ageGradePick(this)">U10</button>
+                <button type="button" class="age-grade-pill" data-val="U12" onclick="ageGradePick(this)">U12</button>
+                <button type="button" class="age-grade-pill" data-val="U14" onclick="ageGradePick(this)">U14</button>
+                <button type="button" class="age-grade-pill" data-val="U16" onclick="ageGradePick(this)">U16</button>
+                <button type="button" class="age-grade-pill" data-val="Minor" onclick="ageGradePick(this)">Minor</button>
+                <button type="button" class="age-grade-pill" data-val="U20" onclick="ageGradePick(this)">U20</button>
+                <button type="button" class="age-grade-pill" data-val="Junior" onclick="ageGradePick(this)">Junior</button>
+                <button type="button" class="age-grade-pill" data-val="Senior" onclick="ageGradePick(this)">Senior</button>
+              </div>
+            </div>
           </div>
 
           <!-- Venue & Officials card -->
