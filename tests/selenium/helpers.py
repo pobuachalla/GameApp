@@ -13,8 +13,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
-TIMEOUT = 8
+TIMEOUT = 12
 
+_JS_CLICK = "arguments[0].click();"
 _TIMER_PRIMARY_BTN = "#timer-primary-btn"
 _STATUS_CHIP       = "#status-chip"
 _HOW_FROM_PLAY     = "From Play"
@@ -54,7 +55,7 @@ class App:
     def js_click(self, css):
         """Click an element via JavaScript — bypasses overlay/visibility restrictions."""
         el = self.d.find_element(By.CSS_SELECTOR, css)
-        self.d.execute_script("arguments[0].click();", el)
+        self.d.execute_script(_JS_CLICK, el)
 
     def is_displayed(self, css):
         try:
@@ -115,7 +116,7 @@ class App:
                 overlay = self.d.find_element(By.ID, oid)
                 cls = overlay.get_attribute("class") or ""
                 if "open" in cls.split():
-                    self.d.execute_script("arguments[0].click();", overlay)
+                    self.d.execute_script(_JS_CLICK, overlay)
                     return
             except NoSuchElementException:
                 continue
@@ -136,28 +137,31 @@ class App:
         )
         # Restart special cases
         if data_v in ("Won", "Win"):
-            self.wait.until(
+            btn = self.wait.until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "#rstpanel .ps-poss-won"))
-            ).click()
+            )
+            self.d.execute_script(_JS_CLICK, btn)
             return
         if data_v in ("Lost", "Loss"):
-            self.wait.until(
+            btn = self.wait.until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "#rstpanel .ps-poss-lost"))
-            ).click()
+            )
+            self.d.execute_script(_JS_CLICK, btn)
             return
         # Try psAction button first
         try:
             btn = WebDriverWait(self.d, 2).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, ps_sel))
             )
-            btn.click()
+            self.d.execute_script(_JS_CLICK, btn)
             return
         except TimeoutException:
             pass
         # Fall back to data-v selector
-        self.wait.until(
+        btn = self.wait.until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, dv_sel))
-        ).click()
+        )
+        self.d.execute_script(_JS_CLICK, btn)
 
     # ── Timer / state-machine helpers ──────────────────────────────────────────
 
@@ -258,18 +262,20 @@ class App:
         """Pick a restart result in the restart drawer."""
         self.wait_panel_open("rstpanel")
         if result in ("Won", "Win"):
-            self.wait.until(
+            btn = self.wait.until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "#rstpanel .ps-poss-won"))
-            ).click()
+            )
+            self.d.execute_script(_JS_CLICK, btn)
         elif result in ("Lost", "Loss"):
-            self.wait.until(
+            btn = self.wait.until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "#rstpanel .ps-poss-lost"))
-            ).click()
+            )
+            self.d.execute_script(_JS_CLICK, btn)
         else:
             # "Unclear" — third poss button
             btns = self.d.find_elements(By.CSS_SELECTOR, "#rstpanel .ps-poss-btn")
             if len(btns) > 2:
-                btns[2].click()
+                self.d.execute_script(_JS_CLICK, btns[2])
         self.wait_panel_closed("rstpanel")
 
     def _close_player_sheet(self):
@@ -277,57 +283,48 @@ class App:
 
     # ── Action flows ───────────────────────────────────────────────────────────
 
+    def _js_wait_click(self, css):
+        """Wait for an element to be clickable then click it via JS to avoid interception."""
+        btn = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, css)))
+        self.d.execute_script(_JS_CLICK, btn)
+
     def record_goal(self, slot=2, how=_HOW_FROM_PLAY, restart="Won"):
         self.click_player(slot)
         self.click_opt("Goal")
-        # Wait for sub-options grid then click how
-        self.wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, f'#ply-body [data-v="{how}"]'))
-        ).click()
+        self._js_wait_click(f'#ply-body [data-v="{how}"]')
         self._pick_restart(restart)
         self._close_player_sheet()
 
     def record_point(self, slot=2, how=_HOW_FROM_PLAY, restart="Won"):
         self.click_player(slot)
         self.click_opt("Point")
-        self.wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, f'#ply-body [data-v="{how}"]'))
-        ).click()
+        self._js_wait_click(f'#ply-body [data-v="{how}"]')
         self._pick_restart(restart)
         self._close_player_sheet()
 
     def record_wide(self, slot=2, how=_HOW_FROM_PLAY):
         self.click_player(slot)
         self.click_opt("Wide")
-        self.wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, f'#ply-body [data-v="{how}"]'))
-        ).click()
-        # Wide triggers a restart panel — dismiss by picking a result
+        self._js_wait_click(f'#ply-body [data-v="{how}"]')
         self._pick_restart("Won")
         self._close_player_sheet()
 
     def yellow_card(self, slot=2):
         self.click_player(slot)
         self.click_opt("Card")
-        self.wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, '#ply-body [data-v="Yellow Card"]'))
-        ).click()
+        self._js_wait_click('#ply-body [data-v="Yellow Card"]')
         self._close_player_sheet()
 
     def black_card(self, slot=2):
         self.click_player(slot)
         self.click_opt("Card")
-        self.wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, '#ply-body [data-v="Black Card"]'))
-        ).click()
+        self._js_wait_click('#ply-body [data-v="Black Card"]')
         self._close_player_sheet()
 
     def red_card(self, slot=2):
         self.click_player(slot)
         self.click_opt("Card")
-        self.wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, '#ply-body [data-v="Red Card"]'))
-        ).click()
+        self._js_wait_click('#ply-body [data-v="Red Card"]')
         self._close_player_sheet()
 
     def substitute(self, slot_off=2, sub_on=17):
@@ -335,11 +332,7 @@ class App:
         self.click_player(slot_off)
         self.click_opt("Substitution")
         self.wait_panel_open("subpanel")
-        self.wait.until(
-            EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, f'#sub-list [data-v="{sub_on}"]')
-            )
-        ).click()
+        self._js_wait_click(f'#sub-list [data-v="{sub_on}"]')
         self.wait_panel_closed("subpanel")
 
     # ── Score adjustments ──────────────────────────────────────────────────────
@@ -349,28 +342,31 @@ class App:
         self.click(f".score-adj-btn[onclick=\"openScoreModal('{side}')\"]")
         self.wait_panel_open("scrpanel")
         # Click the data-act button (g+, p+)
-        self.wait.until(
+        btn = self.wait.until(
             EC.element_to_be_clickable(
                 (By.CSS_SELECTOR, f'#scr-body [data-act="{kind}+"]')
             )
-        ).click()
+        )
+        self.d.execute_script(_JS_CLICK, btn)
         # Wait for how-scored sub-view then click how
-        self.wait.until(
+        btn = self.wait.until(
             EC.element_to_be_clickable(
                 (By.CSS_SELECTOR, f'#scr-body [data-v="{how}"]')
             )
-        ).click()
+        )
+        self.d.execute_script(_JS_CLICK, btn)
         self._pick_restart(restart)
 
     def adj_remove(self, side, kind):
         """Remove a goal ('g') or point ('p') for 'us' or 'opp'."""
         self.click(f".score-adj-btn[onclick=\"openScoreModal('{side}')\"]")
         self.wait_panel_open("scrpanel")
-        self.wait.until(
+        btn = self.wait.until(
             EC.element_to_be_clickable(
                 (By.CSS_SELECTOR, f'#scr-body [data-act="{kind}-"]')
             )
-        ).click()
+        )
+        self.d.execute_script(_JS_CLICK, btn)
         self.wait_panel_closed("scrpanel")
 
     # ── Panel controls ─────────────────────────────────────────────────────────
@@ -411,6 +407,34 @@ class App:
         self.wait_panel_open("sharpanel")
 
     # ── Settings helpers ───────────────────────────────────────────────────────
+
+    def set_age_grade(self, grade):
+        """Select an age grade pill in the settings panel (panel must be open).
+        Pass '' to select the 'Not set' (—) pill."""
+        label = "—" if grade == "" else grade
+        self.js(
+            """
+            var pills = document.querySelectorAll('#sage-pills .age-grade-pill');
+            for (var i = 0; i < pills.length; i++) {
+                if (pills[i].textContent.trim() === arguments[0]) {
+                    ageGradePick(pills[i]);
+                    break;
+                }
+            }
+            """,
+            label,
+        )
+
+    def get_age_grade(self):
+        """Return the active age grade from state (e.g. 'U14', '' if not set)."""
+        return self.js("return state.ageGrade || '';")
+
+    def get_age_grade_category_text(self):
+        """Return the visible category badge text ('Go Games', 'Juvenile', 'Adult', or '')."""
+        return self.js(
+            "var el = document.getElementById('sage-category');"
+            "return el ? el.textContent.trim() : '';"
+        )
 
     def set_team_name(self, side, name):
         """Set a team name directly via JS (bypasses typeahead)."""

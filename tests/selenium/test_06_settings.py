@@ -182,3 +182,94 @@ def test_referee_field_exists_in_settings(app):
     a.open_settings()
     # Check element exists in DOM; may be partially outside 430px viewport
     assert len(app.find_elements(By.ID, "sref")) == 1
+
+
+# ── Age grade pills ────────────────────────────────────────────────────────────
+
+def test_age_grade_pill_row_present_in_settings(app):
+    a = App(app)
+    a.open_settings()
+    assert len(app.find_elements(By.ID, "sage-pills")) == 1
+
+
+def test_age_grade_default_pill_is_not_set(app):
+    a = App(app)
+    a.open_settings()
+    active = app.find_element(By.CSS_SELECTOR, "#sage-pills .age-grade-pill.active")
+    assert active.get_attribute("data-val") == ""
+
+
+def test_age_grade_category_hidden_when_not_set(app):
+    a = App(app)
+    a.open_settings()
+    assert a.get_age_grade_category_text() == ""
+
+
+def test_age_grade_pill_click_updates_state(app):
+    a = App(app)
+    a.open_settings()
+    a.set_age_grade("U14")
+    a.close_settings()
+    assert a.get_age_grade() == "U14"
+
+
+def test_age_grade_go_games_category_label(app):
+    a = App(app)
+    a.open_settings()
+    a.set_age_grade("U12")
+    assert "Go Games" in a.get_age_grade_category_text()
+
+
+def test_age_grade_juvenile_category_label(app):
+    a = App(app)
+    a.open_settings()
+    a.set_age_grade("Minor")
+    assert "Juvenile" in a.get_age_grade_category_text()
+
+
+def test_age_grade_adult_category_label(app):
+    a = App(app)
+    a.open_settings()
+    a.set_age_grade("Senior")
+    assert "Adult" in a.get_age_grade_category_text()
+
+
+def test_age_grade_category_restores_on_reopen(app):
+    """Category label must render correctly when reopening settings with a saved grade."""
+    a = App(app)
+    a.open_settings()
+    a.set_age_grade("Junior")
+    a.close_settings()
+    a.open_settings()
+    assert "Adult" in a.get_age_grade_category_text()
+    a.close_settings()
+
+
+def test_age_grade_clears_when_deselected(app):
+    a = App(app)
+    a.open_settings()
+    a.set_age_grade("Senior")
+    a.set_age_grade("")
+    a.close_settings()
+    assert a.get_age_grade() == ""
+
+
+# ── Competition & club name normalisation ──────────────────────────────────────
+
+def test_competition_field_accepts_long_string(app):
+    long_name = "Meath SFC Group 2 Round 3 - Replay"
+    a = App(app)
+    a.js(
+        "document.getElementById('scomp').value = arguments[0]; flushSettings();",
+        long_name,
+    )
+    assert a.js("return state.competition;") == long_name
+
+
+def test_club_name_slash_normalised_with_spaces(app):
+    """fmtClubName must convert 'A/B' to 'A / B' for correct text wrapping."""
+    a = App(app)
+    a.js(
+        "document.getElementById('son').value = 'Rathmolyon/Boardsmill'; flushSettings();"
+    )
+    assert a.js("return state.oppN;") == "Rathmolyon / Boardsmill"

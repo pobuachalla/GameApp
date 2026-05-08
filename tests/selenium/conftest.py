@@ -64,4 +64,8 @@ def app(driver, http_server):
     WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, "#timer-primary-btn"))
     )
+    # Ensure no panel is still open from a previous test (CSS transition residue).
+    WebDriverWait(driver, 5).until(lambda d: d.execute_script(
+        "return document.querySelectorAll('.drw-panel.open,.drw-overlay.open').length === 0;"
+    ))
     return driver

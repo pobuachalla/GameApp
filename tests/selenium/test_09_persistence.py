@@ -181,3 +181,26 @@ def test_team_size_persists(app):
     _reload(app)
     a2 = App(app)
     assert a2.js("return state.teamSize;") == 13
+
+
+def test_age_grade_persists(app):
+    a = App(app)
+    a.open_settings()
+    a.set_age_grade("U16")
+    a.close_settings()
+    a.js("saveStateImmediate();")
+    _reload(app)
+    a2 = App(app)
+    assert a2.get_age_grade() == "U16"
+
+
+def test_competition_persists(app):
+    a = App(app)
+    a.js(
+        "document.getElementById('scomp').value = arguments[0]; flushSettings();",
+        "County Championship",
+    )
+    a.js("saveStateImmediate();")
+    _reload(app)
+    a2 = App(app)
+    assert a2.js("return state.competition;") == "County Championship"

@@ -22,6 +22,26 @@ function ageGradePick(btn) {
   _syncAgeCategoryLabel(btn.dataset.val);
 }
 
+// ─── SHARED HELPERS ───────────────────────────────────────────────────────────
+function _renderCapBtns() {
+  document.querySelectorAll('.cap-btn').forEach(b => {
+    const s = Number.parseInt(b.dataset.cap);
+    const isCap = state.captain === s;
+    b.className = 'cap-btn ' + (isCap ? 'active' : 'inactive');
+    // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
+    b.innerHTML = '<i class="fa-regular ' + (isCap ? 'fa-copyright' : 'fa-circle') + '"></i>';
+  });
+}
+
+function _buildTplData() {
+  const data = {usName: el.sun.value.trim() || state.usN, playerNames: {}, captain: state.captain};
+  for (let i = 1; i <= state.maxB + 2; i++) {
+    const inp = document.getElementById('sn' + i);
+    if (inp && inp.value.trim()) data.playerNames[i] = inp.value.trim();
+  }
+  return data;
+}
+
 // ─── SETUP TABS ───────────────────────────────────────────────────────────────
 function switchSetupTab(name) {
   document.querySelectorAll('.set-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
@@ -31,8 +51,7 @@ function switchSetupTab(name) {
 // ─── TEMPLATES ────────────────────────────────────────────────────────────────
 function saveTpl() {
   const name = el.tni.value.trim(); if(!name){toast('Enter a template name');return;}
-  const data = {usName:el.sun.value.trim()||state.usN, playerNames:{}, captain:state.captain};
-  for(let i=1;i<=state.maxB+2;i++){const inp=document.getElementById('sn'+i);if(inp&&inp.value.trim())data.playerNames[i]=inp.value.trim();}
+  const data = _buildTplData();
   try{localStorage.setItem('tpl:'+name,JSON.stringify(data));toast('Saved "'+name+'"');el.tni.value='';renderTpls();}catch(e){toast('Save failed');}
 }
 
@@ -57,13 +76,7 @@ function loadTpl(name) {
     }
     if('captain' in data) {
       state.captain = data.captain;
-      document.querySelectorAll('.cap-btn').forEach(b => {
-        const s = parseInt(b.dataset.cap);
-        const isCap = state.captain === s;
-        b.className = 'cap-btn ' + (isCap ? 'active' : 'inactive');
-        // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
-        b.innerHTML = '<i class="fa-regular ' + (isCap ? 'fa-copyright' : 'fa-circle') + '"></i>';
-      });
+      _renderCapBtns();
     }
     toast('Loaded "'+name+'"');
   }catch(e){toast('Load failed');}
@@ -72,8 +85,7 @@ function loadTpl(name) {
 function delTpl(name){try{localStorage.removeItem('tpl:'+name);renderTpls();toast('Deleted');}catch(e){}}
 
 function updateTpl(name) {
-  const data = {usName:el.sun.value.trim()||state.usN, playerNames:{}, captain:state.captain};
-  for(let i=1;i<=state.maxB+2;i++){const inp=document.getElementById('sn'+i);if(inp&&inp.value.trim())data.playerNames[i]=inp.value.trim();}
+  const data = _buildTplData();
   try{localStorage.setItem('tpl:'+name,JSON.stringify(data));toast('Updated "'+name+'"');}catch(e){toast('Update failed');}
 }
 
@@ -117,7 +129,7 @@ function openSettings(){
     if (match) _ageMatched = true;
   });
   if (!_ageMatched) document.querySelector('#sage-pills .age-grade-pill').classList.add('active');
-  _syncAgeCategoryLabel(_ageMatched ? _ageVal : '');
+  _syncAgeCategoryLabel(_ageMatched ? (state.ageGrade || '') : '');
   const isFootball = state.sport === 'football';
   const is13 = state.teamSize === 13;
   document.getElementById('sport-chk').checked = isFootball;
@@ -153,7 +165,7 @@ function addBRow(c,idx){
   c.appendChild(row);
   attachDragHandle(row);
   document.getElementById('sn'+idx).addEventListener('input',function(){
-    const ti=parseInt(this.id.replace('sn',''));
+    const ti=Number.parseInt(this.id.replace('sn',''));
     if(this.value.trim()&&ti>=state.maxB){
       state.maxB=ti+1;
       if(!document.getElementById('br'+state.maxB)) addBRow(el.bslist,state.maxB);
@@ -198,14 +210,7 @@ function renderPGrid() {
 
 function setCaptain(slot) {
   state.captain = (state.captain === slot) ? null : slot;
-  // Refresh all cap buttons in settings
-  document.querySelectorAll('.cap-btn').forEach(b => {
-    const s = parseInt(b.dataset.cap);
-    const isCap = state.captain === s;
-    b.className = 'cap-btn ' + (isCap ? 'active' : 'inactive');
-    // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
-    b.innerHTML = '<i class="fa-regular ' + (isCap ? 'fa-copyright' : 'fa-circle') + '"></i>';
-  });
+  _renderCapBtns();
   refAllBtns();
   saveState();
 }
@@ -239,17 +244,11 @@ function _dragEnd() {
     const tgtIn = over.querySelector('.sinput');
     const tmp = srcIn.value; srcIn.value = tgtIn.value; tgtIn.value = tmp;
     // Swap captain designation so it follows the player name
-    const srcSlot = parseInt(srcIn.id.replace('sn',''));
-    const tgtSlot = parseInt(tgtIn.id.replace('sn',''));
+    const srcSlot = Number.parseInt(srcIn.id.replace('sn',''));
+    const tgtSlot = Number.parseInt(tgtIn.id.replace('sn',''));
     if (state.captain === srcSlot) state.captain = tgtSlot;
     else if (state.captain === tgtSlot) state.captain = srcSlot;
-    document.querySelectorAll('.cap-btn').forEach(b => {
-      const s = parseInt(b.dataset.cap);
-      const isCap = state.captain === s;
-      b.className = 'cap-btn '+(isCap?'active':'inactive');
-      // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
-      b.innerHTML = '<i class="fa-regular '+(isCap?'fa-copyright':'fa-circle')+'"></i>';
-    });
+    _renderCapBtns();
   }
   row.classList.remove('dragging');
   ghost.remove();

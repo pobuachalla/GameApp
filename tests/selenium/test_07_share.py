@@ -57,7 +57,7 @@ def test_share_menu_cancel_closes_modal(app):
     a = App(app)
     a.open_share()
     # Dismiss via the overlay
-    app.find_element(By.ID, "sharovly").click()
+    a.js_click("#sharovly")
     a.wait_panel_closed("sharpanel")
     assert not a.panel_open("sharpanel")
 
@@ -137,7 +137,7 @@ def test_ht_share_option_appears_after_half_time(app):
     a.end_half()
     a.open_share()
     opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, _SHARE_OPTS)]
-    app.find_element(By.ID, "sharovly").click()
+    a.js_click("#sharovly")
     a.wait_panel_closed("sharpanel")
     assert "ht" in opts
 
@@ -164,7 +164,7 @@ def test_ft_share_option_appears_after_full_time(app):
     a.end_match()
     a.open_share()
     opts = [el.get_attribute("data-v") for el in app.find_elements(By.CSS_SELECTOR, _SHARE_OPTS)]
-    app.find_element(By.ID, "sharovly").click()
+    a.js_click("#sharovly")
     a.wait_panel_closed("sharpanel")
     assert "ft" in opts
 

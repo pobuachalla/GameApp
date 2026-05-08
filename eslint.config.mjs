@@ -185,6 +185,8 @@ const appGlobals = {
   ageGradePick: 'writable',
   _ageCategory: 'writable',
   _syncAgeCategoryLabel: 'writable',
+  _renderCapBtns: 'writable',
+  _buildTplData: 'writable',
   saveTpl: 'writable',
   loadTpl: 'writable',
   delTpl: 'writable',

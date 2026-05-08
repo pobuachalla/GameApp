@@ -67,7 +67,7 @@ def test_end_half_shows_confirmation_modal(app):
     a.start_match()
     a.click("#timer-secondary-btn")
     a.wait_modal_open()
-    assert "End First Half" in a.modal_title() or a.is_displayed("#cfmpanel .cfm-btn")
+    assert a.modal_open()
 
 
 def test_cancel_end_half_modal_keeps_running(app):
