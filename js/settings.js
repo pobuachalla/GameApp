@@ -1,9 +1,25 @@
 'use strict';
 
 // ─── AGE GRADE PILLS ──────────────────────────────────────────────────────────
+function _ageCategory(val) {
+  if (['U8', 'U10', 'U12'].includes(val))          return ['Go Games',  'go-games'];
+  if (['U14', 'U16', 'Minor'].includes(val))        return ['Juvenile',  'juvenile'];
+  if (['U20', 'Junior', 'Senior'].includes(val))    return ['Adult',     'adult'];
+  return null;
+}
+
+function _syncAgeCategoryLabel(val) {
+  const el = document.getElementById('sage-category');
+  if (!el) return;
+  const cat = _ageCategory(val);
+  el.textContent = cat ? cat[0] : '';
+  el.className = 'age-grade-category' + (cat ? ' ' + cat[1] : '');
+}
+
 function ageGradePick(btn) {
   document.querySelectorAll('#sage-pills .age-grade-pill').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  _syncAgeCategoryLabel(btn.dataset.val);
 }
 
 // ─── SETUP TABS ───────────────────────────────────────────────────────────────
@@ -101,6 +117,7 @@ function openSettings(){
     if (match) _ageMatched = true;
   });
   if (!_ageMatched) document.querySelector('#sage-pills .age-grade-pill').classList.add('active');
+  _syncAgeCategoryLabel(_ageMatched ? _ageVal : '');
   const isFootball = state.sport === 'football';
   const is13 = state.teamSize === 13;
   document.getElementById('sport-chk').checked = isFootball;

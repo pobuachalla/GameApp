@@ -183,6 +183,8 @@ const appGlobals = {
 
   // ── settings.js ──
   ageGradePick: 'writable',
+  _ageCategory: 'writable',
+  _syncAgeCategoryLabel: 'writable',
   saveTpl: 'writable',
   loadTpl: 'writable',
   delTpl: 'writable',
