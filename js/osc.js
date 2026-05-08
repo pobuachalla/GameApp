@@ -22,15 +22,11 @@ const OSC_POSITIONS = [
   { num: 15, label: 'Right Corner-Forward',short: 'RCF' },
 ];
 
-// Formation rows: each inner array is jersey numbers displayed on that row
-const OSC_ROWS = [
-  [1],
-  [2, 3, 4],
-  [5, 6, 7],
-  [8, 9],
-  [10, 11, 12],
-  [13, 14, 15],
-];
+// Formation rows keyed by team size — mirrors GRID_LAYOUTS in constants.js
+const OSC_ROWS = {
+  15: [[1],[2,3,4],[5,6,7],[8,9],[10,11,12],[13,14,15]],
+  13: [[1],[2,4],[5,6,7],[8,9],[10,11,12],[13,15]],
+};
 
 let _oscEvtIdx = null;
 let _oscCb     = null;
@@ -81,7 +77,8 @@ function _oscRenderBody() {
   const body = document.getElementById('osc-body');
   let html = '<div class="osc-formation">';
 
-  OSC_ROWS.forEach(row => {
+  const rows = OSC_ROWS[state.teamSize] || OSC_ROWS[15];
+  rows.forEach(row => {
     html += '<div class="osc-row">';
     row.forEach(num => {
       const pos = OSC_POSITIONS[num];

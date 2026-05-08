@@ -108,7 +108,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bopp{background:var(--bgw);color:var(--tw);}
 .brstr{background:#e1f5ee;color:#0f6e56;}
 .bperiod{background:var(--bgi);color:var(--ti);}
-.sinput{width:100%;padding:9px 11px;border:.5px solid var(--bm);border-radius:var(--r);background:var(--bg1);color:var(--t1);font-size:14px;font-family:inherit;}
+.sinput{width:100%;max-width:100%;padding:9px 11px;border:.5px solid var(--bm);border-radius:var(--r);background:var(--bg1);color:var(--t1);font-size:14px;font-family:inherit;}
 .sinput:focus{outline:none;border-color:var(--bi);}
 .prow{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:.5px solid var(--b);}
 .prow:last-child{border-bottom:none;}
