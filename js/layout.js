@@ -3,23 +3,38 @@
 // ─── LAYOUT PANEL ─────────────────────────────────────────────────────────────
 function _teamCrest(name) {
   const club = findClub(name);
-  return (club && club.crest) || findCountyCrest(name) || null;
+  return club?.crest || findCountyCrest(name) || null;
 }
 
 const _crestImg = (src, alt) =>
   src ? `<img src="${esc(src)}" alt="${esc(alt)}" onerror="this.style.display='none'">` : '';
 
+// Two crests stacked: top-left (smaller, behind) + bottom-right (larger, in front).
+// Both images sit inside the existing .layout-hdr-crest container (52×52 px effective area).
+function _crestImgPair(src1, src2, alt) {
+  const a = esc(alt);
+  return '<div style="position:relative;width:52px;height:52px;">'
+    + `<img src="${esc(src1)}" alt="${a}" style="position:absolute;top:0;left:0;width:33px;height:33px;object-fit:contain;" onerror="this.style.display='none'">`
+    + `<img src="${esc(src2)}" alt="${a}" style="position:absolute;bottom:0;right:0;width:37px;height:37px;object-fit:contain;z-index:1;" onerror="this.style.display='none'">`
+    + '</div>';
+}
+
+// Returns the full crest HTML for a team name — single img or stacked pair as appropriate.
+function _resolveCrestHTML(name) {
+  const pair = name ? findAmalgamPair(name) : null;
+  if (pair) return _crestImgPair(pair[0].crest, pair[1].crest, name);
+  return _crestImg(_teamCrest(name || ''), name || '');
+}
+
 function openLayout() {
   closeSettings();
 
-  const usCrest = _teamCrest(state.usN);
   const oppName = state.oppN && state.oppN !== 'Opposition' ? state.oppN : '';
-  const oppCrest = oppName ? _teamCrest(oppName) : null;
 
-  // eslint-disable-next-line no-restricted-syntax -- safe: _crestImg() passes all values through esc()
-  document.getElementById('layout-us-crest').innerHTML  = _crestImg(usCrest, state.usN);
-  // eslint-disable-next-line no-restricted-syntax -- safe: _crestImg() passes all values through esc()
-  document.getElementById('layout-opp-crest').innerHTML = _crestImg(oppCrest, oppName);
+  // eslint-disable-next-line no-restricted-syntax -- safe: _resolveCrestHTML() passes all values through esc()
+  document.getElementById('layout-us-crest').innerHTML  = _resolveCrestHTML(state.usN);
+  // eslint-disable-next-line no-restricted-syntax -- safe: _resolveCrestHTML() passes all values through esc()
+  document.getElementById('layout-opp-crest').innerHTML = _resolveCrestHTML(oppName);
   document.getElementById('layout-team-name').textContent = state.usN;
 
   const now = new Date();

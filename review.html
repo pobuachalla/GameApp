@@ -258,20 +258,7 @@ function computeStats(st) {
     const prevUs=tlUG*3+tlUP, prevOpp=tlOG*3+tlOP;
     let mType=null,mTeam='us';
 
-    if(ev.action==='Goal'){
-      gC++;if(p){placed?p.gPd++:p.gPl++;}if(placed)pgC++;
-      tlUG++;mType='Goal';mTeam='us';
-    }else if(ev.action==='Point'){
-      pC++;if(p){placed?p.pPd++:p.pPl++;}if(placed)ppC++;
-      tlUP++;mType='Point';mTeam='us';
-    }else if(ev.action==='2 Point'){
-      t2C++;if(p){placed?(p.pPd+=2):(p.pPl+=2);}if(placed)pt2C++;
-      tlUP+=2;mType='2 Point';mTeam='us';
-    }else if(ev.action==='Wide'){
-      if(ev.slot){wC++;if(placed)pwC++;}
-      if(p)p.w++;
-      mType='Wide';mTeam=(ev.badge==='OPP')?'opp':'us';
-    }else if(ev.badge==='OPP'){
+    if(ev.badge==='OPP'){
       const d=ev.desc||'';
       if(d.includes('Goal added')){tlOG++;mType='Goal';mTeam='opp';}
       else if(d.includes('2 Point added')){tlOP+=2;mType='2 Point';mTeam='opp';}
@@ -285,6 +272,19 @@ function computeStats(st) {
       else if(d.includes('Point added')){if(adjOpp){tlOP++;mType='Point';mTeam='opp';}else{tlUP++;mType='Point';mTeam='us';}}
       else if(d.includes('Goal removed')){if(adjOpp)tlOG=Math.max(0,tlOG-1);else tlUG=Math.max(0,tlUG-1);}
       else if(d.includes('Point removed')){if(adjOpp)tlOP=Math.max(0,tlOP-1);else tlUP=Math.max(0,tlUP-1);}
+    }else if(ev.action==='Goal'){
+      gC++;if(p){placed?p.gPd++:p.gPl++;}if(placed)pgC++;
+      tlUG++;mType='Goal';mTeam='us';
+    }else if(ev.action==='Point'){
+      pC++;if(p){placed?p.pPd++:p.pPl++;}if(placed)ppC++;
+      tlUP++;mType='Point';mTeam='us';
+    }else if(ev.action==='2 Point'){
+      t2C++;if(p){placed?(p.pPd+=2):(p.pPl+=2);}if(placed)pt2C++;
+      tlUP+=2;mType='2 Point';mTeam='us';
+    }else if(ev.action==='Wide'){
+      if(ev.slot){wC++;if(placed)pwC++;}
+      if(p)p.w++;
+      mType='Wide';mTeam='us';
     }else if(ev.action==='sub'){
       tlSubs.push({secs});
       if(ev.slot!=null){
@@ -470,11 +470,11 @@ function buildReview(st) {
   // Substitution score tracking
   let sUG=0,sUP=0,sOG=0,sOP=0;const sSAt=[];
   st.evts.forEach(ev=>{
-    if(ev.action==='Goal')sUG++;
+    if(ev.badge==='OPP'){const d=ev.desc||'';if(d.includes('Goal added'))sOG++;else if(d.includes('2 Point added'))sOP+=2;else if(d.includes('Point added'))sOP++;else if(d.includes('Goal removed'))sOG=Math.max(0,sOG-1);else if(d.includes('Point removed'))sOP=Math.max(0,sOP-1);}
+    else if(ev.badge==='ADJ'){const d=ev.desc||'';const adjOpp=d.startsWith(st.oppN||'');if(d.includes('Goal added')){if(adjOpp)sOG++;else sUG++;}else if(d.includes('2 Point added')){if(adjOpp)sOP+=2;else sUP+=2;}else if(d.includes('Point added')){if(adjOpp)sOP++;else sUP++;}else if(d.includes('Goal removed')){if(adjOpp)sOG=Math.max(0,sOG-1);else sUG=Math.max(0,sUG-1);}else if(d.includes('Point removed')){if(adjOpp)sOP=Math.max(0,sOP-1);else sUP=Math.max(0,sUP-1);}}
+    else if(ev.action==='Goal')sUG++;
     else if(ev.action==='Point')sUP++;
     else if(ev.action==='2 Point')sUP+=2;
-    else if(ev.badge==='OPP'){const d=ev.desc||'';if(d.includes('Goal added'))sOG++;else if(d.includes('2 Point added'))sOP+=2;else if(d.includes('Point added'))sOP++;else if(d.includes('Goal removed'))sOG=Math.max(0,sOG-1);else if(d.includes('Point removed'))sOP=Math.max(0,sOP-1);}
-    else if(ev.badge==='ADJ'){const d=ev.desc||'';const adjOpp=d.startsWith(st.oppN||'');if(d.includes('Goal added')){if(adjOpp)sOG++;else sUG++;}else if(d.includes('2 Point added')){if(adjOpp)sOP+=2;else sUP+=2;}else if(d.includes('Point added')){if(adjOpp)sOP++;else sUP++;}else if(d.includes('Goal removed')){if(adjOpp)sOG=Math.max(0,sOG-1);else sUG=Math.max(0,sUG-1);}else if(d.includes('Point removed')){if(adjOpp)sOP=Math.max(0,sOP-1);else sUP=Math.max(0,sUP-1);}}
     sSAt.push({usG:sUG,usP:sUP,oppG:sOG,oppP:sOP});
   });
 
@@ -717,6 +717,37 @@ function buildReview(st) {
       h+=`</tr>`;
     });
     h+=`</table></div>`;
+  }
+
+  // ─── Opposition Scoring Profile ──────────────────────────────────────────
+  if(st.trackOppScorers){
+    const oscEvts=st.evts.filter(e=>e.oppScorer);
+    if(oscEvts.length>0){
+      const oscMap={};
+      oscEvts.forEach(e=>{
+        const s=e.oppScorer;
+        const key=s.label+' ('+s.num+')';
+        if(!oscMap[key])oscMap[key]={num:s.num,label:s.label,goals:0,pts:0};
+        const act=e.action||'';
+        if(act==='Goal')oscMap[key].goals++;
+        else if(act==='2 Point')oscMap[key].pts+=2;
+        else oscMap[key].pts++;
+      });
+      const oscRows=Object.values(oscMap).sort((a,b)=>{const ta=a.goals*3+a.pts,tb=b.goals*3+b.pts;return tb!==ta?tb-ta:a.num-b.num;});
+      const oscMax=oscRows.length?(oscRows[0].goals*3+oscRows[0].pts):1;
+      h+=`<div class="rv-full rv-card"><div class="rv-ctitle">Opposition Scoring Profile</div>`;
+      oscRows.forEach(r=>{
+        const total=r.goals*3+r.pts;
+        const pct=Math.round(total/oscMax*100);
+        h+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid var(--border);">`;
+        h+=`<div style="width:28px;height:28px;border-radius:50%;background:#6A1B9A22;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#6A1B9A;flex-shrink:0;">${r.num}</div>`;
+        h+=`<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--t1);">${esc(r.label)}</div>`;
+        h+=`<div style="font-size:11px;color:var(--t2);">${r.goals}-${r.pts} &nbsp;&middot;&nbsp; ${total} pt${total!==1?'s':''}</div></div>`;
+        h+=`<div style="width:60px;background:var(--border);border-radius:3px;overflow:hidden;height:6px;"><div style="background:#6A1B9A;width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
+        h+=`</div>`;
+      });
+      h+=`</div>`;
+    }
   }
 
   h+=`<div class="rv-foot" style="display:flex;align-items:center;justify-content:center;gap:20px;">`;

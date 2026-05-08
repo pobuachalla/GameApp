@@ -132,8 +132,8 @@ function addBRow(c,idx){
 }
 
 function flushSettings() {
-  state.usN     = el.sun.value.trim()||DEFAULT_US;
-  state.oppN    = el.son.value.trim()||'Opposition';
+  state.usN  = fmtClubName(el.sun.value.trim()) || DEFAULT_US;
+  state.oppN = fmtClubName(el.son.value.trim()) || 'Opposition';
   state.location   = (document.getElementById('sloc').value||'').trim();
   state.referee    = (document.getElementById('sref').value||'').trim();
   state.competition= (document.getElementById('scomp').value||'').trim();
@@ -400,23 +400,53 @@ function _initTypeahead(input) {
   };
 
   input.addEventListener('input', () => {
-    const q = input.value.trim().toLowerCase();
-    if (q.length < 1) { close(); return; }
+    const raw = input.value;
+    const slashAt = raw.indexOf(' / ');
+    let matches;
 
-    const exact    = _TA_ITEMS.filter(i => i.name.toLowerCase() === q);
-    const starts   = _TA_ITEMS.filter(i => i.name.toLowerCase() !== q && i.name.toLowerCase().startsWith(q));
-    const contains = _TA_ITEMS.filter(i => !i.name.toLowerCase().startsWith(q) && i.name.toLowerCase().includes(q));
-    const matches  = [...exact, ...starts, ...contains].slice(0, 8);
+    if (slashAt >= 0) {
+      // Amalgam mode: "Club A / <typing second club>"
+      const prefixName = raw.slice(0, slashAt).trim();
+      const prefixClub = MEATH_CLUBS.find(c => c.name.toLowerCase() === prefixName.toLowerCase());
+      const q2 = raw.slice(slashAt + 3).trim().toLowerCase();
+      if (prefixClub && q2.length >= 1) {
+        const norm2 = prefixClub.name.toLowerCase();
+        const pool = MEATH_CLUBS.filter(c => c.name.toLowerCase() !== norm2);
+        const s = pool.filter(c => c.name.toLowerCase().startsWith(q2));
+        const con = pool.filter(c => !c.name.toLowerCase().startsWith(q2) && c.name.toLowerCase().includes(q2));
+        matches = [...s, ...con].slice(0, 6).map(c => ({
+          name: prefixName + ' / ' + c.name,
+          crest1: prefixClub.crest,
+          crest2: c.crest,
+          pair: true,
+        }));
+      } else {
+        close(); return;
+      }
+    } else {
+      const q = raw.trim().toLowerCase();
+      if (q.length < 1) { close(); return; }
+      const exact    = _TA_ITEMS.filter(i => i.name.toLowerCase() === q);
+      const starts   = _TA_ITEMS.filter(i => i.name.toLowerCase() !== q && i.name.toLowerCase().startsWith(q));
+      const contains = _TA_ITEMS.filter(i => !i.name.toLowerCase().startsWith(q) && i.name.toLowerCase().includes(q));
+      matches = [...exact, ...starts, ...contains].slice(0, 8).map(i => ({ ...i, pair: false }));
+    }
 
     if (!matches.length) { close(); return; }
 
     // eslint-disable-next-line no-restricted-syntax -- safe: all user values through esc()
-    drop.innerHTML = matches.map(item =>
-      `<div class="ta-item" data-name="${esc(item.name)}" `
-      + `style="display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;font-size:14px;color:var(--t1);">`
-      + `<img src="${esc(item.crest)}" style="width:26px;height:26px;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">`
-      + `<span>${esc(item.name)}</span></div>`
-    ).join('');
+    drop.innerHTML = matches.map(item => {
+      const crestHtml = item.pair
+        ? '<div style="position:relative;width:26px;height:26px;flex-shrink:0;">'
+          + `<img src="${esc(item.crest1)}" style="position:absolute;top:0;left:0;width:17px;height:17px;object-fit:contain;" onerror="this.style.display='none'">`
+          + `<img src="${esc(item.crest2)}" style="position:absolute;bottom:0;right:0;width:19px;height:19px;object-fit:contain;" onerror="this.style.display='none'">`
+          + '</div>'
+        : `<img src="${esc(item.crest)}" style="width:26px;height:26px;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">`;
+      return `<div class="ta-item" data-name="${esc(item.name)}" `
+        + `style="display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;font-size:14px;color:var(--t1);">`
+        + crestHtml
+        + `<span>${esc(item.name)}</span></div>`;
+    }).join('');
 
     drop.querySelectorAll('.ta-item').forEach(row => {
       row.addEventListener('mousedown', e => { e.preventDefault(); pick(row.dataset.name); });

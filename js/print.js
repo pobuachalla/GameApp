@@ -261,17 +261,27 @@ function buildPrintHTML() {
   const oppScore = state.og+'-'+state.op_+' ('+(state.og*3+state.op_)+'pts)';
   const matchDate = new Date().toLocaleDateString('en-IE',{day:'numeric',month:'long',year:'numeric'});
 
-  const usClub  = findClub(state.usN);
-  const oppClub = findClub(state.oppN);
-  const venuePitch = state.location || (usClub && usClub.pitch) || (oppClub && oppClub.pitch) || '';
-
-  const usCrest  = (usClub && usClub.crest)  || findCountyCrest(state.usN)  || '';
-  const oppCrest = (oppClub && oppClub.crest) || findCountyCrest(state.oppN) || '';
+  const usClub   = findClub(state.usN);
+  const oppClub  = findClub(state.oppN);
+  const oppPair  = findAmalgamPair(state.oppN);
+  const venuePitch = state.location || usClub?.pitch || oppClub?.pitch || '';
 
   const crestImg = (src, label) => {
     if (!src) return '';
     return `<img src="${esc(src)}" alt="${esc(label)}" style="width:44px;height:44px;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">`;
   };
+  const crestImgPair = (src1, src2, label) => {
+    const n = esc(label);
+    return '<div style="position:relative;width:44px;height:44px;flex-shrink:0;">'
+      + `<img src="${esc(src1)}" alt="${n}" style="position:absolute;top:0;left:0;width:28px;height:28px;object-fit:contain;" onerror="this.style.display='none'">`
+      + `<img src="${esc(src2)}" alt="${n}" style="position:absolute;bottom:0;right:0;width:32px;height:32px;object-fit:contain;" onerror="this.style.display='none'">`
+      + '</div>';
+  };
+
+  const usCrest    = usClub?.crest || findCountyCrest(state.usN) || '';
+  const oppCrestEl = oppPair
+    ? crestImgPair(oppPair[0].crest, oppPair[1].crest, state.oppN)
+    : crestImg(oppClub?.crest || findCountyCrest(state.oppN) || '', state.oppN);
 
   let h = '';
 
@@ -280,7 +290,7 @@ function buildPrintHTML() {
   h += '<div style="display:flex;align-items:center;justify-content:center;gap:12px;">';
   h += crestImg(usCrest, state.usN);
   h += html`<div class="pr-score">${state.usN} ${html.safe(usScore)}<br>${state.oppN} ${html.safe(oppScore)}</div>`;
-  h += crestImg(oppCrest, state.oppN);
+  h += oppCrestEl;
   h += '</div>';
   h += '<div class="pr-teams">';
   h += '<span>'+matchDate+'</span>';

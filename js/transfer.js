@@ -22,6 +22,8 @@ function importMatchJSON(input) {
       if (!Array.isArray(data.evts)) { toast('Not a valid match file'); return; }
       // Merge imported data over current state — Object.assign preserves any new
       // state fields (trackGKPerformance, etc.) that didn't exist in older exported files.
+      if (data.usN)  data.usN  = fmtClubName(data.usN);
+      if (data.oppN) data.oppN = fmtClubName(data.oppN);
       Object.assign(state, data);
       buildInitialsCache();
       // eslint-disable-next-line no-restricted-syntax -- safe: clears element, no user data

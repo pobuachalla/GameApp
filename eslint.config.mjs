@@ -165,8 +165,12 @@ const appGlobals = {
   COUNTIES: 'writable',
   findCountyCrest: 'writable',
   findClub: 'writable',
+  findAmalgamPair: 'writable',
+  fmtClubName: 'writable',
 
   // ── share.js ──
+  _crestElPair: 'writable',
+  _teamCrestEl: 'writable',
   shareWA: 'writable',
   shareCSV: 'writable',
   openLog: 'writable',
@@ -212,6 +216,9 @@ const appGlobals = {
 
   // ── layout.js ──
   _teamCrest: 'writable',
+  _crestImg: 'writable',
+  _crestImgPair: 'writable',
+  _resolveCrestHTML: 'writable',
   openLayout: 'writable',
   closeLayout: 'writable',
   renderLayout: 'writable',

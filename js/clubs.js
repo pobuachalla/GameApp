@@ -81,9 +81,33 @@ function findCountyCrest(name) {
 
 function findClub(name) {
   if (!name) return null;
-  const norm = s => s.toLowerCase().replace(/\s*[/–-]\s*/g, '/').replace(/['''.]/g, '').replace(/\s+/g, ' ').trim();
+  const norm = s => s.toLowerCase().replaceAll(/\s*[-\/\u2013]\s*/g, '/').replaceAll(/[\u0027\u2018\u2019.]/g, '').replaceAll(/\s+/g, ' ').trim();
   const n = norm(name);
   const exact = MEATH_CLUBS.find(c => norm(c.name) === n);
   if (exact) return exact;
   return MEATH_CLUBS.find(c => n.includes(norm(c.name))) || null;
+}
+
+// Ensures any "/" separator in a club name is surrounded by single spaces.
+// e.g. "Rathmolyon/Boardsmill" → "Rathmolyon / Boardsmill"
+function fmtClubName(name) {
+  if (!name) return name;
+  return name.split('/').map(p => p.trim()).join(' / ');
+}
+
+// Returns [clubA, clubB] when name is an ad-hoc amalgamation of two distinct MEATH_CLUBS
+// (e.g. "Rathmolyon / Boardsmill"). Returns null if the name is already a registered
+// combined club (e.g. "Donaghmore / Ashbourne") or if either half is unrecognised.
+function findAmalgamPair(name) {
+  if (!name?.includes('/')) return null;
+  // findClub fuzzy-matches substrings, so "Rathmolyon / Boardsmill" would falsely
+  // match the Rathmolyon entry. Only skip if the returned club itself has "/" in its
+  // registered name — i.e. it truly IS a combined club (e.g. "Donaghmore / Ashbourne").
+  if (findClub(name)?.name.includes('/')) return null;
+  const parts = name.split('/').map(p => p.trim()).filter(Boolean);
+  if (parts.length !== 2) return null;
+  const a = findClub(parts[0]);
+  const b = findClub(parts[1]);
+  if (a && b && a !== b) return [a, b];
+  return null;
 }

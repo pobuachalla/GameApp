@@ -84,6 +84,25 @@ function _crestEl(src, name) {
     + `<img src="${esc(src)}" alt="${esc(name)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;" onerror="this.style.display='none'"></div>`;
 }
 
+// Pair variant for amalgam clubs — two crests stacked inside the same 60×60 container.
+function _crestElPair(src1, src2, name) {
+  const initials = (name || '').split(/[\s/-]+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
+  const fbStyle = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;'
+    + 'font-size:18px;font-weight:700;color:#BBBBB4;font-family:Arial,sans-serif;';
+  const wrap = 'position:relative;width:60px;height:60px;flex-shrink:0;';
+  const n = esc(name);
+  return `<div style="${wrap}"><div style="${fbStyle}">${esc(initials)}</div>`
+    + `<img src="${esc(src1)}" alt="${n}" style="position:absolute;top:0;left:0;width:38px;height:38px;object-fit:contain;" onerror="this.style.display='none'">`
+    + `<img src="${esc(src2)}" alt="${n}" style="position:absolute;bottom:0;right:0;width:42px;height:42px;object-fit:contain;" onerror="this.style.display='none'">`
+    + '</div>';
+}
+
+function _teamCrestEl(name) {
+  const pair = name ? findAmalgamPair(name) : null;
+  if (pair) return _crestElPair(pair[0].crest, pair[1].crest, name);
+  return _crestEl(_teamCrest(name || '') || null, name || '');
+}
+
 function _htmlNameFS(name) {
   const l = (name || '').length;
   if (l <= 8)  return '16px';
@@ -120,12 +139,9 @@ function _buildScoreGraphicHTML(label) {
   const venueHtml = state.location
     ? `<div style="font-size:13px;color:#888;margin-top:2px;">${esc(state.location)}</div>` : '';
 
-  const usCrest  = _teamCrest(state.usN);
-  const oppCrest = _teamCrest(state.oppN && state.oppN !== 'Opposition' ? state.oppN : '');
-
-  const teamCol = (crest, name, scoreFmt, total) =>
+  const teamCol = (name, scoreFmt, total) =>
     `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;">`
-    + _crestEl(crest, name)
+    + _teamCrestEl(name)
     + `<div style="font-size:${_htmlNameFS(name)};font-weight:800;color:#1F2A24;text-align:center;`
     + `letter-spacing:0.5px;text-transform:uppercase;line-height:1.2;word-break:break-word;">${esc(name || '')}</div>`
     + `<div style="font-size:40px;font-weight:900;color:#111;line-height:1;">${scoreFmt}</div>`
@@ -155,10 +171,10 @@ function _buildScoreGraphicHTML(label) {
     + `<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#AAA;text-transform:uppercase;">${dateStr}</div>`
     + venueHtml + `</div>`
     + `<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;">`
-    + teamCol(usCrest, state.usN, usFmt, usT)
+    + teamCol(state.usN, usFmt, usT)
     + `<div style="flex-shrink:0;width:52px;display:flex;flex-direction:column;align-items:center;gap:2px;padding-top:16px;">`
     + periodHtml + `</div>`
-    + teamCol(oppCrest, state.oppN, oppFmt, oppT)
+    + teamCol(state.oppN, oppFmt, oppT)
     + `</div>`
     + `<div style="background:#F3F3EF;border-radius:14px;padding:10px 14px;text-align:center;margin-bottom:${scorerLine ? '12px' : '0'};">`
     + `<div style="font-size:14px;font-weight:700;color:#333;overflow-wrap:break-word;">${outcome}</div></div>`
@@ -188,13 +204,11 @@ function _buildLineupGraphicHTML() {
   const captain = state.captain;
 
   // Header — same content and structure as openLayout()
-  const usCrest  = _teamCrest(state.usN);
   const oppName  = state.oppN && state.oppN !== 'Opposition' ? state.oppN : '';
-  const oppCrest = oppName ? _teamCrest(oppName) : null;
   const dateStr  = new Date().toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
 
-  const usCrestHtml  = usCrest  ? `<img src="${esc(usCrest)}"  alt="${esc(state.usN)}" onerror="this.style.display='none'">` : '';
-  const oppCrestHtml = oppCrest ? `<img src="${esc(oppCrest)}" alt="${esc(oppName)}"   onerror="this.style.display='none'">` : '';
+  const usCrestHtml  = _resolveCrestHTML(state.usN);
+  const oppCrestHtml = _resolveCrestHTML(oppName);
 
   let vsHtml = oppName ? `vs ${esc(oppName)}<br>` : '';
   vsHtml += `<span style="font-size:11px;">${esc(dateStr)}</span>`;

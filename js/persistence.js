@@ -28,7 +28,10 @@ function loadSavedState() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return false;
-    Object.assign(state, JSON.parse(raw));
+    const saved = JSON.parse(raw);
+    if (saved.usN)  saved.usN  = fmtClubName(saved.usN);
+    if (saved.oppN) saved.oppN = fmtClubName(saved.oppN);
+    Object.assign(state, saved);
     return true;
   } catch(e) { return false; }
 }
