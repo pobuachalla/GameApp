@@ -168,6 +168,11 @@ const appGlobals = {
   findAmalgamPair: 'writable',
   fmtClubName: 'writable',
 
+  // ── transfer.js ──
+  _buildFilenameBase: 'writable',
+  exportMatchJSON: 'writable',
+  importMatchJSON: 'writable',
+
   // ── share.js ──
   _crestElPair: 'writable',
   _teamCrestEl: 'writable',

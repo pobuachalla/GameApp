@@ -32,9 +32,7 @@ function shareCSV() {
     }
   }
   const csv = rows.map(r => r.map(csvEsc).join(',')).join('\r\n');
-  const date = new Date().toISOString().slice(0,10);
-  const safe = (state.usN||'match').replace(/[^a-z0-9]/gi,'_');
-  const filename = safe+'_'+date+'.csv';
+  const filename = _buildFilenameBase() + '.csv';
   const blob = new Blob([csv], {type:'text/csv'});
   if (navigator.share && navigator.canShare && navigator.canShare({files:[new File([blob],filename,{type:'text/csv'})]})) {
     navigator.share({files:[new File([blob],filename,{type:'text/csv'})], title:filename})

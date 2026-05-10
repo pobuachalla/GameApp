@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>GAA Season Stats</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green: #2E7D32; --green-d: #1B5E20; --green-l: #E8F5E9;
+  --red: #C62828;   --red-l: #FFEBEE;
+  --amber: #D97706; --amber-l: #FFF8E1;
+  --blue: #1565C0;  --blue-l: #E3F2FD;
+  --purple: #6A1B9A; --purple-l: #F3E5F5;
+  --bg: #EEF0EA; --card: #FFFFFF;
+  --t1: #1A2E1A; --t2: #4A5A4A; --t3: #7A8A7A;
+  --border: #E0E3DC;
+  --shadow: 0 2px 14px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+  --r: 16px;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--t1); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* ── Landing ─────────────────────────────────────────────────────────────── */
+#landing { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+.lc { background: var(--card); border-radius: 24px; padding: 52px 44px; max-width: 500px; width: 100%; text-align: center; box-shadow: var(--shadow); }
+.lc-icon { font-size: 52px; margin-bottom: 20px; }
+.lc-title { font-size: 26px; font-weight: 700; color: var(--t1); margin-bottom: 10px; }
+.lc-sub { font-size: 14px; color: var(--t3); line-height: 1.6; margin-bottom: 32px; }
+.lc-drop { border: 2px dashed var(--border); border-radius: 16px; padding: 36px 24px; cursor: pointer; transition: border-color .2s, background .2s; position: relative; margin-bottom: 16px; }
+.lc-drop:hover, .lc-drop.drag-over { border-color: var(--green); background: var(--green-l); }
+.lc-drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.lc-drop-icon { font-size: 28px; color: var(--green); margin-bottom: 10px; }
+.lc-drop-txt { font-size: 15px; font-weight: 600; color: var(--t1); margin-bottom: 4px; }
+.lc-drop-sub { font-size: 13px; color: var(--t3); }
+.lc-hint { font-size: 12px; color: var(--t3); margin-top: 16px; line-height: 1.5; }
+.lc-file-list { text-align: left; margin-top: 16px; display: flex; flex-direction: column; gap: 6px; }
+.lc-file-item { display: flex; align-items: center; gap: 8px; background: var(--green-l); border-radius: 8px; padding: 8px 12px; font-size: 13px; color: var(--green); font-weight: 500; }
+.lc-file-item .rm { margin-left: auto; cursor: pointer; opacity: .6; background: none; border: none; color: var(--green); font-size: 14px; padding: 0; }
+.lc-file-item .rm:hover { opacity: 1; }
+.lc-load-btn { display: inline-flex; align-items: center; gap: 10px; background: var(--green); color: white; padding: 14px 28px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity .15s; border: none; font-family: inherit; margin-top: 16px; }
+.lc-load-btn:hover { opacity: .88; }
+.lc-load-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── Warning panel ───────────────────────────────────────────────────────── */
+#warn-panel { display: none; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+.warn-card { background: var(--card); border-radius: 24px; padding: 44px; max-width: 560px; width: 100%; box-shadow: var(--shadow); }
+.warn-title { font-size: 20px; font-weight: 700; color: var(--t1); margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+.warn-sub { font-size: 14px; color: var(--t3); margin-bottom: 24px; line-height: 1.5; }
+.warn-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+.warn-item { display: flex; align-items: flex-start; gap: 12px; background: var(--amber-l); border-radius: 10px; padding: 12px 14px; }
+.warn-item i { color: var(--amber); margin-top: 1px; flex-shrink: 0; }
+.warn-item-txt { font-size: 13px; color: var(--t1); line-height: 1.5; }
+.warn-btns { display: flex; gap: 12px; }
+.warn-btn-go { flex: 1; background: var(--green); color: white; border: none; border-radius: 10px; padding: 13px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.warn-btn-back { flex: 1; background: var(--bg); color: var(--t2); border: none; border-radius: 10px; padding: 13px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+/* ── Dashboard wrapper ───────────────────────────────────────────────────── */
+#dashboard { display: none; max-width: 1440px; margin: 0 auto; padding: 24px 24px 60px; }
+
+/* ── Season header ───────────────────────────────────────────────────────── */
+.sn-hdr { background: linear-gradient(140deg,#1a5c1e 0%,#2E7D32 55%,#3a9140 100%); color: white; border-radius: 20px; padding: 32px 36px; margin-bottom: 20px; }
+.sn-hdr-meta { font-size: 13px; opacity: .72; margin-bottom: 18px; display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+.sn-hdr-meta i { opacity: .8; }
+.sn-hdr-row { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+.sn-team-name { font-size: 32px; font-weight: 800; letter-spacing: -.5px; }
+.sn-record { display: flex; gap: 16px; margin-top: 14px; }
+.sn-rec-pill { background: rgba(255,255,255,.15); border-radius: 999px; padding: 6px 18px; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.sn-rec-pill span { font-size: 12px; opacity: .7; font-weight: 400; }
+.sn-add-btn { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.18); color: white; border: none; border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 14px; position: relative; transition: background .15s; }
+.sn-add-btn:hover { background: rgba(255,255,255,.26); }
+.sn-add-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+
+/* ── Tabs ────────────────────────────────────────────────────────────────── */
+.sn-tabs { display: flex; gap: 4px; background: var(--card); border-radius: 14px; padding: 5px; box-shadow: var(--shadow); margin-bottom: 20px; width: fit-content; }
+.sn-tab { padding: 9px 22px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; color: var(--t2); background: none; display: flex; align-items: center; gap: 7px; transition: background .15s, color .15s; }
+.sn-tab.active { background: var(--green); color: white; }
+
+/* ── Grid layouts ────────────────────────────────────────────────────────── */
+.rv-g2  { display: grid; grid-template-columns: 1fr 1fr;         gap: 16px; margin-bottom: 16px; }
+.rv-g3  { display: grid; grid-template-columns: repeat(3,1fr);   gap: 16px; margin-bottom: 16px; }
+.rv-g4  { display: grid; grid-template-columns: repeat(4,1fr);   gap: 16px; margin-bottom: 16px; }
+.rv-g13 { display: grid; grid-template-columns: 1fr 3fr;         gap: 16px; margin-bottom: 16px; }
+.rv-full { margin-bottom: 16px; }
+@media (max-width: 1100px) { .rv-g4 { grid-template-columns: repeat(2,1fr); } .rv-g3 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 700px)  { .rv-g4,.rv-g3,.rv-g2,.rv-g13 { grid-template-columns: 1fr; } }
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.rv-card { background: var(--card); border-radius: var(--r); padding: 24px; box-shadow: var(--shadow); }
+.rv-ctitle { font-size: 10px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--t3); margin-bottom: 16px; }
+.rv-bignum { font-size: 48px; font-weight: 800; color: var(--green); line-height: 1; letter-spacing: -1.5px; }
+.rv-bigsub { font-size: 12px; color: var(--t3); margin-top: 6px; line-height: 1.4; }
+.rv-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.rv-row:last-child { border-bottom: none; }
+.rv-rl { color: var(--t2); }
+.rv-rv { font-weight: 600; }
+.rv-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin: 8px 0; }
+.rv-bar-fill { height: 100%; border-radius: 4px; }
+.rv-split { height: 12px; border-radius: 6px; overflow: hidden; display: flex; margin: 12px 0 6px; }
+.rv-split-g { background: var(--green); }
+.rv-split-lbls { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; }
+.rv-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
+.rv-li { font-size: 12px; color: var(--t2); display: flex; align-items: center; gap: 5px; }
+.rv-ld { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.rv-tag { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.rv-tg  { background: var(--green-l);  color: var(--green); }
+.rv-tr  { background: var(--red-l);    color: var(--red); }
+.rv-ta  { background: var(--amber-l);  color: var(--amber); }
+.rv-tgr { background: #F0F2EE;         color: var(--t3); }
+
+/* ── Match log table ─────────────────────────────────────────────────────── */
+.ml-tbl { width: 100%; border-collapse: collapse; }
+.ml-tbl th { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); padding: 0 12px 10px 0; border-bottom: 1px solid var(--border); text-align: left; }
+.ml-tbl th.r { text-align: right; }
+.ml-tbl td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
+.ml-tbl tr:last-child td { border-bottom: none; }
+.ml-tbl td.r { text-align: right; font-weight: 600; }
+.res-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+.res-W { background: var(--green-l); color: var(--green); }
+.res-D { background: #F0F2EE;        color: var(--t3); }
+.res-L { background: var(--red-l);   color: var(--red); }
+
+/* ── Player table ────────────────────────────────────────────────────────── */
+.sn-pt-wrap { overflow-x: auto; }
+.sn-pt { width: 100%; border-collapse: collapse; white-space: nowrap; }
+.sn-pt th { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); padding: 0 14px 12px 0; border-bottom: 2px solid var(--border); text-align: right; cursor: pointer; user-select: none; white-space: nowrap; }
+.sn-pt th:first-child { text-align: left; }
+.sn-pt th.sorted { color: var(--green); }
+.sn-pt th .sort-icon { opacity: .4; margin-left: 3px; font-size: 9px; }
+.sn-pt th.sorted .sort-icon { opacity: 1; }
+.sn-pt td { padding: 10px 14px 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; text-align: right; vertical-align: middle; }
+.sn-pt tr:last-child td { border-bottom: none; }
+.sn-pt td:first-child { text-align: left; font-weight: 600; color: var(--t1); }
+.sn-pt td.dim { color: var(--t3); font-weight: 400; }
+.sn-pt td.green { color: var(--green); font-weight: 700; }
+.sn-pt td.red   { color: var(--red); }
+.sn-pt td.amber { color: var(--amber); }
+.sn-pt .bar-cell { width: 80px; }
+.sn-pt .pt-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.sn-pt .pt-bar-fill { height: 100%; background: var(--green); border-radius: 3px; }
+.sn-pt .sub-badge { font-size: 10px; color: var(--t3); font-weight: 400; margin-left: 4px; }
+
+/* ── Section headings inside player view ────────────────────────────────── */
+.sn-sort-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.sn-sort-lbl { font-size: 12px; color: var(--t3); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.sn-sort-btn { padding: 5px 12px; border: 1.5px solid var(--border); border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; background: none; font-family: inherit; color: var(--t2); transition: background .1s, border-color .1s, color .1s; }
+.sn-sort-btn.active { background: var(--green); border-color: var(--green); color: white; }
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.sn-foot { text-align: center; padding: 28px 0 8px; font-size: 12px; color: var(--t3); }
+</style>
+</head>
+<body>
+
+<!-- ── Landing ─────────────────────────────────────────────────────────── -->
+<div id="landing">
+  <div class="lc">
+    <div class="lc-icon"><img src="favicon.png" style="width:64px;height:64px;object-fit:contain;"></div>
+    <div class="lc-title">Season Stats</div>
+    <div class="lc-sub">Load multiple match exports from the same team and season to see aggregated stats across all games.</div>
+    <div class="lc-drop" id="drop-zone">
+      <input type="file" accept=".json" multiple onchange="handleFiles(this.files)">
+      <div class="lc-drop-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+      <div class="lc-drop-txt">Drop match files here</div>
+      <div class="lc-drop-sub">or click to browse — select multiple JSON exports</div>
+    </div>
+    <div class="lc-file-list" id="file-list"></div>
+    <button class="lc-load-btn" id="load-btn" disabled onclick="processFiles()">
+      <i class="fas fa-chart-bar"></i> Build Season View
+    </button>
+    <div class="lc-hint">Export from GAA Match Tracker → Setup → Transfer → Export Match<br>Each file should be from the same team.</div>
+  </div>
+</div>
+
+<!-- ── Validation warnings ─────────────────────────────────────────────── -->
+<div id="warn-panel">
+  <div class="warn-card">
+    <div class="warn-title"><i class="fas fa-triangle-exclamation" style="color:var(--amber);"></i> Check before continuing</div>
+    <div class="warn-sub">Some files don't match on one or more key fields. Review the warnings below — you can still continue if the files are from the same team.</div>
+    <div class="warn-list" id="warn-list"></div>
+    <div class="warn-btns">
+      <button class="warn-btn-back" onclick="backToLanding()"><i class="fas fa-arrow-left"></i> Go back</button>
+      <button class="warn-btn-go"   onclick="buildDashboard()"><i class="fas fa-chart-bar"></i> Continue anyway</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Dashboard ──────────────────────────────────────────────────────── -->
+<div id="dashboard"></div>
+
+<script>
+'use strict';
+
+// ── Constants ────────────────────────────────────────────────────────────────
+const PLACED_BALL = new Set(['From Free','From Penalty','From 65','From 45','From Sideline']);
+
+// ── App state ────────────────────────────────────────────────────────────────
+let S = { files: [], parsed: [], sortKey: 'totalScore', sortDesc: true, view: 'team' };
+
+// ── Utils ────────────────────────────────────────────────────────────────────
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const fmtT = secs => { const m=Math.floor(secs/60),sc=Math.round(secs%60); return m+':'+(sc<10?'0':'')+sc; };
+const fmtScore = (g,p) => g+'-'+p+' <small style="opacity:.6;">('+((g*3)+p)+')</small>';
+const norm = name => (name||'').trim().toLowerCase();
+
+// ── File drop / pick ─────────────────────────────────────────────────────────
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
+
+function handleFiles(fileList) {
+  Array.from(fileList).forEach(f => {
+    if (!f.name.endsWith('.json')) return;
+    if (S.files.find(x => x.name === f.name)) return; // deduplicate by name
+    S.files.push(f);
+  });
+  renderFileList();
+}
+
+function removeFile(name) {
+  S.files = S.files.filter(f => f.name !== name);
+  renderFileList();
+}
+
+function renderFileList() {
+  const list = document.getElementById('file-list');
+  list.innerHTML = S.files.map(f =>
+    `<div class="lc-file-item"><i class="fas fa-file-code"></i>${esc(f.name)}<button class="rm" onclick="removeFile('${esc(f.name)}')" title="Remove"><i class="fas fa-xmark"></i></button></div>`
+  ).join('');
+  document.getElementById('load-btn').disabled = S.files.length === 0;
+}
+
+// ── Parse & validate ──────────────────────────────────────────────────────────
+function processFiles() {
+  if (!S.files.length) return;
+  const readers = S.files.map(f => new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => {
+      try {
+        const d = JSON.parse(e.target.result);
+        if (!Array.isArray(d.evts)) throw new Error('Not a valid export');
+        res({ name: f.name, data: d });
+      } catch(err) { rej(f.name + ': ' + err.message); }
+    };
+    r.onerror = () => rej(f.name + ': read error');
+    r.readAsText(f);
+  }));
+
+  Promise.all(readers).then(parsed => {
+    S.parsed = parsed.sort((a,b) => (a.data.matchDate||'').localeCompare(b.data.matchDate||''));
+    const warnings = validateFiles(S.parsed);
+    if (warnings.length) {
+      document.getElementById('warn-list').innerHTML = warnings.map(w =>
+        `<div class="warn-item"><i class="fas fa-triangle-exclamation"></i><div class="warn-item-txt">${esc(w)}</div></div>`
+      ).join('');
+      document.getElementById('landing').style.display   = 'none';
+      document.getElementById('warn-panel').style.display = 'flex';
+    } else {
+      document.getElementById('landing').style.display = 'none';
+      buildDashboard();
+    }
+  }).catch(err => alert('Error loading files:\n' + err));
+}
+
+function validateFiles(parsed) {
+  const ref = parsed[0].data;
+  const warnings = [];
+  const sports    = [...new Set(parsed.map(p => p.data.sport).filter(Boolean))];
+  const grades    = [...new Set(parsed.map(p => (p.data.ageGrade||'').trim()).filter(Boolean))];
+  const comps     = [...new Set(parsed.map(p => (p.data.competition||'').trim()).filter(Boolean))];
+  const teamNames = [...new Set(parsed.map(p => norm(p.data.usN)).filter(Boolean))];
+
+  if (sports.length > 1)
+    warnings.push('Sport mismatch: files contain a mix of ' + sports.join(' and ') + '. Scoring rules differ between codes.');
+  if (grades.length > 1)
+    warnings.push('Age grade mismatch: ' + grades.join(', ') + '. Stats may not be comparable across grades.');
+  if (comps.length > 1)
+    warnings.push('Competition mismatch: ' + comps.join(', ') + '. These may be from different competitions.');
+  if (teamNames.length > 1)
+    warnings.push('Team name mismatch: ' + [...new Set(parsed.map(p => p.data.usN).filter(Boolean))].join(', ') + '. Check that all files are from the same team.');
+  return warnings;
+}
+
+function backToLanding() {
+  document.getElementById('warn-panel').style.display = 'none';
+  document.getElementById('landing').style.display = 'flex';
+}
+
+// ── Aggregate stats ───────────────────────────────────────────────────────────
+function aggregateAll(parsed) {
+  const matches = [];
+  const players = {}; // norm(name) → player object
+  let totalGtTracked = 0;
+
+  parsed.forEach(({ name, data: st }) => {
+    const evts = st.evts || [];
+    const usG = st.goals||0, usP = st.pts||0, usT = usG*3+usP;
+    const ogG = st.og||0,   ogP = st.op_||0, ogT = ogG*3+ogP;
+    const result = usT > ogT ? 'W' : usT < ogT ? 'L' : 'D';
+    matches.push({ name, date: st.matchDate||'', opp: st.oppN||'Opposition', usG, usP, usT, ogG, ogP, ogT, result, st });
+
+    if (st.trackGameTime !== false) totalGtTracked++;
+
+    // build pi→name map for this file
+    const piName = {};
+    Object.entries(st.pnames||{}).forEach(([pi,n]) => { if ((n||'').trim()) piName[+pi] = n.trim(); });
+
+    // play time computation (mirrors stats.js computePlayTimes)
+    const teamSz = st.teamSize||15;
+    const ptCur = {}, ptStart = {}, ptMap = {};
+    for (let sl = 1; sl <= teamSz; sl++) {
+      const pi = (st.startSlotp||{})[sl];
+      if (pi && piName[pi]) { ptCur[sl] = pi; ptStart[pi] = 0; }
+    }
+    const sortedEvts = [...evts].sort((a,b) => {
+      const ta = toSecs(a.time), tb = toSecs(b.time);
+      return ta !== tb ? ta - tb : (a._idx||0) - (b._idx||0);
+    });
+    sortedEvts.forEach((ev, idx) => {
+      const t = toSecs(ev.time);
+      if (ev.action === 'sub' && ev.slot != null) {
+        const offPi = ptCur[ev.slot];
+        if (offPi) { ptMap[offPi] = (ptMap[offPi]||0) + Math.max(0, t - (ptStart[offPi]||0)); delete ptCur[ev.slot]; }
+        const onPi = ev.pi != null ? ev.pi : (st.slotp||{})[ev.slot];
+        if (onPi && piName[onPi]) { ptCur[ev.slot] = onPi; ptStart[onPi] = t; }
+      }
+    });
+    // close stints at match end
+    const lastT = sortedEvts.length ? toSecs(sortedEvts[sortedEvts.length-1].time) : 0;
+    Object.entries(ptCur).forEach(([sl, pi]) => {
+      ptMap[pi] = (ptMap[pi]||0) + Math.max(0, lastT - (ptStart[pi]||0));
+    });
+
+    // accumulate per-player stats
+    const startPis = new Set(Object.values(st.startSlotp||{}).map(Number));
+
+    evts.forEach(ev => {
+      if (!ev.action || ev.slot == null) return;
+      const pi = ev.pi != null ? ev.pi : (st.slotp||{})[ev.slot];
+      if (!pi) return;
+      const rawName = piName[pi];
+      if (!rawName) return;
+      const key = norm(rawName);
+      if (!players[key]) players[key] = blankPlayer(rawName);
+      const p = players[key];
+      p.name = rawName; // always update to latest seen
+      const placed = PLACED_BALL.has(ev.sec||'');
+      if (ev.action === 'Goal')          { placed ? p.gPlaced++ : p.gPlay++; }
+      else if (ev.action === 'Point')    { placed ? p.pPlaced++ : p.pPlay++; }
+      else if (ev.action === '2 Point')  { placed ? p.pPlaced+=2 : p.pPlay+=2; }
+      else if (ev.action === 'Wide')     { placed ? p.widesPlaced++ : p.widesPlay++; }
+      else if (ev.action === 'Yellow Card')  p.yc++;
+      else if (ev.action === 'Black Card')   p.bc++;
+      else if (ev.action === 'Red Card')     p.rc++;
+      else if (ev.action === 'Free Conceded') p.frees++;
+      else if (ev.action === 'Turnover Won')  p.twon++;
+      else if (ev.action === 'Turnover Lost') p.tlost++;
+    });
+
+    // games played / play time
+    const allPisInMatch = new Set();
+    evts.forEach(ev => {
+      const pi = ev.pi != null ? ev.pi : (st.slotp||{})[ev.slot||0];
+      if (pi && piName[pi]) allPisInMatch.add(pi);
+    });
+    Object.values(st.startSlotp||{}).forEach(pi => { if (piName[pi]) allPisInMatch.add(pi); });
+
+    allPisInMatch.forEach(pi => {
+      const rawName = piName[pi]; if (!rawName) return;
+      const key = norm(rawName);
+      if (!players[key]) players[key] = blankPlayer(rawName);
+      const p = players[key];
+      p.games++;
+      if (startPis.has(pi)) p.gamesStarted++; else p.gamesSub++;
+      if (st.trackGameTime !== false && ptMap[pi] != null) {
+        p.secsPlayed += ptMap[pi];
+        p.secsGames++;
+      }
+    });
+  });
+
+  // compute sort-friendly totals
+  Object.values(players).forEach(p => {
+    p.totalScore = (p.gPlay+p.gPlaced)*3 + p.pPlay + p.pPlaced;
+    p.wides = p.widesPlay + p.widesPlaced;
+  });
+
+  return { matches, players: Object.values(players), totalGtTracked };
+}
+
+function blankPlayer(name) {
+  return { name, games:0, gamesStarted:0, gamesSub:0, secsPlayed:0, secsGames:0,
+           gPlay:0, gPlaced:0, pPlay:0, pPlaced:0,
+           widesPlay:0, widesPlaced:0, frees:0, twon:0, tlost:0,
+           yc:0, bc:0, rc:0, totalScore:0, wides:0 };
+}
+
+function toSecs(t) {
+  if (!t) return 0;
+  const p = String(t).split(':');
+  return (parseInt(p[0]||0,10)*60) + parseInt(p[1]||0,10);
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+function buildDashboard() {
+  document.getElementById('warn-panel').style.display  = 'none';
+  document.getElementById('landing').style.display     = 'none';
+  const dash = document.getElementById('dashboard');
+  dash.style.display = 'block';
+  const agg = aggregateAll(S.parsed);
+  S.agg = agg;
+  renderDashboard();
+}
+
+function renderDashboard() {
+  const { matches, players, totalGtTracked } = S.agg;
+  const ref = S.parsed[0].data;
+  const teamName  = ref.usN || 'Team';
+  const sport     = ref.sport || 'football';
+  const ageGrade  = ref.ageGrade || '';
+  const comp      = ref.competition || '';
+
+  const wins   = matches.filter(m=>m.result==='W').length;
+  const draws  = matches.filter(m=>m.result==='D').length;
+  const losses = matches.filter(m=>m.result==='L').length;
+  const totalUsG = matches.reduce((s,m)=>s+m.usG,0);
+  const totalUsP = matches.reduce((s,m)=>s+m.usP,0);
+  const totalUsT = matches.reduce((s,m)=>s+m.usT,0);
+  const totalOgG = matches.reduce((s,m)=>s+m.ogG,0);
+  const totalOgP = matches.reduce((s,m)=>s+m.ogP,0);
+  const totalOgT = matches.reduce((s,m)=>s+m.ogT,0);
+
+  const metaParts = [];
+  if (comp)     metaParts.push(`<span><i class="fas fa-trophy"></i> ${esc(comp)}</span>`);
+  if (ageGrade) metaParts.push(`<span><i class="fas fa-users-between-lines"></i> ${esc(ageGrade)}</span>`);
+  if (sport)    metaParts.push(`<span><i class="fas fa-futbol"></i> ${esc(sport.charAt(0).toUpperCase()+sport.slice(1))}</span>`);
+  metaParts.push(`<span><i class="fas fa-calendar-days"></i> ${matches.length} match${matches.length!==1?'es':''}</span>`);
+
+  let h = '';
+
+  // ── Season header
+  h += `<div class="sn-hdr">`;
+  if (metaParts.length) h += `<div class="sn-hdr-meta">${metaParts.join('<span style="opacity:.3"> · </span>')}</div>`;
+  h += `<div class="sn-team-name">${esc(teamName)}</div>`;
+  h += `<div class="sn-record">`;
+  h += `<div class="sn-rec-pill">${wins} <span>W</span></div>`;
+  h += `<div class="sn-rec-pill">${draws} <span>D</span></div>`;
+  h += `<div class="sn-rec-pill">${losses} <span>L</span></div>`;
+  h += `<div class="sn-rec-pill">${totalUsT} <span>pts for</span></div>`;
+  h += `<div class="sn-rec-pill">${totalOgT} <span>pts against</span></div>`;
+  h += `</div>`;
+  h += `<label class="sn-add-btn"><i class="fas fa-plus"></i> Add more matches<input type="file" accept=".json" multiple onchange="addMoreFiles(this.files)"></label>`;
+  h += `</div>`;
+
+  // ── Tabs
+  h += `<div class="sn-tabs">`;
+  h += `<button class="sn-tab ${S.view==='team'?'active':''}" onclick="switchView('team')"><i class="fas fa-chart-column"></i> Team</button>`;
+  h += `<button class="sn-tab ${S.view==='player'?'active':''}" onclick="switchView('player')"><i class="fas fa-user-group"></i> Players</button>`;
+  h += `</div>`;
+
+  if (S.view === 'team') {
+    h += buildTeamView(matches, players, totalUsG, totalUsP, totalUsT, totalOgT);
+  } else {
+    h += buildPlayerView(players, matches.length, totalGtTracked);
+  }
+
+  h += `<div class="sn-foot">GAA Match Tracker — Season Stats</div>`;
+  document.getElementById('dashboard').innerHTML = h;
+}
+
+// ── Team view ─────────────────────────────────────────────────────────────────
+function buildTeamView(matches, players, totalUsG, totalUsP, totalUsT, totalOgT) {
+  const n = matches.length;
+  const avgFor  = n ? (totalUsT/n).toFixed(1) : '—';
+  const avgAgainst = n ? (totalOgT/n).toFixed(1) : '—';
+
+  // Aggregate team shooting
+  let gPlay=0,gPlaced=0,pPlay=0,pPlaced=0,wPlay=0,wPlaced=0,frees=0,twon=0,tlost=0;
+  let yc=0,bc=0,rc=0;
+  players.forEach(p => {
+    gPlay+=p.gPlay; gPlaced+=p.gPlaced;
+    pPlay+=p.pPlay; pPlaced+=p.pPlaced;
+    wPlay+=p.widesPlay; wPlaced+=p.widesPlaced;
+    frees+=p.frees; twon+=p.twon; tlost+=p.tlost;
+    yc+=p.yc; bc+=p.bc; rc+=p.rc;
+  });
+  const totalG = gPlay+gPlaced, totalP = pPlay+pPlaced;
+  const totalWides = wPlay+wPlaced;
+  const scores = totalG+totalP, atts = scores+totalWides;
+  const convPct = atts>0 ? Math.round(scores/atts*100) : 0;
+  const placedScores = gPlaced+pPlaced, placedAtts = placedScores+wPlaced;
+  const playAtts = (gPlay+pPlay)+wPlay;
+  const turnTotal = twon+tlost;
+  const twonPct = turnTotal>0?Math.round(twon/turnTotal*100):0;
+
+  let h = '';
+
+  // ── Row 1: avg for/against, conv%, turnover ratio
+  h += `<div class="rv-g4">`;
+  h += statCard('Avg Score Per Game', avgFor+'pts', 'for / '+avgAgainst+'pts against');
+  h += statCard('Conversion Rate', convPct+'%', scores+' scores from '+atts+' attempts');
+  h += statCard('Turnover Ratio', twon+':'+tlost, twonPct+'% won ('+turnTotal+' total)');
+  h += statCard('Frees Conceded', frees+'', (n ? (frees/n).toFixed(1) : '—')+' per game avg');
+  h += `</div>`;
+
+  // ── Row 2: scoring breakdown + match log
+  h += `<div class="rv-g2">`;
+
+  // Scoring breakdown card
+  h += `<div class="rv-card">`;
+  h += `<div class="rv-ctitle">Scoring Breakdown — All Matches</div>`;
+  const maxPts = Math.max(gPlay*3, gPlaced*3, pPlay, pPlaced, 1);
+  h += stackedBar('Goals from play',   gPlay*3,   gPlay*3+gPlaced*3,  '#2E7D32', '#81C784');
+  h += stackedBar('Goals placed',      gPlaced*3, gPlay*3+gPlaced*3,  '#2E7D32', '#81C784');
+  h += stackedBar('Points from play',  pPlay,     Math.max(pPlay,pPlaced,1), '#1565C0','#64B5F6');
+  h += stackedBar('Points placed',     pPlaced,   Math.max(pPlay,pPlaced,1), '#1565C0','#64B5F6');
+  h += `<div class="rv-legend" style="margin-top:14px;">`;
+  h += `<div class="rv-li"><div class="rv-ld" style="background:#2E7D32;"></div>Goals (play / placed: ${gPlay} / ${gPlaced})</div>`;
+  h += `<div class="rv-li"><div class="rv-ld" style="background:#1565C0;"></div>Points (play / placed: ${pPlay} / ${pPlaced})</div>`;
+  h += `</div>`;
+  h += `<div class="rv-legend" style="margin-top:8px;">`;
+  h += `<div class="rv-li"><div class="rv-ld" style="background:var(--amber);"></div>Wides (play ${wPlay} / placed ${wPlaced})</div>`;
+  h += `</div>`;
+  if (atts > 0) {
+    const pcs = Math.round(scores/atts*100), pfw = Math.round(totalWides/atts*100);
+    h += `<div class="rv-split" style="margin-top:12px;">`;
+    h += `<div class="rv-split-g" style="width:${pcs}%;"></div>`;
+    h += `<div style="flex:1;background:var(--amber);opacity:.7;"></div>`;
+    h += `</div>`;
+    h += `<div class="rv-split-lbls"><span style="color:var(--green);">${scores} scored (${pcs}%)</span><span style="color:var(--amber);">${totalWides} wides (${pfw}%)</span></div>`;
+  }
+  h += `</div>`;
+
+  // Match log card
+  h += `<div class="rv-card">`;
+  h += `<div class="rv-ctitle">Match Log</div>`;
+  h += `<table class="ml-tbl"><thead><tr>`;
+  h += `<th>Date</th><th>Opponent</th><th class="r">Score</th><th class="r">Opp</th><th class="r"></th>`;
+  h += `</tr></thead><tbody>`;
+  matches.forEach(m => {
+    h += `<tr>`;
+    h += `<td style="color:var(--t3);font-size:12px;white-space:nowrap;">${esc(m.date||'—')}</td>`;
+    h += `<td style="font-weight:500;">${esc(m.opp)}</td>`;
+    h += `<td class="r">${m.usG}-${m.usP} <small style="color:var(--t3);">(${m.usT})</small></td>`;
+    h += `<td class="r" style="color:var(--t3);">${m.ogG}-${m.ogP} <small>(${m.ogT})</small></td>`;
+    h += `<td class="r"><span class="res-pill res-${m.result}">${m.result}</span></td>`;
+    h += `</tr>`;
+  });
+  h += `</tbody></table>`;
+  h += `</div>`;
+
+  h += `</div>`; // end rv-g2
+
+  // ── Row 3: turnovers + discipline + placed ball efficiency
+  h += `<div class="rv-g3">`;
+
+  // Turnovers
+  h += `<div class="rv-card"><div class="rv-ctitle">Turnovers</div>`;
+  if (turnTotal > 0) {
+    h += `<div class="rv-split" style="margin-bottom:8px;">`;
+    h += `<div class="rv-split-g" style="width:${twonPct}%;"></div>`;
+    h += `<div style="flex:1;background:var(--red);"></div>`;
+    h += `</div>`;
+    h += `<div class="rv-split-lbls"><span style="color:var(--green);">${twon} won</span><span style="color:var(--red);">${tlost} lost</span></div>`;
+    h += `<div class="rv-row" style="margin-top:12px;"><span class="rv-rl">Won per game</span><span class="rv-rv">${(twon/n).toFixed(1)}</span></div>`;
+    h += `<div class="rv-row"><span class="rv-rl">Lost per game</span><span class="rv-rv">${(tlost/n).toFixed(1)}</span></div>`;
+    h += `<div class="rv-row"><span class="rv-rl">Win ratio</span><span class="rv-rv">${twonPct}%</span></div>`;
+  } else {
+    h += `<div style="font-size:14px;color:var(--t3);padding:12px 0;">No turnover data recorded</div>`;
+  }
+  h += `</div>`;
+
+  // Placed ball efficiency
+  h += `<div class="rv-card"><div class="rv-ctitle">Placed Ball Efficiency</div>`;
+  if (placedAtts > 0) {
+    const pPct = Math.round(placedScores/placedAtts*100);
+    h += `<div class="rv-bignum">${pPct}%</div>`;
+    h += `<div class="rv-bigsub">${placedScores} from ${placedAtts} placed ball attempts</div>`;
+    h += `<div class="rv-row" style="margin-top:14px;"><span class="rv-rl">Goals</span><span class="rv-rv">${gPlaced}</span></div>`;
+    h += `<div class="rv-row"><span class="rv-rl">Points</span><span class="rv-rv">${pPlaced}</span></div>`;
+    h += `<div class="rv-row"><span class="rv-rl">Wides</span><span class="rv-rv">${wPlaced}</span></div>`;
+  } else {
+    h += `<div style="font-size:14px;color:var(--t3);padding:12px 0;">No placed ball data recorded</div>`;
+  }
+  h += `</div>`;
+
+  // Discipline
+  h += `<div class="rv-card"><div class="rv-ctitle">Discipline</div>`;
+  const cards = yc+bc+rc;
+  h += `<div class="rv-bignum">${cards}</div>`;
+  h += `<div class="rv-bigsub">total cards across ${n} match${n!==1?'es':''}</div>`;
+  h += `<div class="rv-row" style="margin-top:14px;"><span class="rv-rl">Yellow</span><span class="rv-rv" style="color:var(--amber);">${yc}</span></div>`;
+  h += `<div class="rv-row"><span class="rv-rl">Black</span><span class="rv-rv">${bc}</span></div>`;
+  h += `<div class="rv-row"><span class="rv-rl">Red</span><span class="rv-rv" style="color:var(--red);">${rc}</span></div>`;
+  h += `<div class="rv-row"><span class="rv-rl">Frees conceded</span><span class="rv-rv">${frees}</span></div>`;
+  h += `</div>`;
+
+  h += `</div>`; // end rv-g3
+
+  return h;
+}
+
+function statCard(title, val, sub) {
+  return `<div class="rv-card"><div class="rv-ctitle">${esc(title)}</div><div class="rv-bignum">${val}</div><div class="rv-bigsub">${esc(sub)}</div></div>`;
+}
+
+function stackedBar(label, val, total, colFill, colFaint) {
+  const pct = total > 0 ? Math.round(val/total*100) : 0;
+  return `<div style="margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--t2);margin-bottom:3px;">
+      <span>${esc(label)}</span><span style="font-weight:600;color:var(--t1);">${val}</span>
+    </div>
+    <div class="rv-bar"><div class="rv-bar-fill" style="width:${pct}%;background:${colFill};"></div></div>
+  </div>`;
+}
+
+// ── Player view ───────────────────────────────────────────────────────────────
+const SORT_OPTS = [
+  { key:'totalScore',  label:'Total Score' },
+  { key:'gPlay',       label:'Goals (play)' },
+  { key:'pPlay',       label:'Pts (play)' },
+  { key:'gPlaced',     label:'Goals (placed)' },
+  { key:'pPlaced',     label:'Pts (placed)' },
+  { key:'wides',       label:'Wides' },
+  { key:'frees',       label:'Frees' },
+  { key:'twon',        label:'TO Won' },
+  { key:'tlost',       label:'TO Lost' },
+  { key:'secsPlayed',  label:'Play Time' },
+  { key:'games',       label:'Games' },
+];
+
+function buildPlayerView(players, totalGames, totalGtTracked) {
+  const sorted = [...players].sort((a,b) => {
+    const d = b[S.sortKey] - a[S.sortKey];
+    return d !== 0 ? d : a.name.localeCompare(b.name);
+  });
+  const maxScore = sorted[0]?.totalScore || 1;
+  const maxSecs  = Math.max(...sorted.map(p => p.secsPlayed), 1);
+  const showPT   = totalGtTracked > 0;
+
+  let h = `<div class="rv-full rv-card">`;
+  h += `<div class="rv-ctitle">All Players — ${players.length} tracked across ${totalGames} match${totalGames!==1?'es':''}</div>`;
+
+  // Sort bar
+  h += `<div class="sn-sort-bar"><span class="sn-sort-lbl">Sort by</span>`;
+  SORT_OPTS.forEach(o => {
+    if (o.key === 'secsPlayed' && !showPT) return;
+    const active = S.sortKey === o.key ? ' active' : '';
+    h += `<button class="sn-sort-btn${active}" onclick="setSort('${o.key}')">${esc(o.label)}</button>`;
+  });
+  h += `</div>`;
+
+  // Table
+  h += `<div class="sn-pt-wrap"><table class="sn-pt"><thead><tr>`;
+  h += thSort('name',       'Player',          false);
+  h += thSort('games',      'G',               true);
+  if (showPT) h += thSort('secsPlayed', 'Play Time', true);
+  h += thSort('gPlay',      'G Play',          true);
+  h += thSort('gPlaced',    'G Placed',        true);
+  h += thSort('pPlay',      'Pt Play',         true);
+  h += thSort('pPlaced',    'Pt Placed',       true);
+  h += thSort('totalScore', 'Total Score',     true);
+  h += thSort('wides',      'Wides',           true);
+  h += thSort('frees',      'Frees',           true);
+  h += thSort('twon',       'TO Won',          true);
+  h += thSort('tlost',      'TO Lost',         true);
+  h += `<th class="r">Cards</th>`;
+  h += `</tr></thead><tbody>`;
+
+  sorted.forEach(p => {
+    const scorePct = Math.round(p.totalScore/maxScore*100);
+    const timePct  = Math.round(p.secsPlayed/maxSecs*100);
+    const cards = (p.yc?`<span style="display:inline-block;width:8px;height:12px;border-radius:1px;background:var(--amber);margin:0 1px;vertical-align:middle;"></span>`.repeat(p.yc):'')
+                + (p.bc?`<span style="display:inline-block;width:8px;height:12px;border-radius:1px;background:#222;margin:0 1px;vertical-align:middle;"></span>`.repeat(p.bc):'')
+                + (p.rc?`<span style="display:inline-block;width:8px;height:12px;border-radius:1px;background:var(--red);margin:0 1px;vertical-align:middle;"></span>`.repeat(p.rc):'');
+
+    h += `<tr>`;
+    h += `<td>${esc(p.name)}<span class="sub-badge">${p.gamesStarted}S ${p.gamesSub}Sub</span>
+      <div class="pt-bar"><div class="pt-bar-fill" style="width:${scorePct}%;background:var(--green);"></div></div></td>`;
+    h += `<td>${p.games}</td>`;
+    if (showPT) {
+      const gt = p.secsGames > 0 ? fmtT(p.secsPlayed) : '—';
+      h += `<td class="${p.secsGames>0?'green':'dim'}">${gt}
+        ${p.secsGames>0?`<div class="pt-bar"><div class="pt-bar-fill" style="width:${timePct}%;"></div></div>`:''}
+      </td>`;
+    }
+    h += `<td class="${p.gPlay>0?'green':'dim'}">${p.gPlay||'—'}</td>`;
+    h += `<td class="${p.gPlaced>0?'green':'dim'}">${p.gPlaced||'—'}</td>`;
+    h += `<td class="${p.pPlay>0?'green':'dim'}">${p.pPlay||'—'}</td>`;
+    h += `<td class="${p.pPlaced>0?'green':'dim'}">${p.pPlaced||'—'}</td>`;
+    h += `<td class="${p.totalScore>0?'green':'dim'}" style="font-size:15px;">${p.totalScore||'—'}</td>`;
+    h += `<td class="${p.wides>0?'amber':'dim'}">${p.wides||'—'}</td>`;
+    h += `<td class="${p.frees>0?'red':'dim'}">${p.frees||'—'}</td>`;
+    h += `<td class="${p.twon>0?'green':'dim'}">${p.twon||'—'}</td>`;
+    h += `<td class="${p.tlost>0?'red':'dim'}">${p.tlost||'—'}</td>`;
+    h += `<td class="r" style="min-width:40px;">${cards||'<span style="color:var(--t3);">—</span>'}</td>`;
+    h += `</tr>`;
+  });
+
+  h += `</tbody></table></div></div>`;
+  return h;
+}
+
+function thSort(key, label, rightAlign) {
+  const isSorted = S.sortKey === key;
+  const icon = isSorted ? (S.sortDesc ? '▼' : '▲') : '▼';
+  return `<th class="${rightAlign?'r':''} ${isSorted?'sorted':''}" onclick="setSort('${key}')">${esc(label)} <span class="sort-icon">${icon}</span></th>`;
+}
+
+// ── Interactions ──────────────────────────────────────────────────────────────
+function switchView(v) {
+  S.view = v;
+  renderDashboard();
+}
+
+function setSort(key) {
+  if (S.sortKey === key) S.sortDesc = !S.sortDesc;
+  else { S.sortKey = key; S.sortDesc = true; }
+  renderDashboard();
+}
+
+function addMoreFiles(fileList) {
+  handleFiles(fileList);
+  // re-parse and rebuild immediately
+  const readers = S.files.map(f => new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => {
+      try { const d = JSON.parse(e.target.result); res({ name: f.name, data: d }); }
+      catch(err) { rej(err); }
+    };
+    r.readAsText(f);
+  }));
+  Promise.all(readers).then(parsed => {
+    S.parsed = parsed.sort((a,b) => (a.data.matchDate||'').localeCompare(b.data.matchDate||''));
+    S.agg = aggregateAll(S.parsed);
+    renderDashboard();
+  });
+}
+</script>
+</body>
+</html>
