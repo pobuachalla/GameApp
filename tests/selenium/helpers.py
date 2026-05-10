@@ -385,7 +385,7 @@ class App:
         self.wait_panel_open("logpanel")
 
     def close_log(self):
-        self.el("#logovly").click()
+        self.js_click("#logovly")
         self.wait_panel_closed("logpanel")
 
     def open_stats(self):
@@ -399,7 +399,7 @@ class App:
         ))
 
     def close_stats(self):
-        self.el("#statsoverlay").click()
+        self.js_click("#statsoverlay")
         self.wait_panel_closed("statspanel")
 
     def open_share(self):

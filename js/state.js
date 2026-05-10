@@ -11,6 +11,7 @@ const state = {
   usN:DEFAULT_US, oppN:'Opposition', location:'', referee:'',
   competition:'', matchDate:'', ageGrade:'',
   matchNotes:'',
+  teamAssessment:{ effort:0, skill:0, tactics:0, intensity:0, discipline:0, spirit:0, notes:'' },
   pnames:{}, slotp:{}, ubench:{}, suboff:{},
   rcarded:{}, ycarded:{}, bcarded:{},
   maxB:17,
@@ -18,6 +19,7 @@ const state = {
   sport:'hurling', // 'hurling' or 'football'
   teamSize:15,     // 15 or 13
   captain:null,    // slot number of captain, or null
+  trackGameTime:true,
   trackShotLocations:false,
   showPlayerNumbers:true,
   trackTurnovers:false,

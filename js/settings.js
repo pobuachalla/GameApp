@@ -306,6 +306,12 @@ function onSizeToggle(checked) {
   saveState();
 }
 
+function onGameTimeToggle(checked) {
+  state.trackGameTime = checked;
+  updatePresetUI();
+  saveState();
+}
+
 function onShotLocToggle(checked) {
   state.trackShotLocations = checked;
   updatePresetUI();
@@ -339,13 +345,13 @@ function onOppScorerToggle(checked) {
 
 // ─── TRACKING PRESET HELPERS ─────────────────────────────────────────────────
 const _TRK_PRESETS = {
-  quick:    {showPlayerNumbers: false, trackShotLocations: false, trackTurnovers: false, trackGKPerformance: false, trackOppScorers: false},
-  standard: {showPlayerNumbers: true,  trackShotLocations: true,  trackTurnovers: false, trackGKPerformance: false, trackOppScorers: false},
-  detailed: {showPlayerNumbers: true,  trackShotLocations: true,  trackTurnovers: true,  trackGKPerformance: true,  trackOppScorers: true},
+  quick:    {trackGameTime: false, showPlayerNumbers: false, trackShotLocations: false, trackTurnovers: false, trackGKPerformance: false, trackOppScorers: false},
+  standard: {trackGameTime: true,  showPlayerNumbers: true,  trackShotLocations: true,  trackTurnovers: false, trackGKPerformance: false, trackOppScorers: false},
+  detailed: {trackGameTime: true,  showPlayerNumbers: true,  trackShotLocations: true,  trackTurnovers: true,  trackGKPerformance: true,  trackOppScorers: true},
 };
 const _TRK_DESCS = {
-  quick:    'Scores only — no jersey numbers, shot locations, or turnover detail.',
-  standard: 'Captures scores, jersey numbers, and shot locations.',
+  quick:    'Scores only — no jersey numbers, game time, shot locations, or turnover detail.',
+  standard: 'Captures scores, jersey numbers, game time, and shot locations.',
   detailed: 'Full tracking — everything in Standard plus turnover breakdowns, goalkeeper performance, and opposition scorers.',
 };
 
@@ -359,6 +365,8 @@ function applyTrackingPreset(mode) {
 }
 
 function syncTrackingUI() {
+  const gt = document.getElementById('gametime-chk');
+  if (gt) gt.checked = state.trackGameTime !== false;
   const pnum = document.getElementById('pnum-chk');
   if (pnum) pnum.checked = state.showPlayerNumbers !== false;
   const shot = document.getElementById('shotloc-chk');
@@ -374,15 +382,16 @@ function syncTrackingUI() {
 }
 
 function updatePresetUI() {
+  const gt    = state.trackGameTime !== false;
   const pnum  = state.showPlayerNumbers !== false;
   const shot  = !!state.trackShotLocations;
   const turn  = !!state.trackTurnovers;
   const gkp   = !!state.trackGKPerformance;
   const osc   = !!state.trackOppScorers;
   let active = null;
-  if (!pnum && !shot && !turn && !gkp && !osc) active = 'quick';
-  else if (pnum && shot && !turn && !gkp && !osc) active = 'standard';
-  else if (pnum && shot && turn  &&  gkp &&  osc) active = 'detailed';
+  if (!gt && !pnum && !shot && !turn && !gkp && !osc) active = 'quick';
+  else if (gt && pnum && shot && !turn && !gkp && !osc) active = 'standard';
+  else if (gt && pnum && shot &&  turn &&  gkp &&  osc) active = 'detailed';
   else active = 'custom';
   document.querySelectorAll('.trk-preset-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.preset === active);

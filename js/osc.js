@@ -75,16 +75,37 @@ function oscSelectPos(num) {
 
 function _oscRenderBody() {
   const body = document.getElementById('osc-body');
+
+  // Tally goals and points by position number from existing events
+  const tally = {};
+  state.evts.forEach(ev => {
+    if (!ev.oppScorer) return;
+    const n = ev.oppScorer.num;
+    if (!tally[n]) tally[n] = { g: 0, p: 0 };
+    if (ev.action === 'Goal')        tally[n].g++;
+    else if (ev.action === '2 Point') tally[n].p += 2;
+    else                              tally[n].p++;
+  });
+
   let html = '<div class="osc-formation">';
 
   const rows = OSC_ROWS[state.teamSize] || OSC_ROWS[15];
   rows.forEach(row => {
     html += '<div class="osc-row">';
     row.forEach(num => {
-      const pos = OSC_POSITIONS[num];
+      const pos  = OSC_POSITIONS[num];
+      const sc   = tally[num];
+      const hasSc = sc && (sc.g > 0 || sc.p > 0);
+      const bubbleCls = 'osc-bubble' + (hasSc ? ' osc-bubble-scored' : '');
+      const scoreHtml = hasSc
+        ? '<span class="osc-bubble-score">' + sc.g + '-' + sc.p + '</span>'
+        : '';
       html +=
         '<button class="osc-pos-btn" onclick="oscSelectPos(' + num + ')">' +
-          '<span class="osc-pos-num">' + num + '</span>' +
+          '<div class="' + bubbleCls + '">' +
+            '<span class="osc-pos-num">' + num + '</span>' +
+            scoreHtml +
+          '</div>' +
           '<span class="osc-pos-lbl">' + esc(pos.label) + '</span>' +
         '</button>';
     });

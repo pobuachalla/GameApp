@@ -83,7 +83,7 @@
     </button>
     <div class="bar-div"></div>
     <button class="bar-btn" onclick="openStats()">
-      <i class="fas fa-percent" aria-hidden="true"></i>
+      <i class="fas fa-chart-column" aria-hidden="true"></i>
       Stats
     </button>
     <div class="bar-div"></div>
@@ -204,11 +204,16 @@
         <button class="back-btn" onclick="closeStats()"><i class="fas fa-xmark"></i></button>
       </div>
     </div>
+    <div class="stats-tabs">
+      <button class="stats-tab active" data-tab="stats"  onclick="switchStatsTab('stats')"><i class="fas fa-chart-bar"></i> Stats</button>
+      <button class="stats-tab"        data-tab="assess" onclick="switchStatsTab('assess')"><i class="fas fa-clipboard-check"></i> Assess</button>
+    </div>
     <div class="stats-scroll" id="stats-content"></div>
-    <div class="stats-notes-wrap">
+    <div class="stats-notes-wrap" id="stats-notes-wrap">
       <div class="stats-notes-label">Match Notes</div>
       <textarea class="stats-notes-input" id="match-notes-input" rows="3" placeholder="Add notes for this match…" oninput="state.matchNotes=this.value;saveState()"></textarea>
     </div>
+    <div class="assess-scroll" id="assess-content" style="display:none;"></div>
   </div>
 
   <!-- Settings panel -->
@@ -222,7 +227,7 @@
     <div class="set-tabs">
       <button class="set-tab active" data-tab="game"     onclick="switchSetupTab('game')"><i class="fas fa-calendar-days"></i>Game</button>
       <button class="set-tab"        data-tab="tracking" onclick="switchSetupTab('tracking')"><i class="fas fa-sliders"></i>Tracking</button>
-      <button class="set-tab"        data-tab="team"     onclick="switchSetupTab('team')"><i class="fas fa-shirt"></i>Team</button>
+      <button class="set-tab"        data-tab="team"     onclick="switchSetupTab('team')"><i class="fas fa-users-between-lines"></i>Team</button>
     </div>
     <div class="drw-scroll">
 
@@ -311,6 +316,21 @@
               </div>
               <label class="trk-toggle" aria-label="Show jersey numbers">
                 <input type="checkbox" id="pnum-chk" onchange="onPlayerNumToggle(this.checked)">
+                <span class="trk-toggle-thumb"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Game time card -->
+          <div class="trk-card">
+            <div class="trk-card-top">
+              <div class="trk-icon-wrap"><i class="fas fa-clock"></i></div>
+              <div class="trk-card-text">
+                <div class="trk-card-title">Track game time</div>
+                <div class="trk-card-desc">Show minutes played per player in the stats panel, print report, and CSV export.</div>
+              </div>
+              <label class="trk-toggle" aria-label="Track game time">
+                <input type="checkbox" id="gametime-chk" onchange="onGameTimeToggle(this.checked)">
                 <span class="trk-toggle-thumb"></span>
               </label>
             </div>

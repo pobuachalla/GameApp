@@ -125,7 +125,11 @@ The GAA Match Tracker is a mobile-first progressive web application that enables
 | FR-35 | If GK performance tracking is enabled, the stats panel must include a GK save heatmap and rating summary | Should |
 | FR-36 | If opposition scorer tracking is enabled, the stats panel must show a scoring profile by opposition position | Should |
 | FR-37 | If shot location tracking is enabled, the stats panel must render an interactive shot map with team/half/player filters | Should |
-| FR-38 | Match notes (free text) must be saveable within the stats panel | Should |
+| FR-38 | Match notes (free text) must be saveable within the stats panel Stats tab; ratings autosave on every interaction with no explicit save action required | Should |
+| FR-38a | The stats panel must provide an Assess tab where the coach can rate team performance across six dimensions (Effort, Skill, Tactics, Intensity, Discipline, Spirit) on a 1–5 scale using a cumulative green-gradient dot selector | Should |
+| FR-38b | The Assess tab must display an overall rating calculated as the average of all rated dimensions, updating live as ratings are entered | Should |
+| FR-38c | The Assess tab must include a free-text coach notes field separate from match notes | Should |
+| FR-38d | Team assessment data must persist to localStorage and be included in JSON export/import | Should |
 
 ### 5.7 Sharing and Export
 
@@ -150,6 +154,7 @@ The GAA Match Tracker is a mobile-first progressive web application that enables
 | FR-50 | The analysis tone must be calibrated by age grade: encouraging (≤U14), honest-but-supportive (U15/U16), direct (≥U17/Adult) | Should |
 | FR-51 | Where GK performance data exists, it must be appended to the AI context | Could |
 | FR-52 | Where opposition scorer data exists, it must be appended to the AI context | Could |
+| FR-53a | Where team assessment ratings exist, they must be appended to the AI context with an instruction to cross-reference against the event log rather than accept them uncritically | Could |
 
 ### 5.9 Persistence
 

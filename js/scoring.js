@@ -86,6 +86,7 @@ function doReset() {
   upTot();
   state.evts=[]; undos=[];
   state.matchNotes=''; const _mn=document.getElementById('match-notes-input'); if(_mn)_mn.value='';
+  state.teamAssessment={ effort:0, skill:0, tactics:0, intensity:0, discipline:0, spirit:0, notes:'' };
   // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
   el.evlog.innerHTML = '<div id="logempty" style="color:var(--t3);font-size:13px;padding:10px 0;">No events recorded yet</div>';
   el.logempty = document.getElementById('logempty');

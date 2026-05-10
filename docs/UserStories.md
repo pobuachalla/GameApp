@@ -142,8 +142,17 @@ Acceptance criteria are in bullet form beneath each story.
 - Each player row shows: scores, cards, substitution in/out times, total minutes played
 
 **US-6.4** As a coach, I want to save free-text match notes within the stats panel so that my observations are stored alongside the data.
-- A textarea in the stats panel saves to `state.matchNotes` on input
+- A textarea in the stats panel Stats tab saves to `state.matchNotes` on input
 - Notes persist across reloads and are included in the printed report
+
+**US-6.5** As a coach, I want to rate my team's performance across key dimensions after the match so that I have a structured subjective record alongside the objective event data.
+- An Assess tab in the stats panel offers six dimensions: Effort, Skill, Tactics, Intensity, Discipline, Spirit
+- Each dimension is rated 1–5 using a cumulative green-gradient dot selector; the colour itself encodes the score so the row is readable at a glance without counting dots
+- Tapping the active dot clears that dimension's rating
+- An overall rating (average of all rated dimensions) updates live
+- A free-text coach notes field captures qualitative observations separately from match notes
+- All ratings autosave on every interaction; there is no separate save action
+- Assessment data persists across reloads and is included in JSON export
 
 ---
 
@@ -169,7 +178,8 @@ Acceptance criteria are in bullet form beneath each story.
 
 **US-8.1** As a coach, I want to generate an AI coaching report from the match data with one tap so that I get structured analysis without manual work.
 - A "Copy AI Prompt" button is available in the share menu for both Claude and ChatGPT
-- The prompt includes fixture, result, squad, event log, GK context (if tracked), and opposition scorer context (if tracked)
+- The prompt includes fixture, result, squad, event log, GK context (if tracked), opposition scorer context (if tracked), and team assessment ratings (if any dimension was rated)
+- When assessment ratings are included, the AI is instructed to cross-reference them against the event log rather than accept them uncritically, and to note any significant divergence between the coach's read and what the data shows
 
 **US-8.2** As a coach, I want the AI tone to match the age grade of my team so that the report is appropriate for young players or experienced seniors.
 - ≤U14: encouraging, leads with positives, frames issues as solvable learning moments
@@ -204,6 +214,7 @@ Acceptance criteria are in bullet form beneath each story.
 | Players | test_04_players.py | — |
 | Event Log | test_05_events.py | — |
 | Statistics | test_08_stats.py | — |
+| Team Assessment (US-6.5) | — | — |
 | Sharing | test_07_share.py | — |
 | Persistence | test_09_persistence.py | serializeState() in utils.test.js |
 | AI Analysis | — | — |

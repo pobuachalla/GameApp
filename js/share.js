@@ -17,6 +17,20 @@ function shareCSV() {
     e.zone?e.zone.id:'', e.zone?e.zone.coords.x.toFixed(4):'', e.zone?e.zone.coords.y.toFixed(4):'',
     e.gkOutcome||'', e.gkIntensity??'', e.gkSaveScore??'', e.gkFinalValue??''
   ]));
+  if (state.trackGameTime) {
+    const { ptMap } = computePlayTimes();
+    const ptRows = Object.entries(ptMap)
+      .map(([pi, t]) => ({pi:+pi, name:gn(+pi), t}))
+      .filter(r => r.name)
+      .sort((a, b) => b.t - a.t || a.name.localeCompare(b.name));
+    if (ptRows.length) {
+      const fmtT = secs => { const m = Math.floor(secs / 60), sc = Math.round(secs % 60); return m + ':' + (sc < 10 ? '0' : '') + sc; };
+      const startPis = new Set(Object.values(state.startSlotp || {}).map(Number));
+      rows.push([]);
+      rows.push(['player','role','minutes_played','seconds_played','','','','','','','','']);
+      ptRows.forEach(r => rows.push([r.name, startPis.has(r.pi) ? 'starter' : 'sub', fmtT(r.t), r.t, '','','','','','','','']));
+    }
+  }
   const csv = rows.map(r => r.map(csvEsc).join(',')).join('\r\n');
   const date = new Date().toISOString().slice(0,10);
   const safe = (state.usN||'match').replace(/[^a-z0-9]/gi,'_');
@@ -200,8 +214,8 @@ function openCurrentScoreCard() {
 // ─── LINEUP GRAPHIC ───────────────────────────────────────────────────────────
 function _buildLineupGraphicHTML() {
   const layout = GRID_LAYOUTS[state.teamSize] || GRID_LAYOUTS[15];
-  const slotp  = state.slotp;
-  const captain = state.captain;
+  const slotp   = state.startSlotp   || state.slotp;
+  const captain = state.startCaptain != null ? state.startCaptain : state.captain;
 
   // Header — same content and structure as openLayout()
   const oppName  = state.oppN && state.oppN !== 'Opposition' ? state.oppN : '';

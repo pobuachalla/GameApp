@@ -248,6 +248,9 @@ ${payload.eventLog}`;
     if (payload.oppScorerContext) {
       prompt += '\n\nOPPOSITION SCORING THREAT (only comment on this if the data shows a clear standout — do not mention it if scoring was evenly spread across positions):\n' + payload.oppScorerContext;
     }
+    if (payload.assessContext) {
+      prompt += '\n\nCOACH ASSESSMENT (subjective 1–5 ratings entered by the coach after the match — use these as context for the coach\'s own read of the game, but ground every observation in the event log rather than accepting these ratings uncritically; note any significant divergence between the coach\'s assessment and what the data shows):\n' + payload.assessContext;
+    }
     return prompt;
   },
 
@@ -384,6 +387,30 @@ ${payload.eventLog}`;
       }
     }
 
+    // Coach team assessment context
+    let assessContext = null;
+    const ta = state.teamAssessment;
+    if (ta) {
+      const DIMS = [
+        { key:'effort',    label:'Effort'     },
+        { key:'skill',     label:'Skill'      },
+        { key:'tactics',   label:'Tactics'    },
+        { key:'intensity', label:'Intensity'  },
+        { key:'discipline',label:'Discipline' },
+        { key:'spirit',    label:'Spirit'     },
+      ];
+      const rated = DIMS.filter(d => (ta[d.key] || 0) > 0);
+      if (rated.length > 0) {
+        const lines = rated.map(d => `  ${d.label}: ${ta[d.key]}/5`).join('\n');
+        const avg   = (rated.reduce((s, d) => s + ta[d.key], 0) / rated.length).toFixed(1);
+        const dimWord = rated.length === 1 ? 'dimension' : 'dimensions';
+        assessContext = `${lines}\n  Overall (${rated.length} ${dimWord} rated): ${avg}/5`;
+        if (ta.notes && ta.notes.trim()) {
+          assessContext += `\n  Coach observations: ${ta.notes.trim()}`;
+        }
+      }
+    }
+
     return {
       fixture,
       ageGrade:   state.ageGrade || '',
@@ -393,6 +420,7 @@ ${payload.eventLog}`;
       eventLog:   this.buildEventLog(state),
       gkContext,
       oppScorerContext,
+      assessContext,
     };
   }
 

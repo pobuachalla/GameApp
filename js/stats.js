@@ -193,6 +193,7 @@ function computePlayTimes() {
 }
 
 function buildPlayTimeHTML() {
+  if (!state.trackGameTime) return '';
   if (!state.evts.some(ev => ev.action === 'sub')) return '';
   const { ptMap } = computePlayTimes();
   const fmtT = secs => { const m=Math.floor(secs/60), sc=Math.round(secs%60); return m+':'+(sc<10?'0':'')+sc; };
@@ -357,6 +358,7 @@ function buildOppScorerHTML() {
 function openStats() {
   renderStats();
   document.getElementById('match-notes-input').value = state.matchNotes || '';
+  _activateStatsTab('stats');
   document.getElementById('statsoverlay').classList.add('open');
   document.getElementById('statspanel').classList.add('open');
 }
@@ -364,6 +366,19 @@ function openStats() {
 function closeStats() {
   document.getElementById('statsoverlay').classList.remove('open');
   document.getElementById('statspanel').classList.remove('open');
+}
+
+function _activateStatsTab(tab) {
+  const isStats = tab === 'stats';
+  document.querySelectorAll('.stats-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.getElementById('stats-content').style.display   = isStats ? '' : 'none';
+  document.getElementById('stats-notes-wrap').style.display = isStats ? '' : 'none';
+  document.getElementById('assess-content').style.display  = isStats ? 'none' : '';
+}
+
+function switchStatsTab(tab) {
+  _activateStatsTab(tab);
+  if (tab === 'assess') renderAssessment();
 }
 
 function renderStats() {
@@ -830,4 +845,66 @@ function setShotMapFilter(key, val) {
   if (key === 'player') shotMapPlayerFilter = val;
   const section = document.getElementById('shot-map-section');
   if (section) section.outerHTML = buildShotMapHTML();
+}
+
+// ─── TEAM ASSESSMENT ──────────────────────────────────────────────────────────
+const _ASSESS_DIMS = [
+  { key:'effort',     label:'Effort',     desc:'Workrate, hunger, off-the-ball running' },
+  { key:'skill',      label:'Skill',      desc:'Basics: passing, kicking, first touch' },
+  { key:'tactics',    label:'Tactics',    desc:'Shape, gameplan, set-piece execution' },
+  { key:'intensity',  label:'Intensity',  desc:'Physicality, tackling, ball-winning' },
+  { key:'discipline', label:'Discipline', desc:'Composure, frees conceded, cards' },
+  { key:'spirit',     label:'Spirit',     desc:'Attitude, response to setbacks' },
+];
+const _ASSESS_COLOURS = ['#C8E6C9','#81C784','#4CAF50','#388E3C','#1B5E20'];
+
+function assessRate(key, val) {
+  if (!state.teamAssessment) state.teamAssessment = { effort:0, skill:0, tactics:0, intensity:0, discipline:0, spirit:0, notes:'' };
+  state.teamAssessment[key] = (state.teamAssessment[key] === val) ? 0 : val;
+  saveState();
+  renderAssessment();
+}
+
+function renderAssessment() {
+  if (!state.teamAssessment) state.teamAssessment = { effort:0, skill:0, tactics:0, intensity:0, discipline:0, spirit:0, notes:'' };
+  const ta = state.teamAssessment;
+  const rated = _ASSESS_DIMS.filter(d => (ta[d.key] || 0) > 0);
+  const avg   = rated.length > 0
+    ? (rated.reduce((s, d) => s + ta[d.key], 0) / rated.length).toFixed(1)
+    : null;
+
+  let h = '<div class="assess-wrap"><div class="assess-q">How did the team perform?</div>';
+  h += '<div class="assess-card">';
+  _ASSESS_DIMS.forEach((dim, i) => {
+    const val = ta[dim.key] || 0;
+    const border = i < _ASSESS_DIMS.length - 1 ? ' assess-row-border' : '';
+    h += `<div class="assess-row${border}"><div class="assess-row-info">`;
+    h += `<div class="assess-dim-name">${esc(dim.label)}</div>`;
+    h += `<div class="assess-dim-desc">${esc(dim.desc)}</div></div>`;
+    h += '<div class="assess-dots">';
+    for (let v = 1; v <= 5; v++) {
+      const colour = v <= val ? _ASSESS_COLOURS[v - 1] : '#D5D5D5';
+      const sel    = v === val ? ' assess-dot-sel' : '';
+      h += `<div class="assess-dot${sel}" style="background:${colour};" onclick="assessRate('${dim.key}',${v})"></div>`;
+    }
+    h += '</div></div>';
+  });
+  h += '</div>';
+
+  h += '<div class="assess-card assess-notes-card">';
+  h += '<div class="assess-notes-label">Coach notes (optional)</div>';
+  h += `<textarea class="assess-notes-input" rows="3" placeholder="A line or two on the match — anything you’ll want to remember in 6 weeks…" oninput="if(!state.teamAssessment)state.teamAssessment={};state.teamAssessment.notes=this.value;saveState()">${esc(ta.notes || '')}</textarea>`;
+  h += '</div>';
+
+  h += '<div class="assess-card assess-overall-card">';
+  h += '<div><div class="assess-overall-lbl">Overall rating</div>';
+  const dimWord = rated.length === 1 ? 'dimension' : 'dimensions';
+  h += `<div class="assess-overall-sub">Average of ${rated.length} ${dimWord} rated</div></div>`;
+  h += `<div class="assess-overall-val">${avg !== null ? avg + '<span>/5</span>' : '—'}</div>`;
+  h += '</div>';
+
+  h += '</div>';
+
+  // eslint-disable-next-line no-restricted-syntax -- safe: all user data passed through esc()
+  document.getElementById('assess-content').innerHTML = h;
 }

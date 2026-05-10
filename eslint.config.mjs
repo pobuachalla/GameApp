@@ -181,6 +181,14 @@ const appGlobals = {
   showLineupGraphic: 'writable',
   openShareMenu: 'writable',
 
+  // ── stats.js (assess) ──
+  _ASSESS_DIMS: 'writable',
+  _ASSESS_COLOURS: 'writable',
+  _activateStatsTab: 'writable',
+  switchStatsTab: 'writable',
+  assessRate: 'writable',
+  renderAssessment: 'writable',
+
   // ── settings.js ──
   ageGradePick: 'writable',
   _ageCategory: 'writable',
@@ -203,6 +211,7 @@ const appGlobals = {
   attachDragHandle: 'writable',
   buildPlayerRow: 'writable',
   onSizeToggle: 'writable',
+  onGameTimeToggle: 'writable',
   onShotLocToggle: 'writable',
   onPlayerNumToggle: 'writable',
   onTurnoverToggle: 'writable',
