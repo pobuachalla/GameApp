@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>GAA Post-Match Entry</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green:#2E7D32;--green-d:#1B5E20;--green-l:#E8F5E9;
+  --red:#C62828;--red-l:#FFEBEE;
+  --amber:#D97706;--amber-l:#FFF8E1;
+  --blue:#1565C0;--blue-l:#E3F2FD;
+  --bg:#EEF0EA;--card:#FFFFFF;
+  --t1:#1A2E1A;--t2:#4A5A4A;--t3:#7A8A7A;
+  --border:#E0E3DC;
+  --shadow:0 2px 14px rgba(0,0,0,0.07),0 0 0 1px rgba(0,0,0,0.04);
+  --r:16px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;-webkit-font-smoothing:antialiased;}
+
+/* ── Page header ─────────────────────────────────────────────────────────── */
+.pg-hdr{background:linear-gradient(140deg,#1a5c1e 0%,#2E7D32 55%,#3a9140 100%);color:white;padding:22px 32px;display:flex;align-items:center;gap:16px;}
+.pg-hdr-icon{font-size:26px;opacity:.9;}
+.pg-hdr-title{font-size:22px;font-weight:800;letter-spacing:-.3px;flex:1;}
+.pg-hdr-sub{font-size:13px;opacity:.7;margin-top:2px;}
+.pg-hdr-btn{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.2);color:white;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;}
+.pg-hdr-btn:hover{background:rgba(255,255,255,.3);}
+.pg-hdr-btn:disabled{opacity:.4;cursor:not-allowed;}
+.pg-hdr-btn.primary{background:white;color:var(--green);}
+.pg-hdr-btn.primary:hover{background:#f0f0f0;}
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+.pg-body{max-width:1100px;margin:0 auto;padding:24px 24px 60px;}
+
+/* ── Tabs ────────────────────────────────────────────────────────────────── */
+.pg-tabs{display:flex;gap:0;background:var(--card);border-radius:14px;padding:5px;box-shadow:var(--shadow);margin-bottom:20px;width:fit-content;}
+.pg-tab{padding:9px 22px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--t2);background:none;display:flex;align-items:center;gap:7px;transition:background .15s,color .15s;position:relative;}
+.pg-tab.active{background:var(--green);color:white;}
+.pg-tab .badge{position:absolute;top:4px;right:6px;background:var(--amber);color:white;border-radius:999px;font-size:9px;font-weight:700;padding:1px 5px;line-height:1.4;}
+.pg-tab.active .badge{background:rgba(255,255,255,.35);color:white;}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.card{background:var(--card);border-radius:var(--r);padding:24px;box-shadow:var(--shadow);margin-bottom:16px;}
+.card-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);margin-bottom:18px;}
+.card-title i{margin-right:6px;}
+
+/* ── Form elements ───────────────────────────────────────────────────────── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;}
+.form-grid.g3{grid-template-columns:1fr 1fr 1fr;}
+.form-grid.g1{grid-template-columns:1fr;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group label{font-size:12px;font-weight:600;color:var(--t2);}
+.form-group input,.form-group select,.form-group textarea{
+  border:1.5px solid var(--border);border-radius:9px;padding:10px 12px;
+  font-size:14px;font-family:inherit;color:var(--t1);background:white;outline:none;
+  transition:border-color .15s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--green);}
+.form-group textarea{resize:vertical;min-height:72px;}
+.form-span2{grid-column:span 2;}
+.form-span3{grid-column:span 3;}
+
+/* ── Sport / size pills ──────────────────────────────────────────────────── */
+.pill-group{display:flex;gap:8px;flex-wrap:wrap;}
+.pill-btn{padding:7px 16px;border:1.5px solid var(--border);border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;background:white;font-family:inherit;color:var(--t2);transition:all .15s;}
+.pill-btn.active{background:var(--green);border-color:var(--green);color:white;}
+
+/* ── Score entry ─────────────────────────────────────────────────────────── */
+.score-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.score-team{font-size:14px;font-weight:600;color:var(--t1);min-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.score-inputs{display:flex;align-items:center;gap:8px;}
+.score-inputs input{width:54px;text-align:center;font-size:18px;font-weight:700;border:1.5px solid var(--border);border-radius:9px;padding:8px 4px;font-family:inherit;color:var(--t1);}
+.score-sep{font-size:20px;font-weight:700;color:var(--t3);}
+.score-pts{font-size:13px;color:var(--t3);font-weight:500;}
+
+/* ── Lineup grid ─────────────────────────────────────────────────────────── */
+.lu-grid{display:flex;flex-direction:column;gap:10px;max-width:640px;}
+.lu-row{display:flex;gap:10px;justify-content:center;}
+.lu-slot{display:flex;align-items:center;gap:8px;flex:1;max-width:200px;}
+.lu-num{width:28px;height:28px;border-radius:50%;background:var(--green-l);color:var(--green);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.lu-slot input{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;color:var(--t1);outline:none;transition:border-color .15s;}
+.lu-slot input:focus{border-color:var(--green);}
+.lu-slot input.is-cap{border-color:var(--amber);background:var(--amber-l);}
+.lu-cap-btn{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border);background:white;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.lu-cap-btn.active{background:var(--amber);border-color:var(--amber);color:white;}
+.lu-hint{font-size:12px;color:var(--t3);margin-top:6px;}
+
+/* ── Events ──────────────────────────────────────────────────────────────── */
+.ev-add-form{background:var(--green-l);border-radius:12px;padding:18px;margin-bottom:16px;}
+.ev-add-title{font-size:13px;font-weight:700;color:var(--green);margin-bottom:12px;}
+.ev-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+.ev-field{display:flex;flex-direction:column;gap:4px;}
+.ev-field label{font-size:11px;font-weight:600;color:var(--t2);}
+.ev-field select,.ev-field input{border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;color:var(--t1);background:white;outline:none;}
+.ev-field select:focus,.ev-field input:focus{border-color:var(--green);}
+.ev-add-btn{padding:9px 18px;background:var(--green);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+.ev-add-btn:hover{opacity:.88;}
+
+.ev-list{display:flex;flex-direction:column;gap:6px;}
+.ev-item{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:10px;padding:10px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.ev-badge{font-size:10px;font-weight:700;background:var(--green-l);color:var(--green);border-radius:4px;padding:2px 6px;flex-shrink:0;}
+.ev-badge.opp{background:var(--red-l);color:var(--red);}
+.ev-badge.card{background:var(--amber-l);color:var(--amber);}
+.ev-badge.rc{background:var(--red-l);color:var(--red);}
+.ev-time{font-size:12px;color:var(--t3);font-weight:500;width:36px;flex-shrink:0;}
+.ev-desc{flex:1;font-size:13px;font-weight:500;color:var(--t1);}
+.ev-del{background:none;border:none;cursor:pointer;color:var(--t3);font-size:14px;padding:2px 4px;}
+.ev-del:hover{color:var(--red);}
+
+.ev-empty{text-align:center;padding:24px;color:var(--t3);font-size:14px;}
+
+/* ── Opp score toggle ────────────────────────────────────────────────────── */
+.opp-toggle{display:flex;gap:8px;margin-bottom:16px;}
+.opp-tog-btn{flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:white;font-family:inherit;color:var(--t2);transition:all .15s;text-align:center;}
+.opp-tog-btn.active{background:var(--green);border-color:var(--green);color:white;}
+
+/* ── Assess ──────────────────────────────────────────────────────────────── */
+.assess-list{display:flex;flex-direction:column;gap:12px;}
+.assess-row{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--border);}
+.assess-row:last-child{border-bottom:none;}
+.assess-info{flex:1;}
+.assess-dim-name{font-size:15px;font-weight:600;color:var(--t1);}
+.assess-dim-desc{font-size:12px;color:var(--t3);margin-top:2px;}
+.assess-dots{display:flex;gap:8px;}
+.assess-dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);cursor:pointer;transition:transform .1s,border-color .1s;flex-shrink:0;}
+.assess-dot:hover{transform:scale(1.1);}
+.assess-dot.sel{border:3px solid rgba(0,0,0,.35);}
+.assess-overall{display:flex;align-items:center;justify-content:space-between;background:var(--green-l);border-radius:12px;padding:16px 20px;margin-top:8px;}
+.assess-overall-lbl{font-size:14px;font-weight:700;color:var(--green);}
+.assess-overall-val{font-size:28px;font-weight:800;color:var(--green);}
+.assess-notes-input{width:100%;border:1.5px solid var(--border);border-radius:9px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--t1);resize:vertical;min-height:80px;margin-top:12px;outline:none;}
+.assess-notes-input:focus{border-color:var(--green);}
+
+/* ── Validation toast ────────────────────────────────────────────────────── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#222;color:white;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;opacity:0;pointer-events:none;transition:opacity .2s;}
+.toast.show{opacity:1;}
+
+@media(max-width:700px){
+  .form-grid{grid-template-columns:1fr;}
+  .form-grid.g3{grid-template-columns:1fr 1fr;}
+  .form-span2,.form-span3{grid-column:span 1;}
+  .pg-hdr{padding:16px;}
+  .pg-hdr-title{font-size:18px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────────────── -->
+<div class="pg-hdr">
+  <div class="pg-hdr-icon"><i class="fas fa-clipboard-list"></i></div>
+  <div>
+    <div class="pg-hdr-title">Post-Match Entry</div>
+    <div class="pg-hdr-sub">Record match details after the fact — exports the same JSON format as the live tracker</div>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:10px;">
+    <button class="pg-hdr-btn" onclick="clearAll()"><i class="fas fa-rotate-left"></i> Reset</button>
+    <button class="pg-hdr-btn primary" id="export-btn" onclick="doExport()"><i class="fas fa-file-export"></i> Export JSON</button>
+  </div>
+</div>
+
+<div class="pg-body">
+
+  <!-- ── Tabs ──────────────────────────────────────────────────────────── -->
+  <div class="pg-tabs">
+    <button class="pg-tab active" id="tab-details" onclick="switchTab('details')"><i class="fas fa-info-circle"></i> Game Details</button>
+    <button class="pg-tab" id="tab-lineup" onclick="switchTab('lineup')"><i class="fas fa-users"></i> Lineup</button>
+    <button class="pg-tab" id="tab-events" onclick="switchTab('events')"><i class="fas fa-list-ul"></i> Events <span class="badge" id="ev-count-badge" style="display:none;"></span></button>
+    <button class="pg-tab" id="tab-assess" onclick="switchTab('assess')"><i class="fas fa-clipboard-check"></i> Assessment</button>
+  </div>
+
+  <!-- ── Game Details ───────────────────────────────────────────────────── -->
+  <div id="pane-details">
+
+    <div class="card">
+      <div class="card-title"><i class="fas fa-shield-halved"></i>Teams &amp; Match Info</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Our Team Name</label>
+          <input id="f-usN" type="text" placeholder="e.g. Navan O'Mahonys" oninput="R.usN=this.value">
+        </div>
+        <div class="form-group">
+          <label>Opposition</label>
+          <input id="f-oppN" type="text" placeholder="e.g. St Patricks" oninput="R.oppN=this.value">
+        </div>
+        <div class="form-group">
+          <label>Match Date</label>
+          <input id="f-date" type="date" oninput="R.matchDate=this.value">
+        </div>
+        <div class="form-group">
+          <label>Location</label>
+          <input id="f-loc" type="text" placeholder="Venue" oninput="R.location=this.value">
+        </div>
+        <div class="form-group">
+          <label>Competition</label>
+          <input id="f-comp" type="text" placeholder="e.g. County League" oninput="R.competition=this.value">
+        </div>
+        <div class="form-group">
+          <label>Referee</label>
+          <input id="f-ref" type="text" placeholder="Referee name" oninput="R.referee=this.value">
+        </div>
+        <div class="form-group">
+          <label>Age Grade</label>
+          <input id="f-grade" type="text" placeholder="e.g. U16, Senior" oninput="R.ageGrade=this.value">
+        </div>
+        <div class="form-group">
+          <label>Sport</label>
+          <div class="pill-group" id="sport-pills">
+            <button class="pill-btn active" onclick="setSport('football',this)">Football</button>
+            <button class="pill-btn" onclick="setSport('hurling',this)">Hurling</button>
+            <button class="pill-btn" onclick="setSport('camogie',this)">Camogie</button>
+            <button class="pill-btn" onclick="setSport('ladies football',this)">Ladies Football</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Team Size</label>
+          <div class="pill-group">
+            <button class="pill-btn active" id="sz-15" onclick="setTeamSize(15,this)">15-a-side</button>
+            <button class="pill-btn" id="sz-13" onclick="setTeamSize(13,this)">13-a-side</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="fas fa-futbol"></i>Final Score</div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="score-row">
+          <div class="score-team" id="score-usN-lbl">Our Team</div>
+          <div class="score-inputs">
+            <input type="number" id="sc-usG" value="0" min="0" oninput="R.usGoals=+this.value" style="width:54px;">
+            <span class="score-sep">–</span>
+            <input type="number" id="sc-usP" value="0" min="0" oninput="R.usPts=+this.value" style="width:54px;">
+          </div>
+          <span class="score-pts" id="score-usT">(0 pts)</span>
+        </div>
+        <div class="score-row">
+          <div class="score-team" id="score-oppN-lbl">Opposition</div>
+          <div class="score-inputs">
+            <input type="number" id="sc-ogG" value="0" min="0" oninput="R.ogGoals=+this.value;updateScoreDisplay()">
+            <span class="score-sep">–</span>
+            <input type="number" id="sc-ogP" value="0" min="0" oninput="R.ogPts=+this.value;updateScoreDisplay()">
+          </div>
+          <span class="score-pts" id="score-ogT">(0 pts)</span>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--t3);margin-top:14px;"><i class="fas fa-info-circle"></i> Our team score is computed from events. This final score is used for the opposition (simple mode) and for any half-time snapshot if entered on the Events tab.</p>
+    </div>
+
+  </div><!-- /pane-details -->
+
+  <!-- ── Lineup ─────────────────────────────────────────────────────────── -->
+  <div id="pane-lineup" style="display:none;">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-users"></i>Starting Lineup — <span id="lu-teamsize-lbl">15 Players</span></div>
+      <p class="lu-hint" style="margin-bottom:14px;"><i class="fas fa-star" style="color:var(--amber);font-size:10px;"></i> Tap the star next to a player to mark them as captain.</p>
+      <div class="lu-grid" id="lu-grid"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-arrow-right-arrow-left"></i>Substitutes (optional)</div>
+      <p style="font-size:13px;color:var(--t3);margin-bottom:14px;">Players who came on during the match but didn't start. They can be assigned events on the Events tab once named here.</p>
+      <div id="sub-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <button onclick="addSubSlot()" style="margin-top:10px;padding:8px 16px;border:1.5px dashed var(--border);border-radius:8px;background:none;font-size:13px;color:var(--t2);cursor:pointer;font-family:inherit;"><i class="fas fa-plus"></i> Add Substitute</button>
+    </div>
+  </div>
+
+  <!-- ── Events ─────────────────────────────────────────────────────────── -->
+  <div id="pane-events" style="display:none;">
+
+    <div class="card">
+      <div class="card-title"><i class="fas fa-plus-circle"></i>Add Event</div>
+      <div class="ev-add-form">
+        <div class="ev-add-title">Team Event</div>
+        <div class="ev-row" style="margin-bottom:10px;">
+          <div class="ev-field">
+            <label>Player</label>
+            <select id="ev-player" style="min-width:150px;"></select>
+          </div>
+          <div class="ev-field">
+            <label>Action</label>
+            <select id="ev-action" onchange="onEvActionChange()">
+              <option value="Goal">Goal</option>
+              <option value="Point" selected>Point</option>
+              <option value="Wide">Wide</option>
+              <option value="Yellow Card">Yellow Card</option>
+              <option value="Black Card">Black Card</option>
+              <option value="Red Card">Red Card</option>
+            </select>
+          </div>
+          <div class="ev-field" id="ev-source-wrap">
+            <label>Source</label>
+            <select id="ev-source">
+              <option value="From Play">From Play</option>
+              <option value="From Free">From Free</option>
+              <option value="From Penalty">From Penalty</option>
+              <option value="From 65">From 65</option>
+              <option value="From 45">From 45</option>
+              <option value="From Sideline">From Sideline</option>
+            </select>
+          </div>
+          <div class="ev-field">
+            <label>Half</label>
+            <select id="ev-half">
+              <option value="1H">1st Half</option>
+              <option value="2H">2nd Half</option>
+              <option value="ET">Extra Time</option>
+            </select>
+          </div>
+          <div class="ev-field">
+            <label>Time (optional)</label>
+            <input id="ev-time" type="text" placeholder="MM:SS" style="width:80px;">
+          </div>
+          <button class="ev-add-btn" onclick="addTeamEvent()"><i class="fas fa-plus"></i> Add</button>
+        </div>
+      </div>
+
+      <div class="ev-add-form" style="background:var(--red-l);">
+        <div class="ev-add-title" style="color:var(--red);">Opposition Event</div>
+        <div style="margin-bottom:10px;">
+          <div class="opp-toggle">
+            <button class="opp-tog-btn active" id="opp-tog-simple" onclick="setOppMode('simple')"><i class="fas fa-equals"></i> Final Score Only</button>
+            <button class="opp-tog-btn" id="opp-tog-detail" onclick="setOppMode('detailed')"><i class="fas fa-list-ul"></i> Event by Event</button>
+          </div>
+          <div id="opp-simple-note" style="font-size:12px;color:var(--t3);padding:4px 0;">Opposition score taken from final score entered in Game Details.</div>
+          <div id="opp-detail-form" style="display:none;">
+            <div class="ev-row">
+              <div class="ev-field">
+                <label>Action</label>
+                <select id="oev-action">
+                  <option value="Goal">Goal</option>
+                  <option value="Point" selected>Point</option>
+                  <option value="Wide">Wide</option>
+                </select>
+              </div>
+              <div class="ev-field">
+                <label>Half</label>
+                <select id="oev-half">
+                  <option value="1H">1st Half</option>
+                  <option value="2H">2nd Half</option>
+                </select>
+              </div>
+              <div class="ev-field">
+                <label>Time (optional)</label>
+                <input id="oev-time" type="text" placeholder="MM:SS" style="width:80px;">
+              </div>
+              <button class="ev-add-btn" style="background:var(--red);" onclick="addOppEvent()"><i class="fas fa-plus"></i> Add</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="fas fa-stream"></i>Event Log <span id="ev-count-lbl" style="font-weight:400;color:var(--t3);text-transform:none;letter-spacing:0;font-size:12px;"></span></div>
+      <div id="ev-list-wrap"><div class="ev-empty"><i class="fas fa-clipboard-list" style="font-size:24px;margin-bottom:8px;display:block;"></i>No events yet. Add scores, wides and cards above.</div></div>
+    </div>
+
+  </div><!-- /pane-events -->
+
+  <!-- ── Assessment ─────────────────────────────────────────────────────── -->
+  <div id="pane-assess" style="display:none;">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-star"></i>Team Performance Assessment</div>
+      <div class="assess-list" id="assess-list"></div>
+      <div class="assess-overall" id="assess-overall" style="display:none;">
+        <div class="assess-overall-lbl">Overall Rating</div>
+        <div class="assess-overall-val" id="assess-overall-val">—</div>
+      </div>
+      <textarea class="assess-notes-input" placeholder="Coach notes…" oninput="R.assessment.notes=this.value" id="assess-notes"></textarea>
+    </div>
+  </div>
+
+</div><!-- /pg-body -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+// ── Layout constants (must precede any function that uses them) ───────────────
+const LU_ROWS_15 = [[1],[2,3,4],[5,6,7],[8,9],[10,11,12],[13,14,15]];
+const LU_ROWS_13 = [[1],[2,4],[5,6,7],[8,9],[10,11,12],[13,15]];
+
+// ── App state ────────────────────────────────────────────────────────────────
+const R = {
+  usN:'', oppN:'', matchDate:'', location:'', referee:'',
+  competition:'', ageGrade:'', sport:'football', teamSize:15,
+  usGoals:0, usPts:0, ogGoals:0, ogPts:0,
+  lineup:{},   // slot→name (1-based)
+  captain:null,
+  subs:[],     // [{slot, name}] slots 16+
+  evts:[],
+  oppMode:'simple',
+  assessment:{ effort:0, skill:0, tactics:0, intensity:0, discipline:0, spirit:0, notes:'' },
+  nextEvId:1,
+};
+
+const PLACED = new Set(['From Free','From Penalty','From 65','From 45','From Sideline']);
+
+const ASSESS_DIMS = [
+  { key:'effort',     label:'Effort',      desc:'Work rate, commitment, and physical output across the panel.' },
+  { key:'skill',      label:'Skill',       desc:'Quality of passing, striking, catching, and decision-making.' },
+  { key:'tactics',    label:'Tactics',     desc:'Shape, press, transitions, and positional discipline.' },
+  { key:'intensity',  label:'Intensity',   desc:'Tempo, aggression in the contest, and winning the tackle.' },
+  { key:'discipline', label:'Discipline',  desc:'Cards, frees conceded, and composure under pressure.' },
+  { key:'spirit',     label:'Team Spirit', desc:'Communication, leadership, and collective mindset.' },
+];
+const ASSESS_COLS = ['#EF9A9A','#FFB74D','#FFF176','#AED581','#66BB6A','#2E7D32'];
+
+// ── Tab switching ────────────────────────────────────────────────────────────
+function switchTab(t) {
+  ['details','lineup','events','assess'].forEach(id => {
+    document.getElementById('pane-'+id).style.display = id===t ? '' : 'none';
+    document.getElementById('tab-'+id).classList.toggle('active', id===t);
+  });
+  if (t === 'events') { refreshPlayerSelect(); renderEvList(); }
+  if (t === 'assess') renderAssess();
+  if (t === 'lineup') renderLineup();
+}
+
+// ── Sport / size ─────────────────────────────────────────────────────────────
+function setSport(s, btn) {
+  R.sport = s;
+  document.querySelectorAll('#sport-pills .pill-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function setTeamSize(n, btn) {
+  R.teamSize = n;
+  ['sz-15','sz-13'].forEach(id => document.getElementById(id).classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('lu-teamsize-lbl').textContent = n + ' Players';
+  renderLineup();
+  refreshPlayerSelect();
+}
+
+// ── Score display ────────────────────────────────────────────────────────────
+document.getElementById('sc-usG').addEventListener('input', updateScoreDisplay);
+document.getElementById('sc-usP').addEventListener('input', updateScoreDisplay);
+document.getElementById('f-usN').addEventListener('input', e => {
+  R.usN = e.target.value;
+  document.getElementById('score-usN-lbl').textContent = R.usN || 'Our Team';
+});
+document.getElementById('f-oppN').addEventListener('input', e => {
+  R.oppN = e.target.value;
+  document.getElementById('score-oppN-lbl').textContent = R.oppN || 'Opposition';
+});
+
+function updateScoreDisplay() {
+  R.usGoals = +document.getElementById('sc-usG').value || 0;
+  R.usPts   = +document.getElementById('sc-usP').value || 0;
+  R.ogGoals = +document.getElementById('sc-ogG').value || 0;
+  R.ogPts   = +document.getElementById('sc-ogP').value || 0;
+  document.getElementById('score-usT').textContent = '(' + (R.usGoals*3+R.usPts) + ' pts)';
+  document.getElementById('score-ogT').textContent = '(' + (R.ogGoals*3+R.ogPts) + ' pts)';
+}
+
+// ── Lineup ───────────────────────────────────────────────────────────────────
+function renderLineup() {
+  const rows = R.teamSize === 13 ? LU_ROWS_13 : LU_ROWS_15;
+  let h = '';
+  rows.forEach(row => {
+    h += '<div class="lu-row">';
+    row.forEach(slot => {
+      const name = R.lineup[slot] || '';
+      const isCap = R.captain === slot;
+      h += `<div class="lu-slot">
+        <div class="lu-num">${slot}</div>
+        <input type="text" placeholder="Player name" value="${esc(name)}"
+          oninput="R.lineup[${slot}]=this.value;refreshPlayerSelect()"
+          class="${isCap?'is-cap':''}">
+        <button class="lu-cap-btn${isCap?' active':''}" title="Captain" onclick="toggleCaptain(${slot})">
+          <i class="fas fa-star" style="font-size:10px;"></i>
+        </button>
+      </div>`;
+    });
+    h += '</div>';
+  });
+  document.getElementById('lu-grid').innerHTML = h;
+}
+
+function toggleCaptain(slot) {
+  R.captain = R.captain === slot ? null : slot;
+  renderLineup();
+}
+
+// ── Substitutes ──────────────────────────────────────────────────────────────
+let nextSubSlot = 16;
+
+function addSubSlot() {
+  const slot = nextSubSlot++;
+  R.subs.push({ slot, name:'' });
+  renderSubs();
+  refreshPlayerSelect();
+}
+
+function removeSub(slot) {
+  R.subs = R.subs.filter(s => s.slot !== slot);
+  renderSubs();
+  refreshPlayerSelect();
+}
+
+function renderSubs() {
+  const wrap = document.getElementById('sub-list');
+  if (!R.subs.length) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = R.subs.map(s =>
+    `<div class="lu-slot" style="max-width:260px;">
+      <div class="lu-num" style="background:var(--blue-l);color:var(--blue);">${s.slot}</div>
+      <input type="text" placeholder="Substitute name" value="${esc(s.name)}"
+        oninput="updateSub(${s.slot},this.value)">
+      <button onclick="removeSub(${s.slot})" style="background:none;border:none;cursor:pointer;color:var(--t3);font-size:14px;padding:2px 4px;"><i class="fas fa-xmark"></i></button>
+    </div>`
+  ).join('');
+}
+
+function updateSub(slot, name) {
+  const s = R.subs.find(x => x.slot === slot);
+  if (s) { s.name = name; refreshPlayerSelect(); }
+}
+
+// ── Player select in events form ─────────────────────────────────────────────
+function refreshPlayerSelect() {
+  const sel = document.getElementById('ev-player');
+  const prev = sel.value;
+  const opts = [];
+  const rows = R.teamSize === 13 ? LU_ROWS_13 : LU_ROWS_15;
+  rows.flat().forEach(slot => {
+    const n = (R.lineup[slot] || '').trim();
+    if (n) opts.push({ slot, name: n, label: slot + '. ' + n });
+  });
+  R.subs.forEach(s => {
+    if ((s.name || '').trim()) opts.push({ slot: s.slot, name: s.name, label: 'Sub: ' + s.name });
+  });
+  sel.innerHTML = opts.length
+    ? opts.map(o => `<option value="${o.slot}" ${+prev===o.slot?'selected':''}>${esc(o.label)}</option>`).join('')
+    : '<option value="">— Add players in Lineup tab —</option>';
+}
+
+// ── Event action change ───────────────────────────────────────────────────────
+function onEvActionChange() {
+  const action = document.getElementById('ev-action').value;
+  const sourceWrap = document.getElementById('ev-source-wrap');
+  sourceWrap.style.display = (action === 'Yellow Card' || action === 'Black Card' || action === 'Red Card') ? 'none' : '';
+}
+
+// ── Add team event ────────────────────────────────────────────────────────────
+function addTeamEvent() {
+  const slot = +document.getElementById('ev-player').value;
+  const action = document.getElementById('ev-action').value;
+  const source = document.getElementById('ev-source').value;
+  const half   = document.getElementById('ev-half').value;
+  const timeRaw = document.getElementById('ev-time').value.trim();
+  const time = timeRaw || null;
+
+  if (!slot) { showToast('Select a player first — add names in the Lineup tab.'); return; }
+
+  const isCard = action.includes('Card');
+  const name = getPlayerName(slot);
+  const sec = isCard ? '' : source;
+  const desc = isCard
+    ? action + ' · ' + name
+    : action + ' · ' + name + ' · ' + source;
+
+  R.evts.push({ id: R.nextEvId++, team:'us', slot, action, sec, half, time, desc });
+  renderEvList();
+  updateEvBadge();
+  document.getElementById('ev-time').value = '';
+}
+
+// ── Add opposition event ──────────────────────────────────────────────────────
+function setOppMode(mode) {
+  R.oppMode = mode;
+  document.getElementById('opp-tog-simple').classList.toggle('active', mode==='simple');
+  document.getElementById('opp-tog-detail').classList.toggle('active', mode==='detailed');
+  document.getElementById('opp-simple-note').style.display = mode==='simple' ? '' : 'none';
+  document.getElementById('opp-detail-form').style.display = mode==='detailed' ? '' : 'none';
+}
+
+function addOppEvent() {
+  const action = document.getElementById('oev-action').value;
+  const half   = document.getElementById('oev-half').value;
+  const timeRaw = document.getElementById('oev-time').value.trim();
+  const time = timeRaw || null;
+  const desc = action + ' · ' + (R.oppN || 'Opposition');
+  R.evts.push({ id: R.nextEvId++, team:'opp', slot:null, action, sec:'', half, time, desc });
+  renderEvList();
+  updateEvBadge();
+  document.getElementById('oev-time').value = '';
+}
+
+// ── Remove event ─────────────────────────────────────────────────────────────
+function removeEvent(id) {
+  R.evts = R.evts.filter(e => e.id !== id);
+  renderEvList();
+  updateEvBadge();
+}
+
+// ── Render event list ─────────────────────────────────────────────────────────
+function renderEvList() {
+  const wrap = document.getElementById('ev-list-wrap');
+  if (!R.evts.length) {
+    wrap.innerHTML = '<div class="ev-empty"><i class="fas fa-clipboard-list" style="font-size:24px;margin-bottom:8px;display:block;"></i>No events yet. Add scores, wides and cards above.</div>';
+    document.getElementById('ev-count-lbl').textContent = '';
+    return;
+  }
+
+  // Sort: by half (1H < 2H < ET) then time then insertion id
+  const halfOrder = {'1H':0,'2H':1,'ET':2};
+  const sorted = [...R.evts].sort((a,b) => {
+    const hd = (halfOrder[a.half]||0) - (halfOrder[b.half]||0);
+    if (hd !== 0) return hd;
+    const ta = toSecs(a.time), tb = toSecs(b.time);
+    if (ta !== tb) return ta - tb;
+    return a.id - b.id;
+  });
+
+  wrap.innerHTML = '<div class="ev-list">' + sorted.map(ev => {
+    const isCard = ev.action.includes('Card');
+    const isOpp  = ev.team === 'opp';
+    const isWide = ev.action === 'Wide';
+    const cls = isOpp ? 'opp' : isCard ? (ev.action==='Red Card'?'rc':'card') : '';
+    const label = ev.action === 'Goal' ? 'G' : ev.action === 'Point' ? 'P' : ev.action === 'Wide' ? 'W' : ev.action.replace(' Card','');
+    return `<div class="ev-item">
+      <span class="ev-badge ${cls}">${ev.half}</span>
+      <span class="ev-time">${ev.time || '—'}</span>
+      <span class="ev-badge ${cls}" style="margin-left:0;">${label}</span>
+      <span class="ev-desc">${esc(ev.desc)}</span>
+      <button class="ev-del" onclick="removeEvent(${ev.id})" title="Remove"><i class="fas fa-xmark"></i></button>
+    </div>`;
+  }).join('') + '</div>';
+
+  const total = R.evts.length;
+  document.getElementById('ev-count-lbl').textContent = total + ' event' + (total!==1?'s':'');
+}
+
+function updateEvBadge() {
+  const badge = document.getElementById('ev-count-badge');
+  if (R.evts.length) { badge.textContent = R.evts.length; badge.style.display = ''; }
+  else badge.style.display = 'none';
+}
+
+function toSecs(t) {
+  if (!t) return 0;
+  const p = String(t).split(':');
+  return (+p[0]||0)*60 + (+p[1]||0);
+}
+
+// ── Assessment ────────────────────────────────────────────────────────────────
+function renderAssess() {
+  const list = document.getElementById('assess-list');
+  let h = '';
+  ASSESS_DIMS.forEach(dim => {
+    const val = R.assessment[dim.key] || 0;
+    h += `<div class="assess-row">
+      <div class="assess-info">
+        <div class="assess-dim-name">${esc(dim.label)}</div>
+        <div class="assess-dim-desc">${esc(dim.desc)}</div>
+      </div>
+      <div class="assess-dots">`;
+    for (let i = 1; i <= 5; i++) {
+      const col = val >= i ? ASSESS_COLS[i] : '#e8e8e8';
+      const sel = val === i ? ' sel' : '';
+      h += `<div class="assess-dot${sel}" style="background:${col};" onclick="assessRate('${dim.key}',${i})"></div>`;
+    }
+    h += `</div></div>`;
+  });
+  list.innerHTML = h;
+
+  const rated = ASSESS_DIMS.map(d => R.assessment[d.key]).filter(v => v > 0);
+  const overall = document.getElementById('assess-overall');
+  const val = document.getElementById('assess-overall-val');
+  if (rated.length) {
+    const avg = (rated.reduce((s,v)=>s+v,0)/rated.length).toFixed(1);
+    val.textContent = avg + ' / 5';
+    overall.style.display = '';
+  } else {
+    overall.style.display = 'none';
+  }
+  document.getElementById('assess-notes').value = R.assessment.notes || '';
+}
+
+function assessRate(key, v) {
+  R.assessment[key] = R.assessment[key] === v ? 0 : v;
+  renderAssess();
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function getPlayerName(slot) {
+  if (slot < 16) return (R.lineup[slot] || '').trim() || ('#'+slot);
+  const s = R.subs.find(x => x.slot === slot);
+  return s ? (s.name||'').trim() || ('#'+slot) : '#'+slot;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+// ── Export ────────────────────────────────────────────────────────────────────
+function doExport() {
+  if (!R.usN.trim()) { showToast('Enter your team name in Game Details first.'); switchTab('details'); return; }
+  if (!R.oppN.trim()) { showToast('Enter the opposition name in Game Details first.'); switchTab('details'); return; }
+
+  // ── Build pnames + slotp
+  const pnames = {}, slotp = {};
+  let pi = 1;
+  const rows = R.teamSize === 13 ? LU_ROWS_13 : LU_ROWS_15;
+  rows.flat().forEach(slot => {
+    const n = (R.lineup[slot] || '').trim();
+    if (n) { pnames[pi] = n; slotp[slot] = pi; pi++; }
+  });
+  R.subs.forEach(s => {
+    const n = (s.name || '').trim();
+    if (n) { pnames[pi] = n; slotp[s.slot] = pi; pi++; }
+  });
+  const startSlotp = {};
+  (R.teamSize === 13 ? LU_ROWS_13 : LU_ROWS_15).flat().forEach(slot => {
+    if (slotp[slot]) startSlotp[slot] = slotp[slot];
+  });
+  const captainPi = R.captain ? (slotp[R.captain] || null) : null;
+
+  // ── Convert events to state format
+  const slotPiMap = slotp; // slot→pi
+  const evts = [];
+  const halfOrder = { '1H':0,'2H':1,'ET':2 };
+  const sorted = [...R.evts].sort((a,b) => {
+    const hd = (halfOrder[a.half]||0) - (halfOrder[b.half]||0);
+    if (hd !== 0) return hd;
+    return toSecs(a.time) - toSecs(b.time) || a.id - b.id;
+  });
+  sorted.forEach(ev => {
+    const piVal = ev.slot ? (slotPiMap[ev.slot] || null) : null;
+    evts.push({
+      time: ev.time || ev.half + ' 0:00',
+      badge: ev.half,
+      desc: ev.desc,
+      action: ev.action,
+      sec: ev.sec || '',
+      slot: ev.slot || null,
+      pi: piVal,
+    });
+  });
+
+  // ── Compute our score from events
+  let goals = 0, pts = 0;
+  evts.forEach(ev => {
+    if (ev.slot == null) return;
+    if (ev.action === 'Goal') goals++;
+    else if (ev.action === 'Point') pts++;
+    else if (ev.action === '2 Point') pts += 2;
+  });
+
+  // ── Cards
+  const ycarded = [], bcarded = [], rcarded = [];
+  evts.forEach(ev => {
+    if (!ev.pi) return;
+    if (ev.action === 'Yellow Card' && !ycarded.includes(ev.pi)) ycarded.push(ev.pi);
+    if (ev.action === 'Black Card'  && !bcarded.includes(ev.pi)) bcarded.push(ev.pi);
+    if (ev.action === 'Red Card'    && !rcarded.includes(ev.pi)) rcarded.push(ev.pi);
+  });
+
+  // ── Opposition score
+  let og = R.ogGoals, op_ = R.ogPts;
+  if (R.oppMode === 'detailed') {
+    og = 0; op_ = 0;
+    evts.forEach(ev => {
+      if (ev.slot !== null) return;
+      if (ev.action === 'Goal') og++;
+      else if (ev.action === 'Point') op_++;
+    });
+  }
+
+  // ── Build filename base (same logic as transfer.js)
+  const sport = (R.sport || 'football').toLowerCase();
+  let sc;
+  if      (sport.startsWith('hurling'))  sc = 'H';
+  else if (sport.startsWith('camogie')) sc = 'C';
+  else if (sport.includes('ladies'))    sc = 'LF';
+  else                                  sc = 'F';
+
+  const grade = (R.ageGrade || '').trim()
+    .replace(/\bunder\b\s*/i, 'U')
+    .replace(/\s+/g, '')
+    .replace(/[^a-zA-Z0-9]/g, '');
+
+  const comp = (R.competition || '').toLowerCase();
+  let cc;
+  if      (/\bleague\b/.test(comp))                 cc = 'L';
+  else if (/\bchampionship\b/.test(comp))           cc = 'C';
+  else if (/\bcup\b/.test(comp))                    cc = 'Cu';
+  else if (/\bshield\b/.test(comp))                 cc = 'Sh';
+  else if (/\bfriendly\b|\bchallenge\b/.test(comp)) cc = 'Fr';
+  else if (/\btournament\b/.test(comp))             cc = 'T';
+  else if (/\bblitz\b/.test(comp))                  cc = 'B';
+  else                                              cc = '';
+
+  const dateStr = (R.matchDate || '').slice(0,10) || new Date().toISOString().slice(0,10);
+  const oppSafe = (R.oppN || 'match').replace(/[^a-z0-9]/gi,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+  const prefix  = grade + sc + cc;
+  const filename = (prefix ? prefix + '_' : '') + dateStr + '_' + oppSafe + '.json';
+
+  // ── Assemble state object
+  const out = {
+    usN: R.usN, oppN: R.oppN,
+    matchDate: R.matchDate, location: R.location,
+    referee: R.referee, competition: R.competition,
+    ageGrade: R.ageGrade, sport: R.sport,
+    teamSize: R.teamSize,
+    goals, pts, og, op_,
+    htGoals: null, htPts: null, htOg: null, htOp: null,
+    ftGoals: goals, ftPts: pts, ftOg: og, ftOp: op_,
+    period: 2, secs: 0,
+    matchState: 'final',
+    tPausedAt: null, tWallStart: null,
+    pnames, slotp, startSlotp,
+    captain: captainPi, startCaptain: captainPi,
+    ubench: [], suboff: [], ycarded, bcarded, rcarded,
+    maxB: 3, evts,
+    teamAssessment: { ...R.assessment },
+    trackGameTime: false,
+    trackShotLocations: false,
+    showPlayerNumbers: true,
+    trackTurnovers: evts.some(e => e.action === 'Turnover Won' || e.action === 'Turnover Lost'),
+    trackGKPerformance: false,
+    trackOppScorers: false,
+  };
+
+  const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Exported: ' + filename);
+}
+
+function clearAll() {
+  if (!confirm('Clear all entered data and start fresh?')) return;
+  R.usN=''; R.oppN=''; R.matchDate=''; R.location=''; R.referee='';
+  R.competition=''; R.ageGrade=''; R.sport='football'; R.teamSize=15;
+  R.usGoals=0; R.usPts=0; R.ogGoals=0; R.ogPts=0;
+  R.lineup={}; R.captain=null; R.subs=[]; R.evts=[];
+  R.oppMode='simple';
+  R.assessment={ effort:0, skill:0, tactics:0, intensity:0, discipline:0, spirit:0, notes:'' };
+  R.nextEvId=1;
+  // Reset form fields
+  ['f-usN','f-oppN','f-date','f-loc','f-comp','f-ref','f-grade'].forEach(id => document.getElementById(id).value='');
+  ['sc-usG','sc-usP','sc-ogG','sc-ogP'].forEach(id => document.getElementById(id).value='0');
+  document.getElementById('score-usN-lbl').textContent = 'Our Team';
+  document.getElementById('score-oppN-lbl').textContent = 'Opposition';
+  updateScoreDisplay();
+  setSport('football', document.querySelector('#sport-pills .pill-btn'));
+  document.querySelectorAll('#sport-pills .pill-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
+  setTeamSize(15, document.getElementById('sz-15'));
+  document.getElementById('sz-13').classList.remove('active');
+  renderLineup(); renderSubs(); renderEvList(); updateEvBadge();
+  setOppMode('simple');
+  switchTab('details');
+  nextSubSlot = 16;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderLineup();
+renderAssess();
+refreshPlayerSelect();
+renderEvList();
+</script>
+</body>
+</html>
