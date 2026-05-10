@@ -354,7 +354,7 @@ function aggregateAll(parsed) {
       else if (ev.action === 'Yellow Card')  p.yc++;
       else if (ev.action === 'Black Card')   p.bc++;
       else if (ev.action === 'Red Card')     p.rc++;
-      else if (ev.action === 'Free Conceded') p.frees++;
+      else if (ev.action === 'Free') p.frees++;
       else if (ev.action === 'Turnover Won')  p.twon++;
       else if (ev.action === 'Turnover Lost') p.tlost++;
     });
@@ -511,11 +511,13 @@ function buildTeamView(matches, players, totalUsG, totalUsP, totalUsT, totalOgT)
   // Scoring breakdown card
   h += `<div class="rv-card">`;
   h += `<div class="rv-ctitle">Scoring Breakdown — All Matches</div>`;
-  const maxPts = Math.max(gPlay*3, gPlaced*3, pPlay, pPlaced, 1);
-  h += stackedBar('Goals from play',   gPlay*3,   gPlay*3+gPlaced*3,  '#2E7D32', '#81C784');
-  h += stackedBar('Goals placed',      gPlaced*3, gPlay*3+gPlaced*3,  '#2E7D32', '#81C784');
-  h += stackedBar('Points from play',  pPlay,     Math.max(pPlay,pPlaced,1), '#1565C0','#64B5F6');
-  h += stackedBar('Points placed',     pPlaced,   Math.max(pPlay,pPlaced,1), '#1565C0','#64B5F6');
+  // Bar widths use point value (goals × 3) so goals and points are visually comparable;
+  // display labels show the actual count (goals) or value (points).
+  const maxBarPts = Math.max(gPlay*3, gPlaced*3, pPlay, pPlaced, 1);
+  h += stackedBar('Goals from play',  gPlay,   gPlay*3,   maxBarPts, '#2E7D32');
+  h += stackedBar('Goals placed',     gPlaced, gPlaced*3, maxBarPts, '#2E7D32');
+  h += stackedBar('Points from play', pPlay,   pPlay,     maxBarPts, '#1565C0');
+  h += stackedBar('Points placed',    pPlaced, pPlaced,   maxBarPts, '#1565C0');
   h += `<div class="rv-legend" style="margin-top:14px;">`;
   h += `<div class="rv-li"><div class="rv-ld" style="background:#2E7D32;"></div>Goals (play / placed: ${gPlay} / ${gPlaced})</div>`;
   h += `<div class="rv-li"><div class="rv-ld" style="background:#1565C0;"></div>Points (play / placed: ${pPlay} / ${pPlaced})</div>`;
@@ -606,11 +608,12 @@ function statCard(title, val, sub) {
   return `<div class="rv-card"><div class="rv-ctitle">${esc(title)}</div><div class="rv-bignum">${val}</div><div class="rv-bigsub">${esc(sub)}</div></div>`;
 }
 
-function stackedBar(label, val, total, colFill, colFaint) {
-  const pct = total > 0 ? Math.round(val/total*100) : 0;
+// displayVal = label shown; barVal/barTotal drive bar width (can differ, e.g. goals shown as count but bar scaled by point value)
+function stackedBar(label, displayVal, barVal, barTotal, colFill) {
+  const pct = barTotal > 0 ? Math.round(barVal/barTotal*100) : 0;
   return `<div style="margin-bottom:10px;">
     <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--t2);margin-bottom:3px;">
-      <span>${esc(label)}</span><span style="font-weight:600;color:var(--t1);">${val}</span>
+      <span>${esc(label)}</span><span style="font-weight:600;color:var(--t1);">${displayVal}</span>
     </div>
     <div class="rv-bar"><div class="rv-bar-fill" style="width:${pct}%;background:${colFill};"></div></div>
   </div>`;
