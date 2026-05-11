@@ -61,9 +61,9 @@ const ACTION_GROUPS = [
   {label:'Personnel', items:['Substitution']},
 ];
 const ACTION_META = {
-  'Goal':        {cls:'score-btn-goal', icon:'<i class="fas fa-flag fa-beat-fade"></i>'},
-  'Point':       {cls:'score-btn-point',icon:'<i class="far fa-flag fa-beat-fade"></i>'},
-  '2 Point':     {cls:'score-btn-2p',   icon:'<i class="fas fa-flag fa-beat-fade"></i>'},
+  'Goal':        {cls:'score-btn-goal', icon:'<i class="fas fa-flag"></i>'},
+  'Point':       {cls:'score-btn-point',icon:'<i class="far fa-flag"></i>'},
+  '2 Point':     {cls:'score-btn-2p',   icon:'<i class="fas fa-flag"></i>'},
   'Wide':        {cls:'action-btn-wide',icon:'<i class="fa-solid fa-child-reaching"></i>'},
   'Short':       {cls:'action-btn-wide',icon:'<i class="fas fa-arrow-down"></i>'},
   'Saved':       {cls:'action-btn-wide',icon:'<i class="fas fa-hand"></i>'},

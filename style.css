@@ -199,6 +199,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 .timer-card{background:var(--bg1);border-radius:var(--rl);border:1.5px solid var(--bm);padding:14px 14px 12px;margin-bottom:10px;display:flex;flex-direction:column;gap:10px;flex-shrink:0;}
 .timer-meta{display:flex;align-items:center;gap:8px;}
+.sport-pill{font-size:11px;font-weight:600;letter-spacing:.06em;padding:3px 10px;border-radius:999px;background:#E8F0FE;color:#1A56DB;text-transform:capitalize;margin-left:auto;}
 .period-badge{font-size:11px;font-weight:600;letter-spacing:.06em;padding:3px 10px;border-radius:999px;background:#DFF3E3;color:#2E7D32;text-transform:uppercase;}
 .period-badge.halftime{background:#F3E8C8;color:#8A6A00;}
 .period-badge.fulltime{background:#F8D7D7;color:#991B1B;}
@@ -395,6 +396,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ps-btn-big .ps-btn-icon{font-size:26px;}
 .ps-btn-big .ps-btn-lbl{font-size:15px;font-weight:600;color:var(--t1);}
 .ps-btn-big .ps-btn-sub{font-size:11px;color:var(--t3);}
+.ps-score-grid-big--gk .ps-btn-big{padding:10px 6px;gap:3px;}
+.ps-score-grid-big--gk .ps-btn-big .ps-btn-icon{font-size:18px;}
+.ps-score-grid-big--gk .ps-btn-big .ps-btn-lbl{font-size:12px;}
+.ps-score-grid-big--gk .ps-btn-big .ps-btn-sub{font-size:10px;}
 .ps-btn-sm{padding:13px 6px;gap:5px;}
 .ps-btn-sm .ps-btn-icon{font-size:20px;color:var(--t2);}
 .ps-btn-sm .ps-btn-lbl{font-size:12px;font-weight:500;color:var(--t1);}
@@ -408,6 +413,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ps-poss-btn{display:flex;flex:1;align-items:center;gap:8px;padding:13px 10px;border-radius:12px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;border:none;text-align:left;}
 .ps-poss-btn:active{opacity:.8;}
 .ps-poss-won{background:#2E7D32;color:#fff;}
+.ps-poss-goal{background:#D6ECD8;color:#2E7D32;border:.5px solid rgba(46,125,50,0.2);}
+.ps-poss-goal .ps-poss-icon{background:rgba(46,125,50,0.12);color:#2E7D32;}
+.ps-poss-2p{background:#FFF1D6;color:#D97706;border:.5px solid rgba(217,119,6,0.35);}
+.ps-poss-2p .ps-poss-icon{background:rgba(217,119,6,0.12);color:#D97706;}
+.ps-poss-point{background:#fff;color:var(--t1);border:.5px solid #C8CAC4;}
+.ps-poss-point .ps-poss-icon{background:var(--bg2);color:var(--t2);}
 .ps-poss-orange{background:#FFF1D6;color:#D97706;border:.5px solid rgba(217,119,6,0.35);}
 .ps-poss-neutral{background:var(--bg1);color:var(--t1);border:.5px solid var(--bm);}
 .ps-poss-lost{background:#FFEBEE;color:#C62828;border:.5px solid rgba(198,40,40,0.18)!important;}

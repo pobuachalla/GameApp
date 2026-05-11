@@ -126,6 +126,9 @@ function renderTimerUI() {
   const inFirst   = s==='RUNNING_FIRST_HALF' || s==='PAUSED_FIRST_HALF';
   const inSecond  = s==='RUNNING_SECOND_HALF'|| s==='PAUSED_SECOND_HALF';
 
+  // Sport pill
+  el['sport-pill'].textContent = state.sport || 'football';
+
   // Period badge
   const pb = el['period-badge'];
   pb.classList.remove('halftime','fulltime');

@@ -57,7 +57,7 @@ function openPlayerSheet(s) {
     // SCORE
     `<div class="ps-sec">` +
       `<div class="ps-sec-hdr"><span class="ps-lbl">SCORE</span></div>` +
-      `<div class="ps-score-grid-big" style="grid-template-columns:${bigCols};">` +
+      `<div class="ps-score-grid-big${s === 1 ? ' ps-score-grid-big--gk' : ''}" style="grid-template-columns:${bigCols};">` +
         `<button class="ps-btn ps-btn-big ps-btn-goal" onclick="psAction('Goal')"><span class="ps-btn-icon"><i class="fas fa-flag"></i></span><span class="ps-btn-lbl">Goal</span><span class="ps-btn-sub">3 points</span></button>` +
         twoPBtn +
         `<button class="ps-btn ps-btn-big ps-btn-point" onclick="psAction('Point')"><span class="ps-btn-icon"><i class="far fa-flag"></i></span><span class="ps-btn-lbl">Point</span><span class="ps-btn-sub">1 point</span></button>` +
