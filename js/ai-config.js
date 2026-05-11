@@ -36,7 +36,7 @@ const AI_CONFIG = {
     const m = s.match(/u(\d+)/) || s.match(/under(\d+)/);
     const age    = m ? parseInt(m[1]) : null;
     const minor  = s.includes('minor');
-    const adult  = s.includes('junior') || s.includes('senior') || s.includes('adult');
+    const adult  = s.includes('junior') || s.includes('intermediate') || s.includes('senior') || s.includes('adult');
 
     if (age !== null && age <= 14) {
       return `AGE GRADE CONTEXT (${ag}):

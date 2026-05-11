@@ -4,7 +4,7 @@
 function _ageCategory(val) {
   if (['U8', 'U10', 'U12'].includes(val))          return ['Go Games',  'go-games'];
   if (['U14', 'U16', 'Minor'].includes(val))        return ['Juvenile',  'juvenile'];
-  if (['U20', 'Junior', 'Senior'].includes(val))    return ['Adult',     'adult'];
+  if (['U20', 'Junior', 'Intermediate', 'Senior'].includes(val))    return ['Adult',     'adult'];
   return null;
 }
 
