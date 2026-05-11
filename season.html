@@ -191,6 +191,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .gv-scorer-name { color: var(--t1); font-weight: 500; }
 .gv-scorer-tally { color: var(--green); font-weight: 700; font-size: 13px; }
 .gv-no-scorers { font-size: 13px; color: var(--t3); }
+.gv-assess { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px; }
+.gv-assess-title { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); margin-bottom: 10px; }
+.gv-assess-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px 12px; }
+.gv-assess-dim { display: flex; flex-direction: column; gap: 4px; }
+.gv-assess-label { font-size: 11px; color: var(--t2); font-weight: 500; }
+.gv-assess-dots { display: flex; gap: 3px; }
+.gv-assess-dot { width: 10px; height: 10px; border-radius: 2px; }
+.gv-assess-notes { margin-top: 10px; font-size: 12px; color: var(--t2); line-height: 1.5; font-style: italic; }
 
 /* ── Player detail panel ──────────────────────────────────────────────────── */
 #pd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:flex-start;justify-content:flex-end;}
@@ -932,6 +940,42 @@ function buildGameView(matches) {
       });
     }
     h += `</div>`; // gv-scorers
+
+    // Assessment
+    const ta = st.teamAssessment;
+    const ASSESS_DIMS = [
+      { key:'effort',     label:'Effort' },
+      { key:'skill',      label:'Skill' },
+      { key:'tactics',    label:'Tactics' },
+      { key:'intensity',  label:'Intensity' },
+      { key:'discipline', label:'Discipline' },
+      { key:'spirit',     label:'Spirit' },
+    ];
+    const ASSESS_COLS = ['#C8E6C9','#81C784','#4CAF50','#388E3C','#1B5E20'];
+    const hasAssess = ta && ASSESS_DIMS.some(d => (ta[d.key] || 0) > 0);
+    if (hasAssess || (ta && ta.notes)) {
+      h += `<div class="gv-assess">`;
+      h += `<div class="gv-assess-title">Assessment</div>`;
+      if (hasAssess) {
+        h += `<div class="gv-assess-grid">`;
+        ASSESS_DIMS.forEach(d => {
+          const val = (ta && ta[d.key]) || 0;
+          h += `<div class="gv-assess-dim">`;
+          h += `<span class="gv-assess-label">${esc(d.label)}</span>`;
+          h += `<div class="gv-assess-dots">`;
+          for (let i = 1; i <= 5; i++) {
+            const bg = i <= val ? ASSESS_COLS[i - 1] : 'var(--border)';
+            h += `<div class="gv-assess-dot" style="background:${bg};"></div>`;
+          }
+          h += `</div></div>`;
+        });
+        h += `</div>`;
+      }
+      if (ta && ta.notes) {
+        h += `<div class="gv-assess-notes">${esc(ta.notes)}</div>`;
+      }
+      h += `</div>`; // gv-assess
+    }
 
     h += `</div>`; // gv-card
   });
