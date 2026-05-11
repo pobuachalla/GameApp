@@ -120,7 +120,7 @@ function buildPrintLineupHTML() {
       const numCol = isGK ? '#2E7D32' : '#ffffff';
       formation += '<div style="display:flex;flex-direction:column;align-items:center;width:48px;">';
       formation += '<div style="position:relative;width:34px;height:34px;">';
-      formation += shirt(slot, bg, numCol, 34);
+      formation += shirt(pi, bg, numCol, 34);
       if (isCap) formation += '<span style="position:absolute;top:-3px;right:-3px;background:#fff;border:1px solid #E2E4DE;border-radius:50%;width:12px;height:12px;font-size:7px;font-weight:700;color:#2E7D32;display:flex;align-items:center;justify-content:center;line-height:1;">C</span>';
       formation += '</div>';
       formation += html`<div style="font-size:7.5px;font-weight:600;color:#1F1F1F;text-align:center;margin-top:2px;line-height:1.25;word-break:break-word;">${name||'—'}</div>`;
@@ -130,11 +130,18 @@ function buildPrintLineupHTML() {
   });
   formation += '</div>';
 
+  // Exclude any bench player who started (pre-game sub)
+  const startingPis = new Set(Object.values(snapSlotp).map(Number));
   const subs = [];
   for (let i = 16; i <= (state.maxB || 16); i++) {
     const n = gn(i);
-    if (n) subs.push({idx:i, name:n});
+    if (n && !startingPis.has(i)) subs.push({idx:i, name:n});
   }
+  // Include pre-game replaced players (still part of the squad)
+  Object.values(state.preGameSubs || {}).forEach(pi => {
+    const n = gn(pi);
+    if (n) subs.push({idx:pi, name:n});
+  });
   if (subs.length > 0) {
     formation += '<div style="padding-top:8px;border-top:1px solid #E2E4DE;">';
     formation += prTitle('Subs');
@@ -148,25 +155,50 @@ function buildPrintLineupHTML() {
     formation += '</div></div>';
   }
 
-  const notesContent = state.matchNotes && state.matchNotes.trim()
-    ? html`<div style="font-size:11px;color:#1F1F1F;line-height:1.6;white-space:pre-wrap;">${state.matchNotes.trim()}</div>`
-    : '';
-  const ruledLines = Array.from({length:18}, () =>
-    '<div style="border-bottom:1px solid #E2E4DE;height:22px;"></div>'
-  ).join('');
-  const notesCol =
-    '<div style="display:flex;flex-direction:column;flex:1;min-height:340px;">' +
-      prTitle('Match Notes') +
-      (notesContent || ruledLines) +
+  // Right column: personnel events (subs + cards), ruled fallback if none yet
+  const CARD_COLS = {'Yellow Card': CARD_YELLOW, 'Black Card': CARD_BLACK, 'Red Card': CARD_RED};
+  const personnelEvts = state.evts.filter(ev => ev.action === 'sub' || ev.action in CARD_COLS);
+  let personnelRows = '';
+  if (!personnelEvts.length) {
+    personnelRows = Array.from({length:14}, () =>
+      '<div style="border-bottom:1px solid #E2E4DE;height:22px;"></div>'
+    ).join('');
+  } else {
+    personnelEvts.forEach(ev => {
+      const cardColor = CARD_COLS[ev.action];
+      personnelRows += '<div style="display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px solid #E2E4DE;">';
+      personnelRows += `<span style="font-size:9px;color:#9A9E99;min-width:30px;padding-top:1px;">${ev.time}</span>`;
+      if (ev.action === 'sub') {
+        personnelRows += '<span style="color:#F59E0B;font-size:11px;line-height:1.3;flex-shrink:0;">&#x21C4;</span>';
+      } else {
+        personnelRows += `<span style="display:inline-block;width:8px;height:11px;background:${cardColor};border-radius:1px;flex-shrink:0;margin-top:2px;"></span>`;
+      }
+      personnelRows += html`<span style="font-size:10px;color:#1F1F1F;flex:1;line-height:1.4;">${ev.desc}</span>`;
+      personnelRows += '</div>';
+    });
+  }
+  const personnelCol =
+    '<div style="flex:1;min-width:0;">' +
+      prTitle('Personnel') +
+      personnelRows +
     '</div>';
 
-  let h = '<div style="display:flex;gap:24px;align-items:flex-start;margin-bottom:28px;">';
+  // Notes — full width below, only rendered when content exists
+  const notesSection = state.matchNotes && state.matchNotes.trim()
+    ? '<div style="margin-bottom:28px;">' +
+        prTitle('Match Notes') +
+        html`<div style="font-size:11px;color:#1F1F1F;line-height:1.6;white-space:pre-wrap;">${state.matchNotes.trim()}</div>` +
+      '</div>'
+    : '';
+
+  let h = '<div style="display:flex;gap:24px;align-items:flex-start;margin-bottom:' + (notesSection ? '16' : '28') + 'px;">';
   h += '<div style="flex:1;min-width:0;">';
   h += prTitle(html`Starting Line-up — ${state.usN}`);
   h += formation;
   h += '</div>';
-  h += notesCol;
+  h += personnelCol;
   h += '</div>';
+  h += notesSection;
   return h;
 }
 

@@ -2,9 +2,10 @@
 
 // ─── PLAYER ACTIONS ───────────────────────────────────────────────────────────
 function sel(s) {
-  const isHT     = state.matchState === 'HALF_TIME';
-  const isPaused = state.matchState === 'PAUSED_FIRST_HALF' || state.matchState === 'PAUSED_SECOND_HALF';
-  if ((!tRun && !isHT && !isPaused) || state.rcarded[state.slotp[s]]) return;
+  const isHT       = state.matchState === 'HALF_TIME';
+  const isPaused   = state.matchState === 'PAUSED_FIRST_HALF' || state.matchState === 'PAUSED_SECOND_HALF';
+  const isPreMatch = state.matchState === 'PRE_MATCH';
+  if ((!tRun && !isHT && !isPaused && !isPreMatch) || state.rcarded[state.slotp[s]]) return;
   selSlot = s;
   if (isHT) { subOff = selSlot; pickSubOn(); return; }
   openPlayerSheet(s);
@@ -20,7 +21,7 @@ function buildPlyrHdr(slot, onClose) {
   const pos      = SLOT_POS[slot] || ('Position ' + slot);
   // eslint-disable-next-line no-restricted-syntax -- safe: name/ini/pos escaped; scoreVal numeric; onClose is a trusted static string
   return (
-    `<div class="ply-avatar">${esc(ini)}<span class="ply-avatar-num">${slot}</span></div>` +
+    `<div class="ply-avatar">${esc(ini)}<span class="ply-avatar-num">${pi}</span></div>` +
     `<div class="ply-info"><div class="ply-name">${esc(name)}</div><div class="ply-pos">${esc(pos)}</div></div>` +
     `<div class="ply-score"><div class="ply-score-val">${esc(scoreVal)}</div><div class="ply-score-lbl">today</div></div>` +
     `<button class="ply-close" onclick="${onClose}"><i class="fas fa-xmark"></i></button>`
@@ -32,6 +33,22 @@ function openPlayerSheet(s) {
   selSlot = s;
 
   document.getElementById('ply-hdr').innerHTML = buildPlyrHdr(s, 'closePlayerSheetAndReset()');
+
+  // Pre-match: only allow pre-game substitutions
+  if (state.matchState === 'PRE_MATCH') {
+    // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
+    document.getElementById('ply-body').innerHTML =
+      `<div class="ps-sec">` +
+        `<div class="ps-sec-hdr"><span class="ps-lbl">PERSONNEL</span></div>` +
+        `<button class="ps-pers-btn" onclick="psAction('Pre-game Sub')">` +
+          `<span class="ps-pers-icon"><i class="fas fa-people-arrows"></i></span>` +
+          `Pre-match sub<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i>` +
+        `</button>` +
+      `</div>`;
+    document.getElementById('plyovly').classList.add('open');
+    el.plysheet.classList.add('open');
+    return;
+  }
 
   // Body
   const isFball = state.sport === 'football';
@@ -208,7 +225,7 @@ function psAction(a) {
     }, 'grid');
     return;
   }
-  if (a === 'Substitution') {
+  if (a === 'Substitution' || a === 'Pre-game Sub') {
     subOff = selSlot;
     closePlayerSheet();
     pickSubOn();
@@ -452,7 +469,17 @@ function pickSubOn() {
     if(state.rcarded[pidx])continue;
     avail.push({val:String(pidx),label:gn(pidx),num:pidx,sub:'Previously subbed off'});
   }
-  showSubDrawer('Who comes on?', avail, v => execSub(parseInt(v)));
+  for (const [slotStr, pi] of Object.entries(state.preGameSubs || {})) {
+    if(used[pi])continue;
+    if(state.rcarded[pi])continue;
+    if(isGK!==(parseInt(slotStr)===1))continue;
+    avail.push({val:String(pi),label:gn(pi),num:pi,sub:'Pre-match replaced'});
+  }
+  const isPreGame = state.matchState === 'PRE_MATCH';
+  showSubDrawer('Who comes on?', avail, v => {
+    if (isPreGame) execPreGameSub(parseInt(v));
+    else execSub(parseInt(v));
+  });
 }
 
 function execSub(bi) {
@@ -474,4 +501,23 @@ function execSub(bi) {
   const cb = postSubCb;
   closeSubDrawer();
   if (cb) cb();
+}
+
+// ─── PRE-GAME SUBSTITUTION ────────────────────────────────────────────────────
+// Updates the slot assignment so the incoming player fills the position while
+// keeping their own jersey number. No match event is logged.
+function execPreGameSub(bi) {
+  const sl  = subOff;
+  const out = state.slotp[sl];
+  state.slotp[sl] = bi;
+  if (!state.preGameSubs) state.preGameSubs = {};
+  state.preGameSubs[sl] = out;
+  refBtn(sl);
+  const cs = sl, co = out;
+  pushUndo('Pre-match sub (pos ' + sl + '): ' + pl(bi) + ' in for ' + pl(co), () => {
+    state.slotp[cs] = co;
+    delete state.preGameSubs[cs];
+    refBtn(cs);
+  });
+  closeSubDrawer();
 }

@@ -67,7 +67,7 @@ function renderLayout() {
       h += '<div class="layout-shirt-wrap">';
       if (isCap) h += '<span class="layout-cap-badge">C</span>';
       h += `<i class="fa-solid fa-shirt layout-shirt-icon" style="color:${slot===1?CARD_YELLOW:'#2E7D32'};"></i>`;
-      h += '<span class="layout-shirt-num" style="color:'+(slot===1?'#2E7D32':'#fff')+';">'+slot+'</span>';
+      h += '<span class="layout-shirt-num" style="color:'+(slot===1?'#2E7D32':'#fff')+';">'+pi+'</span>';
       h += '</div>';
       h += '<div class="layout-player-name">'+esc(name || '—')+'</div>';
       h += '</div>';
@@ -77,12 +77,18 @@ function renderLayout() {
 
   h += '</div>';
 
-  // Subs
+  // Subs — exclude any bench player who started (pre-game sub)
+  const startingPis = new Set(Object.values(state.slotp).map(Number));
   const subs = [];
   for (let i = 16; i <= (state.maxB || 16); i++) {
     const n = gn(i);
-    if (n) subs.push({idx: i, name: n});
+    if (n && !startingPis.has(i)) subs.push({idx: i, name: n});
   }
+  // Include pre-game replaced players (still part of the squad)
+  Object.values(state.preGameSubs || {}).forEach(pi => {
+    const n = gn(pi);
+    if (n) subs.push({idx: pi, name: n});
+  });
   if (subs.length > 0) {
     h += '<div class="layout-subs-wrap">';
     h += '<div class="layout-subs-title">Subs</div>';

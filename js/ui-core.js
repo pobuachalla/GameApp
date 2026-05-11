@@ -68,8 +68,9 @@ function upTot() {
 
 // ─── GRID OPACITY ─────────────────────────────────────────────────────────────
 function setGrid(on) {
-  el.pgrid.style.opacity       = on ? '1' : '.3';
-  el.pgrid.style.pointerEvents = on ? 'auto' : 'none';
+  const active = on || state.matchState === 'PRE_MATCH';
+  el.pgrid.style.opacity       = active ? '1' : '.3';
+  el.pgrid.style.pointerEvents = active ? 'auto' : 'none';
 }
 
 // ─── INITIALS CACHE ───────────────────────────────────────────────────────────

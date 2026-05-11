@@ -248,7 +248,7 @@ function _buildLineupGraphicHTML() {
       formation += '<div class="layout-shirt-wrap">';
       if (isCap) formation += '<span class="layout-cap-badge">C</span>';
       formation += `<i class="fa-solid fa-shirt layout-shirt-icon" style="color:${isGK ? CARD_YELLOW : '#2E7D32'};"></i>`;
-      formation += `<span class="layout-shirt-num" style="color:${isGK ? '#2E7D32' : '#fff'};">${slot}</span>`;
+      formation += `<span class="layout-shirt-num" style="color:${isGK ? '#2E7D32' : '#fff'};">${pi}</span>`;
       formation += '</div>';
       formation += `<div class="layout-player-name">${esc(name || '—')}</div>`;
       formation += '</div>';
@@ -259,8 +259,12 @@ function _buildLineupGraphicHTML() {
 
   // Subs — same structure as renderLayout()
   let subsHtml = '';
+  // Exclude any bench player who started (pre-game sub)
+  const startingPis = new Set(Object.values(slotp).map(Number));
   const subs = [];
-  for (let i = 16; i <= (state.maxB || 16); i++) { const n = gn(i); if (n) subs.push({idx: i, name: n}); }
+  for (let i = 16; i <= (state.maxB || 16); i++) { const n = gn(i); if (n && !startingPis.has(i)) subs.push({idx: i, name: n}); }
+  // Include pre-game replaced players (still part of the squad)
+  Object.values(state.preGameSubs || {}).forEach(pi => { const n = gn(pi); if (n) subs.push({idx: pi, name: n}); });
   if (subs.length) {
     subsHtml += '<div class="layout-subs-wrap">';
     subsHtml += '<div class="layout-subs-title">Subs</div>';

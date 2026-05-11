@@ -104,7 +104,7 @@ function doReset() {
   const sz = state.teamSize || 15;
   (TEAM_SLOTS[sz]||TEAM_SLOTS[15]).forEach(s=>{state.slotp[s]=s;});
   renderPGrid();
-  state.ubench={}; state.suboff={}; state.maxB=17;
+  state.ubench={}; state.suboff={}; state.preGameSubs={}; state.maxB=17;
   const rb = document.getElementById('resetbtn');
   if (rb) {
     rb.id='undobtn'; rb.classList.add('danger');

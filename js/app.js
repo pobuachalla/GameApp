@@ -86,6 +86,7 @@ function init() {
     upTot();
     syncMeta();
   }
+  setGrid(false); // applies PRE_MATCH interactive state
 }
 
 init();
