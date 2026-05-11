@@ -10,7 +10,8 @@
       "Bash(python3 -m pytest tests/selenium/test_06_settings.py tests/selenium/test_09_persistence.py -q)",
       "Bash(python3 -m pytest -v --tb=no)",
       "Bash(python3 -m pytest tests/selenium/ --tb=short -q)",
-      "Bash(python3 -m pytest tests/selenium/test_05_events.py::test_select_toggle_activates_select_mode --tb=long -q)"
+      "Bash(python3 -m pytest tests/selenium/test_05_events.py::test_select_toggle_activates_select_mode --tb=long -q)",
+      "Bash(grep -n \"h += \\\\`</tbody></table></div></div>\\\\`\" /Users/padraig.obuachalla/Desktop/GameApp/GameApp/season.html)"
     ]
   }
 }

@@ -12,6 +12,7 @@
   --green: #2E7D32; --green-d: #1B5E20; --green-l: #E8F5E9;
   --red: #C62828;   --red-l: #FFEBEE;
   --amber: #D97706; --amber-l: #FFF8E1;
+  --yellow: #FDD835; --yellow-d: #A16207; --yellow-l: #FFFDE7;
   --blue: #1565C0;  --blue-l: #E3F2FD;
   --purple: #6A1B9A; --purple-l: #F3E5F5;
   --bg: #EEF0EA; --card: #FFFFFF;
@@ -81,10 +82,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .rv-g2  { display: grid; grid-template-columns: 1fr 1fr;         gap: 16px; margin-bottom: 16px; }
 .rv-g3  { display: grid; grid-template-columns: repeat(3,1fr);   gap: 16px; margin-bottom: 16px; }
 .rv-g4  { display: grid; grid-template-columns: repeat(4,1fr);   gap: 16px; margin-bottom: 16px; }
+.rv-g5  { display: grid; grid-template-columns: repeat(5,1fr);   gap: 16px; margin-bottom: 16px; }
 .rv-g13 { display: grid; grid-template-columns: 1fr 3fr;         gap: 16px; margin-bottom: 16px; }
 .rv-full { margin-bottom: 16px; }
-@media (max-width: 1100px) { .rv-g4 { grid-template-columns: repeat(2,1fr); } .rv-g3 { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 700px)  { .rv-g4,.rv-g3,.rv-g2,.rv-g13 { grid-template-columns: 1fr; } }
+@media (max-width: 1100px) { .rv-g5 { grid-template-columns: repeat(3,1fr); } .rv-g4 { grid-template-columns: repeat(2,1fr); } .rv-g3 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 700px)  { .rv-g5,.rv-g4,.rv-g3,.rv-g2,.rv-g13 { grid-template-columns: 1fr; } }
 
 /* ── Cards ───────────────────────────────────────────────────────────────── */
 .rv-card { background: var(--card); border-radius: var(--r); padding: 24px; box-shadow: var(--shadow); }
@@ -149,6 +151,100 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 /* ── Footer ──────────────────────────────────────────────────────────────── */
 .sn-foot { text-align: center; padding: 28px 0 8px; font-size: 12px; color: var(--t3); }
+.sn-disclaimer { background: var(--card); border: 1px solid var(--amber); border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: var(--t2); line-height: 1.5; }
+.sn-disclaimer i { color: var(--amber); margin-right: 6px; }
+
+/* ── Placed ball breakdown collapsible ── */
+.pb-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; cursor: pointer; font-family: inherit; color: var(--t1); font-size: 13px; font-weight: 700; padding: 0; }
+.pb-toggle i { font-size: 11px; transition: transform .2s; color: var(--t3); }
+.pb-toggle.open i { transform: rotate(180deg); }
+.pb-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding-top: 14px; }
+.pb-col { background: var(--bg); border-radius: 8px; padding: 10px 12px; }
+.pb-col-title { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--t3); margin-bottom: 8px; }
+.pb-stat { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; color: var(--t2); border-bottom: 1px solid var(--border); }
+.pb-stat:last-of-type { border-bottom: none; }
+.pb-stat b { color: var(--t1); font-weight: 600; }
+.pb-conv { margin-top: 8px; font-size: 12px; font-weight: 700; color: var(--green); }
+@media (max-width: 700px) { .pb-grid { grid-template-columns: repeat(2,1fr); } }
+
+/* ── Game view ── */
+.gv-list { display: flex; flex-direction: column; gap: 14px; }
+.gv-card { background: var(--card); border-radius: var(--r); padding: 20px 22px; box-shadow: var(--shadow); }
+.gv-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.gv-date { font-size: 12px; color: var(--t3); font-weight: 500; }
+.gv-score-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.gv-score-us { font-size: 26px; font-weight: 800; color: var(--t1); letter-spacing: -0.5px; line-height: 1; }
+.gv-score-us small { font-size: 14px; font-weight: 500; color: var(--t3); margin-left: 4px; }
+.gv-score-sep { font-size: 13px; color: var(--t3); font-weight: 600; flex: 1; text-align: center; }
+.gv-score-opp { text-align: right; }
+.gv-opp-name { font-size: 15px; font-weight: 700; color: var(--t1); }
+.gv-opp-score { font-size: 13px; color: var(--t3); margin-top: 2px; }
+.gv-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.gv-chip { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--bg); color: var(--t2); }
+.gv-chip.green { background: var(--green-l); color: var(--green-d,var(--green)); }
+.gv-chip.amber { background: var(--amber-l); color: var(--amber); }
+.gv-chip.red   { background: var(--red-l);   color: var(--red); }
+.gv-chip.yellow { background: var(--yellow-l,#FFFDE7); color: var(--yellow-d,#A16207); }
+.gv-scorers { border-top: 1px solid var(--border); padding-top: 12px; }
+.gv-scorers-title { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); margin-bottom: 8px; }
+.gv-scorer-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 4px 0; }
+.gv-scorer-name { color: var(--t1); font-weight: 500; }
+.gv-scorer-tally { color: var(--green); font-weight: 700; font-size: 13px; }
+.gv-no-scorers { font-size: 13px; color: var(--t3); }
+
+/* ── Player detail panel ──────────────────────────────────────────────────── */
+#pd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:flex-start;justify-content:flex-end;}
+#pd-overlay.open{display:flex;}
+#pd-panel{background:var(--bg);width:min(700px,100vw);height:100vh;overflow-y:auto;box-shadow:-6px 0 32px rgba(0,0,0,.18);display:flex;flex-direction:column;}
+.pd-hdr{background:linear-gradient(140deg,#1a5c1e 0%,#2E7D32 55%,#3a9140 100%);color:white;padding:20px 24px;flex-shrink:0;}
+.pd-back{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:none;color:white;border-radius:8px;padding:7px 13px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:14px;}
+.pd-back:hover{background:rgba(255,255,255,.25);}
+.pd-name{font-size:24px;font-weight:800;letter-spacing:-.3px;}
+.pd-meta{font-size:13px;opacity:.75;margin-top:4px;}
+.pd-pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.pd-pill{background:rgba(255,255,255,.15);border-radius:999px;padding:5px 14px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px;}
+.pd-pill span{font-size:11px;opacity:.7;font-weight:400;}
+.pd-body{padding:20px;display:flex;flex-direction:column;gap:14px;flex:1;}
+.pd-card{background:var(--card);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);}
+.pd-ctitle{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);margin-bottom:14px;}
+.pd-g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.pd-g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.pd-stat{display:flex;flex-direction:column;gap:2px;}
+.pd-stat-val{font-size:26px;font-weight:800;color:var(--green);line-height:1;letter-spacing:-1px;}
+.pd-stat-val.red{color:var(--red);}
+.pd-stat-val.amber{color:var(--amber);}
+.pd-stat-val.dim{color:var(--t3);}
+.pd-stat-lbl{font-size:11px;color:var(--t3);font-weight:500;}
+.pd-stat-sub{font-size:11px;color:var(--t3);margin-top:2px;}
+.pd-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.pd-row:last-child{border-bottom:none;}
+.pd-rl{color:var(--t2);}
+.pd-rv{font-weight:600;}
+.pd-rv.green{color:var(--green);}
+.pd-rv.red{color:var(--red);}
+.pd-rv.amber{color:var(--amber);}
+.pd-match-tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.pd-match-tbl th{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);padding:0 8px 10px 0;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap;}
+.pd-match-tbl th:first-child,.pd-match-tbl th:nth-child(2){text-align:left;}
+.pd-match-tbl td{padding:8px 8px 8px 0;border-bottom:1px solid var(--border);text-align:right;vertical-align:middle;white-space:nowrap;}
+.pd-match-tbl tr:last-child td{border-bottom:none;}
+.pd-match-tbl td:first-child{text-align:left;color:var(--t3);}
+.pd-match-tbl td:nth-child(2){text-align:left;font-weight:500;color:var(--t1);}
+.sn-pt tbody tr{cursor:pointer;}
+.sn-pt tbody tr:hover td{background:var(--green-l);}
+
+/* ── Column picker ───────────────────────────────────────────────────────── */
+.col-picker-wrap{position:relative;}
+.col-picker-btn{padding:5px 12px;border:1.5px solid var(--border);border-radius:999px;font-size:12px;font-weight:600;cursor:pointer;background:white;font-family:inherit;color:var(--t2);display:flex;align-items:center;gap:5px;transition:all .1s;}
+.col-picker-btn:hover,.col-picker-btn.open{background:var(--green);border-color:var(--green);color:white;}
+.col-picker{position:absolute;top:calc(100% + 6px);right:0;background:white;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.14),0 0 0 1px rgba(0,0,0,.06);padding:14px 16px;z-index:200;min-width:200px;display:none;}
+.col-picker.open{display:block;}
+.col-picker-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+.col-picker-reset{font-size:11px;font-weight:600;color:var(--green);cursor:pointer;text-transform:none;letter-spacing:0;}
+.col-picker-grid{display:flex;flex-direction:column;gap:6px;}
+.col-chk{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 0;}
+.col-chk input{accent-color:var(--green);width:14px;height:14px;cursor:pointer;flex-shrink:0;}
+.col-chk span{font-size:13px;color:var(--t1);}
 </style>
 </head>
 <body>
@@ -189,14 +285,38 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <!-- ── Dashboard ──────────────────────────────────────────────────────── -->
 <div id="dashboard"></div>
 
+<!-- ── Player detail panel ──────────────────────────────────────────────── -->
+<div id="pd-overlay" onclick="closePlayerDetail()">
+  <div id="pd-panel" onclick="event.stopPropagation()">
+    <div id="pd-content"></div>
+  </div>
+</div>
+
 <script>
 'use strict';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const PLACED_BALL = new Set(['From Free','From Penalty','From 65','From 45','From Sideline']);
 
+// ── Column definitions (player table) ────────────────────────────────────────
+const COL_DEFS = [
+  { key:'secsPlayed', label:'Play Time' },
+  { key:'gPlay',      label:'Goals (Play)' },
+  { key:'gPlaced',    label:'Goals (Placed)' },
+  { key:'pPlay',      label:'Points (Play)' },
+  { key:'pPlaced',    label:'Points (Placed)' },
+  { key:'totalScore', label:'Total Score' },
+  { key:'wides',      label:'Wides' },
+  { key:'frees',      label:'Frees' },
+  { key:'twon',       label:'TO Won' },
+  { key:'tlost',      label:'TO Lost' },
+  { key:'cards',      label:'Cards' },
+];
+const DEFAULT_COLS = Object.fromEntries(COL_DEFS.map(c => [c.key, true]));
+
 // ── App state ────────────────────────────────────────────────────────────────
-let S = { files: [], parsed: [], sortKey: 'totalScore', sortDesc: true, view: 'team' };
+let S = { files: [], parsed: [], sortKey: 'totalScore', sortDesc: true, view: 'team',
+          cols: { ...DEFAULT_COLS }, colPickerOpen: false, pbOpen: false };
 
 // ── Utils ────────────────────────────────────────────────────────────────────
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -292,7 +412,7 @@ function backToLanding() {
 function aggregateAll(parsed) {
   const matches = [];
   const players = {}; // norm(name) → player object
-  let totalGtTracked = 0;
+  let totalGtTracked = 0, totalTurnTracked = 0, totalFreesTracked = 0, totalWidesTracked = 0;
 
   parsed.forEach(({ name, data: st }) => {
     const evts = st.evts || [];
@@ -302,39 +422,52 @@ function aggregateAll(parsed) {
     matches.push({ name, date: st.matchDate||'', opp: st.oppN||'Opposition', usG, usP, usT, ogG, ogP, ogT, result, st });
 
     if (st.trackGameTime !== false) totalGtTracked++;
+    if (st.trackTurnovers === true) totalTurnTracked++;
+    // Frees and wides have no explicit flag — infer from event presence
+    if (evts.some(ev => ev.action === 'Free'))  totalFreesTracked++;
+    if (evts.some(ev => ev.action === 'Wide'))  totalWidesTracked++;
 
     // build pi→name map for this file
     const piName = {};
     Object.entries(st.pnames||{}).forEach(([pi,n]) => { if ((n||'').trim()) piName[+pi] = n.trim(); });
 
-    // play time computation (mirrors stats.js computePlayTimes)
-    const teamSz = st.teamSize||15;
-    const ptCur = {}, ptStart = {}, ptMap = {};
+    // Play time — exact port of stats.js computePlayTimes():
+    // • events are processed in original log order (not sorted by raw time)
+    // • 1H badge events capture first-half duration; 2H badge sets offset mode
+    // • incoming sub player is read from description regex, not ev.pi (which is
+    //   undefined on sub events)
+    const teamSz = st.teamSize || 15;
+    const curSlotPi = {}, ptStart = {}, ptMap = {};
     for (let sl = 1; sl <= teamSz; sl++) {
       const pi = (st.startSlotp||{})[sl];
-      if (pi && piName[pi]) { ptCur[sl] = pi; ptStart[pi] = 0; }
+      if (pi && piName[pi]) { curSlotPi[sl] = pi; ptStart[pi] = 0; }
     }
-    const sortedEvts = [...evts].sort((a,b) => {
-      const ta = toSecs(a.time), tb = toSecs(b.time);
-      return ta !== tb ? ta - tb : (a._idx||0) - (b._idx||0);
-    });
-    sortedEvts.forEach((ev, idx) => {
-      const t = toSecs(ev.time);
+    let halfSecs = 0, inH2 = false, lastSecs = 0;
+    evts.forEach(ev => {
+      let t = toSecs(ev.time);
+      if (ev.badge === '1H') { halfSecs = t; return; }
+      if (ev.badge === '2H') { inH2 = true; return; }
+      if (inH2) t += halfSecs;
+      lastSecs = Math.max(lastSecs, t);
       if (ev.action === 'sub' && ev.slot != null) {
-        const offPi = ptCur[ev.slot];
-        if (offPi) { ptMap[offPi] = (ptMap[offPi]||0) + Math.max(0, t - (ptStart[offPi]||0)); delete ptCur[ev.slot]; }
-        const onPi = ev.pi != null ? ev.pi : (st.slotp||{})[ev.slot];
-        if (onPi && piName[onPi]) { ptCur[ev.slot] = onPi; ptStart[onPi] = t; }
+        const offPi = curSlotPi[ev.slot];
+        const onM   = (ev.desc||'').match(/\(#(\d+)\) on/);
+        const onPi  = onM ? +onM[1] : null;
+        if (offPi != null && ptStart[offPi] != null) {
+          ptMap[offPi] = (ptMap[offPi]||0) + Math.max(0, t - ptStart[offPi]);
+          delete ptStart[offPi];
+        }
+        if (onPi != null && piName[onPi]) { ptStart[onPi] = t; curSlotPi[ev.slot] = onPi; }
       }
     });
-    // close stints at match end
-    const lastT = sortedEvts.length ? toSecs(sortedEvts[sortedEvts.length-1].time) : 0;
-    Object.entries(ptCur).forEach(([sl, pi]) => {
-      ptMap[pi] = (ptMap[pi]||0) + Math.max(0, lastT - (ptStart[pi]||0));
+    const totalSecs = Math.max(lastSecs, halfSecs || 1);
+    Object.entries(ptStart).forEach(([pi, start]) => {
+      ptMap[+pi] = (ptMap[+pi]||0) + Math.max(0, totalSecs - start);
     });
 
-    // accumulate per-player stats
+    // accumulate per-player stats (aggregate totals + per-match record)
     const startPis = new Set(Object.values(st.startSlotp||{}).map(Number));
+    const matchStats = {}; // key → blankMatchStat for this match
 
     evts.forEach(ev => {
       if (!ev.action || ev.slot == null) return;
@@ -345,21 +478,35 @@ function aggregateAll(parsed) {
       const key = norm(rawName);
       if (!players[key]) players[key] = blankPlayer(rawName);
       const p = players[key];
-      p.name = rawName; // always update to latest seen
+      p.name = rawName;
+      if (!matchStats[key]) matchStats[key] = blankMatchStat(st.matchDate||'', st.oppN||'Opposition', result);
+      const ms = matchStats[key];
       const placed = PLACED_BALL.has(ev.sec||'');
-      if (ev.action === 'Goal')          { placed ? p.gPlaced++ : p.gPlay++; }
-      else if (ev.action === 'Point')    { placed ? p.pPlaced++ : p.pPlay++; }
-      else if (ev.action === '2 Point')  { placed ? p.pPlaced+=2 : p.pPlay+=2; }
-      else if (ev.action === 'Wide')     { placed ? p.widesPlaced++ : p.widesPlay++; }
-      else if (ev.action === 'Yellow Card')  p.yc++;
-      else if (ev.action === 'Black Card')   p.bc++;
-      else if (ev.action === 'Red Card')     p.rc++;
-      else if (ev.action === 'Free') p.frees++;
-      else if (ev.action === 'Turnover Won')  p.twon++;
-      else if (ev.action === 'Turnover Lost') p.tlost++;
+      // Per-type placed ball bucket for this player
+      let pbBucket = null;
+      if      (ev.sec === 'From Free')                          pbBucket = p.pbFree;
+      else if (ev.sec === 'From 65' || ev.sec === 'From 45')   pbBucket = p.pb6545;
+      else if (ev.sec === 'From Penalty')                       pbBucket = p.pbPen;
+      else if (ev.sec === 'From Sideline')                      pbBucket = p.pbSide;
+      if (ev.action === 'Goal')          { placed ? (p.gPlaced++, ms.gPlaced++) : (p.gPlay++, ms.gPlay++); }
+      else if (ev.action === 'Point')    { placed ? (p.pPlaced++, ms.pPlaced++) : (p.pPlay++, ms.pPlay++); }
+      else if (ev.action === '2 Point')  { placed ? (p.pPlaced+=2, ms.pPlaced+=2) : (p.pPlay+=2, ms.pPlay+=2); }
+      else if (ev.action === 'Wide')     { placed ? (p.widesPlaced++, ms.widesPlaced++) : (p.widesPlay++, ms.widesPlay++); }
+      if (pbBucket) {
+        if      (ev.action === 'Goal')                   pbBucket.g++;
+        else if (ev.action === 'Point')                  pbBucket.p++;
+        else if (ev.action === '2 Point')                pbBucket.p += 2;
+        else if (ev.action === 'Wide')                   pbBucket.w++;
+      }
+      else if (ev.action === 'Yellow Card')  { p.yc++; ms.yc++; }
+      else if (ev.action === 'Black Card')   { p.bc++; ms.bc++; }
+      else if (ev.action === 'Red Card')     { p.rc++; ms.rc++; }
+      else if (ev.action === 'Free')         { p.frees++; ms.frees++; }
+      else if (ev.action === 'Turnover Won') { p.twon++; ms.twon++; }
+      else if (ev.action === 'Turnover Lost'){ p.tlost++; ms.tlost++; }
     });
 
-    // games played / play time
+    // games played / play time — also finalise per-match records
     const allPisInMatch = new Set();
     evts.forEach(ev => {
       const pi = ev.pi != null ? ev.pi : (st.slotp||{})[ev.slot||0];
@@ -378,6 +525,12 @@ function aggregateAll(parsed) {
         p.secsPlayed += ptMap[pi];
         p.secsGames++;
       }
+      // Finalise this match's record for the player
+      if (!matchStats[key]) matchStats[key] = blankMatchStat(st.matchDate||'', st.oppN||'Opposition', result);
+      const ms = matchStats[key];
+      ms.started = startPis.has(pi);
+      if (st.trackGameTime !== false && ptMap[pi] != null) ms.secsPlayed = ptMap[pi];
+      p.matchLog.push(ms);
     });
   });
 
@@ -387,14 +540,27 @@ function aggregateAll(parsed) {
     p.wides = p.widesPlay + p.widesPlaced;
   });
 
-  return { matches, players: Object.values(players), totalGtTracked };
+  const n = parsed.length;
+  const coverage = { n, totalGtTracked, totalTurnTracked, totalFreesTracked, totalWidesTracked };
+  return { matches, players: Object.values(players), totalGtTracked, coverage };
 }
 
+function blankPbType() { return { g:0, p:0, w:0 }; }
 function blankPlayer(name) {
   return { name, games:0, gamesStarted:0, gamesSub:0, secsPlayed:0, secsGames:0,
            gPlay:0, gPlaced:0, pPlay:0, pPlaced:0,
            widesPlay:0, widesPlaced:0, frees:0, twon:0, tlost:0,
-           yc:0, bc:0, rc:0, totalScore:0, wides:0 };
+           yc:0, bc:0, rc:0, totalScore:0, wides:0,
+           pbFree: blankPbType(), pb6545: blankPbType(),
+           pbPen:  blankPbType(), pbSide: blankPbType(),
+           matchLog:[] };
+}
+
+function blankMatchStat(date, opp, result) {
+  return { date, opp, result,
+           gPlay:0, gPlaced:0, pPlay:0, pPlaced:0,
+           widesPlay:0, widesPlaced:0, frees:0, twon:0, tlost:0,
+           yc:0, bc:0, rc:0, secsPlayed:0, started:false };
 }
 
 function toSecs(t) {
@@ -415,7 +581,7 @@ function buildDashboard() {
 }
 
 function renderDashboard() {
-  const { matches, players, totalGtTracked } = S.agg;
+  const { matches, players, totalGtTracked, coverage } = S.agg;
   const ref = S.parsed[0].data;
   const teamName  = ref.usN || 'Team';
   const sport     = ref.sport || 'football';
@@ -457,11 +623,31 @@ function renderDashboard() {
   // ── Tabs
   h += `<div class="sn-tabs">`;
   h += `<button class="sn-tab ${S.view==='team'?'active':''}" onclick="switchView('team')"><i class="fas fa-chart-column"></i> Team</button>`;
+  h += `<button class="sn-tab ${S.view==='game'?'active':''}" onclick="switchView('game')"><i class="fas fa-calendar-days"></i> Games</button>`;
   h += `<button class="sn-tab ${S.view==='player'?'active':''}" onclick="switchView('player')"><i class="fas fa-user-group"></i> Players</button>`;
   h += `</div>`;
 
+  // ── Data completeness disclaimer
+  const { n, totalTurnTracked, totalFreesTracked, totalWidesTracked } = coverage;
+  const gaps = [];
+  if (totalGtTracked > 0 && totalGtTracked < n)
+    gaps.push(`play time (${totalGtTracked}/${n} matches)`);
+  if (totalTurnTracked > 0 && totalTurnTracked < n)
+    gaps.push(`turnover data (${totalTurnTracked}/${n} matches)`);
+  else if (totalTurnTracked === 0)
+    gaps.push(`turnover data (not captured in any match)`);
+  if (totalFreesTracked > 0 && totalFreesTracked < n)
+    gaps.push(`frees conceded (${totalFreesTracked}/${n} matches)`);
+  if (totalWidesTracked > 0 && totalWidesTracked < n)
+    gaps.push(`wides (${totalWidesTracked}/${n} matches)`);
+  if (gaps.length) {
+    h += `<div class="sn-disclaimer"><i class="fas fa-triangle-exclamation"></i> Incomplete data: ${gaps.join('; ')}. Season totals may not reflect full season activity.</div>`;
+  }
+
   if (S.view === 'team') {
     h += buildTeamView(matches, players, totalUsG, totalUsP, totalUsT, totalOgT);
+  } else if (S.view === 'game') {
+    h += buildGameView(matches);
   } else {
     h += buildPlayerView(players, matches.length, totalGtTracked);
   }
@@ -486,6 +672,7 @@ function buildTeamView(matches, players, totalUsG, totalUsP, totalUsT, totalOgT)
     frees+=p.frees; twon+=p.twon; tlost+=p.tlost;
     yc+=p.yc; bc+=p.bc; rc+=p.rc;
   });
+
   const totalG = gPlay+gPlaced, totalP = pPlay+pPlaced;
   const totalWides = wPlay+wPlaced;
   const scores = totalG+totalP, atts = scores+totalWides;
@@ -495,13 +682,29 @@ function buildTeamView(matches, players, totalUsG, totalUsP, totalUsT, totalOgT)
   const turnTotal = twon+tlost;
   const twonPct = turnTotal>0?Math.round(twon/turnTotal*100):0;
 
+  // Restart counts
+  let rOwnW = 0, rOwnL = 0, rOppW = 0, rOppL = 0;
+  matches.forEach(({ st }) => {
+    (st.evts || []).forEach(ev => {
+      if (ev.badge !== 'RSTR') return;
+      const d = ev.desc || '';
+      if      (d.startsWith("Own Restart: Won"))           rOwnW++;
+      else if (d.startsWith("Own Restart: Lost"))          rOwnL++;
+      else if (d.startsWith("Opposition's Restart: Won"))  rOppW++;
+      else if (d.startsWith("Opposition's Restart: Lost")) rOppL++;
+    });
+  });
+  const rWon = rOwnW + rOppW, rLost = rOwnL + rOppL, rTotal = rWon + rLost;
+  const rWonPct = rTotal > 0 ? Math.round(rWon / rTotal * 100) : null;
+
   let h = '';
 
-  // ── Row 1: avg for/against, conv%, turnover ratio
-  h += `<div class="rv-g4">`;
+  // ── Row 1: avg for/against, conv%, turnover ratio, restarts, frees
+  h += `<div class="rv-g5">`;
   h += statCard('Avg Score Per Game', avgFor+'pts', 'for / '+avgAgainst+'pts against');
   h += statCard('Conversion Rate', convPct+'%', scores+' scores from '+atts+' attempts');
   h += statCard('Turnover Ratio', twon+':'+tlost, twonPct+'% won ('+turnTotal+' total)');
+  h += statCard('Restart Win %', rWonPct !== null ? rWonPct+'%' : '—', rTotal > 0 ? rWon+' won · '+rLost+' lost' : 'No restart data');
   h += statCard('Frees Conceded', frees+'', (n ? (frees/n).toFixed(1) : '—')+' per game avg');
   h += `</div>`;
 
@@ -555,8 +758,8 @@ function buildTeamView(matches, players, totalUsG, totalUsP, totalUsT, totalOgT)
 
   h += `</div>`; // end rv-g2
 
-  // ── Row 3: turnovers + discipline + placed ball efficiency
-  h += `<div class="rv-g3">`;
+  // ── Row 3: turnovers + restarts + placed ball efficiency + discipline
+  h += `<div class="rv-g4">`;
 
   // Turnovers
   h += `<div class="rv-card"><div class="rv-ctitle">Turnovers</div>`;
@@ -571,6 +774,24 @@ function buildTeamView(matches, players, totalUsG, totalUsP, totalUsT, totalOgT)
     h += `<div class="rv-row"><span class="rv-rl">Win ratio</span><span class="rv-rv">${twonPct}%</span></div>`;
   } else {
     h += `<div style="font-size:14px;color:var(--t3);padding:12px 0;">No turnover data recorded</div>`;
+  }
+  h += `</div>`;
+
+  // Restarts
+  h += `<div class="rv-card"><div class="rv-ctitle">Restarts</div>`;
+  if (rTotal > 0) {
+    h += `<div class="rv-split" style="margin-bottom:8px;">`;
+    h += `<div class="rv-split-g" style="width:${rWonPct}%;"></div>`;
+    h += `<div style="flex:1;background:var(--red);"></div>`;
+    h += `</div>`;
+    h += `<div class="rv-split-lbls"><span style="color:var(--green);">${rWon} won</span><span style="color:var(--red);">${rLost} lost</span></div>`;
+    h += `<div class="rv-row" style="margin-top:12px;"><span class="rv-rl">Own kickout won</span><span class="rv-rv">${rOwnW}</span></div>`;
+    h += `<div class="rv-row"><span class="rv-rl">Own kickout lost</span><span class="rv-rv">${rOwnL}</span></div>`;
+    h += `<div class="rv-row"><span class="rv-rl">Opp kickout won</span><span class="rv-rv">${rOppW}</span></div>`;
+    h += `<div class="rv-row"><span class="rv-rl">Opp kickout lost</span><span class="rv-rv">${rOppL}</span></div>`;
+    h += `<div class="rv-row"><span class="rv-rl">Win ratio</span><span class="rv-rv">${rWonPct}%</span></div>`;
+  } else {
+    h += `<div style="font-size:14px;color:var(--t3);padding:12px 0;">No restart data recorded</div>`;
   }
   h += `</div>`;
 
@@ -593,13 +814,13 @@ function buildTeamView(matches, players, totalUsG, totalUsP, totalUsT, totalOgT)
   const cards = yc+bc+rc;
   h += `<div class="rv-bignum">${cards}</div>`;
   h += `<div class="rv-bigsub">total cards across ${n} match${n!==1?'es':''}</div>`;
-  h += `<div class="rv-row" style="margin-top:14px;"><span class="rv-rl">Yellow</span><span class="rv-rv" style="color:var(--amber);">${yc}</span></div>`;
+  h += `<div class="rv-row" style="margin-top:14px;"><span class="rv-rl">Yellow</span><span class="rv-rv" style="color:var(--yellow-d);">${yc}</span></div>`;
   h += `<div class="rv-row"><span class="rv-rl">Black</span><span class="rv-rv">${bc}</span></div>`;
   h += `<div class="rv-row"><span class="rv-rl">Red</span><span class="rv-rv" style="color:var(--red);">${rc}</span></div>`;
   h += `<div class="rv-row"><span class="rv-rl">Frees conceded</span><span class="rv-rv">${frees}</span></div>`;
   h += `</div>`;
 
-  h += `</div>`; // end rv-g3
+  h += `</div>`; // end rv-g4
 
   return h;
 }
@@ -617,6 +838,106 @@ function stackedBar(label, displayVal, barVal, barTotal, colFill) {
     </div>
     <div class="rv-bar"><div class="rv-bar-fill" style="width:${pct}%;background:${colFill};"></div></div>
   </div>`;
+}
+
+// ── Game view ─────────────────────────────────────────────────────────────────
+function buildGameView(matches) {
+  const sorted = [...matches].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+  let h = `<div class="rv-full rv-card">`;
+  h += `<div class="rv-ctitle">Games — ${sorted.length} match${sorted.length !== 1 ? 'es' : ''}</div>`;
+  h += `<div class="gv-list">`;
+
+  sorted.forEach(m => {
+    const st  = m.st;
+    const evts = st.evts || [];
+    const piName = {};
+    Object.entries(st.pnames || {}).forEach(([pi, n]) => { if ((n || '').trim()) piName[+pi] = n.trim(); });
+
+    // Per-match stats from events
+    const scorers = {};
+    let wides = 0, frees = 0, twon = 0, tlost = 0, yc = 0, bc = 0, rc = 0;
+    evts.forEach(ev => {
+      if (!ev.action) return;
+      const pi = ev.pi != null ? ev.pi : (st.slotp || {})[ev.slot];
+      const name = pi ? piName[pi] : null;
+      if (ev.action === 'Goal' || ev.action === 'Point' || ev.action === '2 Point') {
+        if (name) {
+          const k = norm(name);
+          if (!scorers[k]) scorers[k] = { name, g: 0, p: 0 };
+          if (ev.action === 'Goal') scorers[k].g++;
+          else if (ev.action === '2 Point') scorers[k].p += 2;
+          else scorers[k].p++;
+        }
+      } else if (ev.action === 'Wide')          wides++;
+      else if (ev.action === 'Free')            frees++;
+      else if (ev.action === 'Turnover Won')    twon++;
+      else if (ev.action === 'Turnover Lost')   tlost++;
+      else if (ev.action === 'Yellow Card')     yc++;
+      else if (ev.action === 'Black Card')      bc++;
+      else if (ev.action === 'Red Card')        rc++;
+    });
+
+    const scorerList = Object.values(scorers)
+      .map(s => ({ ...s, total: s.g * 3 + s.p }))
+      .sort((a, b) => b.total - a.total);
+
+    const hasTurnovers = st.trackTurnovers === true;
+    const margin = m.usT - m.ogT;
+
+    h += `<div class="gv-card">`;
+
+    // Top row: date + result
+    h += `<div class="gv-top">`;
+    h += `<span class="gv-date">${esc(m.date || '—')}</span>`;
+    h += `<span class="res-pill res-${m.result}">${m.result}${margin !== 0 ? ' · ' + (margin > 0 ? '+' : '') + margin : ''}</span>`;
+    h += `</div>`;
+
+    // Score row
+    h += `<div class="gv-score-row">`;
+    h += `<div class="gv-score-us">${m.usG}-${m.usP} <small>(${m.usT})</small></div>`;
+    h += `<div class="gv-score-sep">vs</div>`;
+    h += `<div class="gv-score-opp">`;
+    h += `<div class="gv-opp-name">${esc(m.opp)}</div>`;
+    h += `<div class="gv-opp-score">${m.ogG}-${m.ogP} (${m.ogT})</div>`;
+    h += `</div>`;
+    h += `</div>`;
+
+    // Stat chips
+    h += `<div class="gv-chips">`;
+    if (wides > 0)  h += `<span class="gv-chip amber"><i class="fas fa-arrow-right-long"></i> ${wides} wide${wides !== 1 ? 's' : ''}</span>`;
+    if (frees > 0)  h += `<span class="gv-chip red"><i class="fas fa-whistle"></i> ${frees} free${frees !== 1 ? 's' : ''} conceded</span>`;
+    if (hasTurnovers) {
+      if (twon > 0)  h += `<span class="gv-chip green"><i class="fas fa-rotate-right"></i> ${twon} TO won</span>`;
+      if (tlost > 0) h += `<span class="gv-chip red"><i class="fas fa-rotate-left"></i> ${tlost} TO lost</span>`;
+    }
+    if (yc > 0) h += `<span class="gv-chip yellow">${yc} yellow${yc !== 1 ? 's' : ''}</span>`;
+    if (bc > 0) h += `<span class="gv-chip" style="background:#E0E3DC;color:#333;">${bc} black${bc !== 1 ? 's' : ''}</span>`;
+    if (rc > 0) h += `<span class="gv-chip red">${rc} red${rc !== 1 ? 's' : ''}</span>`;
+    h += `</div>`;
+
+    // Scorers
+    h += `<div class="gv-scorers">`;
+    h += `<div class="gv-scorers-title">Scorers</div>`;
+    if (scorerList.length === 0) {
+      h += `<div class="gv-no-scorers">No scorer data recorded</div>`;
+    } else {
+      scorerList.forEach(s => {
+        const tally = s.g > 0 ? `${s.g}-${s.p}` : `0-${s.p}`;
+        const pts   = s.g > 0 ? ` (${s.total})` : '';
+        h += `<div class="gv-scorer-row">`;
+        h += `<span class="gv-scorer-name">${esc(s.name)}</span>`;
+        h += `<span class="gv-scorer-tally">${tally}${pts}</span>`;
+        h += `</div>`;
+      });
+    }
+    h += `</div>`; // gv-scorers
+
+    h += `</div>`; // gv-card
+  });
+
+  h += `</div></div>`;
+  return h;
 }
 
 // ── Player view ───────────────────────────────────────────────────────────────
@@ -639,70 +960,131 @@ function buildPlayerView(players, totalGames, totalGtTracked) {
     const d = b[S.sortKey] - a[S.sortKey];
     return d !== 0 ? d : a.name.localeCompare(b.name);
   });
-  const maxScore = sorted[0]?.totalScore || 1;
-  const maxSecs  = Math.max(...sorted.map(p => p.secsPlayed), 1);
-  const showPT   = totalGtTracked > 0;
+  const maxScore    = Math.max(...players.map(p => p.totalScore),    0) || 1;
+  const maxSecs     = Math.max(...players.map(p => p.secsPlayed),    1);
+  const showPT   = totalGtTracked > 0 && S.cols.secsPlayed;
+  const c = S.cols; // shorthand
+
+  // How many visible cols (for colspan or empty-state later)
+  const hiddenCount = COL_DEFS.filter(d => !c[d.key]).length;
 
   let h = `<div class="rv-full rv-card">`;
   h += `<div class="rv-ctitle">All Players — ${players.length} tracked across ${totalGames} match${totalGames!==1?'es':''}</div>`;
 
-  // Sort bar
-  h += `<div class="sn-sort-bar"><span class="sn-sort-lbl">Sort by</span>`;
+  // Sort bar + column picker
+  h += `<div class="sn-sort-bar" style="justify-content:space-between;flex-wrap:wrap;">`;
+  h += `<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;"><span class="sn-sort-lbl">Sort by</span>`;
   SORT_OPTS.forEach(o => {
-    if (o.key === 'secsPlayed' && !showPT) return;
+    if (o.key === 'secsPlayed' && !totalGtTracked) return;
     const active = S.sortKey === o.key ? ' active' : '';
     h += `<button class="sn-sort-btn${active}" onclick="setSort('${o.key}')">${esc(o.label)}</button>`;
   });
   h += `</div>`;
 
+  // Column picker button + dropdown (rendered as static HTML; open state tracked in S)
+  const pickerOpen = S.colPickerOpen;
+  const offCount   = COL_DEFS.filter(d => !c[d.key]).length;
+  h += `<div class="col-picker-wrap">`;
+  h += `<button class="col-picker-btn${pickerOpen?' open':''}" onclick="toggleColPicker()">`;
+  h += `<i class="fas fa-table-columns"></i> Columns`;
+  if (offCount) h += ` <span style="background:var(--green);color:white;border-radius:999px;font-size:10px;padding:1px 6px;margin-left:2px;">${COL_DEFS.length - offCount}/${COL_DEFS.length}</span>`;
+  h += `</button>`;
+  h += `<div class="col-picker${pickerOpen?' open':''}">`;
+  h += `<div class="col-picker-title">Visible columns <span class="col-picker-reset" onclick="resetCols()">Reset all</span></div>`;
+  h += `<div class="col-picker-grid">`;
+  COL_DEFS.forEach(def => {
+    if (def.key === 'secsPlayed' && !totalGtTracked) return;
+    const chk = c[def.key] ? 'checked' : '';
+    h += `<label class="col-chk"><input type="checkbox" ${chk} onchange="toggleCol('${def.key}')"><span>${esc(def.label)}</span></label>`;
+  });
+  h += `</div></div></div>`;
+  h += `</div>`; // sn-sort-bar
+
+  const PB_TYPES = [
+    { key: 'pbFree',  label: 'Free' },
+    { key: 'pb6545',  label: '65 / 45' },
+    { key: 'pbPen',   label: 'Penalty' },
+    { key: 'pbSide',  label: 'Sideline' },
+  ];
+  const pbHasData = sorted.some(p => PB_TYPES.some(t => p[t.key].g + p[t.key].p + p[t.key].w > 0));
+
   // Table
   h += `<div class="sn-pt-wrap"><table class="sn-pt"><thead><tr>`;
-  h += thSort('name',       'Player',          false);
-  h += thSort('games',      'G',               true);
-  if (showPT) h += thSort('secsPlayed', 'Play Time', true);
-  h += thSort('gPlay',      'G Play',          true);
-  h += thSort('gPlaced',    'G Placed',        true);
-  h += thSort('pPlay',      'Pt Play',         true);
-  h += thSort('pPlaced',    'Pt Placed',       true);
-  h += thSort('totalScore', 'Total Score',     true);
-  h += thSort('wides',      'Wides',           true);
-  h += thSort('frees',      'Frees',           true);
-  h += thSort('twon',       'TO Won',          true);
-  h += thSort('tlost',      'TO Lost',         true);
-  h += `<th class="r">Cards</th>`;
+  h += thSort('name',  'Player', false);
+  if (showPT)        h += thSort('secsPlayed', 'Play Time',    true);
+  if (c.gPlay)       h += thSort('gPlay',      'G Play',       true);
+  if (c.gPlaced)     h += thSort('gPlaced',    'G Placed',     true);
+  if (c.pPlay)       h += thSort('pPlay',      'Pt Play',      true);
+  if (c.pPlaced)     h += thSort('pPlaced',    'Pt Placed',    true);
+  if (c.totalScore)  h += thSort('totalScore', 'Total Score',  true);
+  if (c.wides)       h += thSort('wides',      'Wides',        true);
+  if (c.frees)       h += thSort('frees',      'Frees',        true);
+  if (c.twon)        h += thSort('twon',       'TO Won',       true);
+  if (c.tlost)       h += thSort('tlost',      'TO Lost',      true);
+  if (c.cards)       h += `<th class="r">Cards</th>`;
   h += `</tr></thead><tbody>`;
 
   sorted.forEach(p => {
     const scorePct = Math.round(p.totalScore/maxScore*100);
     const timePct  = Math.round(p.secsPlayed/maxSecs*100);
-    const cards = (p.yc?`<span style="display:inline-block;width:8px;height:12px;border-radius:1px;background:var(--amber);margin:0 1px;vertical-align:middle;"></span>`.repeat(p.yc):'')
+    const cards = (p.yc?`<span style="display:inline-block;width:8px;height:12px;border-radius:1px;background:var(--yellow);border:1px solid var(--yellow-d);margin:0 1px;vertical-align:middle;"></span>`.repeat(p.yc):'')
                 + (p.bc?`<span style="display:inline-block;width:8px;height:12px;border-radius:1px;background:#222;margin:0 1px;vertical-align:middle;"></span>`.repeat(p.bc):'')
                 + (p.rc?`<span style="display:inline-block;width:8px;height:12px;border-radius:1px;background:var(--red);margin:0 1px;vertical-align:middle;"></span>`.repeat(p.rc):'');
-
-    h += `<tr>`;
+    const pKey = norm(p.name);
+    h += `<tr onclick="openPlayerDetail('${esc(pKey)}')" title="View ${esc(p.name)}'s scorecard">`;
     h += `<td>${esc(p.name)}<span class="sub-badge">${p.gamesStarted}S ${p.gamesSub}Sub</span>
       <div class="pt-bar"><div class="pt-bar-fill" style="width:${scorePct}%;background:var(--green);"></div></div></td>`;
-    h += `<td>${p.games}</td>`;
     if (showPT) {
       const gt = p.secsGames > 0 ? fmtT(p.secsPlayed) : '—';
-      h += `<td class="${p.secsGames>0?'green':'dim'}">${gt}
-        ${p.secsGames>0?`<div class="pt-bar"><div class="pt-bar-fill" style="width:${timePct}%;"></div></div>`:''}
-      </td>`;
+      h += `<td class="${p.secsGames>0?'green':'dim'}">${gt}${p.secsGames>0?`<div class="pt-bar"><div class="pt-bar-fill" style="width:${timePct}%;"></div></div>`:''}</td>`;
     }
-    h += `<td class="${p.gPlay>0?'green':'dim'}">${p.gPlay||'—'}</td>`;
-    h += `<td class="${p.gPlaced>0?'green':'dim'}">${p.gPlaced||'—'}</td>`;
-    h += `<td class="${p.pPlay>0?'green':'dim'}">${p.pPlay||'—'}</td>`;
-    h += `<td class="${p.pPlaced>0?'green':'dim'}">${p.pPlaced||'—'}</td>`;
-    h += `<td class="${p.totalScore>0?'green':'dim'}" style="font-size:15px;">${p.totalScore||'—'}</td>`;
-    h += `<td class="${p.wides>0?'amber':'dim'}">${p.wides||'—'}</td>`;
-    h += `<td class="${p.frees>0?'red':'dim'}">${p.frees||'—'}</td>`;
-    h += `<td class="${p.twon>0?'green':'dim'}">${p.twon||'—'}</td>`;
-    h += `<td class="${p.tlost>0?'red':'dim'}">${p.tlost||'—'}</td>`;
-    h += `<td class="r" style="min-width:40px;">${cards||'<span style="color:var(--t3);">—</span>'}</td>`;
+    if (c.gPlay)      h += `<td class="${p.gPlay>0?'green':'dim'}">${p.gPlay||'—'}</td>`;
+    if (c.gPlaced)    h += `<td class="${p.gPlaced>0?'green':'dim'}">${p.gPlaced||'—'}</td>`;
+    if (c.pPlay)      h += `<td class="${p.pPlay>0?'green':'dim'}">${p.pPlay||'—'}</td>`;
+    if (c.pPlaced)    h += `<td class="${p.pPlaced>0?'green':'dim'}">${p.pPlaced||'—'}</td>`;
+    if (c.totalScore) h += `<td class="${p.totalScore>0?'green':'dim'}" style="font-size:15px;">${p.totalScore||'—'}</td>`;
+    if (c.wides)      h += `<td class="${p.wides>0?'amber':'dim'}">${p.wides||'—'}</td>`;
+    if (c.frees)      h += `<td class="${p.frees>0?'red':'dim'}">${p.frees||'—'}</td>`;
+    if (c.twon)       h += `<td class="${p.twon>0?'green':'dim'}">${p.twon||'—'}</td>`;
+    if (c.tlost)      h += `<td class="${p.tlost>0?'red':'dim'}">${p.tlost||'—'}</td>`;
+    if (c.cards)      h += `<td class="r" style="min-width:40px;">${cards||'<span style="color:var(--t3);">—</span>'}</td>`;
     h += `</tr>`;
   });
 
   h += `</tbody></table></div></div>`;
+
+  // ── Placed ball breakdown (collapsible card below table) ──────────────────
+  if (pbHasData) {
+    const open = S.pbOpen;
+    h += `<div class="rv-card" style="margin-top:14px;">`;
+    h += `<button class="pb-toggle${open ? ' open' : ''}" onclick="togglePb()">`;
+    h += `<span>Placed Ball Breakdown</span><i class="fas fa-chevron-down"></i>`;
+    h += `</button>`;
+    if (open) {
+      h += `<div class="pb-grid">`;
+      PB_TYPES.forEach(t => {
+        const b_all = sorted.reduce((acc, p) => {
+          acc.g += p[t.key].g; acc.p += p[t.key].p; acc.w += p[t.key].w; return acc;
+        }, { g:0, p:0, w:0 });
+        // per-player rows
+        h += `<div class="pb-col"><div class="pb-col-title">${esc(t.label)}</div>`;
+        sorted.forEach(p => {
+          const b = p[t.key];
+          if (b.g + b.p + b.w === 0) return;
+          h += `<div class="pb-stat"><span>${esc(p.name)}</span><b>${b.g}-${b.p}${b.w>0?' ('+b.w+'w)':''}</b></div>`;
+        });
+        if (b_all.g + b_all.p + b_all.w > 0) {
+          const atts = b_all.g + b_all.p + b_all.w;
+          const conv = Math.round((b_all.g + b_all.p) / atts * 100);
+          h += `<div class="pb-conv">${b_all.g}-${b_all.p} · ${conv}% conv.</div>`;
+        }
+        h += `</div>`;
+      });
+      h += `</div>`;
+    }
+    h += `</div>`;
+  }
+
   return h;
 }
 
@@ -724,6 +1106,27 @@ function setSort(key) {
   renderDashboard();
 }
 
+function togglePb() {
+  S.pbOpen = !S.pbOpen;
+  renderDashboard();
+}
+
+function toggleColPicker() {
+  S.colPickerOpen = !S.colPickerOpen;
+  renderDashboard();
+}
+
+function toggleCol(key) {
+  S.cols[key] = !S.cols[key];
+  renderDashboard();
+}
+
+function resetCols() {
+  S.cols = { ...DEFAULT_COLS };
+  S.colPickerOpen = false;
+  renderDashboard();
+}
+
 function addMoreFiles(fileList) {
   handleFiles(fileList);
   // re-parse and rebuild immediately
@@ -740,6 +1143,172 @@ function addMoreFiles(fileList) {
     S.agg = aggregateAll(S.parsed);
     renderDashboard();
   });
+}
+
+// ── Player detail panel ───────────────────────────────────────────────────────
+function openPlayerDetail(key) {
+  const p = S.agg.players.find(x => norm(x.name) === key);
+  if (!p) return;
+  document.getElementById('pd-content').innerHTML = buildPlayerDetail(p);
+  document.getElementById('pd-overlay').classList.add('open');
+  document.getElementById('pd-panel').scrollTop = 0;
+}
+
+function closePlayerDetail() {
+  document.getElementById('pd-overlay').classList.remove('open');
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePlayerDetail(); });
+
+function buildPlayerDetail(p) {
+  const totalGoals = p.gPlay + p.gPlaced;
+  const totalPts   = p.pPlay + p.pPlaced;
+  const totalWides = p.widesPlay + p.widesPlaced;
+  const totalScore = p.totalScore;
+  const scoreStr   = totalGoals + '-' + totalPts + ' (' + totalScore + 'pts)';
+  const showPT     = p.secsGames > 0;
+  const convAtts   = totalGoals + totalPts + totalWides;
+  const convPct    = convAtts > 0 ? Math.round((totalGoals + totalPts) / convAtts * 100) : null;
+  const placedScores = p.gPlaced + p.pPlaced;
+  const placedAtts   = placedScores + p.widesPlaced;
+  const placedPct    = placedAtts > 0 ? Math.round(placedScores / placedAtts * 100) : null;
+  const turnTotal    = p.twon + p.tlost;
+  const twonPct      = turnTotal > 0 ? Math.round(p.twon / turnTotal * 100) : null;
+
+  const ref = S.parsed[0].data;
+  const teamName = ref.usN || 'Team';
+
+  let h = '';
+
+  // ── Header
+  h += `<div class="pd-hdr">`;
+  h += `<button class="pd-back" onclick="closePlayerDetail()"><i class="fas fa-arrow-left"></i> Back</button>`;
+  h += `<div class="pd-name">${esc(p.name)}</div>`;
+  h += `<div class="pd-meta">${esc(teamName)}`;
+  if (ref.ageGrade)   h += ` · ${esc(ref.ageGrade)}`;
+  if (ref.competition) h += ` · ${esc(ref.competition)}`;
+  h += `</div>`;
+  h += `<div class="pd-pills">`;
+  h += `<div class="pd-pill">${p.games} <span>game${p.games !== 1 ? 's' : ''}</span></div>`;
+  h += `<div class="pd-pill">${p.gamesStarted}S ${p.gamesSub}Sub</div>`;
+  if (showPT) h += `<div class="pd-pill">${fmtT(p.secsPlayed)} <span>played</span></div>`;
+  h += `<div class="pd-pill">${esc(scoreStr)} <span>total</span></div>`;
+  h += `</div></div>`;
+
+  h += `<div class="pd-body">`;
+
+  // ── Scoring breakdown
+  h += `<div class="pd-card">`;
+  h += `<div class="pd-ctitle"><i class="fas fa-futbol"></i> Scoring</div>`;
+  h += `<div class="pd-g3">`;
+  h += pdStat(totalGoals || '—', 'Goals', totalGoals > 0 ? `${p.gPlay} play · ${p.gPlaced} placed` : null, totalGoals > 0 ? '' : 'dim');
+  h += pdStat(totalPts || '—',   'Points', totalPts > 0   ? `${p.pPlay} play · ${p.pPlaced} placed` : null, totalPts > 0 ? '' : 'dim');
+  h += pdStat(totalScore || '—', 'Total Score', totalGoals + '-' + totalPts, totalScore > 0 ? '' : 'dim');
+  h += `</div>`;
+
+  if (totalGoals > 0 || totalPts > 0) {
+    h += `<div style="height:1px;background:var(--border);margin:14px 0;"></div>`;
+    h += `<div class="pd-g2">`;
+    h += `<div><div style="font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;">From Play</div>`;
+    h += pdRow('Goals',  p.gPlay || '—',    p.gPlay  > 0 ? 'green' : '');
+    h += pdRow('Points', p.pPlay || '—',    p.pPlay  > 0 ? 'green' : '');
+    h += pdRow('Wides',  p.widesPlay || '—', p.widesPlay > 0 ? 'amber' : '');
+    h += `</div><div><div style="font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;">Placed Ball</div>`;
+    h += pdRow('Goals',  p.gPlaced || '—',    p.gPlaced  > 0 ? 'green' : '');
+    h += pdRow('Points', p.pPlaced || '—',    p.pPlaced  > 0 ? 'green' : '');
+    h += pdRow('Wides',  p.widesPlaced || '—', p.widesPlaced > 0 ? 'amber' : '');
+    h += `</div></div>`;
+  }
+
+  if (convPct !== null || placedPct !== null) {
+    h += `<div style="height:1px;background:var(--border);margin:14px 0;"></div>`;
+    h += `<div class="pd-g2">`;
+    if (convPct   !== null) h += pdStat(convPct   + '%', 'Conversion',       `${totalGoals + totalPts} scores / ${convAtts} atts`,   'green');
+    if (placedPct !== null) h += pdStat(placedPct + '%', 'Placed Ball Eff.', `${placedScores} scores / ${placedAtts} atts`,           'green');
+    h += `</div>`;
+  }
+  h += `</div>`;
+
+  // ── Turnovers & Discipline
+  const hasTurnovers  = p.twon + p.tlost > 0;
+  const hasDiscipline = p.yc + p.bc + p.rc + p.frees > 0;
+  if (hasTurnovers || hasDiscipline) {
+    h += `<div class="pd-card"><div class="pd-g2">`;
+    if (hasTurnovers) {
+      h += `<div><div class="pd-ctitle"><i class="fas fa-right-left"></i> Turnovers</div>`;
+      h += pdRow('Won',  p.twon  || '—', p.twon  > 0 ? 'green' : '');
+      h += pdRow('Lost', p.tlost || '—', p.tlost > 0 ? 'red'   : '');
+      if (twonPct !== null) h += pdRow('Win ratio', twonPct + '%', p.twon >= p.tlost ? 'green' : 'red');
+      h += `</div>`;
+    }
+    if (hasDiscipline) {
+      h += `<div><div class="pd-ctitle"><i class="fas fa-whistle"></i> Discipline</div>`;
+      if (p.frees) h += pdRow('Frees conceded', p.frees, 'red');
+      if (p.yc)   h += pdRow('Yellow cards',    p.yc,   'amber');
+      if (p.bc)   h += pdRow('Black cards',     p.bc,   '');
+      if (p.rc)   h += pdRow('Red cards',       p.rc,   'red');
+      h += `</div>`;
+    }
+    h += `</div></div>`;
+  }
+
+  // ── Per-match log
+  if (p.matchLog.length) {
+    const anyPT   = p.matchLog.some(m => m.secsPlayed > 0);
+    const anyTO   = p.matchLog.some(m => m.twon + m.tlost > 0);
+    const anyFree = p.matchLog.some(m => m.frees > 0);
+    const anyCard = p.matchLog.some(m => m.yc + m.bc + m.rc > 0);
+    h += `<div class="pd-card">`;
+    h += `<div class="pd-ctitle"><i class="fas fa-calendar-days"></i> Match by Match</div>`;
+    h += `<div style="overflow-x:auto;"><table class="pd-match-tbl"><thead><tr>`;
+    h += `<th>Date</th><th>Opponent</th><th>Res</th>`;
+    h += `<th>G Play</th><th>G Plcd</th><th>Pt Play</th><th>Pt Plcd</th><th>Score</th><th>Wides</th>`;
+    if (anyFree) h += `<th>Frees</th>`;
+    if (anyTO)   h += `<th>TO W</th><th>TO L</th>`;
+    if (anyCard) h += `<th>Cards</th>`;
+    if (anyPT)   h += `<th>Time</th>`;
+    h += `<th>Role</th></tr></thead><tbody>`;
+
+    const logSorted = [...p.matchLog].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    logSorted.forEach(m => {
+      const mG = m.gPlay + m.gPlaced, mP = m.pPlay + m.pPlaced;
+      const mScore = mG * 3 + mP;
+      const mWides = m.widesPlay + m.widesPlaced;
+      const mCards = (m.yc ? `<span style="display:inline-block;width:6px;height:10px;border-radius:1px;background:var(--yellow);border:1px solid var(--yellow-d);margin:0 1px;vertical-align:middle;"></span>`.repeat(m.yc) : '')
+                   + (m.bc ? `<span style="display:inline-block;width:6px;height:10px;border-radius:1px;background:#333;margin:0 1px;vertical-align:middle;"></span>`.repeat(m.bc) : '')
+                   + (m.rc ? `<span style="display:inline-block;width:6px;height:10px;border-radius:1px;background:var(--red);margin:0 1px;vertical-align:middle;"></span>`.repeat(m.rc) : '');
+      h += `<tr>`;
+      h += `<td>${esc(m.date || '—')}</td>`;
+      h += `<td>${esc(m.opp)}</td>`;
+      h += `<td><span class="res-pill res-${m.result}">${m.result}</span></td>`;
+      h += `<td style="color:${m.gPlay   > 0 ? 'var(--green)' : 'var(--t3)'};">${m.gPlay   || '—'}</td>`;
+      h += `<td style="color:${m.gPlaced > 0 ? 'var(--green)' : 'var(--t3)'};">${m.gPlaced || '—'}</td>`;
+      h += `<td style="color:${m.pPlay   > 0 ? 'var(--green)' : 'var(--t3)'};">${m.pPlay   || '—'}</td>`;
+      h += `<td style="color:${m.pPlaced > 0 ? 'var(--green)' : 'var(--t3)'};">${m.pPlaced || '—'}</td>`;
+      h += `<td style="font-weight:600;color:${mScore > 0 ? 'var(--green)' : 'var(--t3)'};">${mScore || '—'}</td>`;
+      h += `<td style="color:${mWides > 0 ? 'var(--amber)' : 'var(--t3)'};">${mWides || '—'}</td>`;
+      if (anyFree) h += `<td style="color:${m.frees > 0 ? 'var(--red)' : 'var(--t3)'};">${m.frees || '—'}</td>`;
+      if (anyTO) {
+        h += `<td style="color:${m.twon  > 0 ? 'var(--green)' : 'var(--t3)'};">${m.twon  || '—'}</td>`;
+        h += `<td style="color:${m.tlost > 0 ? 'var(--red)'   : 'var(--t3)'};">${m.tlost || '—'}</td>`;
+      }
+      if (anyCard) h += `<td>${mCards || '<span style="color:var(--t3);">—</span>'}</td>`;
+      if (anyPT)   h += `<td style="color:${m.secsPlayed > 0 ? 'var(--green)' : 'var(--t3)'};">${m.secsPlayed > 0 ? fmtT(m.secsPlayed) : '—'}</td>`;
+      h += `<td style="color:var(--t3);font-size:11px;">${m.started ? 'Start' : 'Sub'}</td>`;
+      h += `</tr>`;
+    });
+    h += `</tbody></table></div></div>`;
+  }
+
+  h += `</div>`; // pd-body
+  return h;
+}
+
+function pdStat(val, lbl, sub, cls) {
+  return `<div class="pd-stat"><div class="pd-stat-val ${cls || ''}">${val}</div><div class="pd-stat-lbl">${esc(lbl)}</div>${sub != null ? `<div class="pd-stat-sub">${esc(String(sub))}</div>` : ''}</div>`;
+}
+function pdRow(lbl, val, cls) {
+  return `<div class="pd-row"><span class="pd-rl">${esc(lbl)}</span><span class="pd-rv ${cls || ''}">${val}</span></div>`;
 }
 </script>
 </body>
