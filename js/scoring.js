@@ -105,6 +105,7 @@ function doReset() {
   (TEAM_SLOTS[sz]||TEAM_SLOTS[15]).forEach(s=>{state.slotp[s]=s;});
   renderPGrid();
   state.ubench={}; state.suboff={}; state.preGameSubs={}; state.maxB=17;
+  state.startSlotp=undefined; state.startCaptain=null;
   const rb = document.getElementById('resetbtn');
   if (rb) {
     rb.id='undobtn'; rb.classList.add('danger');
@@ -229,6 +230,7 @@ function adjUs(t, d, side, how) {
   let desc = state.usN+': '+type+' '+(d>0?'added':'removed');
   if (how && d>0) desc += ' · '+how;
   addRow(fmt(state.secs),'ADJ','badj',desc);
+  if (d>0 && how) state.evts[state.evts.length-1].sec = how;
   const ct=t,cp=prev;
   pushUndo(desc,()=>{ if(ct==='g') setUsGoals(cp); else setUsPts(cp); upTot(); });
   if (d>0) showRestartModal(side||'us');
@@ -243,7 +245,7 @@ function adjOpp(t, d, side, how) {
   let desc = state.oppN+': '+type+' '+(nxt>prev?'added':'removed');
   if (how && nxt>prev) desc += ' · '+how;
   addRow(fmt(state.secs),'OPP','bopp',desc);
-  if (nxt>prev) state.evts[state.evts.length-1].action = type;
+  if (nxt>prev) { state.evts[state.evts.length-1].action = type; if (how) state.evts[state.evts.length-1].sec = how; }
   const ct=t,cp=prev;
   pushUndo(desc,()=>{ if(ct==='g') setOppGoals(cp); else setOppPts(cp); upTot(); });
   if (d>0 && t==='g' && state.trackGKPerformance) openGKGoalFlow(state.evts.length - 1, side||'opp');
@@ -261,7 +263,11 @@ function adjFootball(d, side, how) {
   let desc = team+': 2 Point '+(d>0?'added':'removed');
   if (how && d>0) desc += ' · '+how;
   addRow(fmt(state.secs),'ADJ','badj',desc);
-  if (nxt>prev && !isUs) state.evts[state.evts.length-1].action = '2 Point';
+  if (nxt>prev) {
+    const ev2pt = state.evts[state.evts.length-1];
+    if (!isUs) ev2pt.action = '2 Point';
+    if (how) ev2pt.sec = how;
+  }
   const cp=prev;
   pushUndo(desc,()=>{ if(isUs) setUsPts(cp); else setOppPts(cp); upTot(); });
   if (d>0 && !isUs && state.trackOppScorers) openOscModal(state.evts.length - 1, () => showRestartModal(side||'us'));

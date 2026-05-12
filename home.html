@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>GAA Match Tracker</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+<meta name="theme-color" content="#1F5B3A">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green:#2E7D32;--green-d:#1B5E20;--green-l:#E8F5E9;
+  --bg:#EEF0EA;--card:#FFFFFF;
+  --t1:#1A2E1A;--t2:#4A5A4A;--t3:#7A8A7A;
+  --border:#E0E3DC;
+  --shadow:0 2px 14px rgba(0,0,0,0.07),0 0 0 1px rgba(0,0,0,0.04);
+  --r:18px;
+}
+html,body{height:100%;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--t1);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.hdr{
+  background:linear-gradient(140deg,#1a5c1e 0%,#2E7D32 55%,#3a9140 100%);
+  color:white;
+  padding:36px 32px 32px;
+  text-align:center;
+}
+.hdr-logo{
+  width:64px;height:64px;
+  border-radius:18px;
+  display:inline-block;
+  margin-bottom:14px;
+  overflow:hidden;
+}
+.hdr-title{font-size:26px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px;}
+.hdr-sub{font-size:14px;opacity:.75;max-width:360px;margin:0 auto;line-height:1.5;}
+
+/* ── Grid ────────────────────────────────────────────────────────────────── */
+.grid-wrap{
+  flex:1;
+  max-width:780px;
+  margin:0 auto;
+  padding:32px 20px 48px;
+  width:100%;
+}
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+
+/* ── Tile ────────────────────────────────────────────────────────────────── */
+.tile{
+  background:var(--card);
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
+  padding:28px 24px 24px;
+  text-decoration:none;
+  color:inherit;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  transition:transform .15s,box-shadow .15s;
+  position:relative;
+  overflow:hidden;
+}
+.tile::after{
+  content:'';
+  position:absolute;
+  bottom:0;left:0;right:0;
+  height:4px;
+  background:var(--tile-accent,var(--green));
+  opacity:0;
+  transition:opacity .15s;
+}
+.tile:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,0.11),0 0 0 1px rgba(0,0,0,0.05);}
+.tile:hover::after{opacity:1;}
+.tile:active{transform:translateY(0);transition-duration:.05s;}
+
+.tile-icon{
+  width:48px;height:48px;
+  border-radius:14px;
+  background:var(--tile-bg,var(--green-l));
+  color:var(--tile-accent,var(--green));
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  flex-shrink:0;
+}
+.tile-title{font-size:17px;font-weight:800;color:var(--t1);letter-spacing:-.2px;}
+.tile-desc{font-size:13px;color:var(--t2);line-height:1.55;flex:1;}
+.tile-arrow{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:600;
+  color:var(--tile-accent,var(--green));
+  margin-top:4px;
+}
+.tile-arrow i{font-size:11px;transition:transform .15s;}
+.tile:hover .tile-arrow i{transform:translateX(3px);}
+
+/* ── Colour variants ─────────────────────────────────────────────────────── */
+.tile-green { --tile-bg:#E8F5E9; --tile-accent:#2E7D32; }
+.tile-blue  { --tile-bg:#E3F2FD; --tile-accent:#1565C0; }
+.tile-amber { --tile-bg:#FFF8E1; --tile-accent:#D97706; }
+.tile-purple{ --tile-bg:#EDE7F6; --tile-accent:#6A1B9A; }
+
+/* ── Manuals ─────────────────────────────────────────────────────────────── */
+.manuals{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-top:24px;
+}
+.manual-link{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 14px;
+  border-radius:999px;
+  background:transparent;
+  border:1.5px solid var(--border);
+  text-decoration:none;
+  font-size:12px;font-weight:600;
+  color:var(--t3);
+  transition:color .15s,border-color .15s,background .15s;
+}
+.manual-link i{font-size:11px;}
+.manual-link:hover{color:var(--t2);border-color:#b8bdb4;background:rgba(0,0,0,0.03);}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.footer{
+  text-align:center;
+  padding:20px 20px 32px;
+  font-size:12px;
+  color:var(--t3);
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media(max-width:520px){
+  .hdr{padding:28px 20px 24px;}
+  .hdr-title{font-size:22px;}
+  .grid{grid-template-columns:1fr;}
+  .grid-wrap{padding:24px 16px 36px;}
+  .tile{padding:22px 20px 20px;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <img class="hdr-logo" src="apple-touch-icon.png" alt="GAA Match Tracker">
+  <div class="hdr-title">GAA Match Tracker</div>
+  <div class="hdr-sub">Live tracking, post-match review and season analytics for GAA teams</div>
+</div>
+
+<div class="grid-wrap">
+  <div class="grid">
+
+    <a href="index.html" class="tile tile-green">
+      <div class="tile-icon"><i class="fas fa-stopwatch"></i></div>
+      <div>
+        <div class="tile-title">Live App</div>
+        <div class="tile-desc">Score, track events, manage substitutions and monitor your team in real time.</div>
+      </div>
+      <div class="tile-arrow">Open tracker <i class="fas fa-arrow-right"></i></div>
+    </a>
+
+    <a href="review.html" class="tile tile-blue">
+      <div class="tile-icon"><i class="fas fa-magnifying-glass-chart"></i></div>
+      <div>
+        <div class="tile-title">Match Review</div>
+        <div class="tile-desc">Load a match file to analyse events, player stats, shot maps and performance ratings.</div>
+      </div>
+      <div class="tile-arrow">Open review <i class="fas fa-arrow-right"></i></div>
+    </a>
+
+    <a href="season.html" class="tile tile-amber">
+      <div class="tile-icon"><i class="fas fa-chart-bar"></i></div>
+      <div>
+        <div class="tile-title">Season Stats</div>
+        <div class="tile-desc">Load multiple match files to view aggregated season-level statistics and trends.</div>
+      </div>
+      <div class="tile-arrow">Open season <i class="fas fa-arrow-right"></i></div>
+    </a>
+
+    <a href="merge.html" class="tile tile-purple">
+      <div class="tile-icon"><i class="fas fa-code-merge"></i></div>
+      <div>
+        <div class="tile-title">Merge Files</div>
+        <div class="tile-desc">Combine match files from two coaching devices into a single unified record.</div>
+      </div>
+      <div class="tile-arrow">Open merger <i class="fas fa-arrow-right"></i></div>
+    </a>
+
+  </div>
+
+  <div class="manuals">
+    <a href="User_Manual.html" class="manual-link"><i class="fas fa-book-open"></i> User Manual</a>
+    <a href="gk-save-guide.html" class="manual-link"><i class="fas fa-hand"></i> GK Save Scale</a>
+  </div>
+</div>
+
+<div class="footer">GAA Match Tracker &mdash; for coaches and teams</div>
+
+</body>
+</html>

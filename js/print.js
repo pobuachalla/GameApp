@@ -37,7 +37,8 @@ function buildPrintTimelineHTML() {
       else if (ev.action==='Red Card')  { reds.push({secs:t}); }
       else if (ev.action==='Black Card'){ blacks.push({secs:t}); }
     const curUs=usG*3+usP, curOpp=oppG*3+oppP;
-    if (mType) markers.push({secs:t, team:mTeam, type:mType, usScore:curUs, oppScore:curOpp});
+    const placed = PLACED_BALL.has(ev.sec) || (ev.sec==null&&(ev.badge==='OPP'||ev.badge==='ADJ')&&[...PLACED_BALL].some(pb=>(ev.desc||'').includes(pb)));
+    if (mType) markers.push({secs:t, team:mTeam, type:mType, usScore:curUs, oppScore:curOpp, placed});
     if (curUs!==prevUs||curOpp!==prevOpp||mType==='Wide') data.push({secs:t,us:curUs,opp:curOpp});
   });
 
@@ -72,6 +73,10 @@ function buildPrintTimelineHTML() {
   svg+=`<polyline points="${usLine}"  fill="none" stroke="#2E7D32" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
   markers.forEach(m => {
     const cx=x(m.secs), cy=y(m.team==='us'?m.usScore:m.oppScore);
+    const mcol=m.team==='us'?'#2E7D32':'#C62828';
+    const dotCol=m.type==='Wide'?'#9E9E9E':m.type==='2 Point'?'#F59E0B':mcol;
+    const dotR=m.type==='Goal'?4:m.type==='2 Point'?3.5:m.type==='Point'?3.5:2.5;
+    if(m.placed)svg+=`<circle cx="${cx}" cy="${cy}" r="${dotR+3.5}" fill="none" stroke="${dotCol}" stroke-width="1.5" opacity="0.7"/>`;
     if      (m.type==='Goal')    svg+=`<circle cx="${cx}" cy="${cy}" r="4"   fill="#2E7D32" stroke="#fff" stroke-width="1.5"/>`;
     else if (m.type==='2 Point') svg+=`<circle cx="${cx}" cy="${cy}" r="3.5" fill="#F59E0B" stroke="#fff" stroke-width="1.5"/>`;
     else if (m.type==='Point')   svg+=`<circle cx="${cx}" cy="${cy}" r="3.5" fill="#fff"    stroke="#9A9E99" stroke-width="1.5"/>`;
@@ -693,7 +698,7 @@ function buildPrintShotMapHTML() {
   if (shots.length === 0) return '';
 
   const jitter = (seed, range) => { const x = Math.sin(seed) * 43758.5453; return (x - Math.floor(x) - 0.5) * range; };
-  const placed = [];
+  const placed_arr = [];
   let dots = '';
   shots.forEach((s, i) => {
     const isSideline = s.sec === 'From Sideline';
@@ -711,10 +716,10 @@ function buildPrintShotMapHTML() {
     for (let attempt = 0; attempt < 6; attempt++) {
       cx = baseCx + (isSideline || isPenalty ? 0 : jitter(i * 2.1 + 1 + attempt * 17.3, jRange));
       cy = baseCy + (is45 || is65 || isPenalty ? 0 : jitter(i * 2.1 + 2 + attempt * 17.3, jRange));
-      if (!placed.some(p => Math.hypot(cx - p.cx, cy - p.cy) < r + p.r + 1)) break;
+      if (!placed_arr.some(p => Math.hypot(cx - p.cx, cy - p.cy) < r + p.r + 1)) break;
       jRange += 10;
     }
-    placed.push({cx, cy, r});
+    placed_arr.push({cx, cy, r});
     const cxS = cx.toFixed(1), cyS = cy.toFixed(1);
     const fill = isShort ? '#9E9E9E' : isSaved ? '#F97316' : isScore ? '#2E7D32' : '#C62828';
     if (s.placed) dots += `<circle cx="${cxS}" cy="${cyS}" r="${r+3.5}" fill="none" stroke="${fill}" stroke-width="1.5" opacity="0.7"/>`;

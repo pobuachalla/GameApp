@@ -350,6 +350,51 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           </div>
         </div>
       </div>
+      <div class="ev-add-form" style="background:#E3F2FD;">
+        <div class="ev-add-title" style="color:#1565C0;"><i class="fas fa-hand"></i> GK Performance</div>
+        <div class="ev-row">
+          <div class="ev-field">
+            <label>Half</label>
+            <select id="gk-half">
+              <option value="1H">1st Half</option>
+              <option value="2H">2nd Half</option>
+              <option value="ET">Extra Time</option>
+            </select>
+          </div>
+          <div class="ev-field">
+            <label>Shot Difficulty</label>
+            <select id="gk-intensity">
+              <option value="1">Easy</option>
+              <option value="2">Low</option>
+              <option value="3" selected>Medium</option>
+              <option value="4">Hard</option>
+              <option value="5">Unstoppable</option>
+            </select>
+          </div>
+          <div class="ev-field">
+            <label>Outcome</label>
+            <select id="gk-outcome" onchange="onGKOutcomeChange()">
+              <option value="save">Save</option>
+              <option value="goal">Goal Conceded</option>
+            </select>
+          </div>
+          <div class="ev-field" id="gk-savescore-wrap">
+            <label>Save Quality</label>
+            <select id="gk-savescore">
+              <option value="2">Parried</option>
+              <option value="3" selected>Loose ball</option>
+              <option value="4">Pushed clear</option>
+              <option value="5">Full control</option>
+            </select>
+          </div>
+          <button class="ev-add-btn" style="background:#1565C0;" onclick="addGKEvent()"><i class="fas fa-plus"></i> Add</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="gk-log-card" style="display:none;">
+      <div class="card-title" style="color:#1565C0;"><i class="fas fa-hand"></i>GK Shots <span id="gk-count-lbl" style="font-weight:400;color:var(--t3);text-transform:none;letter-spacing:0;font-size:12px;"></span></div>
+      <div id="gk-list-wrap"></div>
     </div>
 
     <div class="card">
@@ -392,9 +437,11 @@ const R = {
   captain:null,
   subs:[],     // [{slot, name}] slots 16+
   evts:[],
+  gkEvts:[],   // [{id,half,intensity,outcome,saveScore,baseValue,finalValue}]
   oppMode:'simple',
   assessment:{ effort:0, skill:0, tactics:0, intensity:0, discipline:0, spirit:0, notes:'' },
   nextEvId:1,
+  nextGkId:1,
 };
 
 const PLACED = new Set(['From Free','From Penalty','From 65','From 45','From Sideline']);
@@ -415,7 +462,7 @@ function switchTab(t) {
     document.getElementById('pane-'+id).style.display = id===t ? '' : 'none';
     document.getElementById('tab-'+id).classList.toggle('active', id===t);
   });
-  if (t === 'events') { refreshPlayerSelect(); renderEvList(); }
+  if (t === 'events') { refreshPlayerSelect(); renderEvList(); renderGKList(); }
   if (t === 'assess') renderAssess();
   if (t === 'lineup') renderLineup();
 }
@@ -588,6 +635,49 @@ function addOppEvent() {
   renderEvList();
   updateEvBadge();
   document.getElementById('oev-time').value = '';
+}
+
+// ── GK events ─────────────────────────────────────────────────────────────────
+const GK_I_LBL = ['','Easy','Low','Medium','Hard','Unstoppable'];
+const GK_S_LBL = ['','Beaten','Parried','Loose ball','Pushed clear','Full control'];
+
+function onGKOutcomeChange() {
+  document.getElementById('gk-savescore-wrap').style.display =
+    document.getElementById('gk-outcome').value === 'goal' ? 'none' : '';
+}
+
+function addGKEvent() {
+  const half      = document.getElementById('gk-half').value;
+  const intensity = +document.getElementById('gk-intensity').value;
+  const outcome   = document.getElementById('gk-outcome').value;
+  const saveScore = outcome === 'goal' ? 1 : +document.getElementById('gk-savescore').value;
+  const bv = (intensity - 1) + (saveScore - 1);
+  R.gkEvts.push({ id: R.nextGkId++, half, intensity, outcome, saveScore, baseValue: bv, finalValue: bv });
+  renderGKList();
+}
+
+function removeGKEvent(id) {
+  R.gkEvts = R.gkEvts.filter(e => e.id !== id);
+  renderGKList();
+}
+
+function renderGKList() {
+  const card = document.getElementById('gk-log-card');
+  const wrap = document.getElementById('gk-list-wrap');
+  const lbl  = document.getElementById('gk-count-lbl');
+  if (!R.gkEvts.length) { card.style.display = 'none'; wrap.innerHTML = ''; return; }
+  card.style.display = '';
+  lbl.textContent = R.gkEvts.length + ' shot' + (R.gkEvts.length !== 1 ? 's' : '');
+  wrap.innerHTML = '<div class="ev-list">' + R.gkEvts.map(e => {
+    const isGoal = e.outcome === 'goal';
+    const desc = GK_I_LBL[e.intensity] + ' · ' + (isGoal ? 'Goal conceded' : GK_S_LBL[e.saveScore]);
+    return `<div class="ev-item">
+      <span class="ev-badge ${isGoal ? 'opp' : ''}" style="${isGoal?'':'background:#E8F5E9;color:#2E7D32;'}">${e.half}</span>
+      <span class="ev-badge" style="background:${isGoal?'#FFEBEE':'#E8F5E9'};color:${isGoal?'#C62828':'#2E7D32'};margin-left:0;">${isGoal?'Goal':'Save'}</span>
+      <span class="ev-desc">${esc(desc)}</span>
+      <button class="ev-del" onclick="removeGKEvent(${e.id})" title="Remove"><i class="fas fa-xmark"></i></button>
+    </div>`;
+  }).join('') + '</div>';
 }
 
 // ── Remove event ─────────────────────────────────────────────────────────────
@@ -806,6 +896,27 @@ function doExport() {
   const prefix  = grade + sc + cc;
   const filename = (prefix ? prefix + '_' : '') + dateStr + '_' + oppSafe + '.json';
 
+  // ── GK events
+  const gkPi = slotp[1] || null;
+  const halfOrd = { '1H':0,'2H':1,'ET':2 };
+  const gkEvts = [...R.gkEvts]
+    .sort((a,b) => (halfOrd[a.half]||0) - (halfOrd[b.half]||0) || a.id - b.id)
+    .map(e => ({
+      time: e.half + ' 0:00',
+      badge: e.half,
+      desc: (e.outcome==='goal'?'Goal conceded · ':'GK Save · ') + GK_I_LBL[e.intensity] + ' · ' + GK_S_LBL[e.saveScore],
+      action: 'GK Save',
+      sec: '',
+      slot: 1,
+      pi: gkPi,
+      gkOutcome: e.outcome,
+      gkIntensity: e.intensity,
+      gkSaveScore: e.saveScore,
+      gkBaseValue: e.baseValue,
+      gkFinalValue: e.finalValue,
+      gkSecondary: null,
+    }));
+
   // ── Assemble state object
   const out = {
     usN: R.usN, oppN: R.oppN,
@@ -822,13 +933,13 @@ function doExport() {
     pnames, slotp, startSlotp,
     captain: captainPi, startCaptain: captainPi,
     ubench: [], suboff: [], ycarded, bcarded, rcarded,
-    maxB: 3, evts,
+    maxB: 3, evts: evts.concat(gkEvts),
     teamAssessment: { ...R.assessment },
     trackGameTime: false,
     trackShotLocations: false,
     showPlayerNumbers: true,
     trackTurnovers: evts.some(e => e.action === 'Turnover Won' || e.action === 'Turnover Lost'),
-    trackGKPerformance: false,
+    trackGKPerformance: R.gkEvts.length > 0,
     trackOppScorers: false,
   };
 
@@ -845,7 +956,7 @@ function clearAll() {
   R.usN=''; R.oppN=''; R.matchDate=''; R.location=''; R.referee='';
   R.competition=''; R.ageGrade=''; R.sport='football'; R.teamSize=15;
   R.usGoals=0; R.usPts=0; R.ogGoals=0; R.ogPts=0;
-  R.lineup={}; R.captain=null; R.subs=[]; R.evts=[];
+  R.lineup={}; R.captain=null; R.subs=[]; R.evts=[]; R.gkEvts=[]; R.nextGkId=1;
   R.oppMode='simple';
   R.assessment={ effort:0, skill:0, tactics:0, intensity:0, discipline:0, spirit:0, notes:'' };
   R.nextEvId=1;
@@ -859,7 +970,7 @@ function clearAll() {
   document.querySelectorAll('#sport-pills .pill-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
   setTeamSize(15, document.getElementById('sz-15'));
   document.getElementById('sz-13').classList.remove('active');
-  renderLineup(); renderSubs(); renderEvList(); updateEvBadge();
+  renderLineup(); renderSubs(); renderEvList(); renderGKList(); updateEvBadge();
   setOppMode('simple');
   switchTab('details');
   nextSubSlot = 16;

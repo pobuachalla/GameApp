@@ -26,8 +26,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .lc-icon { font-size: 52px; margin-bottom: 20px; }
 .lc-title { font-size: 26px; font-weight: 700; color: var(--t1); margin-bottom: 10px; }
 .lc-sub { font-size: 14px; color: var(--t3); line-height: 1.6; margin-bottom: 32px; }
-.lc-btn { display: inline-flex; align-items: center; gap: 10px; background: var(--green); color: white; padding: 14px 28px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity .15s; border: none; font-family: inherit; }
-.lc-btn:hover { opacity: .88; }
+.lc-back { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--t3); text-decoration: none; margin-bottom: 20px; transition: color .15s; }
+.lc-back:hover { color: var(--t2); }
+.lc-drop { border: 2px dashed var(--border); border-radius: 16px; padding: 36px 24px; cursor: pointer; transition: border-color .2s, background .2s; position: relative; display: block; }
+.lc-drop:hover, .lc-drop.drag-over { border-color: var(--green); background: var(--green-l); }
+.lc-drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.lc-drop-icon { font-size: 28px; color: var(--green); margin-bottom: 10px; }
+.lc-drop-txt { font-size: 15px; font-weight: 600; color: var(--t1); margin-bottom: 4px; }
+.lc-drop-sub { font-size: 13px; color: var(--t3); }
 .lc-hint { font-size: 12px; color: var(--t3); margin-top: 16px; }
 
 /* ── Review wrapper ──────────────────────────────────────────────────────── */
@@ -164,12 +170,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <!-- ── Landing ─────────────────────────────────────────────────────────── -->
 <div id="landing">
   <div class="lc">
-    <div class="lc-icon"><img src="favicon.png" style="width:64px;height:64px;object-fit:contain;"></div>
-    <div class="lc-title">GAA Match Review</div>
+    <a href="home.html" class="lc-back"><i class="fas fa-arrow-left"></i> Home</a>
+    <div class="lc-icon"><img src="apple-touch-icon.png" alt="GAA Match Tracker" style="width:64px;height:64px;border-radius:14px;display:block;margin:0 auto 20px;"></div>
+    <div class="lc-title">Match Review</div>
     <div class="lc-sub">Load an exported match file to view the full stats infographic — designed for review sessions on desktop.</div>
-    <label class="lc-btn">
-      <i class="fas fa-file-import"></i> Load Match File
-      <input type="file" accept=".json" style="display:none;" onchange="loadMatch(event)">
+    <label class="lc-drop" id="drop-zone">
+      <input type="file" accept=".json" onchange="loadFile(this.files)">
+      <div class="lc-drop-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+      <div class="lc-drop-txt">Drop match file here</div>
+      <div class="lc-drop-sub">or click to browse — select a JSON export</div>
     </label>
     <div class="lc-hint">Export from GAA Match Tracker → Setup → Transfer → Export Match</div>
   </div>
@@ -183,7 +192,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 'use strict';
 
 // ── Constants ────────────────────────────────────────────────────────────────
-const PLACED_BALL = new Set(['From Free','From Penalty','From 65','From 45']);
+const PLACED_BALL = new Set(['From Free','From Sideline','From Penalty','From 65','From 45']);
 const ZPX=10, ZPY=10, ZPW=300, ZPH=380;
 const CARD_YELLOW='#FDD835', CARD_BLACK='#2c2c2a', CARD_RED='#E53935';
 
@@ -195,8 +204,8 @@ const toS = s => { const p=(s||'0:00').split(':'); return parseInt(p[0]||0)*60+p
 const jit = (seed,range) => { const x=Math.sin(seed)*43758.5453; return (x-Math.floor(x)-.5)*range; };
 
 // ── File load ────────────────────────────────────────────────────────────────
-function loadMatch(event) {
-  const file = event.target.files[0];
+function loadFile(files) {
+  const file = files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
@@ -211,6 +220,11 @@ function loadMatch(event) {
   };
   reader.readAsText(file);
 }
+
+const _dz = document.getElementById('drop-zone');
+_dz.addEventListener('dragover',  e => { e.preventDefault(); _dz.classList.add('drag-over'); });
+_dz.addEventListener('dragleave', ()  => _dz.classList.remove('drag-over'));
+_dz.addEventListener('drop',      e  => { e.preventDefault(); _dz.classList.remove('drag-over'); loadFile(e.dataTransfer.files); });
 
 // ── Stats computation ─────────────────────────────────────────────────────────
 function computeStats(st) {
@@ -253,7 +267,8 @@ function computeStats(st) {
 
     const pi=ev.pi!=null?ev.pi:(ev.slot!=null?(st.slotp&&st.slotp[ev.slot])||ev.slot:null);
     const p=(pi&&ev.action&&ev.action!=='sub')?getP(pi):null;
-    const placed=PLACED_BALL.has(ev.sec);
+    let placed=PLACED_BALL.has(ev.sec);
+    if(!placed&&ev.sec==null&&(ev.badge==='OPP'||ev.badge==='ADJ')){const _d=ev.desc||'';placed=[...PLACED_BALL].some(pb=>_d.includes(pb));}
     const t=toS(ev.time), secs=tlH2?t+tlHS:t;
     const prevUs=tlUG*3+tlUP, prevOpp=tlOG*3+tlOP;
     let mType=null,mTeam='us';
@@ -301,10 +316,10 @@ function computeStats(st) {
     }else if(ev.action==='Free'){if(p){const ft=ev.sec||'Other';p.fr[ft]=(p.fr[ft]||0)+1;}}
 
     const curUs=tlUG*3+tlUP,curOpp=tlOG*3+tlOP;
-    if(mType)tlMk.push({secs,team:mTeam,type:mType,us:curUs,opp:curOpp});
+    if(mType)tlMk.push({secs,team:mTeam,type:mType,us:curUs,opp:curOpp,placed});
     if(curUs!==prevUs||curOpp!==prevOpp||mType==='Wide')tlD.push({secs,us:curUs,opp:curOpp});
-    if(ev.zone&&(ev.action==='Goal'||ev.action==='Point'||ev.action==='2 Point'||ev.action==='Wide')){
-      shots.push({action:ev.action,zone:ev.zone,half:smH2?'h2':'h1',pi,placed});
+    if(ev.zone&&(ev.action==='Goal'||ev.action==='Point'||ev.action==='2 Point'||ev.action==='Wide'||ev.action==='Short'||ev.action==='Saved')){
+      shots.push({action:ev.action,zone:ev.zone,half:smH2?'h2':'h1',pi,placed,sec:ev.sec});
     }
   });
 
@@ -366,6 +381,10 @@ function buildTL(s, usN, oppN) {
   svg+=`<polyline points="${uLn}" fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
   s.tlMk.forEach(m=>{
     const cx=x(m.secs),cy=y(m.team==='us'?m.us:m.opp),col=m.team==='us'?'#2E7D32':'#C62828';
+    const dotCol=m.type==='Wide'?'#C8CAC4':m.type==='2 Point'?'#F59E0B':col;
+    const dotR=m.type==='Goal'?6:m.type==='Point'?4.5:m.type==='2 Point'?5:3;
+    if(m.placed&&m.type!==undefined)
+      svg+=`<circle cx="${cx}" cy="${cy}" r="${dotR+3.5}" fill="none" stroke="${dotCol}" stroke-width="1.5" opacity="0.7"/>`;
     if(m.type==='Goal')svg+=`<circle cx="${cx}" cy="${cy}" r="6" fill="${col}" stroke="#fff" stroke-width="1.5"/>`;
     else if(m.type==='2 Point')svg+=`<circle cx="${cx}" cy="${cy}" r="5" fill="#F59E0B" stroke="#fff" stroke-width="1.5"/>`;
     else if(m.type==='Point')svg+=`<circle cx="${cx}" cy="${cy}" r="4.5" fill="#fff" stroke="${col}" stroke-width="1.5"/>`;
@@ -383,20 +402,48 @@ function buildTL(s, usN, oppN) {
 }
 
 // ── Shot map SVG ──────────────────────────────────────────────────────────────
-function buildSM(shots) {
-  if(!shots.length)return'';
-  let dots='';
-  shots.forEach((s,i)=>{
-    const cx=(ZPX+s.zone.coords.x*ZPW+jit(i*2.1+1,14)).toFixed(1);
-    const cy=(ZPY+s.zone.coords.y*ZPH+jit(i*2.1+2,14)).toFixed(1);
-    const isGoal=s.action==='Goal',r=isGoal?9:6;
-    let fill='#9E9E9E',stroke='none';
-    if(isGoal){fill='#2E7D32';stroke='rgba(0,0,0,0.2)';}
-    else if(s.action==='Point'||s.action==='2 Point'){fill='#fff';stroke='#2E7D32';}
-    if(s.placed)dots+=`<circle cx="${cx}" cy="${cy}" r="${r+4}" fill="none" stroke="${s.action==='Wide'?'#9E9E9E':'#2E7D32'}" stroke-width="1.8" opacity="0.55"/>`;
-    dots+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${stroke!=='none'?1.5:0}"/>`;
+function buildSM(shots, st) {
+  if(!shots.length) return '';
+  const getIni = pi => {
+    const nm = gn(st, pi); if(!nm) return '';
+    const parts = nm.trim().split(/\s+/);
+    return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+  };
+  const placed_arr = [];
+  let dots = '';
+  shots.forEach((s, i) => {
+    const isSideline = s.sec === 'From Sideline';
+    const is45       = s.sec === 'From 45';
+    const is65       = s.sec === 'From 65';
+    const isPenalty  = s.sec === 'From Penalty';
+    const baseCx = isPenalty ? 160 : isSideline ? (s.zone.coords.x < 0.5 ? ZPX : ZPX + ZPW) : ZPX + s.zone.coords.x * ZPW;
+    const baseCy = isPenalty ? 360 : is45 ? 268 : is65 ? 215 : ZPY + s.zone.coords.y * ZPH;
+    const isGoal  = s.action === 'Goal';
+    const isShort = s.action === 'Short';
+    const isSaved = s.action === 'Saved';
+    const isScore = !isShort && !isSaved && s.action !== 'Wide';
+    const r = isGoal ? 9 : 6;
+    let cx, cy, jRange = 14;
+    for (let attempt = 0; attempt < 6; attempt++) {
+      cx = baseCx + (isSideline || isPenalty ? 0 : jit(i * 2.1 + 1 + attempt * 17.3, jRange));
+      cy = baseCy + (is45 || is65 || isPenalty ? 0 : jit(i * 2.1 + 2 + attempt * 17.3, jRange));
+      if (!placed_arr.some(p => Math.hypot(cx - p.cx, cy - p.cy) < r + p.r + 1)) break;
+      jRange += 10;
+    }
+    placed_arr.push({cx, cy, r});
+    const cxS = cx.toFixed(1), cyS = cy.toFixed(1);
+    const fill = isShort ? '#9E9E9E' : isSaved ? '#F97316' : isScore ? '#2E7D32' : '#C62828';
+    if (s.placed) dots += `<circle cx="${cxS}" cy="${cyS}" r="${r+3.5}" fill="none" stroke="${fill}" stroke-width="1.5" opacity="0.7"/>`;
+    dots += `<circle cx="${cxS}" cy="${cyS}" r="${r}" fill="${fill}" opacity="0.82" stroke="white" stroke-width="1.2"/>`;
+    if (s.pi != null) {
+      const ini = esc(getIni(s.pi));
+      if (ini) {
+        const fs = isGoal ? 7 : (ini.length >= 4 ? 4.5 : 5.5);
+        dots += `<text x="${cxS}" y="${cyS}" text-anchor="middle" dominant-baseline="central" font-size="${fs}" font-weight="700" fill="white" font-family="-apple-system,BlinkMacSystemFont,sans-serif" style="pointer-events:none;">${ini}</text>`;
+      }
+    }
   });
-  return `<svg width="320" height="400" viewBox="0 0 320 400" style="border-radius:12px;display:block;max-width:100%;">${PITCH_SVG_INNER}${dots}</svg>`;
+  return `<svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:8px;display:block;" preserveAspectRatio="xMidYMid meet">${PITCH_SVG_INNER}${dots}</svg>`;
 }
 
 // ── Turnover donut ────────────────────────────────────────────────────────────
@@ -584,25 +631,167 @@ function buildReview(st) {
       h+=`</tbody></table></div>`;
     }
     if(hasSM){
-      const mapSVG=buildSM(s.shots);
+      const mapSVG=buildSM(s.shots, st);
+      const thirds={att:{shots:0,scores:0},mid:{shots:0,scores:0},def:{shots:0,scores:0}};
+      s.shots.forEach(sh=>{
+        const y=sh.zone.coords.y;
+        const t=y>0.667?'att':y>0.333?'mid':'def';
+        thirds[t].shots++;
+        if(sh.action!=='Wide'&&sh.action!=='Short'&&sh.action!=='Saved')thirds[t].scores++;
+      });
+      const smPct=(n,d)=>d>0?Math.round(n/d*100)+'%':'—';
       h+=`<div class="rv-card"><div class="rv-ctitle">Shot Map</div>`;
-      h+=`<div class="rv-sm-wrap"><div>${mapSVG}</div>`;
-      h+=`<div class="rv-sm-leg">`;
-      h+=`<div class="rv-sm-li"><svg width="18" height="18"><circle cx="9" cy="9" r="7" fill="#2E7D32"/></svg>Goal</div>`;
-      h+=`<div class="rv-sm-li"><svg width="18" height="18"><circle cx="9" cy="9" r="6" fill="#fff" stroke="#2E7D32" stroke-width="1.5"/></svg>Point / 2-pt</div>`;
-      h+=`<div class="rv-sm-li"><svg width="18" height="18"><circle cx="9" cy="9" r="5" fill="#9E9E9E"/></svg>Wide</div>`;
-      h+=`<div class="rv-sm-li"><svg width="22" height="22"><circle cx="11" cy="11" r="9" fill="none" stroke="#2E7D32" stroke-width="1.8" opacity="0.6"/><circle cx="11" cy="11" r="5" fill="#2E7D32"/></svg>Placed ball</div>`;
-      h+=`<div style="margin-top:8px;font-size:12px;color:#9A9E99;">${s.shots.length} shot${s.shots.length!==1?'s':''} tracked</div>`;
-      h+=`</div></div></div>`;
+      h+=`<div style="border-radius:8px;overflow:hidden;margin-bottom:12px;">${mapSVG}</div>`;
+      h+=`<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--t2);align-items:center;">`;
+      h+=`<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#2E7D32" opacity=".82"/></svg>Score</span>`;
+      h+=`<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#C62828" opacity=".82"/></svg>Wide</span>`;
+      h+=`<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#9E9E9E" opacity=".82"/></svg>Short</span>`;
+      h+=`<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#F97316" opacity=".82"/></svg>Saved</span>`;
+      h+=`<span style="display:flex;align-items:center;gap:4px;"><svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="#2E7D32" opacity=".82" stroke="white" stroke-width="1"/></svg>Goal</span>`;
+      h+=`<span style="display:flex;align-items:center;gap:4px;"><svg width="18" height="18"><circle cx="9" cy="9" r="8" fill="none" stroke="#2E7D32" stroke-width="1.5" opacity=".7"/><circle cx="9" cy="9" r="5" fill="#2E7D32" opacity=".82" stroke="white" stroke-width="1"/></svg>Placed</span>`;
+      h+=`</div>`;
+      const thirdRows=[['Attacking third',thirds.att],['Middle third',thirds.mid],['Defensive third',thirds.def]];
+      if(thirdRows.some(([,d])=>d.shots>0)){
+        h+=`<table style="width:100%;font-size:12px;border-collapse:collapse;">`;
+        h+=`<tr style="color:var(--t3);font-size:11px;"><th style="text-align:left;padding:4px 0;font-weight:500;">Zone</th><th style="text-align:center;font-weight:500;">Shots</th><th style="text-align:center;font-weight:500;">Scores</th><th style="text-align:center;font-weight:500;">Conv%</th></tr>`;
+        thirdRows.forEach(([label,d])=>{
+          if(d.shots===0)return;
+          h+=`<tr><td style="padding:3px 0;color:var(--t2);">${label}</td><td style="text-align:center;color:var(--t1);">${d.shots}</td><td style="text-align:center;color:var(--t1);">${d.scores}</td><td style="text-align:center;font-weight:600;color:var(--green);">${smPct(d.scores,d.shots)}</td></tr>`;
+        });
+        h+=`</table>`;
+      }
+      h+=`</div>`;
     }
     h+=`</div>`;
   }
 
-  // ─── Turnovers | Discipline | Substitutions ───────────────────────────────
+  // ─── GK Performance ──────────────────────────────────────────────────────
+  const gkEvts=st.evts.filter(e=>e.gkOutcome!=null&&e.gkFinalValue!=null);
+  if(gkEvts.length>0){
+    let wDevSum=0,wTotal=0,gkSaves=0,gkGoals=0;
+    gkEvts.forEach(e=>{
+      const wt=1+((e.gkIntensity||3)-1)*0.4;
+      wDevSum+=(e.gkFinalValue-4)*wt; wTotal+=wt;
+      if(e.gkOutcome==='save')gkSaves++; else gkGoals++;
+    });
+    const avgDev=wTotal>0?wDevSum/wTotal:0;
+    const gkRating=Math.round(50+(Math.max(-4,Math.min(4,avgDev))/4)*50);
+    const gkLabel=gkRating>=80?'Outstanding':gkRating>=65?'Very Good':gkRating>=55?'Good':gkRating>=45?'Average':gkRating>=35?'Below Average':gkRating>=20?'Poor':'Very Poor';
+    const gkCol=gkRating>=65?'#2E7D32':gkRating>=45?'#D97706':'#C62828';
+    const gkShots=gkSaves+gkGoals;
+    const gkSavePct=gkShots>0?Math.round(gkSaves/gkShots*100):0;
+    const gkName=pn(st,st.slotp?(st.slotp[1]||1):1);
+    const iLbl=['','Easy','Low','Medium','Hard','Unstoppable'];
+    h+=`<div class="rv-full rv-card"><div class="rv-ctitle">Goalkeeper Performance</div>`;
+    h+=`<div style="display:flex;align-items:flex-start;gap:32px;flex-wrap:wrap;">`;
+    h+=`<div style="min-width:200px;flex:1;">`;
+    h+=`<div style="font-size:15px;font-weight:700;color:var(--t1);margin-bottom:3px;">${esc(gkName)}</div>`;
+    h+=`<div style="font-size:12px;color:var(--t3);margin-bottom:14px;">${gkSaves} save${gkSaves!==1?'s':''} / ${gkGoals} goal${gkGoals!==1?'s':''} conceded &mdash; ${gkSavePct}% save rate</div>`;
+    h+=`<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px;">`;
+    h+=`<div style="font-size:44px;font-weight:800;color:${gkCol};line-height:1;">${gkRating}</div>`;
+    h+=`<div style="font-size:15px;font-weight:700;color:${gkCol};">${gkLabel}</div>`;
+    h+=`<div style="font-size:11px;color:var(--t3);margin-left:auto;">/100</div>`;
+    h+=`</div>`;
+    h+=`<div style="position:relative;background:linear-gradient(to right,#C62828 0%,#D97706 50%,#2E7D32 100%);border-radius:4px;height:8px;margin-bottom:4px;">`;
+    h+=`<div style="position:absolute;top:50%;left:${gkRating}%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:${gkCol};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.25);"></div></div>`;
+    h+=`<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--t3);"><span>Struggling</span><span>Average</span><span>Excellent</span></div>`;
+    h+=`</div>`;
+    const gkLevels=[5,4,3,2,1].filter(i=>gkEvts.some(e=>(e.gkIntensity||3)===i));
+    if(gkLevels.length){
+      h+=`<div style="flex:1;min-width:160px;">`;
+      h+=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin-bottom:10px;">By Shot Difficulty</div>`;
+      gkLevels.forEach(intensity=>{
+        const lvl=gkEvts.filter(e=>(e.gkIntensity||3)===intensity);
+        const sv=lvl.filter(e=>e.gkOutcome==='save').length;
+        const pct=Math.round(sv/lvl.length*100);
+        const bc=pct>=70?'#2E7D32':pct>=40?'#D97706':'#C62828';
+        h+=`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">`;
+        h+=`<div style="font-size:12px;color:var(--t2);min-width:80px;">${iLbl[intensity]}</div>`;
+        h+=`<div style="flex:1;background:var(--border);border-radius:3px;overflow:hidden;height:6px;"><div style="background:${bc};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
+        h+=`<div style="font-size:12px;font-weight:600;color:${bc};min-width:36px;text-align:right;">${sv}/${lvl.length}</div>`;
+        h+=`</div>`;
+      });
+      h+=`</div>`;
+    }
+    h+=`</div>`;
+    // ── By Half | Save Quality | Goals Conceded ──────────────────────────────
+    h+=`<div style="border-top:1px solid var(--border);margin-top:20px;padding-top:18px;display:flex;gap:24px;flex-wrap:wrap;">`;
+
+    // By Half
+    const gkHalfData=['1H','2H','ET'].map(hf=>{
+      const hv=gkEvts.filter(e=>e.badge===hf);
+      if(!hv.length)return null;
+      const sv=hv.filter(e=>e.gkOutcome==='save').length;
+      const gl=hv.filter(e=>e.gkOutcome==='goal').length;
+      return{hf,sv,gl,total:sv+gl};
+    }).filter(Boolean);
+    if(gkHalfData.length){
+      h+=`<div style="flex:1;min-width:130px;">`;
+      h+=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin-bottom:10px;">By Half</div>`;
+      gkHalfData.forEach(d=>{
+        const pct=d.total>0?Math.round(d.sv/d.total*100):0;
+        const bc=pct>=70?'#2E7D32':pct>=40?'#D97706':'#C62828';
+        h+=`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">`;
+        h+=`<div style="font-size:12px;color:var(--t2);min-width:28px;">${d.hf}</div>`;
+        h+=`<div style="flex:1;background:var(--border);border-radius:3px;overflow:hidden;height:6px;"><div style="background:${bc};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
+        h+=`<div style="font-size:12px;font-weight:600;color:${bc};min-width:72px;text-align:right;">${d.sv}/${d.total} <span style="font-weight:400;color:var(--t3);">(${pct}%)</span></div>`;
+        h+=`</div>`;
+      });
+      h+=`</div>`;
+    }
+
+    // Save Quality
+    const gkSaveEvts=gkEvts.filter(e=>e.gkOutcome==='save'&&e.gkSaveScore!=null);
+    const sqLbl=['','','Parried','Loose ball','Pushed clear','Full control'];
+    const sqCol=['','','#D97706','#F59E0B','#66BB6A','#2E7D32'];
+    const sqScores=[5,4,3,2].filter(q=>gkSaveEvts.some(e=>(e.gkSaveScore)===q));
+    if(gkSaveEvts.length&&sqScores.length){
+      h+=`<div style="flex:1;min-width:160px;">`;
+      h+=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin-bottom:10px;">Save Quality</div>`;
+      sqScores.forEach(q=>{
+        const cnt=gkSaveEvts.filter(e=>e.gkSaveScore===q).length;
+        const pct=Math.round(cnt/gkSaveEvts.length*100);
+        h+=`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">`;
+        h+=`<div style="font-size:12px;color:var(--t2);min-width:88px;">${sqLbl[q]}</div>`;
+        h+=`<div style="flex:1;background:var(--border);border-radius:3px;overflow:hidden;height:6px;"><div style="background:${sqCol[q]};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
+        h+=`<div style="font-size:12px;font-weight:600;color:${sqCol[q]};min-width:28px;text-align:right;">${cnt}</div>`;
+        h+=`</div>`;
+      });
+      h+=`</div>`;
+    }
+
+    // Goals Conceded by Difficulty
+    const gkGoalEvts=gkEvts.filter(e=>e.gkOutcome==='goal');
+    const goalIntLevels=[5,4,3,2,1].filter(i=>gkGoalEvts.some(e=>(e.gkIntensity||3)===i));
+    if(gkGoalEvts.length&&goalIntLevels.length){
+      h+=`<div style="flex:1;min-width:160px;">`;
+      h+=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin-bottom:10px;">Goals Conceded</div>`;
+      goalIntLevels.forEach(intensity=>{
+        const cnt=gkGoalEvts.filter(e=>(e.gkIntensity||3)===intensity).length;
+        const pct=Math.round(cnt/gkGoalEvts.length*100);
+        const bc=intensity>=4?'#66BB6A':intensity===3?'#D97706':'#C62828';
+        h+=`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">`;
+        h+=`<div style="font-size:12px;color:var(--t2);min-width:80px;">${iLbl[intensity]}</div>`;
+        h+=`<div style="flex:1;background:var(--border);border-radius:3px;overflow:hidden;height:6px;"><div style="background:${bc};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
+        h+=`<div style="font-size:12px;font-weight:600;color:${bc};min-width:28px;text-align:right;">${cnt}</div>`;
+        h+=`</div>`;
+      });
+      h+=`</div>`;
+    }
+
+    h+=`</div>`;
+    h+=`</div>`;
+  }
+
+  // ─── Turnovers | Discipline | Substitutions | OPS ─────────────────────────
+  const showOPS=st.trackOppScorers&&st.evts.some(e=>e.oppScorer!=null);
+  const ta=st.teamAssessment;
+  const showAssess=!!(ta&&['effort','skill','tactics','intensity','discipline','spirit'].some(k=>(ta[k]||0)>0));
   h+=`<div class="rv-g3">`;
 
   // Turnovers
-  h+=`<div class="rv-card"><div class="rv-ctitle">Turnovers</div>`;
+  const turnRowEnd=2+(showOPS?1:0)+(showAssess?1:0);
+  h+=`<div class="rv-card"${(showOPS||showAssess)?` style="grid-column:1;grid-row:1/${turnRowEnd};"`:''}>` +`<div class="rv-ctitle">Turnovers</div>`;
   if(totalTurn>0){
     const wonPct=Math.round(s.twon/totalTurn*100);
     h+=`<div style="display:flex;gap:24px;margin-bottom:18px;">`;
@@ -647,7 +836,7 @@ function buildReview(st) {
   h+=`</div>`;
 
   // Discipline
-  h+=`<div class="rv-card"><div class="rv-ctitle">Discipline</div>`;
+  h+=`<div class="rv-card"${showOPS?' style="grid-column:2;grid-row:1;"':''}><div class="rv-ctitle">Discipline</div>`;
   if(s.freesConc>0){
     h+=`<div class="rv-row"><span class="rv-rl">Frees conceded</span><span class="rv-rv">${s.freesConc}</span></div>`;
     if(s.freesScored>0)h+=`<div class="rv-row"><span class="rv-rl">Scored by opp.</span><span class="rv-rv" style="color:#C62828;">${s.freesScored}</span></div>`;
@@ -679,7 +868,7 @@ function buildReview(st) {
   h+=`</div>`;
 
   // Substitutions
-  h+=`<div class="rv-card"><div class="rv-ctitle">Substitutions</div>`;
+  h+=`<div class="rv-card"${showOPS?' style="grid-column:3;grid-row:1;"':''}><div class="rv-ctitle">Substitutions</div>`;
   const subEvts=st.evts.filter(ev=>ev.action==='sub');
   if(subEvts.length>0){
     h+=`<div class="rv-sub-hdr"><span class="rv-sub-t">Time</span><span style="flex:1;">On</span><span style="flex:1;">Off</span></div>`;
@@ -695,6 +884,76 @@ function buildReview(st) {
     });
   }else{h+=`<div style="font-size:14px;color:#9A9E99;padding:16px 0;">No substitutions</div>`;}
   h+=`</div>`;
+
+  // Opposition Scoring Profile (double-wide, row 2 of grid)
+  if(showOPS){
+    const oscEvts=st.evts.filter(e=>e.oppScorer);
+    if(oscEvts.length>0){
+      const oscMap={};
+      oscEvts.forEach(e=>{
+        const osc=e.oppScorer;
+        const key=osc.label+' ('+osc.num+')';
+        if(!oscMap[key])oscMap[key]={num:osc.num,label:osc.label,goals:0,pts:0};
+        const act=e.action||'';
+        if(act==='Goal')oscMap[key].goals++;
+        else if(act==='2 Point')oscMap[key].pts+=2;
+        else oscMap[key].pts++;
+      });
+      const oscRows=Object.values(oscMap).sort((a,b)=>{const ta=a.goals*3+a.pts,tb=b.goals*3+b.pts;return tb!==ta?tb-ta:a.num-b.num;});
+      const oscMax=oscRows.length?(oscRows[0].goals*3+oscRows[0].pts):1;
+      h+=`<div class="rv-card" style="grid-column:2/4;grid-row:2;"><div class="rv-ctitle">Opposition Scoring Profile</div>`;
+      oscRows.forEach(r=>{
+        const total=r.goals*3+r.pts;
+        const pct=Math.round(total/oscMax*100);
+        h+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid var(--border);">`;
+        h+=`<div style="width:28px;height:28px;border-radius:50%;background:#6A1B9A22;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#6A1B9A;flex-shrink:0;">${r.num}</div>`;
+        h+=`<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--t1);">${esc(r.label)}</div>`;
+        h+=`<div style="font-size:11px;color:var(--t2);">${r.goals}-${r.pts} &nbsp;&middot;&nbsp; ${total} pt${total!==1?'s':''}</div></div>`;
+        h+=`<div style="width:60px;background:var(--border);border-radius:3px;overflow:hidden;height:6px;"><div style="background:#6A1B9A;width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
+        h+=`</div>`;
+      });
+      h+=`</div>`;
+    }
+  }
+
+  // Coach Assessment (double-wide, last row of grid)
+  if(showAssess){
+    const DIMS=[
+      {key:'effort',    label:'Effort'},
+      {key:'skill',     label:'Skill'},
+      {key:'tactics',   label:'Tactics'},
+      {key:'intensity', label:'Intensity'},
+      {key:'discipline',label:'Discipline'},
+      {key:'spirit',    label:'Spirit'},
+    ];
+    const COLOURS=['#C8E6C9','#81C784','#4CAF50','#388E3C','#1B5E20'];
+    const rated=DIMS.filter(d=>(ta[d.key]||0)>0);
+    const assessRow=showOPS?3:2;
+    h+=`<div class="rv-card" style="grid-column:2/4;grid-row:${assessRow};"><div class="rv-ctitle">Coach Assessment</div>`;
+    h+=`<div style="display:flex;flex-direction:column;gap:10px;padding:4px 0;">`;
+    DIMS.forEach(dim=>{
+      const val=ta[dim.key]||0;
+      h+=`<div style="display:flex;align-items:center;gap:12px;">`;
+      h+=`<div style="font-size:13px;font-weight:600;color:var(--t1);width:90px;flex-shrink:0;">${esc(dim.label)}</div>`;
+      h+=`<div style="display:flex;gap:5px;">`;
+      for(let v=1;v<=5;v++){
+        const colour=v<=val?COLOURS[v-1]:'#E0E0E0';
+        const ring=v===val?' outline:2px solid rgba(0,0,0,.2);outline-offset:1px;':'';
+        h+=`<div style="width:22px;height:22px;border-radius:50%;background:${colour};${ring}"></div>`;
+      }
+      h+=`</div>`;
+      if(val>0)h+=`<div style="font-size:13px;font-weight:700;color:var(--green);margin-left:4px;">${val}/5</div>`;
+      h+=`</div>`;
+    });
+    const avg=(rated.reduce((s,d)=>s+(ta[d.key]||0),0)/rated.length).toFixed(1);
+    h+=`<div style="margin-top:8px;padding-top:10px;border-top:.5px solid var(--border);display:flex;align-items:baseline;gap:6px;">`;
+    h+=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t2);">Overall</div>`;
+    h+=`<div style="font-size:22px;font-weight:800;color:var(--green);">${avg}<span style="font-size:12px;color:var(--t2);">/5</span></div>`;
+    h+=`<div style="font-size:11px;color:var(--t2);">(${rated.length} dimension${rated.length!==1?'s':''} rated)</div>`;
+    h+=`</div>`;
+    if(ta.notes&&ta.notes.trim())h+=`<div style="margin-top:8px;font-size:13px;color:var(--t2);font-style:italic;line-height:1.5;">${esc(ta.notes.trim())}</div>`;
+    h+=`</div></div>`;
+  }
 
   h+=`</div>`; // end rv-g3
 
@@ -724,83 +983,12 @@ function buildReview(st) {
     }
   }
 
-  // ─── Opposition Scoring Profile ──────────────────────────────────────────
-  if(st.trackOppScorers){
-    const oscEvts=st.evts.filter(e=>e.oppScorer);
-    if(oscEvts.length>0){
-      const oscMap={};
-      oscEvts.forEach(e=>{
-        const s=e.oppScorer;
-        const key=s.label+' ('+s.num+')';
-        if(!oscMap[key])oscMap[key]={num:s.num,label:s.label,goals:0,pts:0};
-        const act=e.action||'';
-        if(act==='Goal')oscMap[key].goals++;
-        else if(act==='2 Point')oscMap[key].pts+=2;
-        else oscMap[key].pts++;
-      });
-      const oscRows=Object.values(oscMap).sort((a,b)=>{const ta=a.goals*3+a.pts,tb=b.goals*3+b.pts;return tb!==ta?tb-ta:a.num-b.num;});
-      const oscMax=oscRows.length?(oscRows[0].goals*3+oscRows[0].pts):1;
-      h+=`<div class="rv-full rv-card"><div class="rv-ctitle">Opposition Scoring Profile</div>`;
-      oscRows.forEach(r=>{
-        const total=r.goals*3+r.pts;
-        const pct=Math.round(total/oscMax*100);
-        h+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid var(--border);">`;
-        h+=`<div style="width:28px;height:28px;border-radius:50%;background:#6A1B9A22;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#6A1B9A;flex-shrink:0;">${r.num}</div>`;
-        h+=`<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--t1);">${esc(r.label)}</div>`;
-        h+=`<div style="font-size:11px;color:var(--t2);">${r.goals}-${r.pts} &nbsp;&middot;&nbsp; ${total} pt${total!==1?'s':''}</div></div>`;
-        h+=`<div style="width:60px;background:var(--border);border-radius:3px;overflow:hidden;height:6px;"><div style="background:#6A1B9A;width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
-        h+=`</div>`;
-      });
-      h+=`</div>`;
-    }
-  }
-
-  // ─── Team Assessment ─────────────────────────────────────────────────────
-  const ta=st.teamAssessment;
-  if(ta){
-    const DIMS=[
-      {key:'effort',    label:'Effort'},
-      {key:'skill',     label:'Skill'},
-      {key:'tactics',   label:'Tactics'},
-      {key:'intensity', label:'Intensity'},
-      {key:'discipline',label:'Discipline'},
-      {key:'spirit',    label:'Spirit'},
-    ];
-    const COLOURS=['#C8E6C9','#81C784','#4CAF50','#388E3C','#1B5E20'];
-    const rated=DIMS.filter(d=>(ta[d.key]||0)>0);
-    if(rated.length>0){
-      const avg=(rated.reduce((s,d)=>s+(ta[d.key]||0),0)/rated.length).toFixed(1);
-      h+=`<div class="rv-full rv-card"><div class="rv-ctitle">Coach Assessment</div>`;
-      h+=`<div style="display:flex;flex-direction:column;gap:10px;padding:4px 0;">`;
-      DIMS.forEach(dim=>{
-        const val=ta[dim.key]||0;
-        h+=`<div style="display:flex;align-items:center;gap:12px;">`;
-        h+=`<div style="font-size:13px;font-weight:600;color:var(--t1);width:90px;flex-shrink:0;">${esc(dim.label)}</div>`;
-        h+=`<div style="display:flex;gap:5px;">`;
-        for(let v=1;v<=5;v++){
-          const colour=v<=val?COLOURS[v-1]:'#E0E0E0';
-          const ring=v===val?' outline:2px solid rgba(0,0,0,.2);outline-offset:1px;':'';
-          h+=`<div style="width:22px;height:22px;border-radius:50%;background:${colour};${ring}"></div>`;
-        }
-        h+=`</div>`;
-        if(val>0)h+=`<div style="font-size:13px;font-weight:700;color:var(--green);margin-left:4px;">${val}/5</div>`;
-        h+=`</div>`;
-      });
-      h+=`<div style="margin-top:8px;padding-top:10px;border-top:.5px solid var(--border);display:flex;align-items:baseline;gap:6px;">`;
-      h+=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t2);">Overall</div>`;
-      h+=`<div style="font-size:22px;font-weight:800;color:var(--green);">${avg}<span style="font-size:12px;color:var(--t2);">/5</span></div>`;
-      h+=`<div style="font-size:11px;color:var(--t2);">(${rated.length} dimension${rated.length!==1?'s':''} rated)</div>`;
-      h+=`</div>`;
-      if(ta.notes&&ta.notes.trim())h+=`<div style="margin-top:8px;font-size:13px;color:var(--t2);font-style:italic;line-height:1.5;">${esc(ta.notes.trim())}</div>`;
-      h+=`</div></div>`;
-    }
-  }
 
   h+=`<div class="rv-foot" style="display:flex;align-items:center;justify-content:center;gap:20px;">`;
   h+=`<span>GAA Match Tracker &mdash; Match Review</span>`;
   h+=`<label style="display:inline-flex;align-items:center;gap:8px;background:var(--green);color:white;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">`;
   h+=`<i class="fas fa-folder-open"></i> Load another match`;
-  h+=`<input type="file" accept=".json" style="display:none;" onchange="loadMatch(event)"></label>`;
+  h+=`<input type="file" accept=".json" style="display:none;" onchange="loadFile(this.files)"></label>`;
   h+=`</div>`;
   return h;
 }
