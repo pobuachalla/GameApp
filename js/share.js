@@ -143,8 +143,7 @@ function _buildScoreGraphicHTML(label) {
   const outcome    = _scoreOutcome(label, usT, oppT);
   const scorerLine = _scorerGraphicLine(isHT ? _firstHalfEvts() : state.evts);
 
-  const now = new Date();
-  const dateStr  = now.toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
+  const dateStr  = matchDisplayDate().toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
   const compHtml = state.competition
     ? `<div style="font-size:13px;font-weight:700;color:#1F5B3A;margin-bottom:3px;">${esc(state.competition)}</div>` : '';
   const venueHtml = state.location
@@ -216,7 +215,7 @@ function _buildLineupGraphicHTML() {
 
   // Header — same content and structure as openLayout()
   const oppName  = state.oppN && state.oppN !== 'Opposition' ? state.oppN : '';
-  const dateStr  = new Date().toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  const dateStr  = matchDisplayDate().toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
 
   const usCrestHtml  = _resolveCrestHTML(state.usN);
   const oppCrestHtml = _resolveCrestHTML(oppName);
