@@ -22,7 +22,7 @@ function buildPrintTimelineHTML() {
       else if (ev.action === 'Black Card') blacks.push({secs:t});
     }
     const curUs=usG*3+usP, curOpp=oppG*3+oppP;
-    const placed = PLACED_BALL.has(ev.sec) || (ev.sec==null&&(ev.badge==='OPP'||ev.badge==='ADJ')&&[...PLACED_BALL].some(pb=>(ev.desc||'').includes(pb)));
+    const placed = isPlacedBall(ev);
     if (mType) markers.push({secs:t, team:mTeam, type:mType, usScore:curUs, oppScore:curOpp, placed});
     if (curUs!==prevUs||curOpp!==prevOpp||mType==='Wide') data.push({secs:t,us:curUs,opp:curOpp});
   });
@@ -636,8 +636,6 @@ function buildPrintShotMapHTML() {
     thirds[t].shots++;
     if (s.action !== 'Wide' && s.action !== 'Short' && s.action !== 'Saved') thirds[t].scores++;
   });
-  const pct = (n,d) => d>0 ? Math.round(n/d*100)+'%' : '—';
-
   let h = '<div class="pr-section pr-break">';
   h += '<div class="pr-section-title">Shot Map</div>';
   h += '<div class="pr-card" style="padding:0;overflow:hidden;">';

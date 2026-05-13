@@ -137,6 +137,68 @@ function calculateMomentum(usGoals, usPts, ogGoals, ogPts, ownWon, oppWon, ownLo
   return { usMom, oppMom, momTotal, usPct, oppPct };
 }
 
+// ─── PLACED BALL ─────────────────────────────────────────────────────────────
+function isPlacedBall(ev) {
+  return PLACED_BALL.has(ev.sec) ||
+    (ev.sec == null && (ev.badge === 'OPP' || ev.badge === 'ADJ') &&
+      [...PLACED_BALL].some(pb => (ev.desc || '').includes(pb)));
+}
+
+// ─── PERCENTAGE HELPER ────────────────────────────────────────────────────────
+// Returns formatted percentage string or '—' for zero denominator.
+function pct(n, d) { return d > 0 ? Math.round(n / d * 100) + '%' : '—'; }
+
+// ─── TURNOVER DONUT ───────────────────────────────────────────────────────────
+function buildTurnoverDonut(title, entries, colorMap, fallback) {
+  const total = entries.reduce((s, [,n]) => s + n, 0);
+  if (total === 0) return '';
+
+  const CX = 54, CY = 54, R = 46, IR = 24;
+  const GAP = 0.025;
+  let svg = `<svg width="108" height="108" viewBox="0 0 108 108" style="display:block;margin:0 auto;">`;
+
+  let angle = -Math.PI / 2;
+  entries.forEach(([cat, n]) => {
+    const sweep = (n / total) * 2 * Math.PI - (entries.length > 1 ? GAP : 0);
+    const a1 = angle + (entries.length > 1 ? GAP / 2 : 0);
+    const a2 = a1 + sweep;
+    const x1 = CX + R  * Math.cos(a1), y1 = CY + R  * Math.sin(a1);
+    const x2 = CX + R  * Math.cos(a2), y2 = CY + R  * Math.sin(a2);
+    const ix1= CX + IR * Math.cos(a2), iy1= CY + IR * Math.sin(a2);
+    const ix2= CX + IR * Math.cos(a1), iy2= CY + IR * Math.sin(a1);
+    const large = sweep > Math.PI ? 1 : 0;
+    const color = colorMap[cat] || fallback;
+    svg += `<path d="M${x1} ${y1} A${R} ${R} 0 ${large} 1 ${x2} ${y2} L${ix1} ${iy1} A${IR} ${IR} 0 ${large} 0 ${ix2} ${iy2}Z" fill="${color}"/>`;
+    if (sweep > 0.38) {
+      const midA = a1 + sweep / 2;
+      const lr = (R + IR) / 2;
+      svg += `<text x="${(CX + lr * Math.cos(midA)).toFixed(1)}" y="${(CY + lr * Math.sin(midA) + 3).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="600" fill="rgba(255,255,255,0.82)">${n}</text>`;
+    }
+    angle += (n / total) * 2 * Math.PI;
+  });
+
+  svg += `<text x="${CX}" y="${CY - 5}" text-anchor="middle" font-size="14" font-weight="700" fill="var(--t1)">${total}</text>`;
+  svg += `<text x="${CX}" y="${CY + 9}" text-anchor="middle" font-size="8"  fill="var(--t2)">total</text>`;
+  svg += '</svg>';
+
+  let legend = '<div style="margin-top:6px;">';
+  [...entries].sort((a, b) => b[1] - a[1]).forEach(([cat, n]) => {
+    const p = Math.round(n / total * 100);
+    const color = colorMap[cat] || fallback;
+    legend += `<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">
+      <span style="width:9px;height:9px;border-radius:50%;background:${color};flex-shrink:0;"></span>
+      <span style="font-size:10px;color:var(--t2);flex:1;line-height:1.3;">${esc(cat)}</span>
+      <span style="font-size:10px;font-weight:700;color:var(--t1);">${p}%</span>
+    </div>`;
+  });
+  legend += '</div>';
+
+  return `<div style="flex:1;min-width:120px;max-width:160px;">
+    <div style="font-size:11px;font-weight:700;color:var(--t2);text-align:center;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">${esc(title)}</div>
+    ${svg}${legend}
+  </div>`;
+}
+
 // ─── GK RATING ────────────────────────────────────────────────────────────────
 // Returns null if no rated events. Otherwise returns rating data.
 function calculateGKRating(evts, ageGrade) {
