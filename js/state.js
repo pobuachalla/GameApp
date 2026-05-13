@@ -31,7 +31,7 @@ for (let i = 1; i <= 15; i++) state.slotp[i] = i;
 // ─── SESSION STATE (not persisted) ────────────────────────────────────────────
 let undos   = [];
 let selMode = false;
-let selSlot = null, pendAct = null, subOff = null;
+let selSlot = null, pendAct = null, subOff = null, swapSlot = null;
 let pendScoreAdj = null; // {type, d, side} for pending score adjustment
 // Zone picker session state
 let pendActSaved = null, pendSecVal = null, pendSlotSaved = null;

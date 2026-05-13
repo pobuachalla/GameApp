@@ -2,6 +2,11 @@
 
 // ─── PLAYER ACTIONS ───────────────────────────────────────────────────────────
 function sel(s) {
+  if (swapSlot !== null) {
+    if (s === swapSlot) { cancelSwap(); return; }
+    execSwap(swapSlot, s);
+    return;
+  }
   const isHT       = state.matchState === 'HALF_TIME';
   const isPaused   = state.matchState === 'PAUSED_FIRST_HALF' || state.matchState === 'PAUSED_SECOND_HALF';
   const isPreMatch = state.matchState === 'PRE_MATCH';
@@ -43,6 +48,10 @@ function openPlayerSheet(s) {
         `<button class="ps-pers-btn" onclick="psAction('Pre-game Sub')">` +
           `<span class="ps-pers-icon"><i class="fas fa-people-arrows"></i></span>` +
           `Pre-match sub<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i>` +
+        `</button>` +
+        `<button class="ps-pers-btn" onclick="psAction('Swap Position')">` +
+          `<span class="ps-pers-icon"><i class="fas fa-arrows-left-right"></i></span>` +
+          `Swap position<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i>` +
         `</button>` +
       `</div>`;
     document.getElementById('plyovly').classList.add('open');
@@ -108,6 +117,10 @@ function openPlayerSheet(s) {
       `<button class="ps-pers-btn" onclick="psAction('Substitution')">` +
         `<span class="ps-pers-icon"><i class="fas fa-people-arrows"></i></span>` +
         `Substitute off<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i>` +
+      `</button>` +
+      `<button class="ps-pers-btn" onclick="psAction('Swap Position')">` +
+        `<span class="ps-pers-icon"><i class="fas fa-arrows-left-right"></i></span>` +
+        `Swap position<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i>` +
       `</button>` +
     `</div>`;
 
@@ -229,6 +242,12 @@ function psAction(a) {
     subOff = selSlot;
     closePlayerSheet();
     pickSubOn();
+    return;
+  }
+  if (a === 'Swap Position') {
+    const slot = selSlot;
+    closePlayerSheetAndReset();
+    enterSwapMode(slot);
     return;
   }
   // Turnover Won/Lost without detailed tracking — log directly
@@ -501,6 +520,47 @@ function execSub(bi) {
   const cb = postSubCb;
   closeSubDrawer();
   if (cb) cb();
+}
+
+// ─── POSITION SWAP ────────────────────────────────────────────────────────────
+function enterSwapMode(slot) {
+  swapSlot = slot;
+  const sz = state.teamSize || 15;
+  (TEAM_SLOTS[sz] || TEAM_SLOTS[15]).forEach(s => {
+    const b = document.querySelector('[data-s="' + s + '"]');
+    if (!b) return;
+    if (s === slot) b.classList.add('swap-src');
+    else b.classList.add('swap-tgt');
+  });
+  document.getElementById('swap-pill').style.display = 'flex';
+}
+
+function cancelSwap() {
+  const sz = state.teamSize || 15;
+  (TEAM_SLOTS[sz] || TEAM_SLOTS[15]).forEach(s => {
+    const b = document.querySelector('[data-s="' + s + '"]');
+    if (!b) return;
+    b.classList.remove('swap-src', 'swap-tgt');
+  });
+  swapSlot = null;
+  document.getElementById('swap-pill').style.display = 'none';
+}
+
+function execSwap(slotA, slotB) {
+  const piA = state.slotp[slotA], piB = state.slotp[slotB];
+  state.slotp[slotA] = piB;
+  state.slotp[slotB] = piA;
+  const desc = 'Pos swap: ' + pl(piA) + ' ↔ ' + pl(piB);
+  addRow(fmt(state.secs), 'POS', 'bo', desc);
+  const ev = state.evts[state.evts.length - 1];
+  ev.slot = slotA; ev.action = 'pos-swap'; ev.pi = piA;
+  pushUndo(desc, () => {
+    state.slotp[slotA] = piA;
+    state.slotp[slotB] = piB;
+    refBtn(slotA); refBtn(slotB);
+  });
+  refBtn(slotA); refBtn(slotB);
+  cancelSwap();
 }
 
 // ─── PRE-GAME SUBSTITUTION ────────────────────────────────────────────────────
