@@ -220,7 +220,7 @@ function buildPrintHTML() {
 
   const usScore = state.goals+'-'+state.pts+' ('+((state.goals*3)+state.pts)+'pts)';
   const oppScore = state.og+'-'+state.op_+' ('+(state.og*3+state.op_)+'pts)';
-  const matchDate = new Date().toLocaleDateString('en-IE',{day:'numeric',month:'long',year:'numeric'});
+  const matchDate = matchDisplayDate().toLocaleDateString('en-IE',{day:'numeric',month:'long',year:'numeric'});
 
   const usClub   = findClub(state.usN);
   const oppClub  = findClub(state.oppN);

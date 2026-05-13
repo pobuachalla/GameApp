@@ -11,6 +11,17 @@ function formatSeconds(secs) {
   return m + ':' + (sc < 10 ? '0' : '') + sc;
 }
 
+// Returns a Date for the match: state.matchDate (ISO string from Setup) if set,
+// otherwise today. Use this wherever a display date is needed so share/print
+// screens reflect the actual match day rather than always showing today.
+function matchDisplayDate() {
+  if (state.matchDate) {
+    const d = new Date(state.matchDate + 'T12:00:00');
+    if (!isNaN(d)) return d;
+  }
+  return new Date();
+}
+
 // ─── SCORE BADGE PROCESSING ───────────────────────────────────────────────────
 // Applies an OPP, ADJ, Goal, Point, 2 Point, or Wide event to a running scores
 // object {usG, usP, oppG, oppP}. Returns {mType, mTeam} or null.
