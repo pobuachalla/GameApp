@@ -194,6 +194,7 @@ function onSportToggle(checked) {
   flushSettings();
   state.sport = checked ? 'football' : 'hurling';
   saveState();
+  renderTimerUI();
 }
 
 function renderPGrid() {
