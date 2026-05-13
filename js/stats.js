@@ -55,15 +55,15 @@ function buildTimelineHTML() {
   subs.forEach(e   => { const sx=x(e.secs); svg+=`<line x1="${sx}" y1="${PT}" x2="${sx}" y2="${PT+ch}" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="2 2"/>`; });
   reds.forEach(e   => { const sx=x(e.secs); svg+=`<line x1="${sx}" y1="${PT}" x2="${sx}" y2="${PT+ch}" stroke="${CARD_RED}" stroke-width="1.5" stroke-dasharray="2 2"/>`; });
   blacks.forEach(e => { const sx=x(e.secs); svg+=`<line x1="${sx}" y1="${PT}" x2="${sx}" y2="${PT+ch}" stroke="${CARD_BLACK}" stroke-width="1.5" stroke-dasharray="2 2"/>`; });
-  svg+=`<polyline points="${oppLine}" fill="none" stroke="#C62828" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-  svg+=`<polyline points="${usLine}"  fill="none" stroke="#2E7D32" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  svg+=`<polyline points="${oppLine}" fill="none" stroke="${TEAM_OPP_COLOR}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  svg+=`<polyline points="${usLine}"  fill="none" stroke="${TEAM_US_COLOR}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
   markers.forEach(m => {
     const cx=x(m.secs), cy=y(m.team==='us'?m.usScore:m.oppScore);
-    const mcol=m.team==='us'?'#2E7D32':'#C62828';
+    const mcol=m.team==='us'?TEAM_US_COLOR:TEAM_OPP_COLOR;
     const dotCol=m.type==='Wide'?'#9E9E9E':m.type==='2 Point'?'#F59E0B':mcol;
     const dotR=m.type==='Goal'?3.5:m.type==='2 Point'?3:m.type==='Point'?3:2;
     if(m.placed)svg+=`<circle cx="${cx}" cy="${cy}" r="${dotR+2}" fill="none" stroke="${dotCol}" stroke-width="1" opacity="0.7"/>`;
-    if      (m.type==='Goal')    svg+=`<circle cx="${cx}" cy="${cy}" r="3.5" fill="#2E7D32" stroke="#fff" stroke-width="1.2"/>`;
+    if      (m.type==='Goal')    svg+=`<circle cx="${cx}" cy="${cy}" r="3.5" fill="${TEAM_US_COLOR}" stroke="#fff" stroke-width="1.2"/>`;
     else if (m.type==='2 Point') svg+=`<circle cx="${cx}" cy="${cy}" r="3"   fill="#F59E0B" stroke="#fff" stroke-width="1.2"/>`;
     else if (m.type==='Point')   svg+=`<circle cx="${cx}" cy="${cy}" r="3"   fill="#fff"    stroke="#9A9E99" stroke-width="1.2"/>`;
     else if (m.type==='Wide')    svg+=`<circle cx="${cx}" cy="${cy}" r="2"   fill="#9E9E9E" stroke="none"/>`;
@@ -73,8 +73,8 @@ function buildTimelineHTML() {
   let h='<div class="stat-section"><div class="stat-section-title">Score Timeline</div><div class="stat-card" style="padding:10px 8px 8px;">';
   h+=svg;
   h+='<div style="display:flex;gap:16px;justify-content:center;margin-top:6px;flex-wrap:wrap;">';
-  h+=`<span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:16px;height:2px;background:#2E7D32;border-radius:1px;vertical-align:middle;"></span>${esc(state.usN)}</span>`;
-  h+=`<span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:16px;height:2px;background:#C62828;border-radius:1px;vertical-align:middle;"></span>${esc(state.oppN)}</span>`;
+  h+=`<span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:16px;height:2px;background:${TEAM_US_COLOR};border-radius:1px;vertical-align:middle;"></span>${esc(state.usN)}</span>`;
+  h+=`<span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:16px;height:2px;background:${TEAM_OPP_COLOR};border-radius:1px;vertical-align:middle;"></span>${esc(state.oppN)}</span>`;
   if (subs.length)   h+=`<span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:14px;height:0;border-top:2px dashed #F59E0B;vertical-align:middle;"></span>Sub</span>`;
   if (reds.length)   h+=`<span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:14px;height:0;border-top:2px dashed ${CARD_RED};vertical-align:middle;"></span>Red</span>`;
   if (blacks.length) h+=`<span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:14px;height:0;border-top:2px dashed ${CARD_BLACK};vertical-align:middle;"></span>Black</span>`;
@@ -122,7 +122,7 @@ function buildSubTableHTML() {
     h+='</div>';
     h+='<div style="min-width:60px;text-align:right;">';
     h+='<div style="font-size:11px;color:var(--t3);">'+scoreNow+'</div>';
-    h+='<div style="font-size:10px;color:var(--t3);margin-top:2px;"><span style="color:#2E7D32;">'+afterUs+'</span> / <span style="color:#C62828;">'+afterOpp+'</span></div>';
+    h+='<div style="font-size:10px;color:var(--t3);margin-top:2px;"><span style="color:'+TEAM_US_COLOR+';">'+afterUs+'</span> / <span style="color:'+TEAM_OPP_COLOR+';">'+afterOpp+'</span></div>';
     h+='</div>';
     h+='</div>';
   });
@@ -181,8 +181,8 @@ function buildPlayTimeHTML() {
     const isSub = !startPis.has(r.pi);
     h += '<div style="display:flex;align-items:center;gap:10px;padding:5px 0;">';
     h += `<div style="font-size:13px;font-weight:500;color:var(--t1);min-width:110px;white-space:nowrap;">${esc(r.name)}</div>`;
-    h += `<div style="flex:1;background:var(--bg3);border-radius:4px;overflow:hidden;height:8px;"><div style="background:#2E7D32;opacity:${isSub?'.55':'1'};width:${pct}%;height:100%;border-radius:4px;"></div></div>`;
-    h += `<div style="font-size:13px;font-weight:700;color:#2E7D32;min-width:40px;text-align:right;">${formatSeconds(r.t)}</div>`;
+    h += `<div style="flex:1;background:var(--bg3);border-radius:4px;overflow:hidden;height:8px;"><div style="background:${TEAM_US_COLOR};opacity:${isSub?'.55':'1'};width:${pct}%;height:100%;border-radius:4px;"></div></div>`;
+    h += `<div style="font-size:13px;font-weight:700;color:${TEAM_US_COLOR};min-width:40px;text-align:right;">${formatSeconds(r.t)}</div>`;
     h += `<div style="font-size:10px;color:var(--t3);min-width:24px;">${isSub?'Sub':''}</div>`;
     h += '</div>';
   });
@@ -199,8 +199,8 @@ function rstBlock(label, won, lost, unclear, total) {
     const pct = Math.round(won / total * 100);
     out += '<div class="stat-split-bar"><div class="stat-split-won" style="width:'+pct+'%"></div></div>';
     out += '<div class="stat-split-labels">';
-    out += '<span style="color:#2E7D32;font-weight:600;">'+won+' won <span style="font-weight:400;">('+pct+'%)</span></span>';
-    out += '<span style="color:#C62828;font-weight:600;">'+lost+' lost'+(unclear?' <span style="font-weight:400;color:var(--t2);">+'+unclear+' unclear</span>':'')+'</span>';
+    out += '<span style="color:'+TEAM_US_COLOR+';font-weight:600;">'+won+' won <span style="font-weight:400;">('+pct+'%)</span></span>';
+    out += '<span style="color:'+TEAM_OPP_COLOR+';font-weight:600;">'+lost+' lost'+(unclear?' <span style="font-weight:400;color:var(--t2);">+'+unclear+' unclear</span>':'')+'</span>';
     out += '</div>';
   }
   return out;
@@ -377,8 +377,8 @@ function buildStatsHTML() {
   h += '</div>';
   h += '<div class="momentum-feet">';
   h += html`<div class="momentum-team">`;
-  h += html`<span class="momentum-name" style="color:#2E7D32;">${state.usN}</span>`;
-  h += `<span class="momentum-pct" style="color:#2E7D32;">${usPct}%</span>`;
+  h += html`<span class="momentum-name" style="color:${TEAM_US_COLOR};">${state.usN}</span>`;
+  h += `<span class="momentum-pct" style="color:${TEAM_US_COLOR};">${usPct}%</span>`;
   h += '</div>';
   h += html`<div class="momentum-team right">`;
   h += html`<span class="momentum-name">${state.oppN}</span>`;
@@ -401,7 +401,7 @@ function buildStatsHTML() {
     const bt = totalAttempts;
     const gw = goalCount/bt*100, tw = twoPtCount/bt*100, pw = ptCount/bt*100, ww = wideCount/bt*100;
     h += '<div class="stat-attempt-bar">';
-    if (gw > 0) h += '<div class="stat-attempt-seg" style="width:'+gw+'%;background:#2E7D32;"></div>';
+    if (gw > 0) h += '<div class="stat-attempt-seg" style="width:'+gw+'%;background:'+TEAM_US_COLOR+';"></div>';
     if (tw > 0) h += '<div class="stat-attempt-seg" style="width:'+tw+'%;background:#D97706;"></div>';
     if (pw > 0) h += '<div class="stat-attempt-seg" style="width:'+pw+'%;background:#C8CAC4;"></div>';
     if (ww > 0) h += '<div class="stat-attempt-seg" style="width:'+ww+'%;background:#9E9E9E;"></div>';
