@@ -595,47 +595,7 @@ function buildPrintShotMapHTML() {
   });
   if (shots.length === 0) return '';
 
-  const jitter = (seed, range) => { const x = Math.sin(seed) * 43758.5453; return (x - Math.floor(x) - 0.5) * range; };
-  const placed_arr = [];
-  let dots = '';
-  shots.forEach((s, i) => {
-    const isSideline = s.sec === 'From Sideline';
-    const is45 = s.sec === 'From 45';
-    const is65 = s.sec === 'From 65';
-    const isPenalty = s.sec === 'From Penalty';
-    const baseCx = isPenalty ? 160 : isSideline ? (s.zone.coords.x < 0.5 ? ZPX : ZPX + ZPW) : ZPX + s.zone.coords.x * ZPW;
-    const baseCy = isPenalty ? 360 : is45 ? 268 : is65 ? 215 : ZPY + s.zone.coords.y * ZPH;
-    const isScore = s.action !== 'Wide' && s.action !== 'Short' && s.action !== 'Saved';
-    const isGoal = s.action === 'Goal';
-    const isShort = s.action === 'Short';
-    const isSaved = s.action === 'Saved';
-    const r = isGoal ? 9 : 6;
-    let cx, cy, jRange = 14;
-    for (let attempt = 0; attempt < 6; attempt++) {
-      cx = baseCx + (isSideline || isPenalty ? 0 : jitter(i * 2.1 + 1 + attempt * 17.3, jRange));
-      cy = baseCy + (is45 || is65 || isPenalty ? 0 : jitter(i * 2.1 + 2 + attempt * 17.3, jRange));
-      if (!placed_arr.some(p => Math.hypot(cx - p.cx, cy - p.cy) < r + p.r + 1)) break;
-      jRange += 10;
-    }
-    placed_arr.push({cx, cy, r});
-    const cxS = cx.toFixed(1), cyS = cy.toFixed(1);
-    const fill = isShort ? '#9E9E9E' : isSaved ? '#F97316' : isScore ? '#2E7D32' : '#C62828';
-    if (s.placed) dots += `<circle cx="${cxS}" cy="${cyS}" r="${r+3.5}" fill="none" stroke="${fill}" stroke-width="1.5" opacity="0.7"/>`;
-    dots += `<circle cx="${cxS}" cy="${cyS}" r="${r}" fill="${fill}" opacity="0.82" stroke="white" stroke-width="1.2"/>`;
-    if (s.pi != null) {
-      const ini = gi(s.pi);
-      const fs = isGoal ? 7 : (ini.length >= 4 ? 4.5 : 5.5);
-      dots += html`<text x="${cxS}" y="${cyS}" text-anchor="middle" dominant-baseline="central" font-size="${fs}" font-weight="700" fill="white" font-family="-apple-system,BlinkMacSystemFont,sans-serif" style="pointer-events:none;">${ini}</text>`;
-    }
-  });
-
-  const thirds = { att:{shots:0,scores:0}, mid:{shots:0,scores:0}, def:{shots:0,scores:0} };
-  shots.forEach(s => {
-    const y = s.zone.coords.y;
-    const t = y > 0.667 ? 'att' : y > 0.333 ? 'mid' : 'def';
-    thirds[t].shots++;
-    if (s.action !== 'Wide' && s.action !== 'Short' && s.action !== 'Saved') thirds[t].scores++;
-  });
+  const { dots, thirds } = computeShotDots(shots, pi => gi(pi));
   let h = '<div class="pr-section pr-break">';
   h += '<div class="pr-section-title">Shot Map</div>';
   h += '<div class="pr-card" style="padding:0;overflow:hidden;">';
