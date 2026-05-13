@@ -2,42 +2,27 @@
 
 // ─── SCORE TIMELINE ───────────────────────────────────────────────────────────
 function buildTimelineHTML() {
-  const toSecs = s => { const p=(s||'0:00').split(':'); return parseInt(p[0]||0)*60+(parseInt(p[1]||0)); };
   let usG=0,usP=0,oppG=0,oppP=0,halfSecs=0,inH2=false;
   const data = [{secs:0,us:0,opp:0}];
   const subs=[], reds=[], blacks=[], markers=[];
 
   state.evts.forEach(ev => {
-    let t = toSecs(ev.time);
+    let t = toSeconds(ev.time);
     if (ev.badge==='1H') { halfSecs=t; return; }
     if (ev.badge==='2H') { inH2=true; return; }
     if (inH2) t += halfSecs;
+    const sc = {usG, usP, oppG, oppP};
     const prevUs=usG*3+usP, prevOpp=oppG*3+oppP;
-    let mType=null, mTeam='us';
-    if (ev.badge==='OPP') {
-      const d=ev.desc||'';
-      if      (d.includes('Goal added'))     { oppG++; mType='Goal'; mTeam='opp'; }
-      else if (d.includes('2 Point added'))  { oppP+=2; mType='2 Point'; mTeam='opp'; }
-      else if (d.includes('Point added'))    { oppP++; mType='Point'; mTeam='opp'; }
-      else if (d.includes('Goal removed'))   oppG=Math.max(0,oppG-1);
-      else if (d.includes('Point removed'))  oppP=Math.max(0,oppP-1);
-    } else if (ev.badge==='ADJ') {
-      const d=ev.desc||'';
-      const adjOpp = d.startsWith(state.oppN);
-      if      (d.includes('Goal added'))    { if(adjOpp){oppG++;mType='Goal';mTeam='opp';}else{usG++;mType='Goal';mTeam='us';} }
-      else if (d.includes('2 Point added')) { if(adjOpp){oppP+=2;mType='2 Point';mTeam='opp';}else{usP+=2;mType='2 Point';mTeam='us';} }
-      else if (d.includes('Point added'))   { if(adjOpp){oppP++;mType='Point';mTeam='opp';}else{usP++;mType='Point';mTeam='us';} }
-      else if (d.includes('Goal removed'))  { if(adjOpp) oppG=Math.max(0,oppG-1); else usG=Math.max(0,usG-1); }
-      else if (d.includes('Point removed')) { if(adjOpp) oppP=Math.max(0,oppP-1); else usP=Math.max(0,usP-1); }
-    } else if (ev.action==='Goal')       { usG++; mType='Goal'; mTeam='us'; }
-      else if (ev.action==='Point')      { usP++; mType='Point'; mTeam='us'; }
-      else if (ev.action==='2 Point')    { usP+=2; mType='2 Point'; mTeam='us'; }
-      else if (ev.action==='Wide')       { mType='Wide'; mTeam='us'; }
-      else if (ev.action==='sub')        { subs.push({secs:t}); }
-      else if (ev.action==='Red Card')   { reds.push({secs:t}); }
-      else if (ev.action==='Black Card') { blacks.push({secs:t}); }
+    const _res = applyScoreBadge(ev, sc, state.oppN);
+    const mType = _res ? _res.mType : null, mTeam = _res ? _res.mTeam : 'us';
+    ({usG, usP, oppG, oppP} = sc);
+    if (!_res) {
+      if      (ev.action === 'sub')        subs.push({secs:t});
+      else if (ev.action === 'Red Card')   reds.push({secs:t});
+      else if (ev.action === 'Black Card') blacks.push({secs:t});
+    }
     const curUs=usG*3+usP, curOpp=oppG*3+oppP;
-    const placed = PLACED_BALL.has(ev.sec) || (ev.sec==null&&(ev.badge==='OPP'||ev.badge==='ADJ')&&[...PLACED_BALL].some(pb=>(ev.desc||'').includes(pb)));
+    const placed = isPlacedBall(ev);
     if (mType) markers.push({secs:t, team:mTeam, type:mType, usScore:curUs, oppScore:curOpp, placed});
     if (curUs!==prevUs||curOpp!==prevOpp||mType==='Wide') data.push({secs:t,us:curUs,opp:curOpp});
   });
@@ -102,31 +87,13 @@ function buildSubTableHTML() {
   const hasSubs = state.evts.some(ev=>ev.action==='sub');
   if (!hasSubs) return '';
 
-  let usG=0,usP=0,oppG=0,oppP=0;
+  const _sc={usG:0,usP:0,oppG:0,oppP:0};
   const scoreAt=[];
   state.evts.forEach(ev => {
-    if (ev.badge==='OPP') {
-      const d=ev.desc||'';
-      if      (d.includes('Goal added'))    oppG++;
-      else if (d.includes('2 Point added')) oppP+=2;
-      else if (d.includes('Point added'))   oppP++;
-      else if (d.includes('Goal removed'))  oppG=Math.max(0,oppG-1);
-      else if (d.includes('Point removed')) oppP=Math.max(0,oppP-1);
-    } else if (ev.badge==='ADJ') {
-      const d=ev.desc||'';
-      const adjOpp=d.startsWith(state.oppN);
-      if      (d.includes('Goal added'))    { if(adjOpp) oppG++; else usG++; }
-      else if (d.includes('2 Point added')) { if(adjOpp) oppP+=2; else usP+=2; }
-      else if (d.includes('Point added'))   { if(adjOpp) oppP++; else usP++; }
-      else if (d.includes('Goal removed'))  { if(adjOpp) oppG=Math.max(0,oppG-1); else usG=Math.max(0,usG-1); }
-      else if (d.includes('Point removed')) { if(adjOpp) oppP=Math.max(0,oppP-1); else usP=Math.max(0,usP-1); }
-    } else if (ev.action==='Goal')      usG++;
-      else if (ev.action==='Point')     usP++;
-      else if (ev.action==='2 Point')   usP+=2;
-    scoreAt.push({usG,usP,oppG,oppP});
+    applyScoreBadge(ev, _sc, state.oppN);
+    scoreAt.push({usG:_sc.usG,usP:_sc.usP,oppG:_sc.oppG,oppP:_sc.oppP});
   });
-
-  const fUsG=usG,fUsP=usP,fOppG=oppG,fOppP=oppP;
+  const fUsG=_sc.usG,fUsP=_sc.usP,fOppG=_sc.oppG,fOppP=_sc.oppP;
 
   let h='<div class="stat-section"><div class="stat-section-title">Substitutions</div><div class="stat-card" style="padding:0;overflow:hidden;">';
   h+='<div style="display:flex;align-items:center;padding:7px 12px;background:var(--bg3);border-bottom:.5px solid var(--b);gap:6px;">';
@@ -167,7 +134,6 @@ function buildSubTableHTML() {
 
 // ─── PLAY TIME ────────────────────────────────────────────────────────────────
 function computePlayTimes() {
-  const toSecs = s => { const p=(s||'0:00').split(':'); return parseInt(p[0]||0)*60+parseInt(p[1]||0); };
   const teamSz = state.teamSize || 15;
   const curSlotPi = {}, ptStart = {}, ptMap = {};
 
@@ -178,7 +144,7 @@ function computePlayTimes() {
 
   let halfSecs = 0, inH2 = false, lastSecs = 0;
   state.evts.forEach(ev => {
-    let t = toSecs(ev.time);
+    let t = toSeconds(ev.time);
     if (ev.badge === '1H') { halfSecs = t; return; }
     if (ev.badge === '2H') { inH2 = true; return; }
     if (inH2) t += halfSecs;
@@ -201,7 +167,6 @@ function buildPlayTimeHTML() {
   if (!state.trackGameTime) return '';
   if (!state.evts.some(ev => ev.action === 'sub')) return '';
   const { ptMap } = computePlayTimes();
-  const fmtT = secs => { const m=Math.floor(secs/60), sc=Math.round(secs%60); return m+':'+(sc<10?'0':'')+sc; };
   const startPis = new Set(Object.values(state.startSlotp||{}).map(Number));
   const rows = Object.entries(ptMap)
     .map(([pi, t]) => ({pi:+pi, name:gn(+pi), t}))
@@ -217,7 +182,7 @@ function buildPlayTimeHTML() {
     h += '<div style="display:flex;align-items:center;gap:10px;padding:5px 0;">';
     h += `<div style="font-size:13px;font-weight:500;color:var(--t1);min-width:110px;white-space:nowrap;">${esc(r.name)}</div>`;
     h += `<div style="flex:1;background:var(--bg3);border-radius:4px;overflow:hidden;height:8px;"><div style="background:#2E7D32;opacity:${isSub?'.55':'1'};width:${pct}%;height:100%;border-radius:4px;"></div></div>`;
-    h += `<div style="font-size:13px;font-weight:700;color:#2E7D32;min-width:40px;text-align:right;">${fmtT(r.t)}</div>`;
+    h += `<div style="font-size:13px;font-weight:700;color:#2E7D32;min-width:40px;text-align:right;">${formatSeconds(r.t)}</div>`;
     h += `<div style="font-size:10px;color:var(--t3);min-width:24px;">${isSub?'Sub':''}</div>`;
     h += '</div>';
   });
@@ -249,26 +214,10 @@ function rstBlock(label, won, lost, unclear, total) {
 // ─── GOALKEEPER PERFORMANCE STAT ─────────────────────────────────────────────
 function buildGKStatHTML() {
   if (!state.trackGKPerformance) return '';
-  const ratedEvts = state.evts.filter(e => e.gkOutcome != null && e.gkFinalValue != null);
-  if (ratedEvts.length === 0) return '';
-
-  let weightedDevSum = 0, totalWeight = 0, saves = 0, goals = 0;
-  ratedEvts.forEach(e => {
-    const dev = e.gkFinalValue - 4;
-    const wt = 1 + ((e.gkIntensity || 3) - 1) * 0.4;
-    weightedDevSum += dev * wt;
-    totalWeight += wt;
-    if (e.gkOutcome === 'save') saves++; else goals++;
-  });
-
-  const avgDev = totalWeight > 0 ? weightedDevSum / totalWeight : 0;
-  const rating = Math.round(50 + (Math.max(-4, Math.min(4, avgDev)) / 4) * 50);
-  const label = rating >= 80 ? 'Outstanding' : rating >= 65 ? 'Very Good' : rating >= 55 ? 'Good'
-    : rating >= 45 ? 'Average' : rating >= 35 ? 'Below Average' : rating >= 20 ? 'Poor' : 'Very Poor';
-  const ratingColor = rating >= 65 ? '#2E7D32' : rating >= 45 ? '#F59E0B' : '#C62828';
+  const _gk = calculateGKRating(state.evts, state.ageGrade);
+  if (!_gk) return '';
+  const { rating, label, ratingColor, saves, goals, shots, saveRate, ratedEvts } = _gk;
   const gkName = gn(1) || 'Goalkeeper';
-  const shots = saves + goals;
-  const saveRate = shots > 0 ? Math.round(saves / shots * 100) : 0;
   const intensityLabels = ['', 'Routine', 'Moderate', 'Challenging', 'Difficult', 'Exceptional'];
 
   let h = '<div class="stat-section"><div class="stat-section-title">Goalkeeper Performance</div>';
@@ -392,60 +341,14 @@ function renderStats() {
 }
 
 function buildStatsHTML() {
-  let goalCount=0, ptCount=0, twoPtCount=0, wideCount=0;
-  let placedGoals=0, placedPts=0, placedTwoPts=0, placedWides=0;
-  let ownWon=0, ownLost=0, ownUnclear=0;
-  let oppWon=0, oppLost=0, oppUnclear=0;
-  let turnoversWon=0, turnoversLost=0;
-  const wonCategories = {}, lostCategories = {};
-  const pstats = {};
-
-  state.evts.forEach(ev => {
-    if (ev.badge === 'RSTR') {
-      const d = ev.desc || '';
-      const won = d.includes(': Won'), lost = d.includes(': Lost');
-      if (d.startsWith('Own Restart')) {
-        if (won) ownWon++; else if (lost) ownLost++; else ownUnclear++;
-      } else if (d.startsWith("Opposition")) {
-        if (won) oppWon++; else if (lost) oppLost++; else oppUnclear++;
-      }
-      return;
-    }
-    if (!ev.action || !ev.slot) return;
-    const pi = ev.pi != null ? ev.pi : state.slotp[ev.slot];
-    if (!pi) return;
-    const placed = PLACED_BALL.has(ev.sec);
-    if (!pstats[pi]) pstats[pi] = {name:pl(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0,twon:0,tlost:0,twonSec:{},tlostSec:{},frees:{}};
-    const ps = pstats[pi];
-    if (ev.action === 'Goal')     { goalCount++;   placed ? (placedGoals++,  ps.gPlaced++) : ps.gPlay++; }
-    else if (ev.action === 'Point')    { ptCount++;    placed ? (placedPts++,   ps.pPlaced++) : ps.pPlay++; }
-    else if (ev.action === '2 Point')  { twoPtCount++; placed ? (placedTwoPts++,ps.pPlaced+=2) : ps.pPlay+=2; }
-    else if (ev.action === 'Wide')     { wideCount++;  ps.wides++; if (placed) placedWides++; }
-    else if (ev.action === 'Yellow Card') ps.yc++;
-    else if (ev.action === 'Red Card')   ps.rc++;
-    else if (ev.action === 'Black Card') ps.bc++;
-    else if (ev.action === 'Turnover Won')  {
-      turnoversWon++;  ps.twon++;
-      if (state.trackTurnovers && ev.sec) { wonCategories[ev.sec]=(wonCategories[ev.sec]||0)+1; ps.twonSec[ev.sec]=(ps.twonSec[ev.sec]||0)+1; }
-    }
-    else if (ev.action === 'Turnover Lost') {
-      turnoversLost++; ps.tlost++;
-      if (state.trackTurnovers && ev.sec) { lostCategories[ev.sec]=(lostCategories[ev.sec]||0)+1; ps.tlostSec[ev.sec]=(ps.tlostSec[ev.sec]||0)+1; }
-    }
-    else if (ev.action === 'Free') { const ft = ev.sec || 'Other'; ps.frees[ft] = (ps.frees[ft]||0) + 1; }
-  });
-
-  let freesConc = 0, freesScored = 0;
-  for (let i = 0; i < state.evts.length; i++) {
-    if (state.evts[i].action !== 'Free') continue;
-    freesConc++;
-    for (let j = i + 1; j < state.evts.length; j++) {
-      const next = state.evts[j];
-      if (next.badge === 'RSTR') continue;
-      if (next.badge === 'OPP') freesScored++;
-      break;
-    }
-  }
+  const {
+    pstats, wonCategories, lostCategories,
+    goalCount, ptCount, twoPtCount, wideCount,
+    placedGoals, placedPts, placedTwoPts, placedWides,
+    turnoversWon, turnoversLost,
+    ownWon, ownLost, ownUnclear, oppWon, oppLost, oppUnclear,
+    freesConc, freesScored,
+  } = aggregateMatchStats(state.evts, state.trackTurnovers, state.slotp, pl);
 
   const totalScoreActions = goalCount + ptCount + twoPtCount;
   const totalAttempts = totalScoreActions + wideCount;
@@ -464,11 +367,7 @@ function buildStatsHTML() {
   }
 
   // Momentum calculation
-  const usMom  = (state.goals*3 + state.pts)  + (ownWon  + oppWon)  * 2 + turnoversWon;
-  const oppMom = (state.og*3   + state.op_)   + (ownLost + oppLost) * 2 + turnoversLost;
-  const momTotal = usMom + oppMom;
-  const usPct  = momTotal > 0 ? Math.round(usMom  / momTotal * 100) : 50;
-  const oppPct = momTotal > 0 ? 100 - usPct : 50;
+  const {usPct, oppPct, momTotal} = calculateMomentum(state.goals, state.pts, state.og, state.op_, ownWon, oppWon, ownLost, oppLost, turnoversWon, turnoversLost);
   const dominant = usPct > oppPct ? state.usN : usPct < oppPct ? state.oppN : null;
 
   let h = '';
@@ -536,13 +435,7 @@ function buildStatsHTML() {
   h += '</div></div>';
 
   // Player Scoring
-  const scorers = Object.values(pstats).filter(p =>
-    p.gPlay+p.gPlaced+p.pPlay+p.pPlaced+p.wides > 0
-  ).sort((a,b) => {
-    const ta = (a.gPlay+a.gPlaced)*3+(a.pPlay+a.pPlaced);
-    const tb = (b.gPlay+b.gPlaced)*3+(b.pPlay+b.pPlaced);
-    return tb !== ta ? tb - ta : a.name.localeCompare(b.name);
-  });
+  const scorers = getScorers(pstats);
   if (scorers.length > 0) {
     h += '<div class="stat-section"><div class="stat-section-title">Player Scoring</div><div class="stat-card">';
     scorers.forEach(p => {
@@ -626,15 +519,7 @@ function buildStatsHTML() {
   if (oscHtml) h += oscHtml;
 
   // Discipline
-  const discPlayers = Object.values(pstats).filter(p =>
-    p.yc+p.bc+p.rc > 0 || Object.keys(p.frees).length > 0
-  ).sort((a,b) => {
-    const ca = a.rc*100+a.bc*10+a.yc, cb = b.rc*100+b.bc*10+b.yc;
-    if (cb !== ca) return cb - ca;
-    const fa = Object.values(a.frees).reduce((s,n)=>s+n,0);
-    const fb = Object.values(b.frees).reduce((s,n)=>s+n,0);
-    return fb - fa || a.name.localeCompare(b.name);
-  });
+  const discPlayers = getDiscPlayers(pstats);
   if (discPlayers.length > 0 || freesConc > 0) {
     h += '<div class="stat-section"><div class="stat-section-title">Discipline</div>';
     if (freesConc > 0) {
@@ -681,57 +566,6 @@ function buildStatsHTML() {
 }
 
 // ─── TURNOVER DONUT ───────────────────────────────────────────────────────────
-function buildTurnoverDonut(title, entries, colorMap, fallback) {
-  const total = entries.reduce((s, [,n]) => s + n, 0);
-  if (total === 0) return '';
-
-  const CX = 54, CY = 54, R = 46, IR = 24;
-  const GAP = 0.025; // radians gap between segments
-  let svg = `<svg width="108" height="108" viewBox="0 0 108 108" style="display:block;margin:0 auto;">`;
-
-  let angle = -Math.PI / 2;
-  entries.forEach(([cat, n]) => {
-    const sweep = (n / total) * 2 * Math.PI - (entries.length > 1 ? GAP : 0);
-    const a1 = angle + (entries.length > 1 ? GAP / 2 : 0);
-    const a2 = a1 + sweep;
-    const x1 = CX + R  * Math.cos(a1), y1 = CY + R  * Math.sin(a1);
-    const x2 = CX + R  * Math.cos(a2), y2 = CY + R  * Math.sin(a2);
-    const ix1= CX + IR * Math.cos(a2), iy1= CY + IR * Math.sin(a2);
-    const ix2= CX + IR * Math.cos(a1), iy2= CY + IR * Math.sin(a1);
-    const large = sweep > Math.PI ? 1 : 0;
-    const color = colorMap[cat] || fallback;
-    svg += `<path d="M${x1} ${y1} A${R} ${R} 0 ${large} 1 ${x2} ${y2} L${ix1} ${iy1} A${IR} ${IR} 0 ${large} 0 ${ix2} ${iy2}Z" fill="${color}"/>`;
-    if (sweep > 0.38) {
-      const midA = a1 + sweep / 2;
-      const lr = (R + IR) / 2;
-      svg += `<text x="${(CX + lr * Math.cos(midA)).toFixed(1)}" y="${(CY + lr * Math.sin(midA) + 3).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="600" fill="rgba(255,255,255,0.82)">${n}</text>`;
-    }
-    angle += (n / total) * 2 * Math.PI;
-  });
-
-  // Centre label
-  svg += `<text x="${CX}" y="${CY - 5}" text-anchor="middle" font-size="14" font-weight="700" fill="var(--t1)">${total}</text>`;
-  svg += `<text x="${CX}" y="${CY + 9}" text-anchor="middle" font-size="8"  fill="var(--t2)">total</text>`;
-  svg += '</svg>';
-
-  // Legend
-  let legend = '<div style="margin-top:6px;">';
-  entries.sort((a, b) => b[1] - a[1]).forEach(([cat, n]) => {
-    const pct = Math.round(n / total * 100);
-    const color = colorMap[cat] || fallback;
-    legend += `<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">
-      <span style="width:9px;height:9px;border-radius:50%;background:${color};flex-shrink:0;"></span>
-      <span style="font-size:10px;color:var(--t2);flex:1;line-height:1.3;">${esc(cat)}</span>
-      <span style="font-size:10px;font-weight:700;color:var(--t1);">${pct}%</span>
-    </div>`;
-  });
-  legend += '</div>';
-
-  return `<div style="flex:1;min-width:120px;max-width:160px;">
-    <div style="font-size:11px;font-weight:700;color:var(--t2);text-align:center;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">${esc(title)}</div>
-    ${svg}${legend}
-  </div>`;
-}
 
 // ─── SHOT MAP ─────────────────────────────────────────────────────────────────
 function buildShotMapHTML() {
@@ -760,51 +594,9 @@ function buildShotMapHTML() {
     return true;
   });
 
-  const jitter = (seed, range) => { const x = Math.sin(seed) * 43758.5453; return (x - Math.floor(x) - 0.5) * range; };
-  const placed_arr = [];
-  let dots = '';
-  filtered.forEach((s, i) => {
-    const isSideline = s.sec === 'From Sideline';
-    const is45 = s.sec === 'From 45';
-    const is65 = s.sec === 'From 65';
-    const isPenalty = s.sec === 'From Penalty';
-    const baseCx = isPenalty ? 160 : isSideline ? (s.zone.coords.x < 0.5 ? ZPX : ZPX + ZPW) : ZPX + s.zone.coords.x * ZPW;
-    const baseCy = isPenalty ? 360 : is45 ? 268 : is65 ? 215 : ZPY + s.zone.coords.y * ZPH;
-    const isScore = s.action !== 'Wide' && s.action !== 'Short' && s.action !== 'Saved';
-    const isGoal = s.action === 'Goal';
-    const isShort = s.action === 'Short';
-    const isSaved = s.action === 'Saved';
-    const r = isGoal ? 9 : 6;
-    let cx, cy, jRange = 14;
-    for (let attempt = 0; attempt < 6; attempt++) {
-      cx = baseCx + (isSideline || isPenalty ? 0 : jitter(i * 2.1 + 1 + attempt * 17.3, jRange));
-      cy = baseCy + (is45 || is65 || isPenalty ? 0 : jitter(i * 2.1 + 2 + attempt * 17.3, jRange));
-      if (!placed_arr.some(p => Math.hypot(cx - p.cx, cy - p.cy) < r + p.r + 1)) break;
-      jRange += 10;
-    }
-    placed_arr.push({cx, cy, r});
-    const cxS = cx.toFixed(1), cyS = cy.toFixed(1);
-    const fill = isShort ? '#9E9E9E' : isSaved ? '#F97316' : isScore ? '#2E7D32' : '#C62828';
-    if (s.placed) dots += `<circle cx="${cxS}" cy="${cyS}" r="${r+3.5}" fill="none" stroke="${fill}" stroke-width="1.5" opacity="0.7"/>`;
-    dots += `<circle cx="${cxS}" cy="${cyS}" r="${r}" fill="${fill}" opacity="0.82" stroke="white" stroke-width="1.2"/>`;
-    if (s.pi != null) {
-      const ini = esc(gi(s.pi));
-      const fs = isGoal ? 7 : (ini.length >= 4 ? 4.5 : 5.5);
-      dots += `<text x="${cxS}" y="${cyS}" text-anchor="middle" dominant-baseline="central" font-size="${fs}" font-weight="700" fill="white" font-family="-apple-system,BlinkMacSystemFont,sans-serif" style="pointer-events:none;">${ini}</text>`;
-    }
-  });
-
+  const { dots, thirds } = computeShotDots(filtered, pi => esc(gi(pi)));
   const svg = `<svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:8px;" preserveAspectRatio="xMidYMid meet">${PITCH_SVG_INNER}${dots}</svg>`;
 
-  const thirds = { att:{shots:0,scores:0}, mid:{shots:0,scores:0}, def:{shots:0,scores:0} };
-  filtered.forEach(s => {
-    const y = s.zone.coords.y;
-    const t = y > 0.667 ? 'att' : y > 0.333 ? 'mid' : 'def';
-    thirds[t].shots++;
-    if (s.action !== 'Wide' && s.action !== 'Short' && s.action !== 'Saved') thirds[t].scores++;
-  });
-
-  const pct = (n,d) => d>0 ? Math.round(n/d*100)+'%' : '—';
   const hChip = (val,label) => `<button class="zone-chip${shotMapHalfFilter===val?' active':''}" onclick="setShotMapFilter('half','${val}')">${label}</button>`;
   const pChip = (val,label) => `<button class="zone-chip${String(shotMapPlayerFilter)===String(val)?' active':''}" onclick="setShotMapFilter('player','${val}')">${label}</button>`;
 

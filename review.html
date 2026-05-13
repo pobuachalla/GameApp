@@ -187,6 +187,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <!-- ── Review ──────────────────────────────────────────────────────────── -->
 <div id="review"></div>
 
+<script src="js/game-utils.js"></script>
 <script src="js/pitch-svg.js"></script>
 <script>
 'use strict';
@@ -200,7 +201,6 @@ const CARD_YELLOW='#FDD835', CARD_BLACK='#2c2c2a', CARD_RED='#E53935';
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const gn  = (st,i) => (st.pnames&&st.pnames[i]||'').trim();
 const pn  = (st,i) => gn(st,i)||'#'+i;
-const toS = s => { const p=(s||'0:00').split(':'); return parseInt(p[0]||0)*60+parseInt(p[1]||0); };
 const jit = (seed,range) => { const x=Math.sin(seed)*43758.5453; return (x-Math.floor(x)-.5)*range; };
 
 // ── File load ────────────────────────────────────────────────────────────────
@@ -262,14 +262,14 @@ function computeStats(st) {
       else if(d.startsWith('Opposition')){if(won)oppWon++;else if(lost)oppLost++;else oppUnclear++;}
       return;
     }
-    if(ev.badge==='1H'){tlHS=toS(ev.time);return;}
+    if(ev.badge==='1H'){tlHS=toSeconds(ev.time);return;}
     if(ev.badge==='2H'){tlH2=true;smH2=true;return;}
 
     const pi=ev.pi!=null?ev.pi:(ev.slot!=null?(st.slotp&&st.slotp[ev.slot])||ev.slot:null);
     const p=(pi&&ev.action&&ev.action!=='sub')?getP(pi):null;
     let placed=PLACED_BALL.has(ev.sec);
     if(!placed&&ev.sec==null&&(ev.badge==='OPP'||ev.badge==='ADJ')){const _d=ev.desc||'';placed=[...PLACED_BALL].some(pb=>_d.includes(pb));}
-    const t=toS(ev.time), secs=tlH2?t+tlHS:t;
+    const t=toSeconds(ev.time), secs=tlH2?t+tlHS:t;
     const prevUs=tlUG*3+tlUP, prevOpp=tlOG*3+tlOP;
     let mType=null,mTeam='us';
 
@@ -446,41 +446,6 @@ function buildSM(shots, st) {
   return `<svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:8px;display:block;" preserveAspectRatio="xMidYMid meet">${PITCH_SVG_INNER}${dots}</svg>`;
 }
 
-// ── Turnover donut ────────────────────────────────────────────────────────────
-function buildTurnoverDonut(title, entries, colorMap, fallback) {
-  const total = entries.reduce((s,[,n])=>s+n, 0);
-  if (total===0) return '';
-  const CX=54,CY=54,R=46,IR=24,GAP=0.025;
-  let svg=`<svg width="108" height="108" viewBox="0 0 108 108" style="display:block;margin:0 auto;">`;
-  let angle=-Math.PI/2;
-  entries.forEach(([cat,n])=>{
-    const sweep=(n/total)*2*Math.PI-(entries.length>1?GAP:0);
-    const a1=angle+(entries.length>1?GAP/2:0), a2=a1+sweep;
-    const x1=CX+R*Math.cos(a1),y1=CY+R*Math.sin(a1);
-    const x2=CX+R*Math.cos(a2),y2=CY+R*Math.sin(a2);
-    const ix1=CX+IR*Math.cos(a2),iy1=CY+IR*Math.sin(a2);
-    const ix2=CX+IR*Math.cos(a1),iy2=CY+IR*Math.sin(a1);
-    const large=sweep>Math.PI?1:0;
-    const color=colorMap[cat]||fallback;
-    svg+=`<path d="M${x1} ${y1} A${R} ${R} 0 ${large} 1 ${x2} ${y2} L${ix1} ${iy1} A${IR} ${IR} 0 ${large} 0 ${ix2} ${iy2}Z" fill="${color}"/>`;
-    if(sweep>0.38){
-      const midA=a1+sweep/2,lr=(R+IR)/2;
-      svg+=`<text x="${(CX+lr*Math.cos(midA)).toFixed(1)}" y="${(CY+lr*Math.sin(midA)+3).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="600" fill="rgba(255,255,255,0.82)">${n}</text>`;
-    }
-    angle+=(n/total)*2*Math.PI;
-  });
-  svg+=`<text x="${CX}" y="${CY-5}" text-anchor="middle" font-size="14" font-weight="700" fill="var(--t1)">${total}</text>`;
-  svg+=`<text x="${CX}" y="${CY+9}" text-anchor="middle" font-size="8" fill="var(--t2)">total</text>`;
-  svg+='</svg>';
-  let legend='<div style="margin-top:6px;">';
-  [...entries].sort((a,b)=>b[1]-a[1]).forEach(([cat,n])=>{
-    const pct=Math.round(n/total*100), color=colorMap[cat]||fallback;
-    legend+=`<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><span style="width:9px;height:9px;border-radius:50%;background:${color};flex-shrink:0;"></span><span style="font-size:10px;color:var(--t2);flex:1;line-height:1.3;">${esc(cat)}</span><span style="font-size:10px;font-weight:700;color:var(--t1);">${pct}%</span></div>`;
-  });
-  legend+='</div>';
-  return `<div style="flex:1;min-width:120px;max-width:160px;"><div style="font-size:11px;font-weight:700;color:var(--t2);text-align:center;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">${esc(title)}</div>${svg}${legend}</div>`;
-}
-
 // ── Main builder ──────────────────────────────────────────────────────────────
 function buildReview(st) {
   const s = computeStats(st);
@@ -492,10 +457,7 @@ function buildReview(st) {
             :'Level';
 
   const ownRstT=s.ownWon+s.ownLost+s.ownUnclear,oppRstT=s.oppWon+s.oppLost+s.oppUnclear;
-  const usMom=usPts+(s.ownWon+s.oppWon)*2+s.twon;
-  const oMom=oppPts+(s.ownLost+s.oppLost)*2+s.tlost;
-  const momT=usMom+oMom;
-  const uMP=momT>0?Math.round(usMom/momT*100):50, oMP=100-uMP;
+  const {usPct:uMP,oppPct:oMP}=calculateMomentum(st.goals||0,st.pts||0,st.og||0,st.op_||0,s.ownWon,s.oppWon,s.ownLost,s.oppLost,s.twon,s.tlost);
 
   const totalSA=s.gC+s.pC+s.t2C, totalAtt=totalSA+s.wC;
   const scorePct=totalAtt>0?Math.round(totalSA/totalAtt*100):0;
@@ -674,10 +636,10 @@ function buildReview(st) {
       wDevSum+=(e.gkFinalValue-4)*wt; wTotal+=wt;
       if(e.gkOutcome==='save')gkSaves++; else gkGoals++;
     });
-    const avgDev=wTotal>0?wDevSum/wTotal:0;
-    const gkRating=Math.round(50+(Math.max(-4,Math.min(4,avgDev))/4)*50);
-    const gkLabel=gkRating>=80?'Outstanding':gkRating>=65?'Very Good':gkRating>=55?'Good':gkRating>=45?'Average':gkRating>=35?'Below Average':gkRating>=20?'Poor':'Very Poor';
-    const gkCol=gkRating>=65?'#2E7D32':gkRating>=45?'#D97706':'#C62828';
+    const _gkData=calculateGKRating(gkEvts,st.ageGrade);
+    const gkRating=_gkData?_gkData.rating:50;
+    const gkLabel=_gkData?_gkData.label:'Average';
+    const gkCol=_gkData?_gkData.ratingColor:'#F59E0B';
     const gkShots=gkSaves+gkGoals;
     const gkSavePct=gkShots>0?Math.round(gkSaves/gkShots*100):0;
     const gkName=pn(st,st.slotp?(st.slotp[1]||1):1);
