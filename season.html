@@ -728,12 +728,12 @@ function buildTeamView(matches, players, totalUsG, totalUsP, totalUsT, totalOgT)
   // Bar widths use point value (goals × 3) so goals and points are visually comparable;
   // display labels show the actual count (goals) or value (points).
   const maxBarPts = Math.max(gPlay*3, gPlaced*3, pPlay, pPlaced, 1);
-  h += stackedBar('Goals from play',  gPlay,   gPlay*3,   maxBarPts, '#2E7D32');
-  h += stackedBar('Goals placed',     gPlaced, gPlaced*3, maxBarPts, '#2E7D32');
+  h += stackedBar('Goals from play',  gPlay,   gPlay*3,   maxBarPts, TEAM_US_COLOR);
+  h += stackedBar('Goals placed',     gPlaced, gPlaced*3, maxBarPts, TEAM_US_COLOR);
   h += stackedBar('Points from play', pPlay,   pPlay,     maxBarPts, '#1565C0');
   h += stackedBar('Points placed',    pPlaced, pPlaced,   maxBarPts, '#1565C0');
   h += `<div class="rv-legend" style="margin-top:14px;">`;
-  h += `<div class="rv-li"><div class="rv-ld" style="background:#2E7D32;"></div>Goals (play / placed: ${gPlay} / ${gPlaced})</div>`;
+  h += `<div class="rv-li"><div class="rv-ld" style="background:${TEAM_US_COLOR};"></div>Goals (play / placed: ${gPlay} / ${gPlaced})</div>`;
   h += `<div class="rv-li"><div class="rv-ld" style="background:#1565C0;"></div>Points (play / placed: ${pPlay} / ${pPlaced})</div>`;
   h += `</div>`;
   h += `<div class="rv-legend" style="margin-top:8px;">`;

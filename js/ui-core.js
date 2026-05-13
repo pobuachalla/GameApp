@@ -151,7 +151,7 @@ function refBtn(s) {
   const iniSpan = document.createElement('span');
   iniSpan.textContent = ini;
   iniSpan.style.fontSize = ini.length>=4?'10px':ini.length===3?'11px':ini.length===2?'12px':'14px';
-  iniSpan.style.color = '#2E7D32';
+  iniSpan.style.color = TEAM_US_COLOR;
   wrap.appendChild(iniSpan);
   const {g, p: p_} = playerScore(pi);
   if (g > 0 || p_ > 0) {
