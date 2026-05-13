@@ -262,7 +262,9 @@ function buildGKStatHTML() {
   });
 
   const avgDev = totalWeight > 0 ? weightedDevSum / totalWeight : 0;
-  const rating = Math.round(50 + (Math.max(-4, Math.min(4, avgDev)) / 4) * 50);
+  const _ageCat = _ageCategory(state.ageGrade || '');
+  const _ageBonus = _ageCat && _ageCat[1] === 'go-games' ? 1.5 : _ageCat && _ageCat[1] === 'juvenile' ? 0.75 : 0;
+  const rating = Math.round(50 + (Math.max(-4, Math.min(4, avgDev + _ageBonus)) / 4) * 50);
   const label = rating >= 80 ? 'Outstanding' : rating >= 65 ? 'Very Good' : rating >= 55 ? 'Good'
     : rating >= 45 ? 'Average' : rating >= 35 ? 'Below Average' : rating >= 20 ? 'Poor' : 'Very Poor';
   const ratingColor = rating >= 65 ? '#2E7D32' : rating >= 45 ? '#F59E0B' : '#C62828';
