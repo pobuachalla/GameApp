@@ -418,18 +418,17 @@ function _initTypeahead(input) {
     document.head.appendChild(s);
   }
 
-  const drop = document.createElement('div');
-  drop.style.cssText = 'position:fixed;z-index:9999;background:var(--bg1);border:.5px solid var(--bm);'
-    + 'border-radius:var(--r);overflow-y:auto;max-height:220px;display:none;'
-    + 'box-shadow:0 4px 16px rgba(0,0,0,0.14);-webkit-overflow-scrolling:touch;';
-  document.body.appendChild(drop);
+  // Use position:absolute inside the input's parent so the dropdown stays
+  // attached to the field on iOS when the keyboard shifts the visual viewport.
+  const anchor = input.parentElement;
+  anchor.style.position = 'relative';
 
-  const pos = () => {
-    const r = input.getBoundingClientRect();
-    drop.style.left  = r.left + 'px';
-    drop.style.top   = (r.bottom + 2) + 'px';
-    drop.style.width = r.width + 'px';
-  };
+  const drop = document.createElement('div');
+  drop.style.cssText = 'position:absolute;z-index:9999;background:var(--bg1);border:.5px solid var(--bm);'
+    + 'border-radius:var(--r);overflow-y:auto;max-height:220px;display:none;'
+    + 'box-shadow:0 4px 16px rgba(0,0,0,0.14);-webkit-overflow-scrolling:touch;'
+    + 'top:100%;left:0;width:100%;';
+  anchor.appendChild(drop);
 
   const close = () => { drop.style.display = 'none'; };
 
@@ -493,7 +492,6 @@ function _initTypeahead(input) {
       row.addEventListener('touchend',  e => { e.preventDefault(); pick(row.dataset.name); });
     });
 
-    pos();
     drop.style.display = 'block';
   });
 
