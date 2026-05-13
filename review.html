@@ -675,7 +675,8 @@ function buildReview(st) {
       if(e.gkOutcome==='save')gkSaves++; else gkGoals++;
     });
     const avgDev=wTotal>0?wDevSum/wTotal:0;
-    const gkRating=Math.round(50+(Math.max(-4,Math.min(4,avgDev))/4)*50);
+    const _rvAgBonus=({U8:2.0,U10:1.75,U12:1.5,U14:1.2,U16:0.75,Minor:0.35})[st.ageGrade]||0;
+    const gkRating=Math.round(50+(Math.max(-4,Math.min(4,avgDev+_rvAgBonus))/4)*50);
     const gkLabel=gkRating>=80?'Outstanding':gkRating>=65?'Very Good':gkRating>=55?'Good':gkRating>=45?'Average':gkRating>=35?'Below Average':gkRating>=20?'Poor':'Very Poor';
     const gkCol=gkRating>=65?'#2E7D32':gkRating>=45?'#D97706':'#C62828';
     const gkShots=gkSaves+gkGoals;
