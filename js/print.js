@@ -490,7 +490,8 @@ function buildPrintHTML() {
         prWtdSum += dev * wt; prWtd += wt;
         if (e.gkOutcome === 'save') prSaves++; else prGoals++;
       });
-      const prRating = Math.round(50 + (Math.max(-4, Math.min(4, prWtd > 0 ? prWtdSum / prWtd : 0)) / 4) * 50);
+      const _prAgBonus = ({U8: 2.0, U10: 1.75, U12: 1.5, U14: 1.2, U16: 0.75, Minor: 0.35})[state.ageGrade] || 0;
+      const prRating = Math.round(50 + (Math.max(-4, Math.min(4, (prWtd > 0 ? prWtdSum / prWtd : 0) + _prAgBonus)) / 4) * 50);
       const prLabel = prRating >= 80 ? 'Outstanding' : prRating >= 65 ? 'Very Good' : prRating >= 55 ? 'Good'
         : prRating >= 45 ? 'Average' : prRating >= 35 ? 'Below Average' : prRating >= 20 ? 'Poor' : 'Very Poor';
       const prRatingCol = prRating >= 65 ? '#2E7D32' : prRating >= 45 ? '#E65100' : '#C62828';
