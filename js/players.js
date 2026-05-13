@@ -45,14 +45,16 @@ function openPlayerSheet(s) {
     document.getElementById('ply-body').innerHTML =
       `<div class="ps-sec">` +
         `<div class="ps-sec-hdr"><span class="ps-lbl">PERSONNEL</span></div>` +
-        `<button class="ps-pers-btn" onclick="psAction('Pre-game Sub')">` +
-          `<span class="ps-pers-icon"><i class="fas fa-people-arrows"></i></span>` +
-          `Pre-match sub<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i>` +
-        `</button>` +
-        `<button class="ps-pers-btn" onclick="psAction('Swap Position')">` +
-          `<span class="ps-pers-icon"><i class="fas fa-arrows-left-right"></i></span>` +
-          `Swap position<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i>` +
-        `</button>` +
+        `<div class="ps-pers-row">` +
+          `<button class="ps-pers-btn" onclick="psAction('Pre-game Sub')">` +
+            `<span class="ps-pers-icon"><i class="fas fa-people-arrows"></i></span>` +
+            `Pre-match sub` +
+          `</button>` +
+          `<button class="ps-pers-btn" onclick="psAction('Swap Position')">` +
+            `<span class="ps-pers-icon"><i class="fas fa-arrows-left-right"></i></span>` +
+            `Swap position` +
+          `</button>` +
+        `</div>` +
       `</div>`;
     document.getElementById('plyovly').classList.add('open');
     el.plysheet.classList.add('open');
@@ -114,14 +116,16 @@ function openPlayerSheet(s) {
     // PERSONNEL
     `<div class="ps-sec">` +
       `<div class="ps-sec-hdr"><span class="ps-lbl">PERSONNEL</span></div>` +
-      `<button class="ps-pers-btn" onclick="psAction('Substitution')">` +
-        `<span class="ps-pers-icon"><i class="fas fa-people-arrows"></i></span>` +
-        `Substitute off<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i>` +
-      `</button>` +
-      `<button class="ps-pers-btn" onclick="psAction('Swap Position')">` +
-        `<span class="ps-pers-icon"><i class="fas fa-arrows-left-right"></i></span>` +
-        `Swap position<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i>` +
-      `</button>` +
+      `<div class="ps-pers-row">` +
+        `<button class="ps-pers-btn" onclick="psAction('Substitution')">` +
+          `<span class="ps-pers-icon"><i class="fas fa-people-arrows"></i></span>` +
+          `Substitute off` +
+        `</button>` +
+        `<button class="ps-pers-btn" onclick="psAction('Swap Position')">` +
+          `<span class="ps-pers-icon"><i class="fas fa-arrows-left-right"></i></span>` +
+          `Swap position` +
+        `</button>` +
+      `</div>` +
     `</div>`;
 
   document.getElementById('plyovly').classList.add('open');

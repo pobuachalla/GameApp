@@ -435,6 +435,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ps-pers-btn{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;border:1.5px dashed var(--b);background:var(--bg1);cursor:pointer;font-family:inherit;font-size:14px;font-weight:500;color:var(--t1);width:100%;text-align:left;}
 .ps-pers-btn:active{background:var(--bg2);}
 .ps-pers-icon{width:30px;height:30px;border-radius:8px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:15px;color:#2E7D32;flex-shrink:0;}
+.ps-pers-row{display:flex;gap:8px;}
+.ps-pers-row .ps-pers-btn{flex:1;flex-direction:column;align-items:center;justify-content:center;min-height:82px;text-align:center;gap:8px;padding:14px 8px;}
 
 /* ─── PLAYER SHEET SUB-OPTIONS ──────────────────────────────────────────────── */
 .ps-sub-wrap{display:flex;flex-direction:column;gap:12px;}
