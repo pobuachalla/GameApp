@@ -246,8 +246,8 @@ function _buildLineupGraphicHTML() {
       formation += '<div class="layout-player">';
       formation += '<div class="layout-shirt-wrap">';
       if (isCap) formation += '<span class="layout-cap-badge">C</span>';
-      formation += `<i class="fa-solid fa-shirt layout-shirt-icon" style="color:${isGK ? CARD_YELLOW : '#2E7D32'};"></i>`;
-      formation += `<span class="layout-shirt-num" style="color:${isGK ? '#2E7D32' : '#fff'};">${pi}</span>`;
+      formation += `<i class="fa-solid fa-shirt layout-shirt-icon" style="color:${isGK ? CARD_YELLOW : TEAM_US_COLOR};"></i>`;
+      formation += `<span class="layout-shirt-num" style="color:${isGK ? TEAM_US_COLOR : '#fff'};">${pi}</span>`;
       formation += '</div>';
       formation += `<div class="layout-player-name">${esc(name || '—')}</div>`;
       formation += '</div>';
@@ -304,10 +304,10 @@ function renderShareMainOpts() {
   const hasEvts  = state.evts.length > 0;
 
   const opts = [
-    { v:'lu',   icon:'fa-solid fa-shirt',       label:'Starting Line-up',     bg:'#E8F5E9', fg:'#2E7D32' },
+    { v:'lu',   icon:'fa-solid fa-shirt',       label:'Starting Line-up',     bg:'#E8F5E9', fg:TEAM_US_COLOR },
     { v:'curr', icon:'fas fa-clock',             label:'Current Score Card',   bg:'#E3F2FD', fg:'#1565C0' },
     { v:'ht',   icon:'fas fa-hourglass-half',    label:'Half Time Score Card', bg:'#FFFDE7', fg:'#E65100', guard:hasHT },
-    { v:'ft',   icon:'fas fa-flag-checkered',    label:'Full Time Score Card', bg:'#FFEBEE', fg:'#C62828', guard:hasFT },
+    { v:'ft',   icon:'fas fa-flag-checkered',    label:'Full Time Score Card', bg:'#FFEBEE', fg:TEAM_OPP_COLOR, guard:hasFT },
     { v:'ai',   icon:'fas fa-brain',             label:'Analyse with AI',      bg:'#EDE7F6', fg:'#6A1B9A', guard:hasEvts },
   ];
 

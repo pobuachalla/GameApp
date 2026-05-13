@@ -377,10 +377,10 @@ function buildTL(s, usN, oppN) {
   // area fills
   svg+=`<polygon points="${PL},${PT+ch} ${uLn} ${x(s.totalSecs)},${PT+ch}" fill="rgba(46,125,50,0.08)"/>`;
   svg+=`<polygon points="${PL},${PT+ch} ${oLn} ${x(s.totalSecs)},${PT+ch}" fill="rgba(198,40,40,0.06)"/>`;
-  svg+=`<polyline points="${oLn}" fill="none" stroke="#C62828" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
-  svg+=`<polyline points="${uLn}" fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  svg+=`<polyline points="${oLn}" fill="none" stroke="${TEAM_OPP_COLOR}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  svg+=`<polyline points="${uLn}" fill="none" stroke="${TEAM_US_COLOR}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
   s.tlMk.forEach(m=>{
-    const cx=x(m.secs),cy=y(m.team==='us'?m.us:m.opp),col=m.team==='us'?'#2E7D32':'#C62828';
+    const cx=x(m.secs),cy=y(m.team==='us'?m.us:m.opp),col=m.team==='us'?TEAM_US_COLOR:TEAM_OPP_COLOR;
     const dotCol=m.type==='Wide'?'#C8CAC4':m.type==='2 Point'?'#F59E0B':col;
     const dotR=m.type==='Goal'?6:m.type==='Point'?4.5:m.type==='2 Point'?5:3;
     if(m.placed&&m.type!==undefined)
@@ -393,7 +393,7 @@ function buildTL(s, usN, oppN) {
   // inline legend in SVG
   let lx=PL;
   const leg=(col,label)=>{svg+=`<circle cx="${lx+5}" cy="${H-6}" r="4" fill="${col}"/><text x="${lx+13}" y="${H-3}" font-size="11" fill="#7A8A7A">${label}</text>`;lx+=13+label.length*6.5+10;};
-  leg('#2E7D32',esc(usN)); leg('#C62828',esc(oppN));
+  leg(TEAM_US_COLOR,esc(usN)); leg(TEAM_OPP_COLOR,esc(oppN));
   if(s.tlSubs.length)leg('#F59E0B','Sub');
   if(s.tlReds.length)leg(CARD_RED,'Red Card');
   if(s.tlBlacks.length)leg(CARD_BLACK,'Black Card');
@@ -432,7 +432,7 @@ function buildSM(shots, st) {
     }
     placed_arr.push({cx, cy, r});
     const cxS = cx.toFixed(1), cyS = cy.toFixed(1);
-    const fill = isShort ? '#9E9E9E' : isSaved ? '#F97316' : isScore ? '#2E7D32' : '#C62828';
+    const fill = isShort ? '#9E9E9E' : isSaved ? '#F97316' : isScore ? TEAM_US_COLOR : TEAM_OPP_COLOR;
     if (s.placed) dots += `<circle cx="${cxS}" cy="${cyS}" r="${r+3.5}" fill="none" stroke="${fill}" stroke-width="1.5" opacity="0.7"/>`;
     dots += `<circle cx="${cxS}" cy="${cyS}" r="${r}" fill="${fill}" opacity="0.82" stroke="white" stroke-width="1.2"/>`;
     if (s.pi != null) {
@@ -522,12 +522,12 @@ function buildReview(st) {
   if(totalAtt>0){
     const gw=s.gC/totalAtt*100,tw=s.t2C/totalAtt*100,pw=s.pC/totalAtt*100,ww=s.wC/totalAtt*100;
     h+=`<div class="rv-attempt-bar" style="margin-top:18px;">`;
-    if(gw>0)h+=`<div class="rv-aseg" style="width:${gw.toFixed(1)}%;background:#2E7D32;"></div>`;
+    if(gw>0)h+=`<div class="rv-aseg" style="width:${gw.toFixed(1)}%;background:${TEAM_US_COLOR};"></div>`;
     if(tw>0)h+=`<div class="rv-aseg" style="width:${tw.toFixed(1)}%;background:#D97706;"></div>`;
     if(pw>0)h+=`<div class="rv-aseg" style="width:${pw.toFixed(1)}%;background:#A8CBA8;border:.5px solid #98BB98;"></div>`;
     if(ww>0)h+=`<div class="rv-aseg" style="width:${ww.toFixed(1)}%;background:#C8CAC4;"></div>`;
     h+=`</div><div class="rv-legend">`;
-    if(s.gC>0) h+=`<span class="rv-li"><span class="rv-ld" style="background:#2E7D32;"></span>${s.gC} goal${s.gC!==1?'s':''}</span>`;
+    if(s.gC>0) h+=`<span class="rv-li"><span class="rv-ld" style="background:${TEAM_US_COLOR};"></span>${s.gC} goal${s.gC!==1?'s':''}</span>`;
     if(s.t2C>0)h+=`<span class="rv-li"><span class="rv-ld" style="background:#D97706;"></span>${s.t2C} 2-ptr${s.t2C!==1?'s':''}</span>`;
     if(s.pC>0) h+=`<span class="rv-li"><span class="rv-ld" style="background:#A8CBA8;border:.5px solid #98BB98;"></span>${s.pC} point${s.pC!==1?'s':''}</span>`;
     if(s.wC>0) h+=`<span class="rv-li"><span class="rv-ld" style="background:#C8CAC4;"></span>${s.wC} wide${s.wC!==1?'s':''}</span>`;
@@ -538,10 +538,10 @@ function buildReview(st) {
   // Placed Balls
   h+=`<div class="rv-card"><div class="rv-ctitle">Placed Balls</div>`;
   if(placedAtt>0){
-    const grad=`conic-gradient(#2E7D32 ${placedPct}%, #E8F5E9 0%)`;
+    const grad=`conic-gradient(${TEAM_US_COLOR} ${placedPct}%, #E8F5E9 0%)`;
     h+=`<div class="rv-ring-w">`;
     h+=`<div class="rv-ring" style="background:${grad};"><div class="rv-ring-in"><div class="rv-ring-pct">${placedPct}%</div><div class="rv-ring-lbl">conv.</div></div></div>`;
-    h+=`<div><div style="font-size:26px;font-weight:800;color:#2E7D32;line-height:1;">${placedSC} / ${placedAtt}</div>`;
+    h+=`<div><div style="font-size:26px;font-weight:800;color:${TEAM_US_COLOR};line-height:1;">${placedSC} / ${placedAtt}</div>`;
     h+=`<div style="font-size:13px;color:#7A8A7A;margin-top:5px;">converted</div>`;
     if(s.pwC>0)h+=`<div style="font-size:13px;color:#7A8A7A;margin-top:6px;">${s.pwC} wide${s.pwC!==1?'s':''}</div>`;
     h+=`</div></div>`;
@@ -558,8 +558,8 @@ function buildReview(st) {
   h+=`<div class="rv-card"><div class="rv-ctitle">Momentum</div>`;
   h+=`<div class="rv-split"><div class="rv-split-g" style="width:${uMP}%;"></div><div class="rv-split-r" style="width:${oMP}%;"></div></div>`;
   h+=`<div class="rv-split-lbls">`;
-  h+=`<span style="color:#2E7D32;">${uMP}%<br><span style="font-size:12px;font-weight:400;color:#7A8A7A;">${esc(usN)}</span></span>`;
-  h+=`<span style="color:#C62828;text-align:right;">${oMP}%<br><span style="font-size:12px;font-weight:400;color:#7A8A7A;">${esc(oppN)}</span></span>`;
+  h+=`<span style="color:${TEAM_US_COLOR};">${uMP}%<br><span style="font-size:12px;font-weight:400;color:#7A8A7A;">${esc(usN)}</span></span>`;
+  h+=`<span style="color:${TEAM_OPP_COLOR};text-align:right;">${oMP}%<br><span style="font-size:12px;font-weight:400;color:#7A8A7A;">${esc(oppN)}</span></span>`;
   h+=`</div>`;
   const bNote=(ownRstT+oppRstT>0&&totalTurn>0)?'Scores + restarts + turnovers':(ownRstT+oppRstT>0)?'Scores + restarts':(totalTurn>0)?'Scores + turnovers':'Based on scores';
   h+=`<div style="font-size:11px;color:#9A9E99;margin-top:12px;">${bNote}</div>`;
@@ -583,8 +583,8 @@ function buildReview(st) {
       scorers.forEach(p=>{
         const g=p.gPl+p.gPd,pts=p.pPl+p.pPd,total=g*3+pts,barW=Math.round(total/maxScore*100);
         h+=`<tr><td style="font-weight:500;">${esc(p.name)}</td>`;
-        h+=`<td class="r" style="font-weight:700;color:#2E7D32;">${g}-${pts}</td>`;
-        h+=`<td class="r" style="font-weight:600;color:#2E7D32;">${total}</td>`;
+        h+=`<td class="r" style="font-weight:700;color:${TEAM_US_COLOR};">${g}-${pts}</td>`;
+        h+=`<td class="r" style="font-weight:600;color:${TEAM_US_COLOR};">${total}</td>`;
         h+=`<td class="r" style="color:#9A9E99;">${p.w||'—'}</td>`;
         h+=`<td class="r">${(p.gPd||p.pPd)?`<span class="rv-tag rv-ta">${p.gPd}-${p.pPd}</span>`:'—'}</td>`;
         h+=`<td class="rv-scorer-bar-cell"><div class="rv-scorer-bar-track"><div class="rv-scorer-bar-fill" style="width:${barW}%;"></div></div></td>`;
@@ -605,12 +605,12 @@ function buildReview(st) {
       h+=`<div class="rv-card"><div class="rv-ctitle">Shot Map</div>`;
       h+=`<div style="border-radius:8px;overflow:hidden;margin-bottom:12px;">${mapSVG}</div>`;
       h+=`<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--t2);align-items:center;">`;
-      h+=`<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#2E7D32" opacity=".82"/></svg>Score</span>`;
-      h+=`<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#C62828" opacity=".82"/></svg>Wide</span>`;
+      h+=`<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="${TEAM_US_COLOR}" opacity=".82"/></svg>Score</span>`;
+      h+=`<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="${TEAM_OPP_COLOR}" opacity=".82"/></svg>Wide</span>`;
       h+=`<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#9E9E9E" opacity=".82"/></svg>Short</span>`;
       h+=`<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#F97316" opacity=".82"/></svg>Saved</span>`;
-      h+=`<span style="display:flex;align-items:center;gap:4px;"><svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="#2E7D32" opacity=".82" stroke="white" stroke-width="1"/></svg>Goal</span>`;
-      h+=`<span style="display:flex;align-items:center;gap:4px;"><svg width="18" height="18"><circle cx="9" cy="9" r="8" fill="none" stroke="#2E7D32" stroke-width="1.5" opacity=".7"/><circle cx="9" cy="9" r="5" fill="#2E7D32" opacity=".82" stroke="white" stroke-width="1"/></svg>Placed</span>`;
+      h+=`<span style="display:flex;align-items:center;gap:4px;"><svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="${TEAM_US_COLOR}" opacity=".82" stroke="white" stroke-width="1"/></svg>Goal</span>`;
+      h+=`<span style="display:flex;align-items:center;gap:4px;"><svg width="18" height="18"><circle cx="9" cy="9" r="8" fill="none" stroke="${TEAM_US_COLOR}" stroke-width="1.5" opacity=".7"/><circle cx="9" cy="9" r="5" fill="${TEAM_US_COLOR}" opacity=".82" stroke="white" stroke-width="1"/></svg>Placed</span>`;
       h+=`</div>`;
       const thirdRows=[['Attacking third',thirds.att],['Middle third',thirds.mid],['Defensive third',thirds.def]];
       if(thirdRows.some(([,d])=>d.shots>0)){
@@ -757,8 +757,8 @@ function buildReview(st) {
   if(totalTurn>0){
     const wonPct=Math.round(s.twon/totalTurn*100);
     h+=`<div style="display:flex;gap:24px;margin-bottom:18px;">`;
-    h+=`<div style="flex:1;text-align:center;"><div style="font-size:44px;font-weight:800;color:#2E7D32;line-height:1;">${s.twon}</div><div style="font-size:12px;color:#7A8A7A;margin-top:5px;">Won</div></div>`;
-    h+=`<div style="flex:1;text-align:center;"><div style="font-size:44px;font-weight:800;color:#C62828;line-height:1;">${s.tlost}</div><div style="font-size:12px;color:#7A8A7A;margin-top:5px;">Lost</div></div>`;
+    h+=`<div style="flex:1;text-align:center;"><div style="font-size:44px;font-weight:800;color:${TEAM_US_COLOR};line-height:1;">${s.twon}</div><div style="font-size:12px;color:#7A8A7A;margin-top:5px;">Won</div></div>`;
+    h+=`<div style="flex:1;text-align:center;"><div style="font-size:44px;font-weight:800;color:${TEAM_OPP_COLOR};line-height:1;">${s.tlost}</div><div style="font-size:12px;color:#7A8A7A;margin-top:5px;">Lost</div></div>`;
     h+=`</div>`;
     h+=`<div class="rv-bar"><div class="rv-bar-fill" style="width:${wonPct}%;"></div></div>`;
     h+=`<div style="font-size:12px;color:#7A8A7A;margin-bottom:14px;">${wonPct}% won</div>`;
@@ -789,8 +789,8 @@ function buildReview(st) {
         const WON_COLORS={'First to the Ball':'#1B5E20','Tackle Turnover':'#388E3C','Block':'#66BB6A','Hook':'#00897B','Defensive Pressure':'#A5D6A7'};
         const LOST_COLORS={'Poor Pass':'#B71C1C','Lost in Tackle':CARD_RED,'Second to the Ball':'#EF9A9A','Over Played':'#E65100','Isolated':'#FFAB91'};
         h+=`<div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px;display:flex;gap:8px;justify-content:space-around;flex-wrap:wrap;">`;
-        if(wonEntries.length)h+=buildTurnoverDonut('Won by type',wonEntries,WON_COLORS,'#2E7D32');
-        if(lostEntries.length)h+=buildTurnoverDonut('Lost by type',lostEntries,LOST_COLORS,'#C62828');
+        if(wonEntries.length)h+=buildTurnoverDonut('Won by type',wonEntries,WON_COLORS,TEAM_US_COLOR);
+        if(lostEntries.length)h+=buildTurnoverDonut('Lost by type',lostEntries,LOST_COLORS,TEAM_OPP_COLOR);
         h+=`</div>`;
       }
     }
@@ -801,7 +801,7 @@ function buildReview(st) {
   h+=`<div class="rv-card"${showOPS?' style="grid-column:2;grid-row:1;"':''}><div class="rv-ctitle">Discipline</div>`;
   if(s.freesConc>0){
     h+=`<div class="rv-row"><span class="rv-rl">Frees conceded</span><span class="rv-rv">${s.freesConc}</span></div>`;
-    if(s.freesScored>0)h+=`<div class="rv-row"><span class="rv-rl">Scored by opp.</span><span class="rv-rv" style="color:#C62828;">${s.freesScored}</span></div>`;
+    if(s.freesScored>0)h+=`<div class="rv-row"><span class="rv-rl">Scored by opp.</span><span class="rv-rv" style="color:${TEAM_OPP_COLOR};">${s.freesScored}</span></div>`;
   }
   if(discPlayers.length>0){
     if(s.freesConc>0)h+=`<div style="border-top:1px solid var(--border);margin:10px 0 10px;"></div>`;

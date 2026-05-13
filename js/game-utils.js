@@ -174,7 +174,7 @@ function computeShotDots(shots, getInitials) {
     if (cx == null) { cx = bestCx; cy = bestCy; }
     placed_arr.push({cx, cy, r});
     const cxS = cx.toFixed(1), cyS = cy.toFixed(1);
-    const fill = isShort ? '#9E9E9E' : isSaved ? '#F97316' : isScore ? '#2E7D32' : '#C62828';
+    const fill = isShort ? '#9E9E9E' : isSaved ? '#F97316' : isScore ? TEAM_US_COLOR : TEAM_OPP_COLOR;
     if (s.placed) dots += `<circle cx="${cxS}" cy="${cyS}" r="${r+3.5}" fill="none" stroke="${fill}" stroke-width="1.5" opacity="0.7"/>`;
     dots += `<circle cx="${cxS}" cy="${cyS}" r="${r}" fill="${fill}" opacity="0.82" stroke="white" stroke-width="1.2"/>`;
     if (s.pi != null) {

@@ -407,7 +407,7 @@ function buildStatsHTML() {
     if (ww > 0) h += '<div class="stat-attempt-seg" style="width:'+ww+'%;background:#9E9E9E;"></div>';
     h += '</div>';
     h += '<div class="stat-legend">';
-    if (goalCount > 0)  h += '<span class="stat-legend-item"><span class="stat-legend-dot" style="background:#2E7D32;"></span>'+goalCount+' goal'+(goalCount!==1?'s':'')+'</span>';
+    if (goalCount > 0)  h += '<span class="stat-legend-item"><span class="stat-legend-dot" style="background:'+TEAM_US_COLOR+';"></span>'+goalCount+' goal'+(goalCount!==1?'s':'')+'</span>';
     if (twoPtCount > 0) h += '<span class="stat-legend-item"><span class="stat-legend-dot" style="background:#D97706;"></span>'+twoPtCount+' 2-ptr'+(twoPtCount!==1?'s':'')+'</span>';
     if (ptCount > 0)    h += '<span class="stat-legend-item"><span class="stat-legend-dot" style="background:#C8CAC4;border:.5px solid var(--b);"></span>'+ptCount+' point'+(ptCount!==1?'s':'')+'</span>';
     if (wideCount > 0)  h += '<span class="stat-legend-item"><span class="stat-legend-dot" style="background:#9E9E9E;"></span>'+wideCount+' wide'+(wideCount!==1?'s':'')+'</span>';
@@ -416,13 +416,13 @@ function buildStatsHTML() {
   if (placedAttempts > 0) {
     h += '<div style="border-top:.5px solid var(--b);margin:12px 0 10px;"></div>';
     h += '<div class="stat-sub-hdr" style="margin-top:0;">Placed Balls</div>';
-    const ringGrad = 'conic-gradient(#2E7D32 '+placedPct+'%, var(--bg3) 0%)';
+    const ringGrad = 'conic-gradient('+TEAM_US_COLOR+' '+placedPct+'%, var(--bg3) 0%)';
     h += '<div class="stat-ring-wrap">';
     h += '<div class="stat-ring" style="background:'+ringGrad+';">';
     h += '<div class="stat-ring-inner"><div class="stat-ring-pct">'+placedPct+'%</div><div class="stat-ring-lbl">conv.</div></div>';
     h += '</div>';
     h += '<div style="flex:1;">';
-    h += '<div style="font-size:16px;font-weight:700;color:#2E7D32;line-height:1.2;">'+placedScoreCount+' converted</div>';
+    h += '<div style="font-size:16px;font-weight:700;color:'+TEAM_US_COLOR+';line-height:1.2;">'+placedScoreCount+' converted</div>';
     h += '<div style="font-size:12px;color:var(--t2);margin-top:2px;">from '+placedAttempts+' attempt'+(placedAttempts!==1?'s':'')+'</div>';
     if (placedWides > 0) h += '<div style="font-size:12px;color:var(--t2);margin-top:6px;">'+placedWides+' placed ball wide'+(placedWides!==1?'s':'')+'</div>';
     h += '</div></div>';
@@ -455,11 +455,11 @@ function buildStatsHTML() {
     const wonPct = Math.round(turnoversWon / totalTurnovers * 100);
     h += '<div class="stat-section"><div class="stat-section-title">Turnovers</div><div class="stat-card">';
     h += '<div style="display:flex;gap:12px;align-items:center;padding:4px 0 10px;">';
-    h += '<div style="flex:1;text-align:center;"><div style="font-size:24px;font-weight:700;color:#2E7D32;line-height:1;">'+turnoversWon+'</div><div style="font-size:11px;color:var(--t2);margin-top:2px;">Won</div></div>';
-    h += '<div style="flex:1;text-align:center;"><div style="font-size:24px;font-weight:700;color:#C62828;line-height:1;">'+turnoversLost+'</div><div style="font-size:11px;color:var(--t2);margin-top:2px;">Lost</div></div>';
+    h += '<div style="flex:1;text-align:center;"><div style="font-size:24px;font-weight:700;color:'+TEAM_US_COLOR+';line-height:1;">'+turnoversWon+'</div><div style="font-size:11px;color:var(--t2);margin-top:2px;">Won</div></div>';
+    h += '<div style="flex:1;text-align:center;"><div style="font-size:24px;font-weight:700;color:'+TEAM_OPP_COLOR+';line-height:1;">'+turnoversLost+'</div><div style="font-size:11px;color:var(--t2);margin-top:2px;">Lost</div></div>';
     h += '</div>';
     h += '<div class="stat-split-bar"><div class="stat-split-won" style="width:'+wonPct+'%"></div></div>';
-    h += '<div class="stat-split-labels"><span style="color:#2E7D32;font-weight:600;">'+wonPct+'% won</span><span style="color:#C62828;font-weight:600;">'+(100-wonPct)+'% lost</span></div>';
+    h += '<div class="stat-split-labels"><span style="color:'+TEAM_US_COLOR+';font-weight:600;">'+wonPct+'% won</span><span style="color:'+TEAM_OPP_COLOR+';font-weight:600;">'+(100-wonPct)+'% lost</span></div>';
     const twPlayers = Object.values(pstats).filter(p=>p.twon+p.tlost>0).sort((a,b)=>(b.twon-b.tlost)-(a.twon-a.tlost)||a.name.localeCompare(b.name));
     if (twPlayers.length) {
       h += '<div style="border-top:.5px solid var(--b);margin-top:10px;padding-top:6px;">';
@@ -489,8 +489,8 @@ function buildStatsHTML() {
         const WON_COLORS  = {'First to the Ball':'#1B5E20','Tackle Turnover':'#388E3C','Block':'#66BB6A','Hook':'#00897B','Defensive Pressure':'#A5D6A7'};
         const LOST_COLORS = {'Poor Pass':'#B71C1C','Lost in Tackle':CARD_RED,'Second to the Ball':'#EF9A9A','Over Played':'#E65100','Isolated':'#FFAB91'};
         h += '<div style="border-top:.5px solid var(--b);margin-top:12px;padding-top:12px;display:flex;gap:8px;justify-content:space-around;flex-wrap:wrap;">';
-        if (wonEntries.length)  h += buildTurnoverDonut('Won by type',  wonEntries,  WON_COLORS,  '#2E7D32');
-        if (lostEntries.length) h += buildTurnoverDonut('Lost by type', lostEntries, LOST_COLORS, '#C62828');
+        if (wonEntries.length)  h += buildTurnoverDonut('Won by type',  wonEntries,  WON_COLORS,  TEAM_US_COLOR);
+        if (lostEntries.length) h += buildTurnoverDonut('Lost by type', lostEntries, LOST_COLORS, TEAM_OPP_COLOR);
         h += '</div>';
       }
     }
@@ -520,7 +520,7 @@ function buildStatsHTML() {
     if (freesConc > 0) {
       h += '<div style="display:flex;gap:16px;padding:4px 0 10px;align-items:baseline;">';
       h += `<span style="font-size:13px;color:var(--t2);">Frees conceded: <strong style="color:var(--t1);">${freesConc}</strong></span>`;
-      if (freesScored > 0) h += `<span style="font-size:13px;color:#C62828;font-weight:600;">${freesScored} scored by opposition</span>`;
+      if (freesScored > 0) h += `<span style="font-size:13px;color:${TEAM_OPP_COLOR};font-weight:600;">${freesScored} scored by opposition</span>`;
       h += '</div>';
     }
     if (discPlayers.length > 0) {
@@ -606,12 +606,12 @@ function buildShotMapHTML() {
   }
   h += `<div style="border-radius:8px;overflow:hidden;margin-bottom:8px;">${svg}</div>`;
   h += '<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;font-size:12px;color:var(--t2);align-items:center;">';
-  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#2E7D32" opacity=".82"/></svg>Score</span>';
-  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#C62828" opacity=".82"/></svg>Wide</span>';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="'+TEAM_US_COLOR+'" opacity=".82"/></svg>Score</span>';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="'+TEAM_OPP_COLOR+'" opacity=".82"/></svg>Wide</span>';
   h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#9E9E9E" opacity=".82"/></svg>Short</span>';
   h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#F97316" opacity=".82"/></svg>Saved</span>';
-  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="#2E7D32" opacity=".82" stroke="white" stroke-width="1"/></svg>Goal</span>';
-  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="18" height="18"><circle cx="9" cy="9" r="8" fill="none" stroke="#2E7D32" stroke-width="1.5" opacity=".7"/><circle cx="9" cy="9" r="5" fill="#2E7D32" opacity=".82" stroke="white" stroke-width="1"/></svg>Placed</span>';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="'+TEAM_US_COLOR+'" opacity=".82" stroke="white" stroke-width="1"/></svg>Goal</span>';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="18" height="18"><circle cx="9" cy="9" r="8" fill="none" stroke="'+TEAM_US_COLOR+'" stroke-width="1.5" opacity=".7"/><circle cx="9" cy="9" r="5" fill="'+TEAM_US_COLOR+'" opacity=".82" stroke="white" stroke-width="1"/></svg>Placed</span>';
   h += '</div>';
 
   const thirdRows = [['Attacking third',thirds.att],['Middle third',thirds.mid],['Defensive third',thirds.def]];

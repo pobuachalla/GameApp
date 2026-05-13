@@ -54,15 +54,15 @@ function buildPrintTimelineHTML() {
   subs.forEach(e   => { const sx=x(e.secs); svg+=`<line x1="${sx}" y1="${PT}" x2="${sx}" y2="${PT+ch}" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="2 2"/>`; });
   reds.forEach(e   => { const sx=x(e.secs); svg+=`<line x1="${sx}" y1="${PT}" x2="${sx}" y2="${PT+ch}" stroke="${CARD_RED}" stroke-width="1.5" stroke-dasharray="2 2"/>`; });
   blacks.forEach(e => { const sx=x(e.secs); svg+=`<line x1="${sx}" y1="${PT}" x2="${sx}" y2="${PT+ch}" stroke="${CARD_BLACK}" stroke-width="1.5" stroke-dasharray="2 2"/>`; });
-  svg+=`<polyline points="${oppLine}" fill="none" stroke="#C62828" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-  svg+=`<polyline points="${usLine}"  fill="none" stroke="#2E7D32" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  svg+=`<polyline points="${oppLine}" fill="none" stroke="${TEAM_OPP_COLOR}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  svg+=`<polyline points="${usLine}"  fill="none" stroke="${TEAM_US_COLOR}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
   markers.forEach(m => {
     const cx=x(m.secs), cy=y(m.team==='us'?m.usScore:m.oppScore);
-    const mcol=m.team==='us'?'#2E7D32':'#C62828';
+    const mcol=m.team==='us'?TEAM_US_COLOR:TEAM_OPP_COLOR;
     const dotCol=m.type==='Wide'?'#9E9E9E':m.type==='2 Point'?'#F59E0B':mcol;
     const dotR=m.type==='Goal'?4:m.type==='2 Point'?3.5:m.type==='Point'?3.5:2.5;
     if(m.placed)svg+=`<circle cx="${cx}" cy="${cy}" r="${dotR+3.5}" fill="none" stroke="${dotCol}" stroke-width="1.5" opacity="0.7"/>`;
-    if      (m.type==='Goal')    svg+=`<circle cx="${cx}" cy="${cy}" r="4"   fill="#2E7D32" stroke="#fff" stroke-width="1.5"/>`;
+    if      (m.type==='Goal')    svg+=`<circle cx="${cx}" cy="${cy}" r="4"   fill="${TEAM_US_COLOR}" stroke="#fff" stroke-width="1.5"/>`;
     else if (m.type==='2 Point') svg+=`<circle cx="${cx}" cy="${cy}" r="3.5" fill="#F59E0B" stroke="#fff" stroke-width="1.5"/>`;
     else if (m.type==='Point')   svg+=`<circle cx="${cx}" cy="${cy}" r="3.5" fill="#fff"    stroke="#9A9E99" stroke-width="1.5"/>`;
     else if (m.type==='Wide')    svg+=`<circle cx="${cx}" cy="${cy}" r="2.5" fill="#9E9E9E" stroke="none"/>`;
@@ -71,8 +71,8 @@ function buildPrintTimelineHTML() {
 
   let h=svg;
   h+=`<div style="display:flex;gap:20px;justify-content:center;margin-top:6px;font-size:11px;color:#6B6F66;flex-wrap:wrap;">`;
-  h+=html`<span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:18px;height:2px;background:#2E7D32;border-radius:1px;vertical-align:middle;"></span>${state.usN}</span>`;
-  h+=html`<span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:18px;height:2px;background:#C62828;border-radius:1px;vertical-align:middle;"></span>${state.oppN}</span>`;
+  h+=html`<span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:18px;height:2px;background:${TEAM_US_COLOR};border-radius:1px;vertical-align:middle;"></span>${state.usN}</span>`;
+  h+=html`<span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:18px;height:2px;background:${TEAM_OPP_COLOR};border-radius:1px;vertical-align:middle;"></span>${state.oppN}</span>`;
   if (subs.length)   h+=`<span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:14px;height:0;border-top:2px dashed #F59E0B;vertical-align:middle;"></span>Sub</span>`;
   if (reds.length)   h+=`<span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:14px;height:0;border-top:2px dashed ${CARD_RED};vertical-align:middle;"></span>Red</span>`;
   if (blacks.length) h+=`<span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:14px;height:0;border-top:2px dashed ${CARD_BLACK};vertical-align:middle;"></span>Black</span>`;
@@ -82,7 +82,7 @@ function buildPrintTimelineHTML() {
 
 function buildPrintLineupHTML() {
   const layout = GRID_LAYOUTS[state.teamSize] || GRID_LAYOUTS[15];
-  const prTitle = (text) => '<div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#1F1F1F;margin-bottom:10px;padding:3px 0 3px 9px;border-left:3px solid #2E7D32;">'+text+'</div>';
+  const prTitle = (text) => '<div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#1F1F1F;margin-bottom:10px;padding:3px 0 3px 9px;border-left:3px solid '+TEAM_US_COLOR+';">'+text+'</div>';
 
   const snapSlotp   = state.startSlotp   || state.slotp;
   const snapCaptain = state.startCaptain != null ? state.startCaptain : state.captain;
@@ -106,12 +106,12 @@ function buildPrintLineupHTML() {
       const name = gn(pi) || '';
       const isCap = snapCaptain === slot;
       const isGK = slot === 1;
-      const bg = isGK ? CARD_YELLOW : '#2E7D32';
-      const numCol = isGK ? '#2E7D32' : '#ffffff';
+      const bg = isGK ? CARD_YELLOW : TEAM_US_COLOR;
+      const numCol = isGK ? TEAM_US_COLOR : '#ffffff';
       formation += '<div style="display:flex;flex-direction:column;align-items:center;width:48px;">';
       formation += '<div style="position:relative;width:34px;height:34px;">';
       formation += shirt(pi, bg, numCol, 34);
-      if (isCap) formation += '<span style="position:absolute;top:-3px;right:-3px;background:#fff;border:1px solid #E2E4DE;border-radius:50%;width:12px;height:12px;font-size:7px;font-weight:700;color:#2E7D32;display:flex;align-items:center;justify-content:center;line-height:1;">C</span>';
+      if (isCap) formation += '<span style="position:absolute;top:-3px;right:-3px;background:#fff;border:1px solid #E2E4DE;border-radius:50%;width:12px;height:12px;font-size:7px;font-weight:700;color:'+TEAM_US_COLOR+';display:flex;align-items:center;justify-content:center;line-height:1;">C</span>';
       formation += '</div>';
       formation += html`<div style="font-size:7.5px;font-weight:600;color:#1F1F1F;text-align:center;margin-top:2px;line-height:1.25;word-break:break-word;">${name||'—'}</div>`;
       formation += '</div>';
@@ -282,12 +282,12 @@ function buildPrintHTML() {
     h += '<div class="pr-section-title">Momentum</div>';
     h += '<div class="pr-card">';
     h += '<div style="height:10px;border-radius:5px;overflow:hidden;display:flex;margin-bottom:8px;">';
-    h += '<div style="width:'+usPct+'%;background:#2E7D32;"></div>';
-    h += '<div style="flex:1;background:#C62828;"></div>';
+    h += '<div style="width:'+usPct+'%;background:'+TEAM_US_COLOR+';"></div>';
+    h += '<div style="flex:1;background:'+TEAM_OPP_COLOR+';"></div>';
     h += '</div>';
     h += '<div style="display:flex;justify-content:space-between;font-size:13px;">';
-    h += html`<span style="color:#2E7D32;font-weight:600;">${state.usN} <span style="font-weight:400;">${usPct}%</span></span>`;
-    h += html`<span style="color:#C62828;font-weight:600;">${state.oppN} <span style="font-weight:400;">${oppPct}%</span></span>`;
+    h += html`<span style="color:${TEAM_US_COLOR};font-weight:600;">${state.usN} <span style="font-weight:400;">${usPct}%</span></span>`;
+    h += html`<span style="color:${TEAM_OPP_COLOR};font-weight:600;">${state.oppN} <span style="font-weight:400;">${oppPct}%</span></span>`;
     h += '</div>';
     if (dominant) h += html`<div style="font-size:11px;color:#6B6F66;margin-top:4px;">${dominant} dominant &mdash; ${html.safe(prBasisNote)}</div>`;
     h += '</div></div>';
@@ -344,14 +344,14 @@ function buildPrintHTML() {
     h += '<div class="pr-section-title">Turnovers</div>';
     h += '<div class="pr-card">';
     h += '<div style="display:flex;gap:24px;align-items:center;margin-bottom:10px;">';
-    h += '<span style="font-size:18px;font-weight:700;color:#2E7D32;">'+turnoversWon+' won</span>';
-    h += '<span style="font-size:18px;font-weight:700;color:#C62828;">'+turnoversLost+' lost</span>';
+    h += '<span style="font-size:18px;font-weight:700;color:'+TEAM_US_COLOR+';">'+turnoversWon+' won</span>';
+    h += '<span style="font-size:18px;font-weight:700;color:'+TEAM_OPP_COLOR+';">'+turnoversLost+' lost</span>';
     h += '</div>';
     h += '<div style="height:10px;border-radius:5px;overflow:hidden;display:flex;margin-bottom:6px;background:#F8D7D7;">';
-    h += '<div style="width:'+wonPct+'%;background:#2E7D32;"></div>';
+    h += '<div style="width:'+wonPct+'%;background:'+TEAM_US_COLOR+';"></div>';
     h += '</div>';
-    h += '<div class="pr-row"><span>Won</span><span style="color:#2E7D32;font-weight:600;">'+turnoversWon+' ('+wonPct+'%)</span></div>';
-    h += '<div class="pr-row"><span>Lost</span><span style="color:#C62828;font-weight:600;">'+turnoversLost+' ('+(100-wonPct)+'%)</span></div>';
+    h += '<div class="pr-row"><span>Won</span><span style="color:'+TEAM_US_COLOR+';font-weight:600;">'+turnoversWon+' ('+wonPct+'%)</span></div>';
+    h += '<div class="pr-row"><span>Lost</span><span style="color:'+TEAM_OPP_COLOR+';font-weight:600;">'+turnoversLost+' ('+(100-wonPct)+'%)</span></div>';
     const twPlayers = Object.values(pstats).filter(p=>p.twon+p.tlost>0).sort((a,b)=>(b.twon-b.tlost)-(a.twon-a.tlost)||a.name.localeCompare(b.name));
     twPlayers.forEach(p => {
       h += html`<div class="pr-row"><span>${p.name}</span><span>`;
@@ -363,7 +363,7 @@ function buildPrintHTML() {
         const lostSecs = Object.entries(p.tlostSec).sort((a,b)=>b[1]-a[1]);
         if (wonSecs.length || lostSecs.length) {
           h += '<div style="display:flex;gap:5px;flex-wrap:wrap;padding:2px 0 4px 2px;">';
-          wonSecs.forEach(([cat,n])  => h += `<span class="pr-tag" style="font-size:10px;background:#DFF3E3;color:#2E7D32;">${esc(cat)}${n>1?' ×'+n:''}</span>`);
+          wonSecs.forEach(([cat,n])  => h += `<span class="pr-tag" style="font-size:10px;background:#DFF3E3;color:${TEAM_US_COLOR};">${esc(cat)}${n>1?' ×'+n:''}</span>`);
           lostSecs.forEach(([cat,n]) => h += `<span class="pr-tag" style="font-size:10px;background:#F8D7D7;color:#991B1B;">${esc(cat)}${n>1?' ×'+n:''}</span>`);
           h += '</div>';
         }
@@ -376,8 +376,8 @@ function buildPrintHTML() {
         const WON_COLORS  = {'First to the Ball':'#1B5E20','Tackle Turnover':'#388E3C','Block':'#66BB6A','Hook':'#00897B','Defensive Pressure':'#A5D6A7'};
         const LOST_COLORS = {'Poor Pass':'#B71C1C','Lost in Tackle':CARD_RED,'Second to the Ball':'#EF9A9A','Over Played':'#E65100','Isolated':'#FFAB91'};
         h += '<div style="border-top:1px solid #E2E4DE;margin-top:10px;padding-top:12px;display:flex;gap:8px;justify-content:space-around;flex-wrap:wrap;">';
-        if (wonEntries.length)  h += buildTurnoverDonut('Won by type',  wonEntries,  WON_COLORS,  '#2E7D32');
-        if (lostEntries.length) h += buildTurnoverDonut('Lost by type', lostEntries, LOST_COLORS, '#C62828');
+        if (wonEntries.length)  h += buildTurnoverDonut('Won by type',  wonEntries,  WON_COLORS,  TEAM_US_COLOR);
+        if (lostEntries.length) h += buildTurnoverDonut('Lost by type', lostEntries, LOST_COLORS, TEAM_OPP_COLOR);
         h += '</div>';
       }
     }
@@ -487,7 +487,7 @@ function buildPrintHTML() {
     if (freesConc > 0) {
       h += '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;margin-bottom:8px;">Frees Conceded</div>';
       h += `<div class="pr-row" style="margin-bottom:6px;"><span>Total</span><span style="font-weight:600;">${freesConc}</span></div>`;
-      if (freesScored > 0) h += `<div class="pr-row" style="margin-bottom:${discPlayers.length>0?'12':'4'}px;"><span>Scored by opposition</span><span style="color:#C62828;font-weight:600;">${freesScored}</span></div>`;
+      if (freesScored > 0) h += `<div class="pr-row" style="margin-bottom:${discPlayers.length>0?'12':'4'}px;"><span>Scored by opposition</span><span style="color:${TEAM_OPP_COLOR};font-weight:600;">${freesScored}</span></div>`;
     }
     if (discPlayers.length > 0) {
       if (freesConc > 0) h += '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;margin-bottom:8px;">By Player</div>';
@@ -544,7 +544,7 @@ function buildPrintHTML() {
       h += html`<div style="flex:1;color:#4A4A4A;">${offName}</div>`;
       h += '<div style="min-width:72px;text-align:right;">';
       h += '<div style="font-size:11px;color:#6B6F66;">'+at.usG+'-'+at.usP+' v '+at.oppG+'-'+at.oppP+'</div>';
-      h += '<div style="font-size:10px;color:#9A9E99;margin-top:1px;"><span style="color:#2E7D32;">+'+aUG+'-'+aUP+'</span> / <span style="color:#C62828;">+'+aOG+'-'+aOP+'</span></div>';
+      h += '<div style="font-size:10px;color:#9A9E99;margin-top:1px;"><span style="color:'+TEAM_US_COLOR+';">+'+aUG+'-'+aUP+'</span> / <span style="color:'+TEAM_OPP_COLOR+';">+'+aOG+'-'+aOP+'</span></div>';
       h += '</div>';
       h += '</div>';
     });
@@ -570,8 +570,8 @@ function buildPrintHTML() {
         const isSub = !prStartPis.has(r.pi);
         h += '<div style="display:flex;align-items:center;gap:10px;padding:4px 0;">';
         h += `<div style="font-size:12px;font-weight:${isSub?'400':'600'};color:#1F1F1F;min-width:120px;white-space:nowrap;">${esc(r.name)}</div>`;
-        h += `<div style="flex:1;background:#E8EAE5;border-radius:3px;overflow:hidden;height:7px;"><div style="background:#2E7D32;opacity:${isSub?'.5':'1'};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
-        h += `<div style="font-size:12px;font-weight:700;color:#2E7D32;min-width:38px;text-align:right;">${formatSeconds(r.t)}</div>`;
+        h += `<div style="flex:1;background:#E8EAE5;border-radius:3px;overflow:hidden;height:7px;"><div style="background:${TEAM_US_COLOR};opacity:${isSub?'.5':'1'};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
+        h += `<div style="font-size:12px;font-weight:700;color:${TEAM_US_COLOR};min-width:38px;text-align:right;">${formatSeconds(r.t)}</div>`;
         h += `<div style="font-size:10px;color:#9A9E99;min-width:22px;">${isSub?'Sub':''}</div>`;
         h += '</div>';
       });
@@ -602,12 +602,12 @@ function buildPrintShotMapHTML() {
   h += `<svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;" preserveAspectRatio="xMidYMid meet">${PITCH_SVG_INNER}${dots}</svg>`;
   h += '<div style="padding:10px 14px;">';
   h += '<div style="display:flex;gap:14px;margin-bottom:10px;font-size:11px;color:#4A4A4A;align-items:center;">';
-  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#2E7D32" opacity=".82"/></svg>Score</span>';
-  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#C62828" opacity=".82"/></svg>Wide</span>';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="'+TEAM_US_COLOR+'" opacity=".82"/></svg>Score</span>';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="'+TEAM_OPP_COLOR+'" opacity=".82"/></svg>Wide</span>';
   h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#9E9E9E" opacity=".82"/></svg>Short</span>';
   h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#F97316" opacity=".82"/></svg>Saved</span>';
-  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="#2E7D32" opacity=".82" stroke="white" stroke-width="1"/></svg>Goal</span>';
-  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="18" height="18"><circle cx="9" cy="9" r="8" fill="none" stroke="#2E7D32" stroke-width="1.5" opacity=".7"/><circle cx="9" cy="9" r="5" fill="#2E7D32" opacity=".82" stroke="white" stroke-width="1"/></svg>Placed</span>';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="'+TEAM_US_COLOR+'" opacity=".82" stroke="white" stroke-width="1"/></svg>Goal</span>';
+  h += '<span style="display:flex;align-items:center;gap:4px;"><svg width="18" height="18"><circle cx="9" cy="9" r="8" fill="none" stroke="'+TEAM_US_COLOR+'" stroke-width="1.5" opacity=".7"/><circle cx="9" cy="9" r="5" fill="'+TEAM_US_COLOR+'" opacity=".82" stroke="white" stroke-width="1"/></svg>Placed</span>';
   h += '</div>';
   const thirdRows = [['Attacking third',thirds.att],['Middle third',thirds.mid],['Defensive third',thirds.def]];
   if (thirdRows.some(([,d]) => d.shots > 0)) {
@@ -615,7 +615,7 @@ function buildPrintShotMapHTML() {
     h += '<tr style="color:#6B6F66;font-size:11px;"><th style="text-align:left;padding:4px 0;font-weight:500;">Zone</th><th style="text-align:center;font-weight:500;">Shots</th><th style="text-align:center;font-weight:500;">Scores</th><th style="text-align:center;font-weight:500;">Conv%</th></tr>';
     thirdRows.forEach(([label,d]) => {
       if (d.shots === 0) return;
-      h += `<tr><td style="padding:3px 0;color:#4A4A4A;">${label}</td><td style="text-align:center;color:#1F1F1F;">${d.shots}</td><td style="text-align:center;color:#1F1F1F;">${d.scores}</td><td style="text-align:center;font-weight:600;color:#2E7D32;">${pct(d.scores,d.shots)}</td></tr>`;
+      h += `<tr><td style="padding:3px 0;color:#4A4A4A;">${label}</td><td style="text-align:center;color:#1F1F1F;">${d.shots}</td><td style="text-align:center;color:#1F1F1F;">${d.scores}</td><td style="text-align:center;font-weight:600;color:${TEAM_US_COLOR};">${pct(d.scores,d.shots)}</td></tr>`;
     });
     h += '</table>';
   }

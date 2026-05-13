@@ -319,9 +319,9 @@ function buildZoneSVG(selectedId) {
   // End-orientation labels inside SVG
   const labels =
     `<rect x="10" y="10" width="300" height="11" fill="white" opacity="0.92"/>` +
-    `<text x="160" y="19" text-anchor="middle" font-size="9" font-weight="700" fill="#2E7D32" font-family="-apple-system,BlinkMacSystemFont,sans-serif">DEFENSIVE END</text>` +
+    `<text x="160" y="19" text-anchor="middle" font-size="9" font-weight="700" fill="${TEAM_US_COLOR}" font-family="-apple-system,BlinkMacSystemFont,sans-serif">DEFENSIVE END</text>` +
     `<rect x="10" y="379" width="300" height="11" fill="white" opacity="0.92"/>` +
-    `<text x="160" y="388" text-anchor="middle" font-size="9" font-weight="700" fill="#2E7D32" font-family="-apple-system,BlinkMacSystemFont,sans-serif">▾ ATTACKING END</text>`;
+    `<text x="160" y="388" text-anchor="middle" font-size="9" font-weight="700" fill="${TEAM_US_COLOR}" font-family="-apple-system,BlinkMacSystemFont,sans-serif">▾ ATTACKING END</text>`;
   return `<svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;touch-action:none;" preserveAspectRatio="xMidYMid meet">${PITCH_SVG_INNER}${cells}${labels}</svg>`;
 }
 
