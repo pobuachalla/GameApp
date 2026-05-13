@@ -2,13 +2,12 @@
 
 // ─── SCORE TIMELINE ───────────────────────────────────────────────────────────
 function buildTimelineHTML() {
-  const toSecs = s => { const p=(s||'0:00').split(':'); return parseInt(p[0]||0)*60+(parseInt(p[1]||0)); };
   let usG=0,usP=0,oppG=0,oppP=0,halfSecs=0,inH2=false;
   const data = [{secs:0,us:0,opp:0}];
   const subs=[], reds=[], blacks=[], markers=[];
 
   state.evts.forEach(ev => {
-    let t = toSecs(ev.time);
+    let t = toSeconds(ev.time);
     if (ev.badge==='1H') { halfSecs=t; return; }
     if (ev.badge==='2H') { inH2=true; return; }
     if (inH2) t += halfSecs;

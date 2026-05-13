@@ -187,6 +187,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <!-- ── Review ──────────────────────────────────────────────────────────── -->
 <div id="review"></div>
 
+<script src="js/game-utils.js"></script>
 <script src="js/pitch-svg.js"></script>
 <script>
 'use strict';
@@ -200,7 +201,6 @@ const CARD_YELLOW='#FDD835', CARD_BLACK='#2c2c2a', CARD_RED='#E53935';
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const gn  = (st,i) => (st.pnames&&st.pnames[i]||'').trim();
 const pn  = (st,i) => gn(st,i)||'#'+i;
-const toS = s => { const p=(s||'0:00').split(':'); return parseInt(p[0]||0)*60+parseInt(p[1]||0); };
 const jit = (seed,range) => { const x=Math.sin(seed)*43758.5453; return (x-Math.floor(x)-.5)*range; };
 
 // ── File load ────────────────────────────────────────────────────────────────
@@ -262,14 +262,14 @@ function computeStats(st) {
       else if(d.startsWith('Opposition')){if(won)oppWon++;else if(lost)oppLost++;else oppUnclear++;}
       return;
     }
-    if(ev.badge==='1H'){tlHS=toS(ev.time);return;}
+    if(ev.badge==='1H'){tlHS=toSeconds(ev.time);return;}
     if(ev.badge==='2H'){tlH2=true;smH2=true;return;}
 
     const pi=ev.pi!=null?ev.pi:(ev.slot!=null?(st.slotp&&st.slotp[ev.slot])||ev.slot:null);
     const p=(pi&&ev.action&&ev.action!=='sub')?getP(pi):null;
     let placed=PLACED_BALL.has(ev.sec);
     if(!placed&&ev.sec==null&&(ev.badge==='OPP'||ev.badge==='ADJ')){const _d=ev.desc||'';placed=[...PLACED_BALL].some(pb=>_d.includes(pb));}
-    const t=toS(ev.time), secs=tlH2?t+tlHS:t;
+    const t=toSeconds(ev.time), secs=tlH2?t+tlHS:t;
     const prevUs=tlUG*3+tlUP, prevOpp=tlOG*3+tlOP;
     let mType=null,mTeam='us';
 
@@ -492,10 +492,7 @@ function buildReview(st) {
             :'Level';
 
   const ownRstT=s.ownWon+s.ownLost+s.ownUnclear,oppRstT=s.oppWon+s.oppLost+s.oppUnclear;
-  const usMom=usPts+(s.ownWon+s.oppWon)*2+s.twon;
-  const oMom=oppPts+(s.ownLost+s.oppLost)*2+s.tlost;
-  const momT=usMom+oMom;
-  const uMP=momT>0?Math.round(usMom/momT*100):50, oMP=100-uMP;
+  const {usPct:uMP,oppPct:oMP}=calculateMomentum(st.goals||0,st.pts||0,st.og||0,st.op_||0,s.ownWon,s.oppWon,s.ownLost,s.oppLost,s.twon,s.tlost);
 
   const totalSA=s.gC+s.pC+s.t2C, totalAtt=totalSA+s.wC;
   const scorePct=totalAtt>0?Math.round(totalSA/totalAtt*100):0;
@@ -674,11 +671,10 @@ function buildReview(st) {
       wDevSum+=(e.gkFinalValue-4)*wt; wTotal+=wt;
       if(e.gkOutcome==='save')gkSaves++; else gkGoals++;
     });
-    const avgDev=wTotal>0?wDevSum/wTotal:0;
-    const _rvAgBonus=({U8:2.0,U10:1.75,U12:1.5,U14:1.2,U16:0.75,Minor:0.35})[st.ageGrade]||0;
-    const gkRating=Math.round(50+(Math.max(-4,Math.min(4,avgDev+_rvAgBonus))/4)*50);
-    const gkLabel=gkRating>=80?'Outstanding':gkRating>=65?'Very Good':gkRating>=55?'Good':gkRating>=45?'Average':gkRating>=35?'Below Average':gkRating>=20?'Poor':'Very Poor';
-    const gkCol=gkRating>=65?'#2E7D32':gkRating>=45?'#D97706':'#C62828';
+    const _gkData=calculateGKRating(gkEvts,st.ageGrade);
+    const gkRating=_gkData?_gkData.rating:50;
+    const gkLabel=_gkData?_gkData.label:'Average';
+    const gkCol=_gkData?_gkData.ratingColor:'#F59E0B';
     const gkShots=gkSaves+gkGoals;
     const gkSavePct=gkShots>0?Math.round(gkSaves/gkShots*100):0;
     const gkName=pn(st,st.slotp?(st.slotp[1]||1):1);
