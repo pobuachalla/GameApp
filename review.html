@@ -187,15 +187,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <!-- ── Review ──────────────────────────────────────────────────────────── -->
 <div id="review"></div>
 
+<script src="js/constants.js"></script>
 <script src="js/game-utils.js"></script>
 <script src="js/pitch-svg.js"></script>
 <script>
 'use strict';
 
-// ── Constants ────────────────────────────────────────────────────────────────
-const PLACED_BALL = new Set(['From Free','From Sideline','From Penalty','From 65','From 45']);
+// ── Local layout constants ───────────────────────────────────────────────────
 const ZPX=10, ZPY=10, ZPW=300, ZPH=380;
-const CARD_YELLOW='#FDD835', CARD_BLACK='#2c2c2a', CARD_RED='#E53935';
+// PLACED_BALL, CARD_YELLOW/BLACK/RED from constants.js
 
 // ── Utils ────────────────────────────────────────────────────────────────────
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');

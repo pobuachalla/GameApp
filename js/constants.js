@@ -29,6 +29,12 @@ const ZPX = 10, ZPY = 10, ZPW = 300, ZPH = 380;
 const ZCW = ZPW / ZONE_COLS;   // 60 SVG units wide
 const ZCH = ZPH / ZONE_ROWS;   // ≈54.3 SVG units tall
 
+// ─── TEAM COLOURS ─────────────────────────────────────────────────────────────
+// Primary brand colours for "us" (green) and opponent (red). Used in JS-built
+// SVG/HTML; CSS counterparts are --green / --red in style.css.
+const TEAM_US_COLOR  = '#2E7D32';
+const TEAM_OPP_COLOR = '#C62828';
+
 // ─── SCORING ──────────────────────────────────────────────────────────────────
 const PLACED_BALL = new Set(['From Free','From Sideline','From Penalty','From 65','From 45']);
 

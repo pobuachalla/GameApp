@@ -68,7 +68,7 @@ function applyStateEffects(prev, next) {
       addRow(fmt(state.secs),'1H','bperiod','1st Half ended at '+clockStr);
       pushUndo('1st Half ended',()=>{});
       setGrid(true);
-      showHalfTimeReport();
+      showScoreGraphic('HT');
       break;
 
     case 'RUNNING_SECOND_HALF':

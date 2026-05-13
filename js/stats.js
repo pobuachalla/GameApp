@@ -190,11 +190,6 @@ function buildPlayTimeHTML() {
   return h;
 }
 
-// ─── HALF-TIME REPORT ─────────────────────────────────────────────────────────
-function showHalfTimeReport() {
-  showScoreGraphic('HT');
-}
-
 // ─── STATS HELPERS ────────────────────────────────────────────────────────────
 function rstBlock(label, won, lost, unclear, total) {
   let out = '<div class="stat-sub-hdr" style="margin-top:0;">'+label+'</div>';
@@ -564,8 +559,6 @@ function buildStatsHTML() {
 
   return h;
 }
-
-// ─── TURNOVER DONUT ───────────────────────────────────────────────────────────
 
 // ─── SHOT MAP ─────────────────────────────────────────────────────────────────
 function buildShotMapHTML() {
