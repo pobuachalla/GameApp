@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1200">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GAA Match Review</title>
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -211,6 +211,7 @@ function loadFile(files) {
       const st = JSON.parse(e.target.result);
       if (!Array.isArray(st.evts)) { alert('Not a valid GAA Match Tracker export.'); return; }
       document.getElementById('landing').style.display = 'none';
+      document.querySelector('meta[name=viewport]').content = 'width=1200';
       const rv = document.getElementById('review');
       rv.style.display = 'block';
       rv.innerHTML = buildReview(st);
