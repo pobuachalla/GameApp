@@ -161,13 +161,17 @@ function computeShotDots(shots, getInitials) {
     const isShort = s.action === 'Short';
     const isSaved = s.action === 'Saved';
     const r = isGoal ? 9 : 6;
-    let cx, cy, jRange = 14;
-    for (let attempt = 0; attempt < 6; attempt++) {
-      cx = baseCx + (isSideline || isPenalty ? 0 : shotJitter(i * 2.1 + 1 + attempt * 17.3, jRange));
-      cy = baseCy + (is45 || is65 || isPenalty ? 0 : shotJitter(i * 2.1 + 2 + attempt * 17.3, jRange));
-      if (!placed_arr.some(p => Math.hypot(cx - p.cx, cy - p.cy) < r + p.r + 1)) break;
-      jRange += 10;
+    let cx, cy, jRange = 16;
+    let bestCx = baseCx, bestCy = baseCy, bestOverlap = Infinity;
+    for (let attempt = 0; attempt < 15; attempt++) {
+      const tryX = baseCx + (isSideline || isPenalty ? 0 : shotJitter(i * 2.1 + 1 + attempt * 17.3, jRange));
+      const tryY = baseCy + (is45 || is65 || isPenalty ? 0 : shotJitter(i * 2.1 + 2 + attempt * 17.3, jRange));
+      const maxOverlap = placed_arr.reduce((m, p) => Math.max(m, r + p.r + 4 - Math.hypot(tryX - p.cx, tryY - p.cy)), 0);
+      if (maxOverlap <= 0) { cx = tryX; cy = tryY; break; }
+      if (maxOverlap < bestOverlap) { bestOverlap = maxOverlap; bestCx = tryX; bestCy = tryY; }
+      jRange += 8;
     }
+    if (cx == null) { cx = bestCx; cy = bestCy; }
     placed_arr.push({cx, cy, r});
     const cxS = cx.toFixed(1), cyS = cy.toFixed(1);
     const fill = isShort ? '#9E9E9E' : isSaved ? '#F97316' : isScore ? '#2E7D32' : '#C62828';
