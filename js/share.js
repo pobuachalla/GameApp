@@ -24,11 +24,10 @@ function shareCSV() {
       .filter(r => r.name)
       .sort((a, b) => b.t - a.t || a.name.localeCompare(b.name));
     if (ptRows.length) {
-      const fmtT = secs => { const m = Math.floor(secs / 60), sc = Math.round(secs % 60); return m + ':' + (sc < 10 ? '0' : '') + sc; };
       const startPis = new Set(Object.values(state.startSlotp || {}).map(Number));
       rows.push([]);
       rows.push(['player','role','minutes_played','seconds_played','','','','','','','','']);
-      ptRows.forEach(r => rows.push([r.name, startPis.has(r.pi) ? 'starter' : 'sub', fmtT(r.t), r.t, '','','','','','','','']));
+      ptRows.forEach(r => rows.push([r.name, startPis.has(r.pi) ? 'starter' : 'sub', formatSeconds(r.t), r.t, '','','','','','','','']));
     }
   }
   const csv = rows.map(r => r.map(csvEsc).join(',')).join('\r\n');
