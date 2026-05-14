@@ -136,7 +136,8 @@ function refBtn(s) {
   while (b.firstChild) b.removeChild(b.firstChild);
   if (state.ycarded[pi]) { const e=document.createElement('span'); e.className='card-y'; b.appendChild(e); }
   if (state.bcarded[pi]) { const e=document.createElement('span'); e.className='card-b'; b.appendChild(e); }
-  if (state.rcarded[pi]) { const e=document.createElement('span'); e.className='card-r'; b.appendChild(e); }
+  if (state.rcarded[pi]) { b.classList.add('rc'); const e=document.createElement('span'); e.className='card-r'; b.appendChild(e); }
+  else { b.classList.remove('rc'); }
   if (state.bcardedAt && state.bcardedAt[pi] != null) {
     const remaining=(state.bcardedAt[pi]+600)-state.secs;
     const pct=Math.max(0,Math.min(1,remaining/600));
