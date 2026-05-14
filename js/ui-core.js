@@ -187,7 +187,6 @@ function updateBCCountdowns() {
       const c = el.querySelector('circle');
       if (c) c.setAttribute('stroke-dashoffset', (CIRC * (1 - pct)).toFixed(1));
       if (remaining <= 0) {
-        // Re-enable the button once sin-bin time is up
         const slot = Object.keys(state.slotp).find(k => +state.slotp[k] === pi);
         if (slot) { const btn=document.querySelector('[data-s="'+slot+'"]'); if(btn) btn.classList.remove('bc'); }
       }
@@ -196,4 +195,19 @@ function updateBCCountdowns() {
       else               { el.textContent = '↩';            el.classList.add('ready');    }
     }
   });
+  // Update bc-pill next to the sport pill
+  const pill = document.getElementById('bc-pill');
+  if (!pill) return;
+  const active = Object.entries(state.bcardedAt)
+    .map(([pi, issuedAt]) => ({ pi: +pi, remaining: (issuedAt + 600) - state.secs }))
+    .filter(e => e.remaining > 0)
+    .sort((a, b) => a.remaining - b.remaining);
+  if (active.length === 0) {
+    pill.style.display = 'none';
+  } else {
+    pill.style.display = '';
+    pill.innerHTML = active.map(e =>
+      `<span>⬛ ${esc(gi(e.pi))} ${fmt(e.remaining)}</span>`
+    ).join('<span style="opacity:.4;margin:0 2px;">·</span>');
+  }
 }

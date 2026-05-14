@@ -101,6 +101,7 @@ function doReset() {
   renderTimerUI();
   setGrid(false);
   state.rcarded={}; state.ycarded={}; state.bcarded={}; state.bcardedAt={}; state.sidelineCards=[];
+  const _bcp=document.getElementById('bc-pill'); if(_bcp) _bcp.style.display='none';
   const sz = state.teamSize || 15;
   (TEAM_SLOTS[sz]||TEAM_SLOTS[15]).forEach(s=>{state.slotp[s]=s;});
   renderPGrid();
