@@ -72,7 +72,7 @@ const ACTION_META = {
   '2 Point':     {cls:'score-btn-2p',   icon:'<i class="fas fa-flag"></i>'},
   'Wide':        {cls:'action-btn-wide',icon:'<i class="fa-solid fa-child-reaching"></i>'},
   'Short':       {cls:'action-btn-wide',icon:'<i class="fas fa-arrow-down"></i>'},
-  'Saved':       {cls:'action-btn-wide',icon:'<span style="display:inline-flex;gap:2px;align-items:center;"><i class="fas fa-hand" style="font-size:.8em;display:inline-block;transform:rotate(335deg);"></i><i class="fas fa-hand" style="font-size:.8em;display:inline-block;transform:rotate(45deg);"></i></span>'},
+  'Saved':       {cls:'action-btn-wide',icon:'<span style="display:inline-flex;gap:2px;align-items:center;"><i class="fas fa-hand" style="font-size:.8em;display:inline-block;transform:rotate(315deg) scaleX(-1);"></i><i class="fas fa-hand" style="font-size:.8em;display:inline-block;transform:rotate(45deg);"></i></span>'},
   'Free':        {cls:'action-btn-neutral',icon:'<i class="fa-regular fa-whistle"></i>'},
   'Advanced':    {cls:'action-btn-neutral',icon:'<i class="fas fa-right-from-line"></i>'},
   'Card':        {cls:'action-btn-neutral',icon:`<span style="display:inline-flex;gap:2px;align-items:center;"><i class="fas fa-square" style="font-size:10px;color:${CARD_YELLOW};"></i><i class="fas fa-square" style="font-size:10px;color:${CARD_BLACK};"></i><i class="fas fa-square" style="font-size:10px;color:${CARD_RED};"></i></span>`},
