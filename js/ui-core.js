@@ -144,8 +144,6 @@ function refBtn(s) {
     const tmp=document.createElement('div');
     tmp.innerHTML=`<svg class="bc-ring" data-bc-pi="${pi}" width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="25" fill="none" stroke="#2c2c2a" stroke-width="3" stroke-dasharray="157.08" stroke-dashoffset="${offset}" transform="rotate(-90 28 28)" stroke-linecap="round"/></svg>`;
     b.appendChild(tmp.firstChild);
-    const cd=document.createElement('span'); cd.className='bc-countdown'+(remaining<=0?' ready':''); cd.dataset.bcPi=pi;
-    cd.textContent=remaining>0?fmt(remaining):'↩'; b.appendChild(cd);
     b.classList.add('bc');
   }
   if (state.ubench[pi]) { const e=document.createElement('span'); e.className='subdot'; b.appendChild(e); }
@@ -190,9 +188,6 @@ function updateBCCountdowns() {
         const slot = Object.keys(state.slotp).find(k => +state.slotp[k] === pi);
         if (slot) { const btn=document.querySelector('[data-s="'+slot+'"]'); if(btn) btn.classList.remove('bc'); }
       }
-    } else {
-      if (remaining > 0) { el.textContent = fmt(remaining); el.classList.remove('ready'); }
-      else               { el.textContent = '↩';            el.classList.add('ready');    }
     }
   });
   // Update bc-pill next to the sport pill
