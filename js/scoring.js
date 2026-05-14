@@ -75,8 +75,8 @@ function resetMatch() {
   showConfirmDrawer(
     'New Game?',
     'All scores, events and cards will be cleared. Team and player settings are kept.',
-    'Clear everything and start new game',
-    true,
+    'Start New Game',
+    false,
     doReset
   );
 }
