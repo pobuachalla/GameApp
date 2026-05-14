@@ -46,7 +46,7 @@ function showFullTimeResult() {
   if (ub) {
     ub.id='resetbtn'; ub.disabled=false; ub.classList.remove('danger');
     // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
-    ub.innerHTML='<i class="fas fa-arrows-rotate" aria-hidden="true"></i>Reset';
+    ub.innerHTML='<i class="fas fa-arrows-rotate" aria-hidden="true"></i>New Game';
     ub.onclick=resetMatch;
   }
   showScoreGraphic('FT');
@@ -73,9 +73,9 @@ function showConfirmDrawer(title, message, btnLabel, isDanger, onConfirm) {
 // ─── RESET ────────────────────────────────────────────────────────────────────
 function resetMatch() {
   showConfirmDrawer(
-    'Reset match?',
+    'New Game?',
     'All scores, events and cards will be cleared. Team and player settings are kept.',
-    'Clear everything and reset',
+    'Clear everything and start new game',
     true,
     doReset
   );

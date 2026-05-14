@@ -40,9 +40,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card-b{position:absolute;top:3px;left:10px;width:5px;height:8px;border-radius:1.5px;background:var(--card-black);border:.5px solid rgba(255,255,255,0.2);}
 .card-r{position:absolute;top:3px;left:3px;width:5px;height:8px;border-radius:1.5px;background:var(--card-red);border:.5px solid rgba(0,0,0,0.2);}
 .bot-bar{display:flex;align-items:stretch;border-top:.5px solid var(--bm);background:var(--bg1);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom);border-radius:var(--rl) var(--rl) 0 0;margin:10px 10px 0;}
-.bar-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:14px 8px;cursor:pointer;border:none;background:none;color:var(--t2);font-size:10px;font-weight:500;letter-spacing:.04em;touch-action:manipulation;font-family:inherit;}
+.bar-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 8px;cursor:pointer;border:none;background:none;color:var(--ts);font-size:11px;font-weight:600;letter-spacing:.04em;touch-action:manipulation;font-family:inherit;}
+.bar-btn i{font-size:20px;}
 .bar-btn:active{background:var(--bg2);}
-.bar-btn.danger{color:var(--td);}
+.bar-btn.danger{color:var(--ts);}
 .bar-btn:disabled{opacity:.3;cursor:default;}
 .bar-div{width:.5px;background:var(--b);align-self:stretch;margin:8px 0;}
 .overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.48);z-index:50;padding:44px 12px 12px;}
