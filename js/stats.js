@@ -340,7 +340,7 @@ function buildStatsHTML() {
     pstats, wonCategories, lostCategories,
     goalCount, ptCount, twoPtCount, wideCount,
     placedGoals, placedPts, placedTwoPts, placedWides,
-    turnoversWon, turnoversLost,
+    turnoversWon, turnoversLost, freesWon,
     ownWon, ownLost, ownUnclear, oppWon, oppLost, oppUnclear,
     freesConc, freesScored,
   } = aggregateMatchStats(state.evts, state.trackTurnovers, state.slotp, pl);
@@ -493,6 +493,19 @@ function buildStatsHTML() {
         if (lostEntries.length) h += buildTurnoverDonut('Lost by type', lostEntries, LOST_COLORS, TEAM_OPP_COLOR);
         h += '</div>';
       }
+    }
+    h += '</div></div>';
+  }
+
+  // Frees Won
+  if (freesWon > 0) {
+    const fwPlayers = Object.values(pstats).filter(p=>p.freesWon>0).sort((a,b)=>b.freesWon-a.freesWon||a.name.localeCompare(b.name));
+    h += '<div class="stat-section"><div class="stat-section-title">Frees Won</div><div class="stat-card">';
+    h += '<div style="padding:4px 0 10px;text-align:center;"><div style="font-size:32px;font-weight:700;color:'+TEAM_US_COLOR+';line-height:1;">'+freesWon+'</div><div style="font-size:11px;color:var(--t2);margin-top:3px;">frees won in match</div></div>';
+    if (fwPlayers.length > 0) {
+      h += '<div style="border-top:.5px solid var(--b);padding-top:6px;">';
+      fwPlayers.forEach(p => { h += html`<div class="stat-prow"><div class="stat-pname">${p.name}</div><div class="stat-ptags"><span class="stat-tag green">${p.freesWon}</span></div></div>`; });
+      h += '</div>';
     }
     h += '</div></div>';
   }
