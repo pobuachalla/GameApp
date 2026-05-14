@@ -528,7 +528,8 @@ function buildStatsHTML() {
 
   // Discipline
   const discPlayers = getDiscPlayers(pstats);
-  if (discPlayers.length > 0 || freesConc > 0) {
+  const slCards = state.sidelineCards || [];
+  if (discPlayers.length > 0 || freesConc > 0 || slCards.length > 0) {
     h += '<div class="stat-section"><div class="stat-section-title">Discipline</div>';
     if (freesConc > 0) {
       h += '<div style="display:flex;gap:16px;padding:4px 0 10px;align-items:baseline;">';
@@ -557,6 +558,23 @@ function buildStatsHTML() {
           });
           h += '</span>';
         }
+        h += '</div>';
+      });
+      h += '</div>';
+    }
+    if (slCards.length > 0) {
+      h += '<div class="stat-card" style="margin-top:10px;">';
+      h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin-bottom:8px;">Sideline</div>';
+      slCards.forEach(sc => {
+        h += '<div class="disc-row">';
+        if (sc.type !== 'AdvFree') {
+          const bg = sc.type === 'Yellow' ? CARD_YELLOW : CARD_RED;
+          h += `<span class="disc-chip" style="background:${bg};${sc.type==='Yellow'?'border:.5px solid rgba(0,0,0,.15);':''}" title="${sc.type} Card"></span>`;
+        } else {
+          h += `<span class="stat-tag" style="background:#FEF3C7;color:#92400E;font-size:10px;padding:1px 5px;">Adv Free</span>`;
+        }
+        h += html`<span class="stat-pname" style="flex:1;">${sc.name||'Coach/Manager'}</span>`;
+        h += `<span style="font-size:11px;color:var(--t3);">${esc(sc.time)}</span>`;
         h += '</div>';
       });
       h += '</div>';
