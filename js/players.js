@@ -11,6 +11,19 @@ function sel(s) {
   const isPaused   = state.matchState === 'PAUSED_FIRST_HALF' || state.matchState === 'PAUSED_SECOND_HALF';
   const isPreMatch = state.matchState === 'PRE_MATCH';
   if ((!tRun && !isHT && !isPaused && !isPreMatch) || state.rcarded[state.slotp[s]]) return;
+  const _bcPi = state.slotp[s];
+  const _bcRem = (state.bcardedAt && state.bcardedAt[_bcPi] != null) ? (state.bcardedAt[_bcPi] + 600) - state.secs : -1;
+  if (_bcRem > 0) {
+    selSlot = s;
+    showConfirmDrawer(
+      'Player Sin-Binned',
+      (gn(_bcPi)||('#'+_bcPi))+' has '+fmt(_bcRem)+' remaining. Use a substitution? (juvenile / dissent exception)',
+      'Substitute Player',
+      false,
+      () => { subOff = s; pickSubOn(); }
+    );
+    return;
+  }
   selSlot = s;
   if (isHT) { subOff = selSlot; pickSubOn(); return; }
   openPlayerSheet(s);
@@ -407,8 +420,7 @@ function logEv(action, sec, zone) {
   if (action==='Black Card') {
     state.bcarded[pi]=(state.bcarded[pi]||0)+1;
     state.bcardedAt[pi]=state.secs;
-    const b=document.querySelector('[data-s="'+slot+'"]');
-    if(b){ if(!b.querySelector('.card-b')){ const e=document.createElement('span'); e.className='card-b'; b.appendChild(e); } const _cd=document.createElement('span'); _cd.className='bc-countdown'; _cd.dataset.bcPi=pi; _cd.textContent=fmt(600); b.appendChild(_cd); }
+    refBtn(slot);
   }
 
   const desc = pl(pi)+': '+action+(sec?' · '+sec:'');
@@ -444,7 +456,9 @@ function logEv(action, sec, zone) {
     }
     if (action==='Black Card') {
       state.bcarded[pi]=(state.bcarded[pi]||1)-1;
-      if(state.bcarded[pi]<=0){ delete state.bcarded[pi]; delete state.bcardedAt[pi]; const b=document.querySelector('[data-s="'+slot+'"]'); const c=b&&b.querySelector('.card-b'); if(c)c.remove(); const cd=b&&b.querySelector('.bc-countdown'); if(cd)cd.remove(); }
+      if(state.bcarded[pi]<=0){ delete state.bcarded[pi]; delete state.bcardedAt[pi]; }
+      const _bb=document.querySelector('[data-s="'+slot+'"]');
+      if(_bb){ _bb.classList.remove('bc'); refBtn(slot); }
     }
     const b2=document.querySelector('[data-s="'+slot+'"]');
     const still=state.evts.some(e=>e.slot===slot);

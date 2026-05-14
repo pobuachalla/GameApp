@@ -139,8 +139,14 @@ function refBtn(s) {
   if (state.rcarded[pi]) { const e=document.createElement('span'); e.className='card-r'; b.appendChild(e); }
   if (state.bcardedAt && state.bcardedAt[pi] != null) {
     const remaining=(state.bcardedAt[pi]+600)-state.secs;
+    const pct=Math.max(0,Math.min(1,remaining/600));
+    const offset=(157.08*(1-pct)).toFixed(1);
+    const tmp=document.createElement('div');
+    tmp.innerHTML=`<svg class="bc-ring" data-bc-pi="${pi}" width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="25" fill="none" stroke="#2c2c2a" stroke-width="3" stroke-dasharray="157.08" stroke-dashoffset="${offset}" transform="rotate(-90 28 28)" stroke-linecap="round"/></svg>`;
+    b.appendChild(tmp.firstChild);
     const cd=document.createElement('span'); cd.className='bc-countdown'+(remaining<=0?' ready':''); cd.dataset.bcPi=pi;
     cd.textContent=remaining>0?fmt(remaining):'↩'; b.appendChild(cd);
+    b.classList.add('bc');
   }
   if (state.ubench[pi]) { const e=document.createElement('span'); e.className='subdot'; b.appendChild(e); }
   if (state.captain === s) { const e=document.createElement('i'); e.className='fa-regular fa-copyright cap-badge'; b.appendChild(e); }
@@ -171,11 +177,23 @@ const refAllBtns = () => { const sz=state.teamSize||15; (TEAM_SLOTS[sz]||TEAM_SL
 
 function updateBCCountdowns() {
   if (!state.bcardedAt) return;
+  const CIRC = 157.08;
   document.querySelectorAll('[data-bc-pi]').forEach(el => {
     const pi = +el.dataset.bcPi;
     if (state.bcardedAt[pi] == null) return;
     const remaining = (state.bcardedAt[pi] + 600) - state.secs;
-    if (remaining > 0) { el.textContent = fmt(remaining); el.classList.remove('ready'); }
-    else               { el.textContent = '↩';            el.classList.add('ready');    }
+    const pct = Math.max(0, Math.min(1, remaining / 600));
+    if (el.tagName.toLowerCase() === 'svg') {
+      const c = el.querySelector('circle');
+      if (c) c.setAttribute('stroke-dashoffset', (CIRC * (1 - pct)).toFixed(1));
+      if (remaining <= 0) {
+        // Re-enable the button once sin-bin time is up
+        const slot = Object.keys(state.slotp).find(k => +state.slotp[k] === pi);
+        if (slot) { const btn=document.querySelector('[data-s="'+slot+'"]'); if(btn) btn.classList.remove('bc'); }
+      }
+    } else {
+      if (remaining > 0) { el.textContent = fmt(remaining); el.classList.remove('ready'); }
+      else               { el.textContent = '↩';            el.classList.add('ready');    }
+    }
   });
 }
