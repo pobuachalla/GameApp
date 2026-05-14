@@ -186,11 +186,14 @@ function psAction(a) {
     return;
   }
   if (a === 'Card') {
-    showPSOpts('Card — colour?', [
+    const _pi = state.slotp[selSlot];
+    const opts = [
       {val:'Yellow Card', label:'Yellow Card', pre:'<i class="fas fa-square ps-card-y"></i>'},
       {val:'Black Card',  label:'Black Card',  pre:'<i class="fas fa-square ps-card-b"></i>'},
       {val:'Red Card',    label:'Red Card',    pre:'<i class="fas fa-square ps-card-r"></i>'},
-    ], colour => { logEv(colour, null); closePlayerSheetAndReset(); }, 'grid');
+    ];
+    if ((state.ycarded[_pi]||0) > 0) opts.push({val:'Second Yellow Card', label:'2nd Yellow', pre:'<span style="display:inline-flex;gap:1px;align-items:center;"><i class="fas fa-square ps-card-y" style="font-size:9px;"></i><i class="fas fa-square ps-card-y" style="font-size:9px;"></i></span>'});
+    showPSOpts('Card — colour?', opts, colour => { logEv(colour, null); closePlayerSheetAndReset(); }, 'grid');
     return;
   }
   if (a === 'Advanced') {
@@ -371,7 +374,7 @@ function _finishZone(zone) {
 // ─── EVENT LOGGING ────────────────────────────────────────────────────────────
 function badgeCls(a) {
   if(a==='Goal')return 'bg'; if(a==='Point')return 'bp'; if(a==='2 Point')return 'bp'; if(a==='Wide'||a==='Short'||a==='Saved')return 'bw';
-  if(a==='Red Card')return 'br'; if(a==='Yellow Card')return 'by'; if(a.indexOf('Card')>=0)return 'bc';
+  if(a==='Red Card')return 'br'; if(a==='Yellow Card'||a==='Second Yellow Card')return 'by'; if(a.indexOf('Card')>=0)return 'bc';
   if(a==='Turnover Won'||a==='Free Won')return 'bg'; if(a==='Turnover Lost')return 'br';
   return 'bo';
 }
@@ -390,6 +393,12 @@ function logEv(action, sec, zone) {
     const b=document.querySelector('[data-s="'+slot+'"]');
     if(b){ b.classList.remove('hev','sub'); b.classList.add('rc'); const e=document.createElement('span'); e.className='card-r'; b.appendChild(e); }
   }
+  if (action==='Second Yellow Card') {
+    state.rcarded[pi]=true;
+    state.ycarded[pi]=(state.ycarded[pi]||0)+1;
+    const b=document.querySelector('[data-s="'+slot+'"]');
+    if(b){ b.classList.remove('hev','sub'); b.classList.add('rc'); const cy=b.querySelector('.card-y'); if(cy)cy.remove(); const e=document.createElement('span'); e.className='card-r'; b.appendChild(e); }
+  }
   if (action==='Yellow Card') {
     state.ycarded[pi]=(state.ycarded[pi]||0)+1;
     const b=document.querySelector('[data-s="'+slot+'"]');
@@ -402,7 +411,7 @@ function logEv(action, sec, zone) {
   }
 
   const desc = pl(pi)+': '+action+(sec?' · '+sec:'');
-  if (action!=='Red Card') {
+  if (action!=='Red Card' && action!=='Second Yellow Card') {
     const b=document.querySelector('[data-s="'+slot+'"]');
     if(b&&!b.classList.contains('rc')) b.classList.add('hev');
   }
@@ -420,6 +429,13 @@ function logEv(action, sec, zone) {
       delete state.rcarded[pi];
       const b=document.querySelector('[data-s="'+slot+'"]');
       if(b){ b.classList.remove('rc'); const c=b.querySelector('.card-r'); if(c)c.remove(); }
+    }
+    if (action==='Second Yellow Card') {
+      delete state.rcarded[pi];
+      state.ycarded[pi]=(state.ycarded[pi]||1)-1;
+      if(state.ycarded[pi]<=0) delete state.ycarded[pi];
+      const b=document.querySelector('[data-s="'+slot+'"]');
+      if(b){ b.classList.remove('rc'); const cr=b.querySelector('.card-r'); if(cr)cr.remove(); if((state.ycarded[pi]||0)>0&&!b.querySelector('.card-y')){ const ey=document.createElement('span'); ey.className='card-y'; b.appendChild(ey); } }
     }
     if (action==='Yellow Card') {
       state.ycarded[pi]=(state.ycarded[pi]||1)-1;
