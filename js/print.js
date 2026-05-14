@@ -507,8 +507,10 @@ function buildPrintHTML() {
         const freeTotal = Object.values(p.frees).reduce((s,n)=>s+n,0);
         h += '<div class="pr-row" style="align-items:center;gap:6px;">';
         if (p.yc+p.bc+p.rc > 0) {
-          h += '<span style="display:flex;gap:2px;flex-shrink:0;">';
-          for (let i=0;i<p.yc;i++) h+=`<span style="display:inline-block;width:9px;height:13px;background:${CARD_YELLOW};border-radius:2px;border:.5px solid rgba(0,0,0,.2);"></span>`;
+          const _syc=p.syc||0, _syY=p.yc-2*_syc;
+          h += '<span style="display:flex;gap:2px;flex-shrink:0;align-items:center;">';
+          for (let i=0;i<_syY;i++) h+=`<span style="display:inline-block;width:9px;height:13px;background:${CARD_YELLOW};border-radius:2px;border:.5px solid rgba(0,0,0,.2);"></span>`;
+          for (let i=0;i<_syc;i++) h+=`<span style="display:inline-flex;gap:1px;align-items:center;" title="Second Yellow"><span style="display:inline-block;width:9px;height:13px;background:${CARD_YELLOW};border-radius:2px;border:.5px solid rgba(0,0,0,.2);"></span><span style="display:inline-block;width:9px;height:13px;background:${CARD_YELLOW};border-radius:2px;border:.5px solid rgba(0,0,0,.2);"></span><span style="font-size:8px;color:#9A9E99;margin:0 1px;">→</span><span style="display:inline-block;width:9px;height:13px;background:${CARD_RED};border-radius:2px;"></span></span>`;
           for (let i=0;i<p.bc;i++) h+=`<span style="display:inline-block;width:9px;height:13px;background:${CARD_BLACK};border-radius:2px;"></span>`;
           for (let i=0;i<p.rc;i++) h+=`<span style="display:inline-block;width:9px;height:13px;background:${CARD_RED};border-radius:2px;"></span>`;
           h += '</span>';

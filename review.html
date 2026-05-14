@@ -250,7 +250,7 @@ function computeStats(st) {
   let smH2=false;
 
   const getP=pi=>{
-    if(!ps[pi])ps[pi]={pi,name:pn(st,pi),gPl:0,gPd:0,pPl:0,pPd:0,w:0,yc:0,bc:0,rc:0,tw:0,tl:0,fw:0,twSec:{},tlSec:{},fr:{}};
+    if(!ps[pi])ps[pi]={pi,name:pn(st,pi),gPl:0,gPd:0,pPl:0,pPd:0,w:0,yc:0,syc:0,bc:0,rc:0,tw:0,tl:0,fw:0,twSec:{},tlSec:{},fr:{}};
     return ps[pi];
   };
 
@@ -308,7 +308,7 @@ function computeStats(st) {
         if(onPi!=null){ptStart[onPi]=secs;ptCurSlot[ev.slot]=onPi;}
       }
     }else if(ev.action==='Yellow Card'){if(p)p.yc++;
-    }else if(ev.action==='Second Yellow Card'){if(p)p.yc+=2;tlReds.push({secs});
+    }else if(ev.action==='Second Yellow Card'){if(p){p.yc++;p.syc++;}tlReds.push({secs});
     }else if(ev.action==='Black Card'){if(p)p.bc++;tlBlacks.push({secs});
     }else if(ev.action==='Red Card'){if(p)p.rc++;tlReds.push({secs});
     }else if(ev.action==='Turnover Won'){twon++;if(p){p.tw++;if(st.trackTurnovers&&ev.sec){wonCategories[ev.sec]=(wonCategories[ev.sec]||0)+1;p.twSec[ev.sec]=(p.twSec[ev.sec]||0)+1;}}
@@ -818,8 +818,10 @@ function buildReview(st) {
       h+=`<div style="padding:9px 0;border-bottom:1px solid var(--border);">`;
       h+=`<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">`;
       if(p.yc+p.bc+p.rc>0){
-        h+=`<span style="display:flex;gap:2px;">`;
-        for(let i=0;i<p.yc;i++)h+=`<span class="cc" style="background:${CARD_YELLOW};border:.5px solid rgba(0,0,0,0.15);"></span>`;
+        const _syc=p.syc||0,_syY=p.yc-2*_syc;
+        h+=`<span style="display:flex;gap:3px;align-items:center;flex-wrap:wrap;">`;
+        for(let i=0;i<_syY;i++)h+=`<span class="cc" style="background:${CARD_YELLOW};border:.5px solid rgba(0,0,0,0.15);"></span>`;
+        for(let i=0;i<_syc;i++)h+=`<span style="display:inline-flex;gap:1px;align-items:center;" title="Second Yellow → Off"><span class="cc" style="background:${CARD_YELLOW};border:.5px solid rgba(0,0,0,0.15);"></span><span class="cc" style="background:${CARD_YELLOW};border:.5px solid rgba(0,0,0,0.15);"></span><span style="font-size:8px;color:#9A9E99;margin:0 1px;">→</span><span class="cc" style="background:${CARD_RED};"></span></span>`;
         for(let i=0;i<p.bc;i++)h+=`<span class="cc" style="background:${CARD_BLACK};"></span>`;
         for(let i=0;i<p.rc;i++)h+=`<span class="cc" style="background:${CARD_RED};"></span>`;
         h+=`</span>`;
