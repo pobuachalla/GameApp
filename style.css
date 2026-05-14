@@ -86,11 +86,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .zone-chip{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:500;cursor:pointer;border:.5px solid var(--bm);background:var(--bg2);color:var(--t2);font-family:inherit;touch-action:manipulation;}
 .zone-chip.active{background:var(--bgi);color:var(--ti);border-color:var(--bi);}
 .zone-chip:active{opacity:.75;}
-.ev-row{display:flex;gap:10px;padding:7px 0;border-bottom:.5px solid var(--b);font-size:13px;align-items:flex-start;cursor:default;transition:background .1s;}
+.ev-row{display:flex;gap:10px;padding:7px 0 7px 7px;border-bottom:.5px solid var(--b);border-left:3px solid transparent;font-size:13px;align-items:flex-start;cursor:default;transition:background .1s;}
 .ev-row:last-child{border-bottom:none;}
 .ev-row.selected{background:var(--bgi);}
 .ev-row.sel-mode{cursor:pointer;}
 .ev-row.sel-mode:active{background:var(--bg2);}
+.ev-row:has(.bg),.ev-row:has(.bs){border-left-color:var(--ts);}
+.ev-row:has(.bp){border-left-color:rgba(46,125,50,.35);}
+.ev-row:has(.bc),.ev-row:has(.by){border-left-color:#D97706;}
+.ev-row:has(.br){border-left-color:var(--td);}
+.ev-row:has(.bopp){border-left-color:rgba(198,40,40,.45);}
 .ev-check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--bm);background:var(--bg1);flex-shrink:0;display:none;align-items:center;justify-content:center;margin-top:1px;}
 .ev-row.sel-mode .ev-check{display:flex;}
 .ev-row.selected .ev-check{background:var(--bgi);border-color:var(--bi);}
@@ -98,7 +103,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ev-bdg{font-size:11px;padding:2px 6px;border-radius:999px;font-weight:500;flex-shrink:0;}
 .remove-bar{display:none;align-items:center;justify-content:space-between;padding:10px 13px;border-top:.5px solid var(--b);background:var(--bgd);gap:10px;}
 .remove-bar.show{display:flex;}
-.remove-bar-label{font-size:13px;color:var(--td);font-weight:500;}
+.remove-bar-label{font-size:13px;color:var(--t2);font-weight:500;}
 .remove-bar-btn{padding:7px 16px;border-radius:999px;background:var(--td);color:#fff;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;touch-action:manipulation;}
 .remove-bar-btn:active{opacity:.85;}
 .sel-toggle{padding:6px 14px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;border:.5px solid var(--bm);background:none;color:var(--t2);font-family:inherit;touch-action:manipulation;}
@@ -173,11 +178,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .tpl-icon-btn{width:30px;height:30px;border-radius:50%;border:.5px solid var(--bm);background:var(--bg2);color:var(--t2);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit;}
 .tpl-icon-btn.save{border-color:var(--bi);color:var(--ti);}
 .tpl-icon-btn.del{border-color:var(--bd);color:var(--td);}
-.log-actions{display:flex;border-top:.5px solid var(--b);}
-.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;flex:1;padding:12px 14px;background:#25D366;color:#fff;border:none;border-radius:0 0 var(--rl) 0;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;}
-.wa-btn:active{opacity:.85;}
-.csv-btn{display:flex;align-items:center;justify-content:center;gap:8px;flex:1;padding:12px 14px;background:var(--bg2);color:var(--t1);border:none;border-top:.5px solid var(--b);border-right:.5px solid var(--b);border-radius:0 0 0 var(--rl);font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;}
-.csv-btn:active{opacity:.7;}
+.log-actions{display:flex;gap:8px;padding:12px 14px 24px;border-top:.5px solid var(--b);}
 .toast{position:absolute;bottom:72px;left:50%;transform:translateX(-50%);background:var(--t1);color:var(--bg1);padding:8px 18px;border-radius:999px;font-size:13px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none;z-index:200;}
 .toast.show{opacity:1;}
 .sarow{display:flex;flex-direction:column;gap:2px;}
@@ -482,7 +483,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-primary:active{opacity:.85;}
 .btn-secondary{background:var(--bg2);color:var(--t2);border:.5px solid var(--bm);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;touch-action:manipulation;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 8px;}
 .btn-secondary:active{background:var(--bg3);}
-.log-clear-btn{padding:7px 14px;border-radius:999px;background:none;color:var(--td);border:1px solid var(--bd);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;touch-action:manipulation;}
+.log-clear-btn{padding:7px 14px;border-radius:999px;background:none;color:var(--t2);border:1px solid var(--bm);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;touch-action:manipulation;}
 .log-clear-btn:active{opacity:.75;}
 
 /* ─── GK SHOT-STOPPING ──────────────────────────────────────────────────────── */

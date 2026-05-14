@@ -88,7 +88,7 @@ function doReset() {
   state.matchNotes=''; const _mn=document.getElementById('match-notes-input'); if(_mn)_mn.value='';
   state.teamAssessment={ effort:0, skill:0, tactics:0, intensity:0, discipline:0, spirit:0, notes:'' };
   // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
-  el.evlog.innerHTML = '<div id="logempty" style="color:var(--t3);font-size:13px;padding:10px 0;">No events recorded yet</div>';
+  el.evlog.innerHTML = '<div id="logempty" style="text-align:center;padding:48px 20px 24px;color:var(--t3);"><i class="fas fa-clipboard-list" style="font-size:30px;display:block;margin-bottom:12px;opacity:.35;"></i><span style="font-size:14px;">No events recorded yet</span></div>';
   el.logempty = document.getElementById('logempty');
   syncMeta();
   state.secs=0;
