@@ -10,7 +10,8 @@ function sel(s) {
   const isHT       = state.matchState === 'HALF_TIME';
   const isPaused   = state.matchState === 'PAUSED_FIRST_HALF' || state.matchState === 'PAUSED_SECOND_HALF';
   const isPreMatch = state.matchState === 'PRE_MATCH';
-  if ((!tRun && !isHT && !isPaused && !isPreMatch) || state.rcarded[state.slotp[s]]) return;
+  if (!tRun && !isHT && !isPaused && !isPreMatch) return;
+  if (state.rcarded[state.slotp[s]]) { enterSwapMode(s); return; }
   const _bcPi = state.slotp[s];
   const _bcRem = (state.bcardedAt && state.bcardedAt[_bcPi] != null) ? (state.bcardedAt[_bcPi] + 600) - state.secs : -1;
   if (_bcRem > 0) {
