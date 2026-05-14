@@ -77,7 +77,7 @@ function openPlayerSheet(s) {
       ? `<div class="ps-sec">` +
           `<div class="ps-sec-hdr"><span class="ps-lbl">GOALKEEPING</span></div>` +
           `<button class="ps-pers-btn ps-btn-gk" onclick="psAction('GK Save')">` +
-            `<span class="ps-pers-icon"><i class="fas fa-hand" style="font-size:.75em;display:inline-block;transform:rotate(335deg);"></i><i class="fas fa-hand" style="font-size:.75em;display:inline-block;transform:rotate(45deg);"></i></span>` +
+            `<span class="ps-pers-icon"><i class="fas fa-hand" style="font-size:.75em;display:inline-block;transform:rotate(315deg);"></i><i class="fas fa-hand" style="font-size:.75em;display:inline-block;transform:rotate(45deg);"></i></span>` +
             `Rate a save<i class="fas fa-chevron-right" style="margin-left:auto;font-size:12px;color:var(--t3);"></i>` +
           `</button>` +
         `</div>`
@@ -93,7 +93,7 @@ function openPlayerSheet(s) {
       `<div class="ps-score-grid-sm">` +
         `<button class="ps-btn ps-btn-sm" onclick="psAction('Wide')"><span class="ps-btn-icon"><i class="fa-solid fa-child-reaching"></i></span><span class="ps-btn-lbl">Wide</span></button>` +
         `<button class="ps-btn ps-btn-sm" onclick="psAction('Short')"><span class="ps-btn-icon"><i class="fas fa-arrow-down"></i></span><span class="ps-btn-lbl">Short</span></button>` +
-        `<button class="ps-btn ps-btn-sm" onclick="psAction('Saved')"><span class="ps-btn-icon" style="display:inline-flex;gap:2px;align-items:center;"><i class="fas fa-hand" style="font-size:.75em;display:inline-block;transform:rotate(335deg);"></i><i class="fas fa-hand" style="font-size:.75em;display:inline-block;transform:rotate(45deg);"></i></span><span class="ps-btn-lbl">Saved</span></button>` +
+        `<button class="ps-btn ps-btn-sm" onclick="psAction('Saved')"><span class="ps-btn-icon" style="display:inline-flex;gap:2px;align-items:center;"><i class="fas fa-hand" style="font-size:.75em;display:inline-block;transform:rotate(315deg);"></i><i class="fas fa-hand" style="font-size:.75em;display:inline-block;transform:rotate(45deg);"></i></span><span class="ps-btn-lbl">Saved</span></button>` +
       `</div>` +
     `</div>` +
     // POSSESSION
@@ -108,8 +108,8 @@ function openPlayerSheet(s) {
     `<div class="ps-sec">` +
       `<div class="ps-sec-hdr"><span class="ps-lbl">DISCIPLINE</span></div>` +
       `<div class="ps-disc">` +
-        `<button class="ps-btn ps-btn-sm" onclick="psAction('Free')"><span class="ps-btn-icon"><i class="fas fa-whistle"></i></span><span class="ps-btn-lbl">Free</span></button>` +
-        `<button class="ps-btn ps-btn-sm" onclick="psAction('Advanced')"><span class="ps-btn-icon"><i class="fas fa-forward-step"></i></span><span class="ps-btn-lbl">Advanced</span></button>` +
+        `<button class="ps-btn ps-btn-sm" onclick="psAction('Free')"><span class="ps-btn-icon"><i class="fa-regular fa-whistle"></i></span><span class="ps-btn-lbl">Free</span></button>` +
+        `<button class="ps-btn ps-btn-sm" onclick="psAction('Advanced')"><span class="ps-btn-icon"><i class="fas fa-right-from-line"></i></span><span class="ps-btn-lbl">Advanced</span></button>` +
         `<button class="ps-btn ps-btn-sm" onclick="psAction('Card')"><span class="ps-btn-icon" style="display:flex;gap:2px;align-items:center;"><i class="fas fa-square" style="font-size:9px;color:${CARD_YELLOW};"></i><i class="fas fa-square" style="font-size:9px;color:${CARD_BLACK};"></i><i class="fas fa-square" style="font-size:9px;color:${CARD_RED};"></i></span><span class="ps-btn-lbl">Card</span></button>` +
       `</div>` +
     `</div>` +
