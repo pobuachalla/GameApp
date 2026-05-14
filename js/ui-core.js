@@ -137,6 +137,11 @@ function refBtn(s) {
   if (state.ycarded[pi]) { const e=document.createElement('span'); e.className='card-y'; b.appendChild(e); }
   if (state.bcarded[pi]) { const e=document.createElement('span'); e.className='card-b'; b.appendChild(e); }
   if (state.rcarded[pi]) { const e=document.createElement('span'); e.className='card-r'; b.appendChild(e); }
+  if (state.bcardedAt && state.bcardedAt[pi] != null) {
+    const remaining=(state.bcardedAt[pi]+600)-state.secs;
+    const cd=document.createElement('span'); cd.className='bc-countdown'+(remaining<=0?' ready':''); cd.dataset.bcPi=pi;
+    cd.textContent=remaining>0?fmt(remaining):'↩'; b.appendChild(cd);
+  }
   if (state.ubench[pi]) { const e=document.createElement('span'); e.className='subdot'; b.appendChild(e); }
   if (state.captain === s) { const e=document.createElement('i'); e.className='fa-regular fa-copyright cap-badge'; b.appendChild(e); }
   const wrap = document.createElement('span');
@@ -163,3 +168,14 @@ function refBtn(s) {
   b.appendChild(wrap);
 }
 const refAllBtns = () => { const sz=state.teamSize||15; (TEAM_SLOTS[sz]||TEAM_SLOTS[15]).forEach(s=>refBtn(s)); };
+
+function updateBCCountdowns() {
+  if (!state.bcardedAt) return;
+  document.querySelectorAll('[data-bc-pi]').forEach(el => {
+    const pi = +el.dataset.bcPi;
+    if (state.bcardedAt[pi] == null) return;
+    const remaining = (state.bcardedAt[pi] + 600) - state.secs;
+    if (remaining > 0) { el.textContent = fmt(remaining); el.classList.remove('ready'); }
+    else               { el.textContent = '↩';            el.classList.add('ready');    }
+  });
+}

@@ -247,4 +247,5 @@ function tick() {
   td.textContent = fmt(elapsed);
   if (elapsed >= 1800 && !td.classList.contains('overtime')) td.classList.add('overtime');
   if (elapsed % 30 === 0) saveState();
+  updateBCCountdowns();
 }
