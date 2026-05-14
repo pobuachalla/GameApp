@@ -312,7 +312,7 @@ function startRestartSub(side) {
   const avail = [];
   (TEAM_SLOTS[sz]||TEAM_SLOTS[15]).forEach(s => {
     const pi = state.slotp[s];
-    if (!pi) return;
+    if (!pi || state.rcarded[pi]) return;
     const n = gn(pi);
     avail.push({ val: String(s), label: n, num: pi, sub: SLOT_POS[s] || '' });
   });
