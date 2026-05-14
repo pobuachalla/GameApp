@@ -194,14 +194,20 @@ function psAction(a) {
     return;
   }
   if (a === 'Advanced') {
-    const opts = state.sport === 'football' ? ['Dissent','Ball Handover','Sideline'] : ['Dissent','Sideline'];
+    const opts = state.sport === 'football' ? ['Dissent','Ball Handover'] : ['Dissent'];
     showPSOpts('Advanced — reason?', opts, sub => { logEv('Advanced', sub); closePlayerSheetAndReset(); }, 'grid');
     return;
   }
-  if (a === 'Turnover Won' && state.trackTurnovers) {
-    const opts = ['First to the Ball','Tackle Turnover','Block','Defensive Pressure'];
-    if (state.sport === 'hurling') opts.splice(3, 0, 'Hook');
-    showPSOpts('Turnover Won — how?', opts, sub => { logEv('Turnover Won', sub); closePlayerSheetAndReset(); }, 'grid');
+  if (a === 'Turnover Won') {
+    const opts = state.trackTurnovers
+      ? ['Won a Free','First to the Ball','Tackle Turnover','Block','Defensive Pressure']
+      : ['Won a Free','Possession'];
+    if (state.trackTurnovers && state.sport === 'hurling') opts.splice(2, 0, 'Hook');
+    showPSOpts('Turnover Won — how?', opts, sub => {
+      if (sub === 'Won a Free') { logEv('Free Won', null); }
+      else { logEv('Turnover Won', state.trackTurnovers ? sub : null); }
+      closePlayerSheetAndReset();
+    }, 'grid');
     return;
   }
   if (a === 'Turnover Lost' && state.trackTurnovers) {
@@ -211,7 +217,7 @@ function psAction(a) {
   }
   if (a === 'Free') {
     let opts = FSEC.slice();
-    if (state.sport === 'football') opts = opts.filter(o => o !== 'Chop');
+    if (state.sport === 'football') { opts = opts.filter(o => o !== 'Chop'); opts.push('Breach'); }
     showPSOpts('Free — reason?', opts, sub => { logEv('Free', sub); closePlayerSheetAndReset(); }, 'grid');
     return;
   }
@@ -366,7 +372,7 @@ function _finishZone(zone) {
 function badgeCls(a) {
   if(a==='Goal')return 'bg'; if(a==='Point')return 'bp'; if(a==='2 Point')return 'bp'; if(a==='Wide'||a==='Short'||a==='Saved')return 'bw';
   if(a==='Red Card')return 'br'; if(a==='Yellow Card')return 'by'; if(a.indexOf('Card')>=0)return 'bc';
-  if(a==='Turnover Won')return 'bg'; if(a==='Turnover Lost')return 'br';
+  if(a==='Turnover Won'||a==='Free Won')return 'bg'; if(a==='Turnover Lost')return 'br';
   return 'bo';
 }
 

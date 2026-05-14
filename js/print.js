@@ -197,7 +197,7 @@ function buildPrintHTML() {
     pstats, wonCategories, lostCategories,
     goalCount, ptCount, twoPtCount, wideCount,
     placedGoals, placedPts, placedTwoPts, placedWides,
-    turnoversWon, turnoversLost,
+    turnoversWon, turnoversLost, freesWon,
     ownWon, ownLost, ownUnclear, oppWon, oppLost, oppUnclear,
     freesConc, freesScored,
   } = aggregateMatchStats(state.evts, state.trackTurnovers, state.slotp, pl);
@@ -381,6 +381,17 @@ function buildPrintHTML() {
         h += '</div>';
       }
     }
+    h += '</div></div>';
+  }
+
+  // Frees Won
+  if (freesWon > 0) {
+    const fwPlayers = Object.values(pstats).filter(p=>p.freesWon>0).sort((a,b)=>b.freesWon-a.freesWon||a.name.localeCompare(b.name));
+    h += '<div class="pr-section"><div class="pr-section-title">Frees Won</div><div class="pr-card">';
+    h += '<div style="display:flex;gap:24px;align-items:center;margin-bottom:10px;">';
+    h += '<span style="font-size:18px;font-weight:700;color:'+TEAM_US_COLOR+';">'+freesWon+' frees won</span>';
+    h += '</div>';
+    fwPlayers.forEach(p => { h += html`<div class="pr-row"><span>${p.name}</span><span class="pr-tag">${p.freesWon}</span></div>`; });
     h += '</div></div>';
   }
 

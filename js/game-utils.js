@@ -57,7 +57,7 @@ function aggregateMatchStats(evts, trackTurnovers, slotp, getPlayerName) {
   let goalCount=0, ptCount=0, twoPtCount=0, wideCount=0;
   let placedGoals=0, placedPts=0, placedTwoPts=0, placedWides=0;
   let ownWon=0, ownLost=0, ownUnclear=0, oppWon=0, oppLost=0, oppUnclear=0;
-  let turnoversWon=0, turnoversLost=0;
+  let turnoversWon=0, turnoversLost=0, freesWon=0;
   const wonCategories = {}, lostCategories = {};
   const pstats = {};
 
@@ -73,7 +73,7 @@ function aggregateMatchStats(evts, trackTurnovers, slotp, getPlayerName) {
     const pi = ev.pi != null ? ev.pi : slotp[ev.slot];
     if (!pi) return;
     const placed = PLACED_BALL.has(ev.sec);
-    if (!pstats[pi]) pstats[pi] = {name:getPlayerName(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0,twon:0,tlost:0,twonSec:{},tlostSec:{},frees:{}};
+    if (!pstats[pi]) pstats[pi] = {name:getPlayerName(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0,twon:0,tlost:0,freesWon:0,twonSec:{},tlostSec:{},frees:{}};
     const ps = pstats[pi];
     if      (ev.action === 'Goal')        { goalCount++;   placed ? (placedGoals++,  ps.gPlaced++) : ps.gPlay++; }
     else if (ev.action === 'Point')       { ptCount++;     placed ? (placedPts++,    ps.pPlaced++) : ps.pPlay++; }
@@ -82,6 +82,7 @@ function aggregateMatchStats(evts, trackTurnovers, slotp, getPlayerName) {
     else if (ev.action === 'Yellow Card') ps.yc++;
     else if (ev.action === 'Red Card')    ps.rc++;
     else if (ev.action === 'Black Card')  ps.bc++;
+    else if (ev.action === 'Free Won')       { freesWon++; ps.freesWon++; }
     else if (ev.action === 'Turnover Won')  {
       turnoversWon++;  ps.twon++;
       if (trackTurnovers && ev.sec) { wonCategories[ev.sec]=(wonCategories[ev.sec]||0)+1; ps.twonSec[ev.sec]=(ps.twonSec[ev.sec]||0)+1; }
@@ -109,7 +110,7 @@ function aggregateMatchStats(evts, trackTurnovers, slotp, getPlayerName) {
     pstats, wonCategories, lostCategories,
     goalCount, ptCount, twoPtCount, wideCount,
     placedGoals, placedPts, placedTwoPts, placedWides,
-    turnoversWon, turnoversLost,
+    turnoversWon, turnoversLost, freesWon,
     ownWon, ownLost, ownUnclear, oppWon, oppLost, oppUnclear,
     freesConc, freesScored,
   };

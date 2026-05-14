@@ -64,6 +64,10 @@
         </div>
       </div>
     </div>
+    <!-- Sideline chip -->
+    <div style="display:flex;justify-content:flex-end;padding:4px 2px 4px;">
+      <button class="sideline-btn" onclick="openSideline()"><i class="fas fa-person-chalkboard"></i>Sideline</button>
+    </div>
     <!-- Player grid with pitch -->
     <div style="position:relative;flex:1;">
       <div id="pitch-main-host" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:10px;overflow:hidden;"></div>
@@ -96,6 +100,34 @@
       <i class="fas fa-rotate-left" aria-hidden="true"></i>
       Undo
     </button>
+  </div>
+
+  <!-- Sideline drawer -->
+  <div id="sldovly" class="drw-overlay" onclick="closeSideline()"></div>
+  <div id="sldpanel" class="drw-panel" style="height:auto;">
+    <div class="drw-handle" onclick="closeSideline()"></div>
+    <div class="drw-hdr">
+      <div style="display:flex;align-items:center;gap:9px;"><i class="fas fa-person-chalkboard" style="font-size:18px;color:var(--ts);"></i><span style="font-size:17px;font-weight:600;color:#5C9B5E;">Sideline</span></div>
+      <button class="back-btn" onclick="closeSideline()"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div style="padding:12px 14px 32px;display:flex;flex-direction:column;gap:10px;">
+      <div>
+        <div class="stitle" style="margin-bottom:6px;">COACH / MANAGER</div>
+        <input id="sld-name" type="text" placeholder="Name (optional)" class="sld-name-input" autocomplete="off">
+      </div>
+      <button class="sld-action-btn" onclick="sidelineAction('AdvFree')">
+        <i class="fas fa-right-from-line" style="color:var(--ts);font-size:17px;width:22px;text-align:center;flex-shrink:0;"></i>
+        <span>Advanced Free</span>
+      </button>
+      <button class="sld-action-btn" onclick="sidelineAction('Yellow')">
+        <i class="fas fa-square" style="color:#FDD835;font-size:17px;width:22px;text-align:center;flex-shrink:0;"></i>
+        <span>Yellow Card</span>
+      </button>
+      <button class="sld-action-btn" onclick="sidelineAction('Red')">
+        <i class="fas fa-square" style="color:#E53935;font-size:17px;width:22px;text-align:center;flex-shrink:0;"></i>
+        <span>Red Card</span>
+      </button>
+    </div>
   </div>
 
   <!-- Modal -->
@@ -680,6 +712,7 @@
 <script src="js/transfer.js"></script>
 <script src="js/gk.js"></script>
 <script src="js/osc.js"></script>
+<script src="js/sideline.js"></script>
 <script src="js/app.js"></script>
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4e27a1466ecf4893866bc3012206399a"}'></script>
 </body>

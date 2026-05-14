@@ -25,6 +25,7 @@ const state = {
   trackTurnovers:false,
   trackGKPerformance:false,
   trackOppScorers:false,
+  sidelineCards:[],  // [{time, name, type:'Yellow'|'Red'|'AdvFree'}]
 };
 for (let i = 1; i <= 15; i++) state.slotp[i] = i;
 
