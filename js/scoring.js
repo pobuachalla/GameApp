@@ -100,7 +100,7 @@ function doReset() {
   el['timer-display'].classList.remove('overtime','muted');
   renderTimerUI();
   setGrid(false);
-  state.rcarded={}; state.ycarded={}; state.bcarded={};
+  state.rcarded={}; state.ycarded={}; state.bcarded={}; state.sidelineCards=[];
   const sz = state.teamSize || 15;
   (TEAM_SLOTS[sz]||TEAM_SLOTS[15]).forEach(s=>{state.slotp[s]=s;});
   renderPGrid();
