@@ -211,7 +211,7 @@ function psAction(a) {
   }
   if (a === 'Free') {
     let opts = FSEC.slice();
-    if (state.sport === 'football') opts = opts.filter(o => o !== 'Chop');
+    if (state.sport === 'football') { opts = opts.filter(o => o !== 'Chop'); opts.push('Breach'); }
     showPSOpts('Free — reason?', opts, sub => { logEv('Free', sub); closePlayerSheetAndReset(); }, 'grid');
     return;
   }
