@@ -15,18 +15,34 @@ function sel(s) {
   const _bcRem = (state.bcardedAt && state.bcardedAt[_bcPi] != null) ? (state.bcardedAt[_bcPi] + 600) - state.secs : -1;
   if (_bcRem > 0) {
     selSlot = s;
-    showConfirmDrawer(
-      'Player Sin-Binned',
-      (gn(_bcPi)||('#'+_bcPi))+' has '+fmt(_bcRem)+' remaining. Use a substitution? (juvenile / dissent exception)',
-      'Substitute Player',
-      false,
-      () => { subOff = s; pickSubOn(); }
-    );
+    document.getElementById('cfm-title').textContent = 'Player Sin-Binned';
+    const _cfmBody = document.getElementById('cfm-body');
+    // eslint-disable-next-line no-restricted-syntax -- safe: gn/_bcPi escaped; fmt returns numeric string
+    _cfmBody.innerHTML =
+      '<p class="cfm-msg">' + esc(gn(_bcPi)||('#'+_bcPi)) + ' has ' + fmt(_bcRem) + ' remaining.</p>' +
+      '<button class="cfm-btn btn-primary">Substitute Player</button>' +
+      '<button class="cfm-btn" style="margin-top:8px;background:transparent;color:var(--t2);border:1px solid var(--b);">Expire Black Card Early</button>';
+    const _cfmBtns = _cfmBody.querySelectorAll('.cfm-btn');
+    _cfmBtns[0].onclick = () => { closeConfirmDrawer(); subOff = s; pickSubOn(); };
+    _cfmBtns[1].onclick = () => { closeConfirmDrawer(); expireBCCard(s); };
+    document.getElementById('cfmpanel').classList.add('open');
+    document.getElementById('cfmovly').classList.add('open');
     return;
   }
   selSlot = s;
   if (isHT) { subOff = selSlot; pickSubOn(); return; }
   openPlayerSheet(s);
+}
+
+function expireBCCard(s) {
+  const pi = state.slotp[s];
+  if (!pi) return;
+  delete state.bcardedAt[pi];
+  const btn = document.querySelector('[data-s="'+s+'"]');
+  if (btn) btn.classList.remove('bc');
+  refBtn(s);
+  updateBCCountdowns();
+  saveState();
 }
 
 // ─── PLAYER HEADER BUILDER ────────────────────────────────────────────────────
