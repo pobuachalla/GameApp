@@ -204,7 +204,7 @@ function updateBCCountdowns() {
   } else {
     pill.style.display = '';
     pill.innerHTML = active.map(e =>
-      `<span>⬛ ${esc(gi(e.pi))} ${fmt(e.remaining)}</span>`
+      `<span>${esc(gi(e.pi))} ${fmt(e.remaining)}</span>`
     ).join('<span style="opacity:.4;margin:0 2px;">·</span>');
   }
 }
