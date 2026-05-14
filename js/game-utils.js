@@ -79,8 +79,9 @@ function aggregateMatchStats(evts, trackTurnovers, slotp, getPlayerName) {
     else if (ev.action === 'Point')       { ptCount++;     placed ? (placedPts++,    ps.pPlaced++) : ps.pPlay++; }
     else if (ev.action === '2 Point')     { twoPtCount++;  placed ? (placedTwoPts++, ps.pPlaced+=2) : ps.pPlay+=2; }
     else if (ev.action === 'Wide')        { wideCount++;   ps.wides++; if (placed) placedWides++; }
-    else if (ev.action === 'Yellow Card') ps.yc++;
-    else if (ev.action === 'Red Card')    ps.rc++;
+    else if (ev.action === 'Yellow Card')        ps.yc++;
+    else if (ev.action === 'Second Yellow Card') ps.yc += 2;
+    else if (ev.action === 'Red Card')           ps.rc++;
     else if (ev.action === 'Black Card')  ps.bc++;
     else if (ev.action === 'Free Won')       { freesWon++; ps.freesWon++; }
     else if (ev.action === 'Turnover Won')  {

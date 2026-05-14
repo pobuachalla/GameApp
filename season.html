@@ -510,9 +510,10 @@ function aggregateAll(parsed) {
         else if (ev.action === '2 Point')                pbBucket.p += 2;
         else if (ev.action === 'Wide')                   pbBucket.w++;
       }
-      else if (ev.action === 'Yellow Card')  { p.yc++; ms.yc++; }
-      else if (ev.action === 'Black Card')   { p.bc++; ms.bc++; }
-      else if (ev.action === 'Red Card')     { p.rc++; ms.rc++; }
+      else if (ev.action === 'Yellow Card')        { p.yc++; ms.yc++; }
+      else if (ev.action === 'Second Yellow Card') { p.yc += 2; ms.yc += 2; }
+      else if (ev.action === 'Black Card')         { p.bc++; ms.bc++; }
+      else if (ev.action === 'Red Card')           { p.rc++; ms.rc++; }
       else if (ev.action === 'Free')         { p.frees++; ms.frees++; }
       else if (ev.action === 'Turnover Won') { p.twon++; ms.twon++; }
       else if (ev.action === 'Turnover Lost'){ p.tlost++; ms.tlost++; }
