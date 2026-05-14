@@ -543,8 +543,10 @@ function buildStatsHTML() {
         const freeTotal = Object.values(p.frees).reduce((s,n)=>s+n,0);
         h += '<div class="disc-row">';
         if (p.yc+p.bc+p.rc > 0) {
-          h += '<span style="display:flex;gap:3px;flex-shrink:0;">';
-          for (let i=0;i<p.yc;i++) h += `<span class="disc-chip" style="background:${CARD_YELLOW};" title="Yellow Card"></span>`;
+          const _syc=p.syc||0, _syY=p.yc-2*_syc;
+          h += '<span style="display:flex;gap:3px;flex-shrink:0;align-items:center;">';
+          for (let i=0;i<_syY;i++) h += `<span class="disc-chip" style="background:${CARD_YELLOW};" title="Yellow Card"></span>`;
+          for (let i=0;i<_syc;i++) h += `<span style="display:inline-flex;gap:1px;align-items:center;" title="Second Yellow → Off"><span class="disc-chip" style="background:${CARD_YELLOW};"></span><span class="disc-chip" style="background:${CARD_YELLOW};"></span><span style="font-size:9px;color:var(--t3);margin:0 1px;">→</span><span class="disc-chip" style="background:${CARD_RED};"></span></span>`;
           for (let i=0;i<p.bc;i++) h += `<span class="disc-chip" style="background:${CARD_BLACK};" title="Black Card"></span>`;
           for (let i=0;i<p.rc;i++) h += `<span class="disc-chip" style="background:${CARD_RED};" title="Red Card"></span>`;
           h += '</span>';

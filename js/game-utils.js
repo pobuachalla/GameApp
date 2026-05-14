@@ -73,14 +73,14 @@ function aggregateMatchStats(evts, trackTurnovers, slotp, getPlayerName) {
     const pi = ev.pi != null ? ev.pi : slotp[ev.slot];
     if (!pi) return;
     const placed = PLACED_BALL.has(ev.sec);
-    if (!pstats[pi]) pstats[pi] = {name:getPlayerName(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,rc:0,bc:0,twon:0,tlost:0,freesWon:0,twonSec:{},tlostSec:{},frees:{}};
+    if (!pstats[pi]) pstats[pi] = {name:getPlayerName(pi),gPlay:0,gPlaced:0,pPlay:0,pPlaced:0,wides:0,yc:0,syc:0,rc:0,bc:0,twon:0,tlost:0,freesWon:0,twonSec:{},tlostSec:{},frees:{}};
     const ps = pstats[pi];
     if      (ev.action === 'Goal')        { goalCount++;   placed ? (placedGoals++,  ps.gPlaced++) : ps.gPlay++; }
     else if (ev.action === 'Point')       { ptCount++;     placed ? (placedPts++,    ps.pPlaced++) : ps.pPlay++; }
     else if (ev.action === '2 Point')     { twoPtCount++;  placed ? (placedTwoPts++, ps.pPlaced+=2) : ps.pPlay+=2; }
     else if (ev.action === 'Wide')        { wideCount++;   ps.wides++; if (placed) placedWides++; }
     else if (ev.action === 'Yellow Card')        ps.yc++;
-    else if (ev.action === 'Second Yellow Card') ps.yc += 2;
+    else if (ev.action === 'Second Yellow Card') { ps.yc++; ps.syc++; }
     else if (ev.action === 'Red Card')           ps.rc++;
     else if (ev.action === 'Black Card')  ps.bc++;
     else if (ev.action === 'Free Won')       { freesWon++; ps.freesWon++; }
