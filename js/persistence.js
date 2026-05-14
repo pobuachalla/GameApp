@@ -7,12 +7,12 @@ function serializeState() {
   const {goals,pts,og,op_,htGoals,htPts,htOg,htOp,ftGoals,ftPts,ftOg,ftOp,
          period,secs,matchState,tPausedAt,tWallStart,
          usN,oppN,location,referee,competition,matchDate,ageGrade,matchNotes,teamAssessment,
-         pnames,slotp,ubench,suboff,preGameSubs,rcarded,ycarded,bcarded,
+         pnames,slotp,ubench,suboff,preGameSubs,rcarded,ycarded,bcarded,bcardedAt,
          maxB,evts,sport,teamSize,captain,startSlotp,startCaptain,trackGameTime,trackShotLocations,showPlayerNumbers,trackTurnovers,trackGKPerformance,trackOppScorers,sidelineCards} = state;
   return {goals,pts,og,op_,htGoals,htPts,htOg,htOp,ftGoals,ftPts,ftOg,ftOp,
           period,secs,matchState,tPausedAt,tWallStart,
           usN,oppN,location,referee,competition,matchDate,ageGrade,matchNotes,teamAssessment,
-          pnames,slotp,ubench,suboff,preGameSubs,rcarded,ycarded,bcarded,
+          pnames,slotp,ubench,suboff,preGameSubs,rcarded,ycarded,bcarded,bcardedAt,
           maxB,evts,sport,teamSize,captain,startSlotp,startCaptain,trackGameTime,trackShotLocations,showPlayerNumbers,trackTurnovers,trackGKPerformance,trackOppScorers,sidelineCards};
 }
 
@@ -32,6 +32,7 @@ function loadSavedState() {
     if (saved.usN)  saved.usN  = fmtClubName(saved.usN);
     if (saved.oppN) saved.oppN = fmtClubName(saved.oppN);
     if (!Array.isArray(saved.sidelineCards)) saved.sidelineCards = [];
+    if (typeof saved.bcardedAt !== 'object' || Array.isArray(saved.bcardedAt)) saved.bcardedAt = {};
     Object.assign(state, saved);
     return true;
   } catch(e) { return false; }

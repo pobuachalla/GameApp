@@ -406,8 +406,9 @@ function logEv(action, sec, zone) {
   }
   if (action==='Black Card') {
     state.bcarded[pi]=(state.bcarded[pi]||0)+1;
+    state.bcardedAt[pi]=state.secs;
     const b=document.querySelector('[data-s="'+slot+'"]');
-    if(b&&!b.querySelector('.card-b')){ const e=document.createElement('span'); e.className='card-b'; b.appendChild(e); }
+    if(b){ if(!b.querySelector('.card-b')){ const e=document.createElement('span'); e.className='card-b'; b.appendChild(e); } const _cd=document.createElement('span'); _cd.className='bc-countdown'; _cd.dataset.bcPi=pi; _cd.textContent=fmt(600); b.appendChild(_cd); }
   }
 
   const desc = pl(pi)+': '+action+(sec?' · '+sec:'');
@@ -443,7 +444,7 @@ function logEv(action, sec, zone) {
     }
     if (action==='Black Card') {
       state.bcarded[pi]=(state.bcarded[pi]||1)-1;
-      if(state.bcarded[pi]<=0){ delete state.bcarded[pi]; const b=document.querySelector('[data-s="'+slot+'"]'); const c=b&&b.querySelector('.card-b'); if(c)c.remove(); }
+      if(state.bcarded[pi]<=0){ delete state.bcarded[pi]; delete state.bcardedAt[pi]; const b=document.querySelector('[data-s="'+slot+'"]'); const c=b&&b.querySelector('.card-b'); if(c)c.remove(); const cd=b&&b.querySelector('.bc-countdown'); if(cd)cd.remove(); }
     }
     const b2=document.querySelector('[data-s="'+slot+'"]');
     const still=state.evts.some(e=>e.slot===slot);

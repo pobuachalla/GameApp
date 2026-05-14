@@ -13,7 +13,7 @@ const state = {
   matchNotes:'',
   teamAssessment:{ effort:0, skill:0, tactics:0, intensity:0, discipline:0, spirit:0, notes:'' },
   pnames:{}, slotp:{}, ubench:{}, suboff:{}, preGameSubs:{},
-  rcarded:{}, ycarded:{}, bcarded:{},
+  rcarded:{}, ycarded:{}, bcarded:{}, bcardedAt:{},
   maxB:17,
   evts:[],   // {time, desc, badge, cls, slot?, action?}
   sport:'hurling', // 'hurling' or 'football'
