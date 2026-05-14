@@ -31,6 +31,7 @@ function sidelineAction(type) {
 
   state.sidelineCards.push({time, name, type});
   addRow(time, badge, cls, desc);
+  document.getElementById('sld-name').value = '';
   closeSideline();
   saveState();
 }
