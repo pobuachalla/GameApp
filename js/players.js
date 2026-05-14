@@ -194,7 +194,7 @@ function psAction(a) {
     return;
   }
   if (a === 'Advanced') {
-    const opts = state.sport === 'football' ? ['Dissent','Ball Handover','Sideline'] : ['Dissent','Sideline'];
+    const opts = state.sport === 'football' ? ['Dissent','Ball Handover'] : ['Dissent'];
     showPSOpts('Advanced — reason?', opts, sub => { logEv('Advanced', sub); closePlayerSheetAndReset(); }, 'grid');
     return;
   }

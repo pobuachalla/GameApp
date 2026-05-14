@@ -8,12 +8,12 @@ function serializeState() {
          period,secs,matchState,tPausedAt,tWallStart,
          usN,oppN,location,referee,competition,matchDate,ageGrade,matchNotes,teamAssessment,
          pnames,slotp,ubench,suboff,preGameSubs,rcarded,ycarded,bcarded,
-         maxB,evts,sport,teamSize,captain,startSlotp,startCaptain,trackGameTime,trackShotLocations,showPlayerNumbers,trackTurnovers,trackGKPerformance,trackOppScorers} = state;
+         maxB,evts,sport,teamSize,captain,startSlotp,startCaptain,trackGameTime,trackShotLocations,showPlayerNumbers,trackTurnovers,trackGKPerformance,trackOppScorers,sidelineCards} = state;
   return {goals,pts,og,op_,htGoals,htPts,htOg,htOp,ftGoals,ftPts,ftOg,ftOp,
           period,secs,matchState,tPausedAt,tWallStart,
           usN,oppN,location,referee,competition,matchDate,ageGrade,matchNotes,teamAssessment,
           pnames,slotp,ubench,suboff,preGameSubs,rcarded,ycarded,bcarded,
-          maxB,evts,sport,teamSize,captain,startSlotp,startCaptain,trackGameTime,trackShotLocations,showPlayerNumbers,trackTurnovers,trackGKPerformance,trackOppScorers};
+          maxB,evts,sport,teamSize,captain,startSlotp,startCaptain,trackGameTime,trackShotLocations,showPlayerNumbers,trackTurnovers,trackGKPerformance,trackOppScorers,sidelineCards};
 }
 
 function saveState() {
@@ -31,6 +31,7 @@ function loadSavedState() {
     const saved = JSON.parse(raw);
     if (saved.usN)  saved.usN  = fmtClubName(saved.usN);
     if (saved.oppN) saved.oppN = fmtClubName(saved.oppN);
+    if (!Array.isArray(saved.sidelineCards)) saved.sidelineCards = [];
     Object.assign(state, saved);
     return true;
   } catch(e) { return false; }
