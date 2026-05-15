@@ -151,14 +151,17 @@ function refBtn(s) {
   if (state.ubench[pi]) { const e=document.createElement('span'); e.className='subdot'; b.appendChild(e); }
   if (state.captain === s) { const e=document.createElement('i'); e.className='fa-regular fa-copyright cap-badge'; b.appendChild(e); }
   const hasName = !!gn(pi);
-  if (hasName && state.showPlayerNumbers !== false) {
-    const nb=document.createElement('span'); nb.className='num-badge'; nb.textContent=pi; b.appendChild(nb);
-  }
+  const showNum = hasName && state.showPlayerNumbers !== false;
   const wrap = document.createElement('span');
   wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:0;line-height:1;';
   const iniSpan = document.createElement('span');
-  iniSpan.textContent = ini;
-  iniSpan.style.fontSize = ini.length>=4?'10px':ini.length===3?'11px':ini.length===2?'12px':'14px';
+  if (showNum) {
+    iniSpan.textContent = pi;
+    iniSpan.style.cssText = 'font-size:14px;font-weight:700;';
+  } else {
+    iniSpan.textContent = ini;
+    iniSpan.style.fontSize = ini.length>=4?'10px':ini.length===3?'11px':ini.length===2?'12px':'14px';
+  }
   iniSpan.style.color = TEAM_US_COLOR;
   wrap.appendChild(iniSpan);
   const {g, p: p_} = playerScore(pi);
