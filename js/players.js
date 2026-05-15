@@ -364,15 +364,25 @@ function buildZoneSVG(selectedId) {
   return `<svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;touch-action:none;" preserveAspectRatio="xMidYMid meet">${PITCH_SVG_INNER}${cells}${labels}</svg>`;
 }
 
+function _zoneStyleCell(id, sel) {
+  const rect = document.getElementById(id);
+  if (!rect) return;
+  rect.setAttribute('fill',         sel ? 'rgba(55,138,221,0.52)' : 'rgba(255,255,255,0.04)');
+  rect.setAttribute('stroke',       sel ? 'rgba(55,138,221,0.9)'  : 'rgba(255,255,255,0.22)');
+  rect.setAttribute('stroke-width', sel ? '1.5' : '0.7');
+}
+
 function selectZoneCell(id, x, y) {
-  if (zoneSelectedId === id) {
+  const prev = zoneSelectedId;
+  if (prev === id) {
     zoneSelectedId = null; zoneSelectedCoords = null;
   } else {
     zoneSelectedId = id;
     zoneSelectedCoords = {x: parseFloat(x), y: parseFloat(y)};
   }
-  // eslint-disable-next-line no-restricted-syntax -- safe: zoneSelectedId is an internal integer
-  document.getElementById('zone-pitch-wrap').innerHTML = buildZoneSVG(zoneSelectedId);
+  // Update only the two affected cells — no SVG rebuild needed
+  if (prev) _zoneStyleCell(prev, false);
+  if (zoneSelectedId) _zoneStyleCell(zoneSelectedId, true);
 }
 
 function closeZone() {
