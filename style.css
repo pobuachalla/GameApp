@@ -123,7 +123,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bopp{background:var(--bgw);color:var(--tw);}
 .brstr{background:#e1f5ee;color:#0f6e56;}
 .bperiod{background:var(--bgi);color:var(--ti);}
-.sinput{width:100%;max-width:100%;padding:9px 11px;border:.5px solid var(--bm);border-radius:var(--r);background:var(--bg1);color:var(--t1);font-size:14px;font-family:inherit;}
+.sinput{width:100%;max-width:100%;padding:9px 11px;border:.5px solid var(--bm);border-radius:var(--r);background:var(--bg1);color:var(--t1);font-size:16px;font-family:inherit;}
 .sinput:focus{outline:none;border-color:var(--bi);}
 .sinput[type="date"]{-webkit-appearance:none;appearance:none;min-height:0;line-height:1.2;font-size:16px;box-sizing:border-box;}
 .sinput[type="date"]::-webkit-date-and-time-value{text-align:left;min-height:1.2em;padding:0;}
@@ -141,7 +141,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .stitle{font-size:11px;font-weight:500;color:var(--t2);letter-spacing:.06em;margin:14px 0 7px;}
 .sideline-btn{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;border:.5px solid var(--bm);background:var(--bg2);color:var(--t2);cursor:pointer;font-family:inherit;touch-action:manipulation;letter-spacing:.03em;box-shadow:0 3px 8px rgba(0,0,0,.18);}
 .sideline-btn:active{background:var(--bg3);}
-.sld-name-input{width:100%;padding:10px 12px;border-radius:var(--r);border:.5px solid var(--bm);background:var(--bg1);color:var(--t1);font-size:15px;font-family:inherit;outline:none;-webkit-appearance:none;}
+.sld-name-input{width:100%;padding:10px 12px;border-radius:var(--r);border:.5px solid var(--bm);background:var(--bg1);color:var(--t1);font-size:16px;font-family:inherit;outline:none;-webkit-appearance:none;}
 .sld-name-input:focus{border-color:var(--ts);box-shadow:0 0 0 2px rgba(46,125,50,.12);}
 .sld-action-btn{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r);border:.5px solid var(--bm);background:var(--bg2);color:var(--t1);font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;touch-action:manipulation;text-align:left;}
 .sld-action-btn:active{background:var(--bg3);}
@@ -260,7 +260,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .stats-scroll{flex:1;overflow-y:auto;padding:0 14px 16px;}
 .stats-notes-wrap{flex-shrink:0;padding:10px 14px 16px;border-top:.5px solid var(--b);}
 .stats-notes-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t2);margin-bottom:6px;}
-.stats-notes-input{width:100%;border:.5px solid var(--bm);border-radius:var(--r);background:var(--bg2);color:var(--t1);font-family:inherit;font-size:13px;line-height:1.5;padding:8px 10px;resize:none;outline:none;}
+.stats-notes-input{width:100%;border:.5px solid var(--bm);border-radius:var(--r);background:var(--bg2);color:var(--t1);font-family:inherit;font-size:16px;line-height:1.5;padding:8px 10px;resize:none;outline:none;}
 .stats-notes-input:focus{border-color:var(--bs);background:var(--bg1);}
 .stats-tabs{display:flex;flex-shrink:0;border-bottom:.5px solid var(--b);}
 .stats-tab{flex:1;padding:10px 0;background:none;border:none;border-bottom:2.5px solid transparent;font-size:14px;font-weight:500;color:var(--t2);cursor:pointer;font-family:inherit;transition:color .15s,border-color .15s;display:flex;align-items:center;justify-content:center;gap:6px;}
@@ -279,7 +279,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .assess-dot-sel{border-color:rgba(0,0,0,.22);transform:scale(1.15);}
 .assess-notes-card{padding:14px 16px;}
 .assess-notes-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);margin-bottom:8px;}
-.assess-notes-input{width:100%;background:none;border:none;outline:none;font-size:14px;color:var(--t1);resize:none;font-family:inherit;line-height:1.5;box-sizing:border-box;}
+.assess-notes-input{width:100%;background:none;border:none;outline:none;font-size:16px;color:var(--t1);resize:none;font-family:inherit;line-height:1.5;box-sizing:border-box;}
 .assess-overall-card{padding:16px;display:flex;align-items:center;justify-content:space-between;}
 .assess-overall-lbl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);}
 .assess-overall-sub{font-size:12px;color:var(--t2);margin-top:3px;}
