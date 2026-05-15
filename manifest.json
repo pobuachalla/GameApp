@@ -1,0 +1,14 @@
+{
+  "name": "GAA Match Tracker",
+  "short_name": "Match Tracker",
+  "description": "Live match tracking and scoring for GAA games.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4F5F2",
+  "theme_color": "#4C9A3A",
+  "icons": [
+    { "src": "/favicon.png",           "sizes": "1024x1024", "type": "image/png", "purpose": "any" },
+    { "src": "/apple-touch-icon.png",  "sizes": "1024x1024", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://kit.fontawesome.com https://ka-p.fontawesome.com; style-src 'self' 'unsafe-inline' https://ka-f.fontawesome.com https://ka-p.fontawesome.com; font-src 'self' https://ka-f.fontawesome.com https://ka-p.fontawesome.com; img-src 'self' data: blob:; connect-src 'self' https://cloudflareinsights.com https://kit.fontawesome.com https://kit-uploads.fontawesome.com https://ka-f.fontawesome.com https://ka-p.fontawesome.com; manifest-src 'self'; base-uri 'self'; object-src 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://kit.fontawesome.com https://ka-p.fontawesome.com; style-src 'self' 'unsafe-inline' https://ka-f.fontawesome.com https://ka-p.fontawesome.com; font-src 'self' https://ka-f.fontawesome.com https://ka-p.fontawesome.com; img-src 'self' data: blob:; connect-src 'self' https://cloudflareinsights.com https://kit.fontawesome.com https://kit-uploads.fontawesome.com https://ka-f.fontawesome.com https://ka-p.fontawesome.com; manifest-src 'self'; worker-src 'self'; base-uri 'self'; object-src 'none';">
 <title>GAA Match Tracker</title>
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
 <script src="https://kit.fontawesome.com/c0eed6f428.js" crossorigin="anonymous" defer></script>
 <link rel="stylesheet" href="style.css">
 <meta name="theme-color" content="#4C9A3A">
@@ -688,30 +689,7 @@
 
 <div id="print-area"></div>
 
-<script src="js/clubs.js"></script>
-<script src="js/pitch-svg.js"></script>
-<script src="js/constants.js"></script>
-<script src="js/state.js"></script>
-<script src="js/wakelock.js"></script>
-<script src="js/persistence.js"></script>
-<script src="js/ui-core.js"></script>
-<script src="js/modal.js"></script><!-- modal.js kept for safety; closeMod/showOpts no longer called by live code -->
-<script src="js/timer.js"></script>
-<script src="js/events.js"></script>
-<script src="js/scoring.js"></script>
-<script src="js/players.js"></script>
-<script src="js/ai-config.js"></script>
-<script src="js/share.js"></script>
-<script src="js/settings.js"></script>
-<script src="js/layout.js"></script>
-<script src="js/game-utils.js"></script>
-<script src="js/stats.js"></script>
-<script src="js/print.js"></script>
-<script src="js/transfer.js"></script>
-<script src="js/gk.js"></script>
-<script src="js/osc.js"></script>
-<script src="js/sideline.js"></script>
-<script src="js/app.js"></script>
+<script src="js/bundle.js"></script>
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4e27a1466ecf4893866bc3012206399a"}'></script>
 </body>
 </html>
