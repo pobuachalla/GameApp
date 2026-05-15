@@ -123,7 +123,7 @@ function openPlayerSheet(s) {
       `<div class="ps-score-grid-sm">` +
         `<button class="ps-btn ps-btn-sm" onclick="psAction('Wide')"><span class="ps-btn-icon"><i class="fa-solid fa-child-reaching"></i></span><span class="ps-btn-lbl">Wide</span></button>` +
         `<button class="ps-btn ps-btn-sm" onclick="psAction('Short')"><span class="ps-btn-icon"><i class="fas fa-arrow-down"></i></span><span class="ps-btn-lbl">Short</span></button>` +
-        `<button class="ps-btn ps-btn-sm" onclick="psAction('Saved')"><span class="ps-btn-icon" style="display:inline-flex;align-items:center;gap:2px;"><i class="fas fa-hand" style="font-size:.65em;transform:rotate(315deg) scaleX(-1);"></i><i class="fas fa-hand" style="font-size:.65em;transform:rotate(45deg);"></i><span style="font-size:8px;opacity:.5;margin:0 1px;">/</span><svg viewBox="0 0 14 16" width="11" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="2" y1="1" x2="2" y2="15"/><line x1="12" y1="1" x2="12" y2="15"/><line x1="2" y1="7" x2="12" y2="7"/></svg></span><span class="ps-btn-lbl">Save / Post</span></button>` +
+        `<button class="ps-btn ps-btn-sm" onclick="psAction('Saved')"><span class="ps-btn-icon"><i class="fa-kit fa-solid-h-circle-xmark"></i></span><span class="ps-btn-lbl">Save / Post</span></button>` +
       `</div>` +
     `</div>` +
     // POSSESSION
