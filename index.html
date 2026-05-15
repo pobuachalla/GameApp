@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://kit.fontawesome.com https://ka-p.fontawesome.com; style-src 'self' 'unsafe-inline' https://ka-f.fontawesome.com https://ka-p.fontawesome.com; font-src 'self' https://ka-f.fontawesome.com https://ka-p.fontawesome.com; img-src 'self' data: blob:; connect-src 'self' https://cloudflareinsights.com https://ka-f.fontawesome.com https://ka-p.fontawesome.com; manifest-src 'self'; base-uri 'self'; object-src 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://kit.fontawesome.com https://ka-p.fontawesome.com; style-src 'self' 'unsafe-inline' https://ka-f.fontawesome.com https://ka-p.fontawesome.com; font-src 'self' https://ka-f.fontawesome.com https://ka-p.fontawesome.com; img-src 'self' data: blob:; connect-src 'self' https://cloudflareinsights.com https://kit.fontawesome.com https://kit-uploads.fontawesome.com https://ka-f.fontawesome.com https://ka-p.fontawesome.com; manifest-src 'self'; base-uri 'self'; object-src 'none';">
 <title>GAA Match Tracker</title>
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -22,6 +22,7 @@
         <span class="period-badge" id="period-badge">1st Half</span>
         <span class="status-chip" id="status-chip" style="display:none;"></span>
         <span class="sport-pill" id="sport-pill"></span>
+        <span class="bc-pill" id="bc-pill" style="display:none;"></span>
       </div>
       <div class="timer-body">
         <button class="timer-primary-btn green" id="timer-primary-btn" onclick="timerPrimaryAction()">
@@ -109,7 +110,7 @@
     </div>
     <div style="padding:12px 14px 32px;display:flex;flex-direction:column;gap:10px;">
       <div>
-        <div class="stitle" style="margin-bottom:6px;">COACH / MANAGER</div>
+        <div class="stitle" style="margin-bottom:6px;">MAOR</div>
         <input id="sld-name" type="text" placeholder="Name (optional)" class="sld-name-input" autocomplete="off">
       </div>
       <button class="sld-action-btn" onclick="sidelineAction('AdvFree')">

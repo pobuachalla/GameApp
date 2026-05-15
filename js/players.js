@@ -10,10 +10,40 @@ function sel(s) {
   const isHT       = state.matchState === 'HALF_TIME';
   const isPaused   = state.matchState === 'PAUSED_FIRST_HALF' || state.matchState === 'PAUSED_SECOND_HALF';
   const isPreMatch = state.matchState === 'PRE_MATCH';
-  if ((!tRun && !isHT && !isPaused && !isPreMatch) || state.rcarded[state.slotp[s]]) return;
+  if (!tRun && !isHT && !isPaused && !isPreMatch) return;
+  if (state.rcarded[state.slotp[s]]) { enterSwapMode(s); return; }
+  const _bcPi = state.slotp[s];
+  const _bcRem = (state.bcardedAt && state.bcardedAt[_bcPi] != null) ? (state.bcardedAt[_bcPi] + 600) - state.secs : -1;
+  if (_bcRem > 0) {
+    selSlot = s;
+    document.getElementById('cfm-title').textContent = 'Player Sin-Binned';
+    const _cfmBody = document.getElementById('cfm-body');
+    // eslint-disable-next-line no-restricted-syntax -- safe: gn/_bcPi escaped; fmt returns numeric string
+    _cfmBody.innerHTML =
+      '<p class="cfm-msg">' + esc(gn(_bcPi)||('#'+_bcPi)) + ' has ' + fmt(_bcRem) + ' remaining.</p>' +
+      '<button class="cfm-btn btn-primary">Substitute Player</button>' +
+      '<button class="cfm-btn" style="margin-top:8px;background:transparent;color:var(--t2);border:1px solid var(--b);">Expire Black Card Early</button>';
+    const _cfmBtns = _cfmBody.querySelectorAll('.cfm-btn');
+    _cfmBtns[0].onclick = () => { closeConfirmDrawer(); subOff = s; pickSubOn(); };
+    _cfmBtns[1].onclick = () => { closeConfirmDrawer(); expireBCCard(s); };
+    document.getElementById('cfmpanel').classList.add('open');
+    document.getElementById('cfmovly').classList.add('open');
+    return;
+  }
   selSlot = s;
   if (isHT) { subOff = selSlot; pickSubOn(); return; }
   openPlayerSheet(s);
+}
+
+function expireBCCard(s) {
+  const pi = state.slotp[s];
+  if (!pi) return;
+  delete state.bcardedAt[pi];
+  const btn = document.querySelector('[data-s="'+s+'"]');
+  if (btn) btn.classList.remove('bc');
+  refBtn(s);
+  updateBCCountdowns();
+  saveState();
 }
 
 // ─── PLAYER HEADER BUILDER ────────────────────────────────────────────────────
@@ -93,7 +123,7 @@ function openPlayerSheet(s) {
       `<div class="ps-score-grid-sm">` +
         `<button class="ps-btn ps-btn-sm" onclick="psAction('Wide')"><span class="ps-btn-icon"><i class="fa-solid fa-child-reaching"></i></span><span class="ps-btn-lbl">Wide</span></button>` +
         `<button class="ps-btn ps-btn-sm" onclick="psAction('Short')"><span class="ps-btn-icon"><i class="fas fa-arrow-down"></i></span><span class="ps-btn-lbl">Short</span></button>` +
-        `<button class="ps-btn ps-btn-sm" onclick="psAction('Saved')"><span class="ps-btn-icon" style="display:inline-flex;gap:2px;align-items:center;"><i class="fas fa-hand" style="font-size:.75em;display:inline-block;transform:rotate(315deg) scaleX(-1);"></i><i class="fas fa-hand" style="font-size:.75em;display:inline-block;transform:rotate(45deg);"></i></span><span class="ps-btn-lbl">Saved</span></button>` +
+        `<button class="ps-btn ps-btn-sm" onclick="psAction('Saved')"><span class="ps-btn-icon"><i class="fa-kit fa-solid-h-circle-xmark"></i></span><span class="ps-btn-lbl">Save / Post</span></button>` +
       `</div>` +
     `</div>` +
     // POSSESSION
@@ -186,11 +216,14 @@ function psAction(a) {
     return;
   }
   if (a === 'Card') {
-    showPSOpts('Card — colour?', [
+    const _pi = state.slotp[selSlot];
+    const opts = [
       {val:'Yellow Card', label:'Yellow Card', pre:'<i class="fas fa-square ps-card-y"></i>'},
       {val:'Black Card',  label:'Black Card',  pre:'<i class="fas fa-square ps-card-b"></i>'},
       {val:'Red Card',    label:'Red Card',    pre:'<i class="fas fa-square ps-card-r"></i>'},
-    ], colour => { logEv(colour, null); closePlayerSheetAndReset(); }, 'grid');
+    ];
+    if ((state.ycarded[_pi]||0) > 0) opts.push({val:'Second Yellow Card', label:'2nd Yellow', pre:'<span style="display:inline-flex;gap:1px;align-items:center;"><i class="fas fa-square ps-card-y" style="font-size:9px;"></i><i class="fas fa-square ps-card-y" style="font-size:9px;"></i></span>'});
+    showPSOpts('Card — colour?', opts, colour => { logEv(colour, null); closePlayerSheetAndReset(); }, 'grid');
     return;
   }
   if (a === 'Advanced') {
@@ -371,7 +404,7 @@ function _finishZone(zone) {
 // ─── EVENT LOGGING ────────────────────────────────────────────────────────────
 function badgeCls(a) {
   if(a==='Goal')return 'bg'; if(a==='Point')return 'bp'; if(a==='2 Point')return 'bp'; if(a==='Wide'||a==='Short'||a==='Saved')return 'bw';
-  if(a==='Red Card')return 'br'; if(a==='Yellow Card')return 'by'; if(a.indexOf('Card')>=0)return 'bc';
+  if(a==='Red Card')return 'br'; if(a==='Yellow Card'||a==='Second Yellow Card')return 'by'; if(a.indexOf('Card')>=0)return 'bc';
   if(a==='Turnover Won'||a==='Free Won')return 'bg'; if(a==='Turnover Lost')return 'br';
   return 'bo';
 }
@@ -390,6 +423,12 @@ function logEv(action, sec, zone) {
     const b=document.querySelector('[data-s="'+slot+'"]');
     if(b){ b.classList.remove('hev','sub'); b.classList.add('rc'); const e=document.createElement('span'); e.className='card-r'; b.appendChild(e); }
   }
+  if (action==='Second Yellow Card') {
+    state.rcarded[pi]=true;
+    state.ycarded[pi]=(state.ycarded[pi]||0)+1;
+    const b=document.querySelector('[data-s="'+slot+'"]');
+    if(b){ b.classList.remove('hev','sub'); b.classList.add('rc'); const cy=b.querySelector('.card-y'); if(cy)cy.remove(); const e=document.createElement('span'); e.className='card-r'; b.appendChild(e); }
+  }
   if (action==='Yellow Card') {
     state.ycarded[pi]=(state.ycarded[pi]||0)+1;
     const b=document.querySelector('[data-s="'+slot+'"]');
@@ -397,12 +436,12 @@ function logEv(action, sec, zone) {
   }
   if (action==='Black Card') {
     state.bcarded[pi]=(state.bcarded[pi]||0)+1;
-    const b=document.querySelector('[data-s="'+slot+'"]');
-    if(b&&!b.querySelector('.card-b')){ const e=document.createElement('span'); e.className='card-b'; b.appendChild(e); }
+    state.bcardedAt[pi]=state.secs;
+    refBtn(slot);
   }
 
   const desc = pl(pi)+': '+action+(sec?' · '+sec:'');
-  if (action!=='Red Card') {
+  if (action!=='Red Card' && action!=='Second Yellow Card') {
     const b=document.querySelector('[data-s="'+slot+'"]');
     if(b&&!b.classList.contains('rc')) b.classList.add('hev');
   }
@@ -421,13 +460,22 @@ function logEv(action, sec, zone) {
       const b=document.querySelector('[data-s="'+slot+'"]');
       if(b){ b.classList.remove('rc'); const c=b.querySelector('.card-r'); if(c)c.remove(); }
     }
+    if (action==='Second Yellow Card') {
+      delete state.rcarded[pi];
+      state.ycarded[pi]=(state.ycarded[pi]||1)-1;
+      if(state.ycarded[pi]<=0) delete state.ycarded[pi];
+      const b=document.querySelector('[data-s="'+slot+'"]');
+      if(b){ b.classList.remove('rc'); const cr=b.querySelector('.card-r'); if(cr)cr.remove(); if((state.ycarded[pi]||0)>0&&!b.querySelector('.card-y')){ const ey=document.createElement('span'); ey.className='card-y'; b.appendChild(ey); } }
+    }
     if (action==='Yellow Card') {
       state.ycarded[pi]=(state.ycarded[pi]||1)-1;
       if(state.ycarded[pi]<=0){ delete state.ycarded[pi]; const b=document.querySelector('[data-s="'+slot+'"]'); const c=b&&b.querySelector('.card-y'); if(c)c.remove(); }
     }
     if (action==='Black Card') {
       state.bcarded[pi]=(state.bcarded[pi]||1)-1;
-      if(state.bcarded[pi]<=0){ delete state.bcarded[pi]; const b=document.querySelector('[data-s="'+slot+'"]'); const c=b&&b.querySelector('.card-b'); if(c)c.remove(); }
+      if(state.bcarded[pi]<=0){ delete state.bcarded[pi]; delete state.bcardedAt[pi]; }
+      const _bb=document.querySelector('[data-s="'+slot+'"]');
+      if(_bb){ _bb.classList.remove('bc'); refBtn(slot); }
     }
     const b2=document.querySelector('[data-s="'+slot+'"]');
     const still=state.evts.some(e=>e.slot===slot);
@@ -558,8 +606,11 @@ function cancelSwap() {
 
 function execSwap(slotA, slotB) {
   const piA = state.slotp[slotA], piB = state.slotp[slotB];
+  const prevCaptain = state.captain;
   state.slotp[slotA] = piB;
   state.slotp[slotB] = piA;
+  if (state.captain === slotA) state.captain = slotB;
+  else if (state.captain === slotB) state.captain = slotA;
   const desc = 'Pos swap: ' + pl(piA) + ' ↔ ' + pl(piB);
   addRow(fmt(state.secs), 'POS', 'bo', desc);
   const ev = state.evts[state.evts.length - 1];
@@ -567,6 +618,7 @@ function execSwap(slotA, slotB) {
   pushUndo(desc, () => {
     state.slotp[slotA] = piA;
     state.slotp[slotB] = piB;
+    state.captain = prevCaptain;
     refBtn(slotA); refBtn(slotB);
   });
   refBtn(slotA); refBtn(slotB);

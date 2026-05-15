@@ -103,7 +103,7 @@ function applyStateEffects(prev, next) {
       break;
 
     case 'FULL_TIME':
-      if (state.tWallStart) {
+      if (tRun && state.tWallStart) {
         state.tPausedAt = Math.floor((Date.now() - state.tWallStart) / 1000);
         state.secs = state.tPausedAt;
       }
@@ -247,4 +247,5 @@ function tick() {
   td.textContent = fmt(elapsed);
   if (elapsed >= 1800 && !td.classList.contains('overtime')) td.classList.add('overtime');
   if (elapsed % 30 === 0) saveState();
+  updateBCCountdowns();
 }

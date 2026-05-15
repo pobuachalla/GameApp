@@ -68,9 +68,10 @@ function upTot() {
 
 // ─── GRID OPACITY ─────────────────────────────────────────────────────────────
 function setGrid(on) {
-  const active = on || state.matchState === 'PRE_MATCH';
-  el.pgrid.style.opacity       = active ? '1' : '.3';
-  el.pgrid.style.pointerEvents = active ? 'auto' : 'none';
+  const isActive  = on || state.matchState === 'PRE_MATCH';
+  const isVisible = isActive || state.matchState === 'FULL_TIME';
+  el.pgrid.style.opacity       = isVisible ? '1' : '.3';
+  el.pgrid.style.pointerEvents = isActive  ? 'auto' : 'none';
 }
 
 // ─── INITIALS CACHE ───────────────────────────────────────────────────────────
@@ -136,21 +137,31 @@ function refBtn(s) {
   while (b.firstChild) b.removeChild(b.firstChild);
   if (state.ycarded[pi]) { const e=document.createElement('span'); e.className='card-y'; b.appendChild(e); }
   if (state.bcarded[pi]) { const e=document.createElement('span'); e.className='card-b'; b.appendChild(e); }
-  if (state.rcarded[pi]) { const e=document.createElement('span'); e.className='card-r'; b.appendChild(e); }
+  if (state.rcarded[pi]) { b.classList.add('rc'); const e=document.createElement('span'); e.className='card-r'; b.appendChild(e); }
+  else { b.classList.remove('rc'); }
+  if (state.bcardedAt && state.bcardedAt[pi] != null) {
+    const remaining=(state.bcardedAt[pi]+600)-state.secs;
+    const pct=Math.max(0,Math.min(1,remaining/600));
+    const offset=(157.08*(1-pct)).toFixed(1);
+    const tmp=document.createElement('div');
+    tmp.innerHTML=`<svg class="bc-ring" data-bc-pi="${pi}" width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="25" fill="none" stroke="#2c2c2a" stroke-width="3" stroke-dasharray="157.08" stroke-dashoffset="${offset}" transform="rotate(-90 28 28)" stroke-linecap="round"/></svg>`;
+    b.appendChild(tmp.firstChild);
+    b.classList.add('bc');
+  }
   if (state.ubench[pi]) { const e=document.createElement('span'); e.className='subdot'; b.appendChild(e); }
   if (state.captain === s) { const e=document.createElement('i'); e.className='fa-regular fa-copyright cap-badge'; b.appendChild(e); }
+  const hasName = !!gn(pi);
+  const showNum = hasName && state.showPlayerNumbers !== false;
   const wrap = document.createElement('span');
   wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:0;line-height:1;';
-  const hasName = !!gn(pi);
-  if (hasName && state.showPlayerNumbers !== false) {
-    const numSpan = document.createElement('span');
-    numSpan.textContent = pi;
-    numSpan.style.cssText = 'font-size:8px;font-weight:500;opacity:0.55;margin-bottom:1px;';
-    wrap.appendChild(numSpan);
-  }
   const iniSpan = document.createElement('span');
-  iniSpan.textContent = ini;
-  iniSpan.style.fontSize = ini.length>=4?'10px':ini.length===3?'11px':ini.length===2?'12px':'14px';
+  if (showNum) {
+    iniSpan.textContent = pi;
+    iniSpan.style.cssText = 'font-size:14px;font-weight:700;';
+  } else {
+    iniSpan.textContent = ini;
+    iniSpan.style.fontSize = ini.length>=4?'10px':ini.length===3?'11px':ini.length===2?'12px':'14px';
+  }
   iniSpan.style.color = TEAM_US_COLOR;
   wrap.appendChild(iniSpan);
   const {g, p: p_} = playerScore(pi);
@@ -163,3 +174,37 @@ function refBtn(s) {
   b.appendChild(wrap);
 }
 const refAllBtns = () => { const sz=state.teamSize||15; (TEAM_SLOTS[sz]||TEAM_SLOTS[15]).forEach(s=>refBtn(s)); };
+
+function updateBCCountdowns() {
+  if (!state.bcardedAt) return;
+  const CIRC = 157.08;
+  document.querySelectorAll('[data-bc-pi]').forEach(el => {
+    const pi = +el.dataset.bcPi;
+    if (state.bcardedAt[pi] == null) return;
+    const remaining = (state.bcardedAt[pi] + 600) - state.secs;
+    const pct = Math.max(0, Math.min(1, remaining / 600));
+    if (el.tagName.toLowerCase() === 'svg') {
+      const c = el.querySelector('circle');
+      if (c) c.setAttribute('stroke-dashoffset', (CIRC * (1 - pct)).toFixed(1));
+      if (remaining <= 0) {
+        const slot = Object.keys(state.slotp).find(k => +state.slotp[k] === pi);
+        if (slot) { const btn=document.querySelector('[data-s="'+slot+'"]'); if(btn) btn.classList.remove('bc'); }
+      }
+    }
+  });
+  // Update bc-pill next to the sport pill
+  const pill = document.getElementById('bc-pill');
+  if (!pill) return;
+  const active = Object.entries(state.bcardedAt)
+    .map(([pi, issuedAt]) => ({ pi: +pi, remaining: (issuedAt + 600) - state.secs }))
+    .filter(e => e.remaining > 0)
+    .sort((a, b) => a.remaining - b.remaining);
+  if (active.length === 0) {
+    pill.style.display = 'none';
+  } else {
+    pill.style.display = '';
+    pill.innerHTML = active.map(e =>
+      `<span>${esc(gi(e.pi))} ${fmt(e.remaining)}</span>`
+    ).join('<span style="opacity:.4;margin:0 2px;">·</span>');
+  }
+}

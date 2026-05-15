@@ -510,12 +510,14 @@ function aggregateAll(parsed) {
         else if (ev.action === '2 Point')                pbBucket.p += 2;
         else if (ev.action === 'Wide')                   pbBucket.w++;
       }
-      else if (ev.action === 'Yellow Card')  { p.yc++; ms.yc++; }
-      else if (ev.action === 'Black Card')   { p.bc++; ms.bc++; }
-      else if (ev.action === 'Red Card')     { p.rc++; ms.rc++; }
+      else if (ev.action === 'Yellow Card')        { p.yc++; ms.yc++; }
+      else if (ev.action === 'Second Yellow Card') { p.yc++; ms.yc++; p.syc=(p.syc||0)+1; ms.syc=(ms.syc||0)+1; }
+      else if (ev.action === 'Black Card')         { p.bc++; ms.bc++; }
+      else if (ev.action === 'Red Card')           { p.rc++; ms.rc++; }
       else if (ev.action === 'Free')         { p.frees++; ms.frees++; }
       else if (ev.action === 'Turnover Won') { p.twon++; ms.twon++; }
       else if (ev.action === 'Turnover Lost'){ p.tlost++; ms.tlost++; }
+      else if (ev.action === 'Free Won')     { p.freesWon++; ms.freesWon++; }
     });
 
     // games played / play time — also finalise per-match records
@@ -561,8 +563,8 @@ function blankPbType() { return { g:0, p:0, w:0 }; }
 function blankPlayer(name) {
   return { name, games:0, gamesStarted:0, gamesSub:0, secsPlayed:0, secsGames:0,
            gPlay:0, gPlaced:0, pPlay:0, pPlaced:0,
-           widesPlay:0, widesPlaced:0, frees:0, twon:0, tlost:0,
-           yc:0, bc:0, rc:0, totalScore:0, wides:0,
+           widesPlay:0, widesPlaced:0, frees:0, twon:0, tlost:0, freesWon:0,
+           yc:0, syc:0, bc:0, rc:0, totalScore:0, wides:0,
            pbFree: blankPbType(), pb6545: blankPbType(),
            pbPen:  blankPbType(), pbSide: blankPbType(),
            matchLog:[] };
@@ -571,8 +573,8 @@ function blankPlayer(name) {
 function blankMatchStat(date, opp, result) {
   return { date, opp, result,
            gPlay:0, gPlaced:0, pPlay:0, pPlaced:0,
-           widesPlay:0, widesPlaced:0, frees:0, twon:0, tlost:0,
-           yc:0, bc:0, rc:0, secsPlayed:0, started:false };
+           widesPlay:0, widesPlaced:0, frees:0, twon:0, tlost:0, freesWon:0,
+           yc:0, syc:0, bc:0, rc:0, secsPlayed:0, started:false };
 }
 
 function toSecs(t) {
@@ -676,15 +678,17 @@ function buildTeamView(matches, players, totalUsG, totalUsP, totalUsT, totalOgT)
   const avgAgainst = n ? (totalOgT/n).toFixed(1) : '—';
 
   // Aggregate team shooting
-  let gPlay=0,gPlaced=0,pPlay=0,pPlaced=0,wPlay=0,wPlaced=0,frees=0,twon=0,tlost=0;
+  let gPlay=0,gPlaced=0,pPlay=0,pPlaced=0,wPlay=0,wPlaced=0,frees=0,twon=0,tlost=0,freesWon=0;
   let yc=0,bc=0,rc=0;
   players.forEach(p => {
     gPlay+=p.gPlay; gPlaced+=p.gPlaced;
     pPlay+=p.pPlay; pPlaced+=p.pPlaced;
     wPlay+=p.widesPlay; wPlaced+=p.widesPlaced;
-    frees+=p.frees; twon+=p.twon; tlost+=p.tlost;
+    frees+=p.frees; twon+=p.twon; tlost+=p.tlost; freesWon+=p.freesWon||0;
     yc+=p.yc; bc+=p.bc; rc+=p.rc;
   });
+  let slYC=0,slRC=0,slAdv=0;
+  matches.forEach(({st})=>{(st.sidelineCards||[]).forEach(sc=>{if(sc.type==='Yellow')slYC++;else if(sc.type==='Red')slRC++;else if(sc.type==='AdvFree')slAdv++;});});
 
   const totalG = gPlay+gPlaced, totalP = pPlay+pPlaced;
   const totalWides = wPlay+wPlaced;
@@ -788,6 +792,12 @@ function buildTeamView(matches, players, totalUsG, totalUsP, totalUsT, totalOgT)
   } else {
     h += `<div style="font-size:14px;color:var(--t3);padding:12px 0;">No turnover data recorded</div>`;
   }
+  if (freesWon > 0) {
+    h += `<div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">`;
+    h += `<div class="rv-row"><span class="rv-rl">Frees Won</span><span class="rv-rv" style="color:var(--green);">${freesWon}</span></div>`;
+    h += `<div class="rv-row"><span class="rv-rl">Per game</span><span class="rv-rv">${(freesWon/n).toFixed(1)}</span></div>`;
+    h += `</div>`;
+  }
   h += `</div>`;
 
   // Restarts
@@ -831,6 +841,13 @@ function buildTeamView(matches, players, totalUsG, totalUsP, totalUsT, totalOgT)
   h += `<div class="rv-row"><span class="rv-rl">Black</span><span class="rv-rv">${bc}</span></div>`;
   h += `<div class="rv-row"><span class="rv-rl">Red</span><span class="rv-rv" style="color:var(--red);">${rc}</span></div>`;
   h += `<div class="rv-row"><span class="rv-rl">Frees conceded</span><span class="rv-rv">${frees}</span></div>`;
+  if (slYC+slRC+slAdv > 0) {
+    h += `<div style="border-top:1px solid var(--border);margin:10px 0;"></div>`;
+    h += `<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--t3);margin-bottom:6px;">Sideline</div>`;
+    if (slYC > 0) h += `<div class="rv-row"><span class="rv-rl">Yellow cards</span><span class="rv-rv" style="color:var(--yellow-d);">${slYC}</span></div>`;
+    if (slRC > 0) h += `<div class="rv-row"><span class="rv-rl">Red cards</span><span class="rv-rv" style="color:var(--red);">${slRC}</span></div>`;
+    if (slAdv > 0) h += `<div class="rv-row"><span class="rv-rl">Advanced frees</span><span class="rv-rv">${slAdv}</span></div>`;
+  }
   h += `</div>`;
 
   h += `</div>`; // end rv-g4
@@ -869,7 +886,7 @@ function buildGameView(matches) {
 
     // Per-match stats from events
     const scorers = {};
-    let wides = 0, frees = 0, twon = 0, tlost = 0, yc = 0, bc = 0, rc = 0;
+    let wides = 0, frees = 0, twon = 0, tlost = 0, yc = 0, syc = 0, bc = 0, rc = 0;
     evts.forEach(ev => {
       if (!ev.action) return;
       const pi = ev.pi != null ? ev.pi : (st.slotp || {})[ev.slot];
@@ -882,13 +899,14 @@ function buildGameView(matches) {
           else if (ev.action === '2 Point') scorers[k].p += 2;
           else scorers[k].p++;
         }
-      } else if (ev.action === 'Wide')          wides++;
-      else if (ev.action === 'Free')            frees++;
-      else if (ev.action === 'Turnover Won')    twon++;
-      else if (ev.action === 'Turnover Lost')   tlost++;
-      else if (ev.action === 'Yellow Card')     yc++;
-      else if (ev.action === 'Black Card')      bc++;
-      else if (ev.action === 'Red Card')        rc++;
+      } else if (ev.action === 'Wide')               wides++;
+      else if (ev.action === 'Free')                 frees++;
+      else if (ev.action === 'Turnover Won')         twon++;
+      else if (ev.action === 'Turnover Lost')        tlost++;
+      else if (ev.action === 'Yellow Card')          yc++;
+      else if (ev.action === 'Second Yellow Card') { yc++; syc++; }
+      else if (ev.action === 'Black Card')           bc++;
+      else if (ev.action === 'Red Card')             rc++;
     });
 
     const scorerList = Object.values(scorers)
@@ -924,7 +942,7 @@ function buildGameView(matches) {
       if (twon > 0)  h += `<span class="gv-chip green"><i class="fas fa-rotate-right"></i> ${twon} TO won</span>`;
       if (tlost > 0) h += `<span class="gv-chip red"><i class="fas fa-rotate-left"></i> ${tlost} TO lost</span>`;
     }
-    if (yc > 0) h += `<span class="gv-chip yellow">${yc} yellow${yc !== 1 ? 's' : ''}</span>`;
+    if (yc > 0) h += `<span class="gv-chip yellow">${yc} yellow${yc !== 1 ? 's' : ''}${syc > 0 ? ' (incl. 2nd)' : ''}</span>`;
     if (bc > 0) h += `<span class="gv-chip" style="background:#E0E3DC;color:#333;">${bc} black${bc !== 1 ? 's' : ''}</span>`;
     if (rc > 0) h += `<span class="gv-chip red">${rc} red${rc !== 1 ? 's' : ''}</span>`;
     h += `</div>`;
@@ -1323,7 +1341,9 @@ function buildPlayerDetail(p) {
       const mG = m.gPlay + m.gPlaced, mP = m.pPlay + m.pPlaced;
       const mScore = mG * 3 + mP;
       const mWides = m.widesPlay + m.widesPlaced;
-      const mCards = (m.yc ? `<span style="display:inline-block;width:6px;height:10px;border-radius:1px;background:var(--yellow);border:1px solid var(--yellow-d);margin:0 1px;vertical-align:middle;"></span>`.repeat(m.yc) : '')
+      const _mSyc = m.syc||0, _mStY = m.yc - 2*_mSyc;
+      const mCards = (_mStY > 0 ? `<span style="display:inline-block;width:6px;height:10px;border-radius:1px;background:var(--yellow);border:1px solid var(--yellow-d);margin:0 1px;vertical-align:middle;"></span>`.repeat(_mStY) : '')
+                   + (_mSyc > 0 ? `<span style="display:inline-flex;gap:1px;align-items:center;vertical-align:middle;margin:0 1px;" title="Second Yellow"><span style="display:inline-block;width:6px;height:10px;border-radius:1px;background:var(--yellow);border:1px solid var(--yellow-d);"></span><span style="display:inline-block;width:6px;height:10px;border-radius:1px;background:var(--yellow);border:1px solid var(--yellow-d);"></span><span style="font-size:8px;color:#9A9E99;margin:0 1px;">→</span><span style="display:inline-block;width:6px;height:10px;border-radius:1px;background:var(--red);"></span></span>`.repeat(_mSyc) : '')
                    + (m.bc ? `<span style="display:inline-block;width:6px;height:10px;border-radius:1px;background:#333;margin:0 1px;vertical-align:middle;"></span>`.repeat(m.bc) : '')
                    + (m.rc ? `<span style="display:inline-block;width:6px;height:10px;border-radius:1px;background:var(--red);margin:0 1px;vertical-align:middle;"></span>`.repeat(m.rc) : '');
       h += `<tr>`;

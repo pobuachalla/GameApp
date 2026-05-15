@@ -491,7 +491,8 @@ function buildPrintHTML() {
     }
   }
 
-  if (discPlayers.length > 0 || freesConc > 0) {
+  const slCards = state.sidelineCards || [];
+  if (discPlayers.length > 0 || freesConc > 0 || slCards.length > 0) {
     h += '<div class="pr-section">';
     h += '<div class="pr-section-title">Discipline</div>';
     h += '<div class="pr-card">';
@@ -506,8 +507,10 @@ function buildPrintHTML() {
         const freeTotal = Object.values(p.frees).reduce((s,n)=>s+n,0);
         h += '<div class="pr-row" style="align-items:center;gap:6px;">';
         if (p.yc+p.bc+p.rc > 0) {
-          h += '<span style="display:flex;gap:2px;flex-shrink:0;">';
-          for (let i=0;i<p.yc;i++) h+=`<span style="display:inline-block;width:9px;height:13px;background:${CARD_YELLOW};border-radius:2px;border:.5px solid rgba(0,0,0,.2);"></span>`;
+          const _syc=p.syc||0, _syY=p.yc-2*_syc;
+          h += '<span style="display:flex;gap:2px;flex-shrink:0;align-items:center;">';
+          for (let i=0;i<_syY;i++) h+=`<span style="display:inline-block;width:9px;height:13px;background:${CARD_YELLOW};border-radius:2px;border:.5px solid rgba(0,0,0,.2);"></span>`;
+          for (let i=0;i<_syc;i++) h+=`<span style="display:inline-flex;gap:1px;align-items:center;" title="Second Yellow"><span style="display:inline-block;width:9px;height:13px;background:${CARD_YELLOW};border-radius:2px;border:.5px solid rgba(0,0,0,.2);"></span><span style="display:inline-block;width:9px;height:13px;background:${CARD_YELLOW};border-radius:2px;border:.5px solid rgba(0,0,0,.2);"></span><span style="font-size:8px;color:#9A9E99;margin:0 1px;">→</span><span style="display:inline-block;width:9px;height:13px;background:${CARD_RED};border-radius:2px;"></span></span>`;
           for (let i=0;i<p.bc;i++) h+=`<span style="display:inline-block;width:9px;height:13px;background:${CARD_BLACK};border-radius:2px;"></span>`;
           for (let i=0;i<p.rc;i++) h+=`<span style="display:inline-block;width:9px;height:13px;background:${CARD_RED};border-radius:2px;"></span>`;
           h += '</span>';
@@ -518,6 +521,22 @@ function buildPrintHTML() {
           const types = Object.entries(p.frees).sort((a,b)=>b[1]-a[1]).map(([t,n])=>esc(t)+(n>1?' ×'+n:'')).join(', ');
           h += ` &mdash; ${types}</span>`;
         }
+        h += '</div>';
+      });
+    }
+    if (slCards.length > 0) {
+      if (freesConc > 0 || discPlayers.length > 0) h += '<div style="border-top:1px solid #E2E4DE;margin:10px 0;"></div>';
+      h += '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B6F66;margin-bottom:8px;">Sideline</div>';
+      slCards.forEach(sc => {
+        h += '<div class="pr-row" style="align-items:center;gap:6px;">';
+        if (sc.type !== 'AdvFree') {
+          const bg = sc.type === 'Yellow' ? CARD_YELLOW : CARD_RED;
+          h += `<span style="display:inline-block;width:9px;height:13px;background:${bg};border-radius:2px;${sc.type==='Yellow'?'border:.5px solid rgba(0,0,0,.2);':''}flex-shrink:0;"></span>`;
+        } else {
+          h += `<span style="font-size:10px;font-weight:700;color:#92400E;background:#FEF3C7;padding:1px 5px;border-radius:3px;flex-shrink:0;">ADV FREE</span>`;
+        }
+        h += html`<span style="flex:1;font-size:13px;">${sc.name||'Coach/Manager'}</span>`;
+        h += `<span style="font-size:11px;color:#6B6F66;">${esc(sc.time)}</span>`;
         h += '</div>';
       });
     }

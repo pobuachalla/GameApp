@@ -100,7 +100,8 @@ function doReset() {
   el['timer-display'].classList.remove('overtime','muted');
   renderTimerUI();
   setGrid(false);
-  state.rcarded={}; state.ycarded={}; state.bcarded={};
+  state.rcarded={}; state.ycarded={}; state.bcarded={}; state.bcardedAt={}; state.sidelineCards=[];
+  const _bcp=document.getElementById('bc-pill'); if(_bcp) _bcp.style.display='none';
   const sz = state.teamSize || 15;
   (TEAM_SLOTS[sz]||TEAM_SLOTS[15]).forEach(s=>{state.slotp[s]=s;});
   renderPGrid();
@@ -311,7 +312,7 @@ function startRestartSub(side) {
   const avail = [];
   (TEAM_SLOTS[sz]||TEAM_SLOTS[15]).forEach(s => {
     const pi = state.slotp[s];
-    if (!pi) return;
+    if (!pi || state.rcarded[pi]) return;
     const n = gn(pi);
     avail.push({ val: String(s), label: n, num: pi, sub: SLOT_POS[s] || '' });
   });
