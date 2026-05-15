@@ -1,7 +1,10 @@
 'use strict';
 
 // ─── EVENT LOG ────────────────────────────────────────────────────────────────
-const tail = () => { el.evlog.scrollTop = el.evlog.scrollHeight; };
+const tail = () => {
+  if (!el.logpanel || !el.logpanel.classList.contains('open')) return;
+  el.evlog.scrollTop = el.evlog.scrollHeight;
+};
 
 function addRow(time, badge, cls, desc) {
   state.evts.push({time, badge, cls, desc});
