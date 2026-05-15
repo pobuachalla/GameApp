@@ -1,7 +1,7 @@
 # GAA Match Tracker — Design System
 
-> Status: **Documentation** (pre-codification).  
-> This document captures the design language as it exists in the codebase today. Gaps and inconsistencies are noted inline. The intent is to agree on canonical values here before extracting them into shared tokens.
+> Status: **Partially codified.**  
+> `tokens.css` provides shared text, border, and radius tokens across all three pages. Page-specific colour tokens remain in each file's `:root`. Remaining gaps (shadows, spacing, type scale, motion) are noted inline.
 
 ---
 

@@ -8,7 +8,8 @@
 <meta name="apple-mobile-web-app-title" content="Match Review">
 <title>GAA Match Review</title>
 <link rel="icon" href="favicon.png" type="image/png">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+<link rel="stylesheet" href="tokens.css">
+<script src="https://kit.fontawesome.com/c0eed6f428.js" crossorigin="anonymous" defer></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -16,10 +17,7 @@
   --red: #C62828; --red-l: #FFEBEE;
   --amber: #D97706; --amber-l: #FFF8E1;
   --bg: #EEF0EA; --card: #FFFFFF;
-  --t1: #1A2E1A; --t2: #4A5A4A; --t3: #7A8A7A;
-  --border: #E0E3DC;
   --shadow: 0 2px 14px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
-  --r: 16px;
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--t1); min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
@@ -31,7 +29,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .lc-sub { font-size: 14px; color: var(--t3); line-height: 1.6; margin-bottom: 32px; }
 .lc-back { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--t3); text-decoration: none; margin-bottom: 20px; transition: color .15s; }
 .lc-back:hover { color: var(--t2); }
-.lc-drop { border: 2px dashed var(--border); border-radius: 16px; padding: 36px 24px; cursor: pointer; transition: border-color .2s, background .2s; position: relative; display: block; }
+.lc-drop { border: 2px dashed var(--bm); border-radius: 16px; padding: 36px 24px; cursor: pointer; transition: border-color .2s, background .2s; position: relative; display: block; }
 .lc-drop:hover, .lc-drop.drag-over { border-color: var(--green); background: var(--green-l); }
 .lc-drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
 .lc-drop-icon { font-size: 28px; color: var(--green); margin-bottom: 10px; }
@@ -67,7 +65,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .rv-full { margin-bottom: 16px; }
 
 /* ── Cards ───────────────────────────────────────────────────────────────── */
-.rv-card { background: var(--card); border-radius: var(--r); padding: 24px; box-shadow: var(--shadow); }
+.rv-card { background: var(--card); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow); }
 .rv-ctitle { font-size: 10px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--t3); margin-bottom: 18px; }
 
 /* ── Big number ──────────────────────────────────────────────────────────── */
@@ -75,13 +73,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .rv-bigsub { font-size: 13px; color: var(--t3); margin-top: 6px; }
 
 /* ── Rows ────────────────────────────────────────────────────────────────── */
-.rv-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.rv-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--bm); font-size: 14px; }
 .rv-row:last-child { border-bottom: none; }
 .rv-rl { color: var(--t2); }
 .rv-rv { font-weight: 600; }
 
 /* ── Bars ────────────────────────────────────────────────────────────────── */
-.rv-bar { height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; margin: 10px 0; }
+.rv-bar { height: 10px; background: var(--bm); border-radius: 5px; overflow: hidden; margin: 10px 0; }
 .rv-bar-fill { height: 100%; background: var(--green); border-radius: 5px; }
 .rv-split { height: 14px; border-radius: 7px; overflow: hidden; display: flex; margin: 14px 0 8px; }
 .rv-split-g { background: var(--green); }
@@ -102,14 +100,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 /* ── Player table ────────────────────────────────────────────────────────── */
 .rv-pt { width: 100%; border-collapse: collapse; }
-.rv-pt th { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); padding: 0 10px 10px 0; border-bottom: 1px solid var(--border); text-align: left; }
+.rv-pt th { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); padding: 0 10px 10px 0; border-bottom: 1px solid var(--bm); text-align: left; }
 .rv-pt th.r { text-align: right; }
-.rv-pt td { padding: 10px 10px 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
+.rv-pt td { padding: 10px 10px 10px 0; border-bottom: 1px solid var(--bm); font-size: 14px; vertical-align: middle; }
 .rv-pt tr:last-child td { border-bottom: none; }
 .rv-pt td.r { text-align: right; }
 .rv-pt td.c { text-align: center; }
 .rv-pt .scorer-bar-cell { width: 120px; }
-.rv-scorer-bar-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.rv-scorer-bar-track { height: 6px; background: var(--bm); border-radius: 3px; overflow: hidden; }
 .rv-scorer-bar-fill { height: 100%; background: var(--green); border-radius: 3px; }
 
 /* ── Card chips ──────────────────────────────────────────────────────────── */
@@ -121,8 +119,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .rv-sm-li { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--t2); }
 
 /* ── Subs ────────────────────────────────────────────────────────────────── */
-.rv-sub-hdr { display: flex; gap: 8px; padding: 0 0 8px; border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); }
-.rv-sub-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+.rv-sub-hdr { display: flex; gap: 8px; padding: 0 0 8px; border-bottom: 1px solid var(--bm); font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); }
+.rv-sub-row { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--bm); align-items: flex-start; }
 .rv-sub-row:last-child { border-bottom: none; }
 .rv-sub-t { min-width: 46px; color: var(--t3); font-size: 13px; padding-top: 1px; }
 .rv-sub-on { flex: 1; font-size: 14px; font-weight: 500; }
@@ -162,7 +160,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 @media print {
   body { background: white; }
   #review { max-width: 100%; padding: 12px; }
-  .rv-card { box-shadow: none; border: 1px solid var(--border); }
+  .rv-card { box-shadow: none; border: 1px solid var(--bm); }
   .rv-hdr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .rv-lu-p, .rv-lu-p.gk { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
@@ -568,7 +566,7 @@ function buildReview(st) {
   const bNote=(ownRstT+oppRstT>0&&totalTurn>0)?'Scores + restarts + turnovers':(ownRstT+oppRstT>0)?'Scores + restarts':(totalTurn>0)?'Scores + turnovers':'Based on scores';
   h+=`<div style="font-size:11px;color:#9A9E99;margin-top:12px;">${bNote}</div>`;
   if(ownRstT>0||oppRstT>0){
-    h+=`<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">`;
+    h+=`<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--bm);">`;
     h+=`<div class="rv-ctitle" style="margin-bottom:10px;">${rstLabel}s</div>`;
     if(ownRstT>0){const p=Math.round(s.ownWon/ownRstT*100);h+=`<div class="rv-row"><span class="rv-rl">Own</span><span class="rv-rv">${s.ownWon}W / ${s.ownLost}L${s.ownUnclear?' / '+s.ownUnclear+'?':''} <span style="font-weight:400;color:#7A8A7A;">(${p}%)</span></span></div>`;}
     if(oppRstT>0){const p=Math.round(s.oppWon/oppRstT*100);h+=`<div class="rv-row"><span class="rv-rl">Opp.</span><span class="rv-rv">${s.oppWon}W / ${s.oppLost}L${s.oppUnclear?' / '+s.oppUnclear+'?':''} <span style="font-weight:400;color:#7A8A7A;">(${p}%)</span></span></div>`;}
@@ -673,7 +671,7 @@ function buildReview(st) {
         const bc=pct>=70?'#2E7D32':pct>=40?'#D97706':'#C62828';
         h+=`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">`;
         h+=`<div style="font-size:12px;color:var(--t2);min-width:80px;">${iLbl[intensity]}</div>`;
-        h+=`<div style="flex:1;background:var(--border);border-radius:3px;overflow:hidden;height:6px;"><div style="background:${bc};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
+        h+=`<div style="flex:1;background:var(--bm);border-radius:3px;overflow:hidden;height:6px;"><div style="background:${bc};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
         h+=`<div style="font-size:12px;font-weight:600;color:${bc};min-width:36px;text-align:right;">${sv}/${lvl.length}</div>`;
         h+=`</div>`;
       });
@@ -681,7 +679,7 @@ function buildReview(st) {
     }
     h+=`</div>`;
     // ── By Half | Save Quality | Goals Conceded ──────────────────────────────
-    h+=`<div style="border-top:1px solid var(--border);margin-top:20px;padding-top:18px;display:flex;gap:24px;flex-wrap:wrap;">`;
+    h+=`<div style="border-top:1px solid var(--bm);margin-top:20px;padding-top:18px;display:flex;gap:24px;flex-wrap:wrap;">`;
 
     // By Half
     const gkHalfData=['1H','2H','ET'].map(hf=>{
@@ -699,7 +697,7 @@ function buildReview(st) {
         const bc=pct>=70?'#2E7D32':pct>=40?'#D97706':'#C62828';
         h+=`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">`;
         h+=`<div style="font-size:12px;color:var(--t2);min-width:28px;">${d.hf}</div>`;
-        h+=`<div style="flex:1;background:var(--border);border-radius:3px;overflow:hidden;height:6px;"><div style="background:${bc};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
+        h+=`<div style="flex:1;background:var(--bm);border-radius:3px;overflow:hidden;height:6px;"><div style="background:${bc};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
         h+=`<div style="font-size:12px;font-weight:600;color:${bc};min-width:72px;text-align:right;">${d.sv}/${d.total} <span style="font-weight:400;color:var(--t3);">(${pct}%)</span></div>`;
         h+=`</div>`;
       });
@@ -719,7 +717,7 @@ function buildReview(st) {
         const pct=Math.round(cnt/gkSaveEvts.length*100);
         h+=`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">`;
         h+=`<div style="font-size:12px;color:var(--t2);min-width:88px;">${sqLbl[q]}</div>`;
-        h+=`<div style="flex:1;background:var(--border);border-radius:3px;overflow:hidden;height:6px;"><div style="background:${sqCol[q]};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
+        h+=`<div style="flex:1;background:var(--bm);border-radius:3px;overflow:hidden;height:6px;"><div style="background:${sqCol[q]};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
         h+=`<div style="font-size:12px;font-weight:600;color:${sqCol[q]};min-width:28px;text-align:right;">${cnt}</div>`;
         h+=`</div>`;
       });
@@ -738,7 +736,7 @@ function buildReview(st) {
         const bc=intensity>=4?'#66BB6A':intensity===3?'#D97706':'#C62828';
         h+=`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">`;
         h+=`<div style="font-size:12px;color:var(--t2);min-width:80px;">${iLbl[intensity]}</div>`;
-        h+=`<div style="flex:1;background:var(--border);border-radius:3px;overflow:hidden;height:6px;"><div style="background:${bc};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
+        h+=`<div style="flex:1;background:var(--bm);border-radius:3px;overflow:hidden;height:6px;"><div style="background:${bc};width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
         h+=`<div style="font-size:12px;font-weight:600;color:${bc};min-width:28px;text-align:right;">${cnt}</div>`;
         h+=`</div>`;
       });
@@ -767,7 +765,7 @@ function buildReview(st) {
     h+=`<div class="rv-bar"><div class="rv-bar-fill" style="width:${wonPct}%;"></div></div>`;
     h+=`<div style="font-size:12px;color:#7A8A7A;margin-bottom:14px;">${wonPct}% won</div>`;
     if(twPlayers.length>0){
-      h+=`<div style="border-top:1px solid var(--border);padding-top:10px;">`;
+      h+=`<div style="border-top:1px solid var(--bm);padding-top:10px;">`;
       twPlayers.forEach(p=>{
         h+=`<div class="rv-row"><span class="rv-rl">${esc(p.name)}</span><span>`;
         if(p.tw>0)h+=`<span class="rv-tag rv-tg">+${p.tw}</span>`;
@@ -792,7 +790,7 @@ function buildReview(st) {
       if(wonEntries.length||lostEntries.length){
         const WON_COLORS={'First to the Ball':'#1B5E20','Tackle Turnover':'#388E3C','Block':'#66BB6A','Hook':'#00897B','Defensive Pressure':'#A5D6A7'};
         const LOST_COLORS={'Poor Pass':'#B71C1C','Lost in Tackle':CARD_RED,'Second to the Ball':'#EF9A9A','Over Played':'#E65100','Isolated':'#FFAB91'};
-        h+=`<div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px;display:flex;gap:8px;justify-content:space-around;flex-wrap:wrap;">`;
+        h+=`<div style="border-top:1px solid var(--bm);margin-top:16px;padding-top:16px;display:flex;gap:8px;justify-content:space-around;flex-wrap:wrap;">`;
         if(wonEntries.length)h+=buildTurnoverDonut('Won by type',wonEntries,WON_COLORS,TEAM_US_COLOR);
         if(lostEntries.length)h+=buildTurnoverDonut('Lost by type',lostEntries,LOST_COLORS,TEAM_OPP_COLOR);
         h+=`</div>`;
@@ -801,7 +799,7 @@ function buildReview(st) {
   }else{h+=`<div style="font-size:14px;color:#9A9E99;padding:16px 0;">None recorded</div>`;}
   if(s.freesWon>0){
     const fwPlayers=Object.values(s.ps).filter(p=>p.fw>0).sort((a,b)=>b.fw-a.fw||a.name.localeCompare(b.name));
-    h+=`<div style="${totalTurn>0?'border-top:1px solid var(--border);margin-top:12px;padding-top:10px;':''}">`;
+    h+=`<div style="${totalTurn>0?'border-top:1px solid var(--bm);margin-top:12px;padding-top:10px;':''}">`;
     h+=`<div class="rv-row"><span class="rv-rl">Frees Won</span><span class="rv-rv" style="color:${TEAM_US_COLOR};">${s.freesWon}</span></div>`;
     fwPlayers.forEach(p=>{h+=`<div class="rv-row"><span class="rv-rl" style="padding-left:8px;font-size:12px;">${esc(p.name)}</span><span class="rv-rv" style="font-size:12px;">${p.fw}</span></div>`;});
     h+=`</div>`;
@@ -815,10 +813,10 @@ function buildReview(st) {
     if(s.freesScored>0)h+=`<div class="rv-row"><span class="rv-rl">Scored by opp.</span><span class="rv-rv" style="color:${TEAM_OPP_COLOR};">${s.freesScored}</span></div>`;
   }
   if(discPlayers.length>0){
-    if(s.freesConc>0)h+=`<div style="border-top:1px solid var(--border);margin:10px 0 10px;"></div>`;
+    if(s.freesConc>0)h+=`<div style="border-top:1px solid var(--bm);margin:10px 0 10px;"></div>`;
     discPlayers.forEach(p=>{
       const fT=Object.values(p.fr).reduce((s,n)=>s+n,0);
-      h+=`<div style="padding:9px 0;border-bottom:1px solid var(--border);">`;
+      h+=`<div style="padding:9px 0;border-bottom:1px solid var(--bm);">`;
       h+=`<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">`;
       if(p.yc+p.bc+p.rc>0){
         const _syc=p.syc||0,_syY=p.yc-2*_syc;
@@ -841,10 +839,10 @@ function buildReview(st) {
   }
   const slCards=st.sidelineCards||[];
   if(slCards.length>0){
-    if(s.freesConc||discPlayers.length)h+=`<div style="border-top:1px solid var(--border);margin:10px 0;"></div>`;
+    if(s.freesConc||discPlayers.length)h+=`<div style="border-top:1px solid var(--bm);margin:10px 0;"></div>`;
     h+=`<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--t3);margin-bottom:8px;">Sideline</div>`;
     slCards.forEach(sc=>{
-      h+=`<div style="padding:5px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;">`;
+      h+=`<div style="padding:5px 0;border-bottom:1px solid var(--bm);display:flex;align-items:center;gap:6px;">`;
       if(sc.type!=='AdvFree'){
         const bg=sc.type==='Yellow'?CARD_YELLOW:CARD_RED;
         h+=`<span class="cc" style="background:${bg};${sc.type==='Yellow'?'border:.5px solid rgba(0,0,0,0.15);':''}"></span>`;
@@ -897,11 +895,11 @@ function buildReview(st) {
       oscRows.forEach(r=>{
         const total=r.goals*3+r.pts;
         const pct=Math.round(total/oscMax*100);
-        h+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid var(--border);">`;
+        h+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid var(--bm);">`;
         h+=`<div style="width:28px;height:28px;border-radius:50%;background:#6A1B9A22;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#6A1B9A;flex-shrink:0;">${r.num}</div>`;
         h+=`<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--t1);">${esc(r.label)}</div>`;
         h+=`<div style="font-size:11px;color:var(--t2);">${r.goals}-${r.pts} &nbsp;&middot;&nbsp; ${total} pt${total!==1?'s':''}</div></div>`;
-        h+=`<div style="width:60px;background:var(--border);border-radius:3px;overflow:hidden;height:6px;"><div style="background:#6A1B9A;width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
+        h+=`<div style="width:60px;background:var(--bm);border-radius:3px;overflow:hidden;height:6px;"><div style="background:#6A1B9A;width:${pct}%;height:100%;border-radius:3px;"></div></div>`;
         h+=`</div>`;
       });
       h+=`</div>`;
@@ -938,7 +936,7 @@ function buildReview(st) {
       h+=`</div>`;
     });
     const avg=(rated.reduce((s,d)=>s+(ta[d.key]||0),0)/rated.length).toFixed(1);
-    h+=`<div style="margin-top:8px;padding-top:10px;border-top:.5px solid var(--border);display:flex;align-items:baseline;gap:6px;">`;
+    h+=`<div style="margin-top:8px;padding-top:10px;border-top:.5px solid var(--bm);display:flex;align-items:baseline;gap:6px;">`;
     h+=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t2);">Overall</div>`;
     h+=`<div style="font-size:22px;font-weight:800;color:var(--green);">${avg}<span style="font-size:12px;color:var(--t2);">/5</span></div>`;
     h+=`<div style="font-size:11px;color:var(--t2);">(${rated.length} dimension${rated.length!==1?'s':''} rated)</div>`;
