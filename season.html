@@ -8,7 +8,8 @@
 <meta name="apple-mobile-web-app-title" content="Season Stats">
 <title>GAA Season Stats</title>
 <link rel="icon" href="favicon.png" type="image/png">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+<link rel="stylesheet" href="tokens.css">
+<script src="https://kit.fontawesome.com/c0eed6f428.js" crossorigin="anonymous" defer></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -19,10 +20,7 @@
   --blue: #1565C0;  --blue-l: #E3F2FD;
   --purple: #6A1B9A; --purple-l: #F3E5F5;
   --bg: #EEF0EA; --card: #FFFFFF;
-  --t1: #1A2E1A; --t2: #4A5A4A; --t3: #7A8A7A;
-  --border: #E0E3DC;
   --shadow: 0 2px 14px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
-  --r: 16px;
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--t1); min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
@@ -34,7 +32,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .lc-icon { font-size: 52px; margin-bottom: 20px; }
 .lc-title { font-size: 26px; font-weight: 700; color: var(--t1); margin-bottom: 10px; }
 .lc-sub { font-size: 14px; color: var(--t3); line-height: 1.6; margin-bottom: 32px; }
-.lc-drop { border: 2px dashed var(--border); border-radius: 16px; padding: 36px 24px; cursor: pointer; transition: border-color .2s, background .2s; position: relative; margin-bottom: 16px; }
+.lc-drop { border: 2px dashed var(--bm); border-radius: 16px; padding: 36px 24px; cursor: pointer; transition: border-color .2s, background .2s; position: relative; margin-bottom: 16px; }
 .lc-drop:hover, .lc-drop.drag-over { border-color: var(--green); background: var(--green-l); }
 .lc-drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
 .lc-drop-icon { font-size: 28px; color: var(--green); margin-bottom: 10px; }
@@ -94,15 +92,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 @media (max-width: 700px)  { .rv-g5,.rv-g4,.rv-g3,.rv-g2,.rv-g13 { grid-template-columns: 1fr; } }
 
 /* ── Cards ───────────────────────────────────────────────────────────────── */
-.rv-card { background: var(--card); border-radius: var(--r); padding: 24px; box-shadow: var(--shadow); }
+.rv-card { background: var(--card); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow); }
 .rv-ctitle { font-size: 10px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--t3); margin-bottom: 16px; }
 .rv-bignum { font-size: 48px; font-weight: 800; color: var(--green); line-height: 1; letter-spacing: -1.5px; }
 .rv-bigsub { font-size: 12px; color: var(--t3); margin-top: 6px; line-height: 1.4; }
-.rv-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.rv-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--bm); font-size: 14px; }
 .rv-row:last-child { border-bottom: none; }
 .rv-rl { color: var(--t2); }
 .rv-rv { font-weight: 600; }
-.rv-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin: 8px 0; }
+.rv-bar { height: 8px; background: var(--bm); border-radius: 4px; overflow: hidden; margin: 8px 0; }
 .rv-bar-fill { height: 100%; border-radius: 4px; }
 .rv-split { height: 12px; border-radius: 6px; overflow: hidden; display: flex; margin: 12px 0 6px; }
 .rv-split-g { background: var(--green); }
@@ -118,9 +116,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 /* ── Match log table ─────────────────────────────────────────────────────── */
 .ml-tbl { width: 100%; border-collapse: collapse; }
-.ml-tbl th { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); padding: 0 12px 10px 0; border-bottom: 1px solid var(--border); text-align: left; }
+.ml-tbl th { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); padding: 0 12px 10px 0; border-bottom: 1px solid var(--bm); text-align: left; }
 .ml-tbl th.r { text-align: right; }
-.ml-tbl td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
+.ml-tbl td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--bm); font-size: 14px; vertical-align: middle; }
 .ml-tbl tr:last-child td { border-bottom: none; }
 .ml-tbl td.r { text-align: right; font-weight: 600; }
 .res-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
@@ -131,12 +129,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 /* ── Player table ────────────────────────────────────────────────────────── */
 .sn-pt-wrap { overflow-x: auto; }
 .sn-pt { width: 100%; border-collapse: collapse; white-space: nowrap; }
-.sn-pt th { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); padding: 0 14px 12px 0; border-bottom: 2px solid var(--border); text-align: right; cursor: pointer; user-select: none; white-space: nowrap; }
+.sn-pt th { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); padding: 0 14px 12px 0; border-bottom: 2px solid var(--bm); text-align: right; cursor: pointer; user-select: none; white-space: nowrap; }
 .sn-pt th:first-child { text-align: left; }
 .sn-pt th.sorted { color: var(--green); }
 .sn-pt th .sort-icon { opacity: .4; margin-left: 3px; font-size: 9px; }
 .sn-pt th.sorted .sort-icon { opacity: 1; }
-.sn-pt td { padding: 10px 14px 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; text-align: right; vertical-align: middle; }
+.sn-pt td { padding: 10px 14px 10px 0; border-bottom: 1px solid var(--bm); font-size: 13px; text-align: right; vertical-align: middle; }
 .sn-pt tr:last-child td { border-bottom: none; }
 .sn-pt td:first-child { text-align: left; font-weight: 600; color: var(--t1); }
 .sn-pt td.dim { color: var(--t3); font-weight: 400; }
@@ -144,14 +142,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .sn-pt td.red   { color: var(--red); }
 .sn-pt td.amber { color: var(--amber); }
 .sn-pt .bar-cell { width: 80px; }
-.sn-pt .pt-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.sn-pt .pt-bar { height: 5px; background: var(--bm); border-radius: 3px; overflow: hidden; margin-top: 4px; }
 .sn-pt .pt-bar-fill { height: 100%; background: var(--green); border-radius: 3px; }
 .sn-pt .sub-badge { font-size: 10px; color: var(--t3); font-weight: 400; margin-left: 4px; }
 
 /* ── Section headings inside player view ────────────────────────────────── */
 .sn-sort-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
 .sn-sort-lbl { font-size: 12px; color: var(--t3); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
-.sn-sort-btn { padding: 5px 12px; border: 1.5px solid var(--border); border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; background: none; font-family: inherit; color: var(--t2); transition: background .1s, border-color .1s, color .1s; }
+.sn-sort-btn { padding: 5px 12px; border: 1.5px solid var(--bm); border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; background: none; font-family: inherit; color: var(--t2); transition: background .1s, border-color .1s, color .1s; }
 .sn-sort-btn.active { background: var(--green); border-color: var(--green); color: white; }
 
 /* ── Footer ──────────────────────────────────────────────────────────────── */
@@ -166,7 +164,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .pb-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding-top: 14px; }
 .pb-col { background: var(--bg); border-radius: 8px; padding: 10px 12px; }
 .pb-col-title { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--t3); margin-bottom: 8px; }
-.pb-stat { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; color: var(--t2); border-bottom: 1px solid var(--border); }
+.pb-stat { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; color: var(--t2); border-bottom: 1px solid var(--bm); }
 .pb-stat:last-of-type { border-bottom: none; }
 .pb-stat b { color: var(--t1); font-weight: 600; }
 .pb-conv { margin-top: 8px; font-size: 12px; font-weight: 700; color: var(--green); }
@@ -174,7 +172,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 /* ── Game view ── */
 .gv-list { display: flex; flex-direction: column; gap: 14px; }
-.gv-card { background: var(--card); border-radius: var(--r); padding: 20px 22px; box-shadow: var(--shadow); }
+.gv-card { background: var(--card); border-radius: var(--radius-lg); padding: 20px 22px; box-shadow: var(--shadow); }
 .gv-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .gv-date { font-size: 12px; color: var(--t3); font-weight: 500; }
 .gv-score-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
@@ -190,13 +188,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .gv-chip.amber { background: var(--amber-l); color: var(--amber); }
 .gv-chip.red   { background: var(--red-l);   color: var(--red); }
 .gv-chip.yellow { background: var(--yellow-l,#FFFDE7); color: var(--yellow-d,#A16207); }
-.gv-scorers { border-top: 1px solid var(--border); padding-top: 12px; }
+.gv-scorers { border-top: 1px solid var(--bm); padding-top: 12px; }
 .gv-scorers-title { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); margin-bottom: 8px; }
 .gv-scorer-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 4px 0; }
 .gv-scorer-name { color: var(--t1); font-weight: 500; }
 .gv-scorer-tally { color: var(--green); font-weight: 700; font-size: 13px; }
 .gv-no-scorers { font-size: 13px; color: var(--t3); }
-.gv-assess { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px; }
+.gv-assess { border-top: 1px solid var(--bm); padding-top: 12px; margin-top: 4px; }
 .gv-assess-title { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); margin-bottom: 10px; }
 .gv-assess-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px 12px; }
 .gv-assess-dim { display: flex; flex-direction: column; gap: 4px; }
@@ -229,7 +227,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .pd-stat-val.dim{color:var(--t3);}
 .pd-stat-lbl{font-size:11px;color:var(--t3);font-weight:500;}
 .pd-stat-sub{font-size:11px;color:var(--t3);margin-top:2px;}
-.pd-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.pd-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bm);font-size:13px;}
 .pd-row:last-child{border-bottom:none;}
 .pd-rl{color:var(--t2);}
 .pd-rv{font-weight:600;}
@@ -237,9 +235,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .pd-rv.red{color:var(--red);}
 .pd-rv.amber{color:var(--amber);}
 .pd-match-tbl{width:100%;border-collapse:collapse;font-size:12px;}
-.pd-match-tbl th{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);padding:0 8px 10px 0;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap;}
+.pd-match-tbl th{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);padding:0 8px 10px 0;border-bottom:1px solid var(--bm);text-align:right;white-space:nowrap;}
 .pd-match-tbl th:first-child,.pd-match-tbl th:nth-child(2){text-align:left;}
-.pd-match-tbl td{padding:8px 8px 8px 0;border-bottom:1px solid var(--border);text-align:right;vertical-align:middle;white-space:nowrap;}
+.pd-match-tbl td{padding:8px 8px 8px 0;border-bottom:1px solid var(--bm);text-align:right;vertical-align:middle;white-space:nowrap;}
 .pd-match-tbl tr:last-child td{border-bottom:none;}
 .pd-match-tbl td:first-child{text-align:left;color:var(--t3);}
 .pd-match-tbl td:nth-child(2){text-align:left;font-weight:500;color:var(--t1);}
@@ -248,7 +246,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 /* ── Column picker ───────────────────────────────────────────────────────── */
 .col-picker-wrap{position:relative;}
-.col-picker-btn{padding:5px 12px;border:1.5px solid var(--border);border-radius:999px;font-size:12px;font-weight:600;cursor:pointer;background:white;font-family:inherit;color:var(--t2);display:flex;align-items:center;gap:5px;transition:all .1s;}
+.col-picker-btn{padding:5px 12px;border:1.5px solid var(--bm);border-radius:999px;font-size:12px;font-weight:600;cursor:pointer;background:white;font-family:inherit;color:var(--t2);display:flex;align-items:center;gap:5px;transition:all .1s;}
 .col-picker-btn:hover,.col-picker-btn.open{background:var(--green);border-color:var(--green);color:white;}
 .col-picker{position:absolute;top:calc(100% + 6px);right:0;background:white;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.14),0 0 0 1px rgba(0,0,0,.06);padding:14px 16px;z-index:200;min-width:200px;display:none;}
 .col-picker.open{display:block;}
@@ -796,7 +794,7 @@ function buildTeamView(matches, players, totalUsG, totalUsP, totalUsT, totalOgT)
     h += `<div style="font-size:14px;color:var(--t3);padding:12px 0;">No turnover data recorded</div>`;
   }
   if (freesWon > 0) {
-    h += `<div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">`;
+    h += `<div style="border-top:1px solid var(--bm);margin-top:10px;padding-top:10px;">`;
     h += `<div class="rv-row"><span class="rv-rl">Frees Won</span><span class="rv-rv" style="color:var(--green);">${freesWon}</span></div>`;
     h += `<div class="rv-row"><span class="rv-rl">Per game</span><span class="rv-rv">${(freesWon/n).toFixed(1)}</span></div>`;
     h += `</div>`;
@@ -845,7 +843,7 @@ function buildTeamView(matches, players, totalUsG, totalUsP, totalUsT, totalOgT)
   h += `<div class="rv-row"><span class="rv-rl">Red</span><span class="rv-rv" style="color:var(--red);">${rc}</span></div>`;
   h += `<div class="rv-row"><span class="rv-rl">Frees conceded</span><span class="rv-rv">${frees}</span></div>`;
   if (slYC+slRC+slAdv > 0) {
-    h += `<div style="border-top:1px solid var(--border);margin:10px 0;"></div>`;
+    h += `<div style="border-top:1px solid var(--bm);margin:10px 0;"></div>`;
     h += `<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--t3);margin-bottom:6px;">Sideline</div>`;
     if (slYC > 0) h += `<div class="rv-row"><span class="rv-rl">Yellow cards</span><span class="rv-rv" style="color:var(--yellow-d);">${slYC}</span></div>`;
     if (slRC > 0) h += `<div class="rv-row"><span class="rv-rl">Red cards</span><span class="rv-rv" style="color:var(--red);">${slRC}</span></div>`;
@@ -990,7 +988,7 @@ function buildGameView(matches) {
           h += `<span class="gv-assess-label">${esc(d.label)}</span>`;
           h += `<div class="gv-assess-dots">`;
           for (let i = 1; i <= 5; i++) {
-            const bg = i <= val ? ASSESS_COLS[i - 1] : 'var(--border)';
+            const bg = i <= val ? ASSESS_COLS[i - 1] : 'var(--bm)';
             h += `<div class="gv-assess-dot" style="background:${bg};"></div>`;
           }
           h += `</div></div>`;
@@ -1277,7 +1275,7 @@ function buildPlayerDetail(p) {
   h += `</div>`;
 
   if (totalGoals > 0 || totalPts > 0) {
-    h += `<div style="height:1px;background:var(--border);margin:14px 0;"></div>`;
+    h += `<div style="height:1px;background:var(--bm);margin:14px 0;"></div>`;
     h += `<div class="pd-g2">`;
     h += `<div><div style="font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;">From Play</div>`;
     h += pdRow('Goals',  p.gPlay || '—',    p.gPlay  > 0 ? 'green' : '');
@@ -1291,7 +1289,7 @@ function buildPlayerDetail(p) {
   }
 
   if (convPct !== null || placedPct !== null) {
-    h += `<div style="height:1px;background:var(--border);margin:14px 0;"></div>`;
+    h += `<div style="height:1px;background:var(--bm);margin:14px 0;"></div>`;
     h += `<div class="pd-g2">`;
     if (convPct   !== null) h += pdStat(convPct   + '%', 'Conversion',       `${totalGoals + totalPts} scores / ${convAtts} atts`,   'green');
     if (placedPct !== null) h += pdStat(placedPct + '%', 'Placed Ball Eff.', `${placedScores} scores / ${placedAtts} atts`,           'green');
