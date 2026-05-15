@@ -154,14 +154,16 @@ function refBtn(s) {
   const showNum = hasName && state.showPlayerNumbers !== false;
   const wrap = document.createElement('span');
   wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:0;line-height:1;';
-  const iniSpan = document.createElement('span');
   if (showNum) {
-    iniSpan.textContent = pi;
-    iniSpan.style.cssText = 'font-size:14px;font-weight:700;';
-  } else {
-    iniSpan.textContent = ini;
-    iniSpan.style.fontSize = ini.length>=4?'10px':ini.length===3?'11px':ini.length===2?'12px':'14px';
+    const numSpan = document.createElement('span');
+    numSpan.textContent = pi;
+    numSpan.style.cssText = 'font-size:9px;font-weight:700;opacity:0.7;margin-bottom:1px;';
+    numSpan.style.color = TEAM_US_COLOR;
+    wrap.appendChild(numSpan);
   }
+  const iniSpan = document.createElement('span');
+  iniSpan.textContent = ini;
+  iniSpan.style.fontSize = ini.length>=4?'10px':ini.length===3?'11px':ini.length===2?'12px':'14px';
   iniSpan.style.color = TEAM_US_COLOR;
   wrap.appendChild(iniSpan);
   const {g, p: p_} = playerScore(pi);
