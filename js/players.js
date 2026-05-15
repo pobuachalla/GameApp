@@ -606,8 +606,11 @@ function cancelSwap() {
 
 function execSwap(slotA, slotB) {
   const piA = state.slotp[slotA], piB = state.slotp[slotB];
+  const prevCaptain = state.captain;
   state.slotp[slotA] = piB;
   state.slotp[slotB] = piA;
+  if (state.captain === slotA) state.captain = slotB;
+  else if (state.captain === slotB) state.captain = slotA;
   const desc = 'Pos swap: ' + pl(piA) + ' ↔ ' + pl(piB);
   addRow(fmt(state.secs), 'POS', 'bo', desc);
   const ev = state.evts[state.evts.length - 1];
@@ -615,6 +618,7 @@ function execSwap(slotA, slotB) {
   pushUndo(desc, () => {
     state.slotp[slotA] = piA;
     state.slotp[slotB] = piB;
+    state.captain = prevCaptain;
     refBtn(slotA); refBtn(slotB);
   });
   refBtn(slotA); refBtn(slotB);
