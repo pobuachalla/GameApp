@@ -85,48 +85,59 @@ function _scoreOutcome(label, u, o) {
   return label === 'FT' ? 'Draw' : 'Level';
 }
 
-function _crestEl(src, name) {
-  const initials = (name || '').split(/[\s/-]+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
-  const fbStyle = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;'
-    + 'font-size:18px;font-weight:700;color:#BBBBB4;font-family:Arial,sans-serif;';
-  const wrap = 'position:relative;width:60px;height:60px;flex-shrink:0;';
-  if (!src) return `<div style="${wrap}"><div style="${fbStyle}">${esc(initials)}</div></div>`;
-  return `<div style="${wrap}"><div style="${fbStyle}">${esc(initials)}</div>`
-    + `<img src="${esc(src)}" alt="${esc(name)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;" onerror="this.style.display='none'"></div>`;
+// ─── SVG SCORE GRAPHIC ───────────────────────────────────────────────────────
+
+let _sgShareText = '';
+
+async function _fetchCrestB64(name) {
+  const src = _teamCrest(name || '');
+  if (!src) return null;
+  try {
+    const r = await fetch(src, { cache: 'force-cache' });
+    if (!r.ok) return null;
+    const blob = await r.blob();
+    return await new Promise(res => {
+      const rd = new FileReader();
+      rd.onload  = () => res(rd.result);
+      rd.onerror = () => res(null);
+      rd.readAsDataURL(blob);
+    });
+  } catch { return null; }
 }
 
-// Pair variant for amalgam clubs — two crests stacked inside the same 60×60 container.
-function _crestElPair(src1, src2, name) {
-  const initials = (name || '').split(/[\s/-]+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
-  const fbStyle = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;'
-    + 'font-size:18px;font-weight:700;color:#BBBBB4;font-family:Arial,sans-serif;';
-  const wrap = 'position:relative;width:60px;height:60px;flex-shrink:0;';
-  const n = esc(name);
-  return `<div style="${wrap}"><div style="${fbStyle}">${esc(initials)}</div>`
-    + `<img src="${esc(src1)}" alt="${n}" style="position:absolute;top:0;left:0;width:38px;height:38px;object-fit:contain;" onerror="this.style.display='none'">`
-    + `<img src="${esc(src2)}" alt="${n}" style="position:absolute;bottom:0;right:0;width:42px;height:42px;object-fit:contain;" onerror="this.style.display='none'">`
-    + '</div>';
+function _svgCrestEl(cx, cy, r, initials, b64, clipId) {
+  let out = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#EEEEEA"/>`;
+  if (b64) {
+    out += `<clipPath id="${clipId}"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath>`;
+    out += `<image href="${b64}" x="${cx-r}" y="${cy-r}" width="${r*2}" height="${r*2}" clip-path="url(#${clipId})" preserveAspectRatio="xMidYMid meet"/>`;
+  } else {
+    const fs = initials.length > 2 ? 13 : 16;
+    out += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="${fs}" font-weight="700" fill="#9A9E99" font-family="Arial,Helvetica,sans-serif">${esc(initials)}</text>`;
+  }
+  return out;
 }
 
-function _teamCrestEl(name) {
-  const pair = name ? findAmalgamPair(name) : null;
-  if (pair) return _crestElPair(pair[0].crest, pair[1].crest, name);
-  return _crestEl(_teamCrest(name || '') || null, name || '');
-}
-
-function _htmlNameFS(name) {
+function _svgNameSize(name) {
   const l = (name || '').length;
-  if (l <= 8)  return '16px';
-  if (l <= 13) return '13px';
-  return '11px';
+  return l <= 8 ? 16 : l <= 14 ? 13 : 11;
 }
 
-function _buildScoreGraphicHTML(label) {
-  const isHT = label === 'HT';
-  const isFT = label === 'FT';
-  const isTime = !isHT && !isFT;
+function _wrapScorerLines(text, maxChars) {
+  const parts = text.split(' · ');
+  const lines = [];
+  let cur = '';
+  for (const p of parts) {
+    if (!cur) { cur = p; }
+    else if (cur.length + 3 + p.length <= maxChars) { cur += ' · ' + p; }
+    else { lines.push(cur); cur = p; }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
 
-  // Use score snapshots for HT/FT so second-half scoring doesn't bleed in
+async function _buildScoreGraphicSVG(label) {
+  const isHT = label === 'HT', isFT = label === 'FT';
+
   let g, p, og, op;
   if (isHT) {
     g = state.htGoals ?? state.goals; p  = state.htPts ?? state.pts;
@@ -137,65 +148,211 @@ function _buildScoreGraphicHTML(label) {
   } else {
     g = state.goals; p = state.pts; og = state.og; op = state.op_;
   }
-  const usT = g * 3 + p, oppT = og * 3 + op;
+  const usT = g*3+p, oppT = og*3+op;
   const usFmt  = g  + '–' + pad(p);
   const oppFmt = og + '–' + pad(op);
   const outcome    = _scoreOutcome(label, usT, oppT);
   const scorerLine = _scorerGraphicLine(isHT ? _firstHalfEvts() : state.evts);
+  const dateStr    = matchDisplayDate().toLocaleDateString('en-IE', {
+    weekday:'long', day:'numeric', month:'long', year:'numeric'
+  }).toUpperCase();
 
-  const dateStr  = matchDisplayDate().toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
-  const compHtml = state.competition
-    ? `<div style="font-size:13px;font-weight:700;color:#1F5B3A;margin-bottom:3px;">${esc(state.competition)}</div>` : '';
-  const venueHtml = state.location
-    ? `<div style="font-size:13px;color:#888;margin-top:2px;">${esc(state.location)}</div>` : '';
+  const [usB64, oppB64] = await Promise.all([
+    _fetchCrestB64(state.usN),
+    _fetchCrestB64(state.oppN),
+  ]);
 
-  const teamCol = (name, scoreFmt, total) =>
-    `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;">`
-    + _teamCrestEl(name)
-    + `<div style="font-size:${_htmlNameFS(name)};font-weight:800;color:#1F2A24;text-align:center;`
-    + `letter-spacing:0.5px;text-transform:uppercase;line-height:1.2;word-break:break-word;">${esc(name || '')}</div>`
-    + `<div style="font-size:40px;font-weight:900;color:#111;line-height:1;">${scoreFmt}</div>`
-    + `<div style="font-size:15px;font-weight:600;color:#8B8B84;">(${total})</div></div>`;
+  const usIni  = ((state.usN  || '').split(/[\s\/-]+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase()) || '?';
+  const oppIni = ((state.oppN || '').split(/[\s\/-]+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase()) || '?';
 
-  const labelFS = isTime ? (label.length > 3 ? '20px' : '24px') : '28px';
-  let periodHtml = `<div style="font-size:${labelFS};font-weight:800;color:#3E4A42;line-height:1;">${esc(label)}</div>`;
-  if (isHT) {
-    periodHtml += `<div style="font-size:8px;letter-spacing:2px;color:#AAA;text-transform:uppercase;">HALF</div>`
-      + `<div style="font-size:8px;letter-spacing:2px;color:#AAA;text-transform:uppercase;">TIME</div>`;
-  } else if (isFT) {
-    periodHtml += `<div style="font-size:8px;letter-spacing:2px;color:#AAA;text-transform:uppercase;">FULL</div>`
-      + `<div style="font-size:8px;letter-spacing:2px;color:#AAA;text-transform:uppercase;">TIME</div>`;
-  } else {
-    periodHtml += `<div style="font-size:8px;letter-spacing:2px;color:#AAA;text-transform:uppercase;">MINS</div>`;
+  const W = 500, PAD = 24;
+  const CX_L = 125, CX_R = 375, CX_M = 250;
+  const F = 'Arial,Helvetica,sans-serif';
+  const GREEN = '#1F5B3A';
+
+  // ── Compute Y positions top-to-bottom
+  let y = 22;
+  const hdrLines = [];
+  if (state.competition) {
+    hdrLines.push({ text: state.competition, size: 14, weight: 700, fill: GREEN });
+    y += 22;
+  }
+  hdrLines.push({ text: dateStr, size: 10, weight: 700, fill: '#AAAAAA' });
+  y += 18;
+  if (state.location) {
+    hdrLines.push({ text: state.location, size: 12, weight: 400, fill: '#888888' });
+    y += 18;
+  }
+  y += 10;
+  const DIV1_Y = y;  y += 20;
+
+  const CR = 28;
+  const CREST_CY = y + CR;  y = CREST_CY + CR + 14;
+  const NAME_Y  = y + 14;   y = NAME_Y + 8;
+  const SCORE_Y = y + 40;   y = SCORE_Y + 8;
+  const TOTAL_Y = y + 18;   y = TOTAL_Y + 20;
+
+  const DIV2_Y = y;  y += 14;
+  const OPY = y, OPH = 40;
+  y += OPH + 14;
+
+  const scorerLinesArr = scorerLine ? _wrapScorerLines(scorerLine, 56) : [];
+  let DIV3_Y = -1, SCR_HDR_Y = -1, SCR_START_Y = -1;
+  if (scorerLinesArr.length) {
+    DIV3_Y     = y;              y += 16;
+    SCR_HDR_Y  = y + 11;        y += 22;
+    SCR_START_Y = y + 14;
+    y = SCR_START_Y + scorerLinesArr.length * 22 + 8;
   }
 
-  const scorersHtml = scorerLine
-    ? `<div style="border-top:1px solid #EBEBEB;padding-top:10px;margin-top:2px;">`
-      + `<div style="font-size:10px;font-weight:800;letter-spacing:2px;color:#1F2A24;text-transform:uppercase;margin-bottom:5px;">Scorers</div>`
-      + `<div style="font-size:14px;color:#333;line-height:1.5;">${scorerLine}</div></div>`
-    : '';
+  const BAR_Y = y + 10;
+  const H = BAR_Y + 8;
+  const PERIOD_CY = Math.round((CREST_CY + TOTAL_Y) / 2);
 
-  return `<div style="background:#fff;border-radius:20px;padding:20px;box-shadow:0 2px 24px rgba(0,0,0,0.10);overflow:hidden;">`
-    + `<div style="text-align:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #EBEBEB;">`
-    + compHtml
-    + `<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#AAA;text-transform:uppercase;">${dateStr}</div>`
-    + venueHtml + `</div>`
-    + `<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;">`
-    + teamCol(state.usN, usFmt, usT)
-    + `<div style="flex-shrink:0;width:52px;display:flex;flex-direction:column;align-items:center;gap:2px;padding-top:16px;">`
-    + periodHtml + `</div>`
-    + teamCol(state.oppN, oppFmt, oppT)
-    + `</div>`
-    + `<div style="background:#F3F3EF;border-radius:14px;padding:10px 14px;text-align:center;margin-bottom:${scorerLine ? '12px' : '0'};">`
-    + `<div style="font-size:14px;font-weight:700;color:#333;overflow-wrap:break-word;">${outcome}</div></div>`
-    + scorersHtml
-    + `<div style="margin:14px -20px -20px;height:8px;background:#1F5B3A;"></div></div>`;
+  // ── Build SVG
+  let s = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<defs><clipPath id="sgcc"><rect width="${W}" height="${H}" rx="20"/></clipPath></defs>`;
+  s += `<g clip-path="url(#sgcc)">`;
+  s += `<rect width="${W}" height="${H}" fill="#FFFFFF"/>`;
+
+  // Header
+  let hy = 22;
+  for (const ln of hdrLines) {
+    hy += ln.size + 6;
+    s += `<text x="${CX_M}" y="${hy}" text-anchor="middle" font-size="${ln.size}" font-weight="${ln.weight}" fill="${ln.fill}" font-family="${F}">${esc(ln.text)}</text>`;
+  }
+  s += `<line x1="${PAD}" y1="${DIV1_Y}" x2="${W-PAD}" y2="${DIV1_Y}" stroke="#EBEBEB" stroke-width="1"/>`;
+
+  // Crests
+  s += _svgCrestEl(CX_L, CREST_CY, CR, usIni,  usB64,  'sgcl');
+  s += _svgCrestEl(CX_R, CREST_CY, CR, oppIni, oppB64, 'sgcr');
+
+  // Team names
+  s += `<text x="${CX_L}" y="${NAME_Y}" text-anchor="middle" font-size="${_svgNameSize(state.usN)}"  font-weight="800" fill="#1F2A24" font-family="${F}">${esc(state.usN  || '')}</text>`;
+  s += `<text x="${CX_R}" y="${NAME_Y}" text-anchor="middle" font-size="${_svgNameSize(state.oppN)}" font-weight="800" fill="#1F2A24" font-family="${F}">${esc(state.oppN || '')}</text>`;
+
+  // Scores
+  s += `<text x="${CX_L}" y="${SCORE_Y}" text-anchor="middle" font-size="38" font-weight="900" fill="#111111" font-family="${F}">${esc(usFmt)}</text>`;
+  s += `<text x="${CX_R}" y="${SCORE_Y}" text-anchor="middle" font-size="38" font-weight="900" fill="#111111" font-family="${F}">${esc(oppFmt)}</text>`;
+  s += `<text x="${CX_L}" y="${TOTAL_Y}" text-anchor="middle" font-size="14" font-weight="600" fill="#8B8B84" font-family="${F}">(${usT})</text>`;
+  s += `<text x="${CX_R}" y="${TOTAL_Y}" text-anchor="middle" font-size="14" font-weight="600" fill="#8B8B84" font-family="${F}">(${oppT})</text>`;
+
+  // Period label
+  if (isHT || isFT) {
+    s += `<text x="${CX_M}" y="${PERIOD_CY}" text-anchor="middle" dominant-baseline="central" font-size="26" font-weight="800" fill="#3E4A42" font-family="${F}">${isHT?'HT':'FT'}</text>`;
+    s += `<text x="${CX_M}" y="${PERIOD_CY+24}" text-anchor="middle" font-size="8" font-weight="700" fill="#AAAAAA" letter-spacing="2" font-family="${F}">${isHT?'HALF':'FULL'}</text>`;
+    s += `<text x="${CX_M}" y="${PERIOD_CY+35}" text-anchor="middle" font-size="8" font-weight="700" fill="#AAAAAA" letter-spacing="2" font-family="${F}">TIME</text>`;
+  } else {
+    const tFS = label.length > 3 ? 18 : 22;
+    s += `<text x="${CX_M}" y="${PERIOD_CY-6}" text-anchor="middle" font-size="${tFS}" font-weight="800" fill="#3E4A42" font-family="${F}">${esc(label)}</text>`;
+    s += `<text x="${CX_M}" y="${PERIOD_CY+14}" text-anchor="middle" font-size="8" font-weight="700" fill="#AAAAAA" letter-spacing="2" font-family="${F}">MINS</text>`;
+  }
+
+  // Divider + outcome
+  s += `<line x1="${PAD}" y1="${DIV2_Y}" x2="${W-PAD}" y2="${DIV2_Y}" stroke="#EBEBEB" stroke-width="1"/>`;
+  s += `<rect x="${PAD}" y="${OPY}" width="${W-PAD*2}" height="${OPH}" rx="12" fill="#F3F3EF"/>`;
+  s += `<text x="${CX_M}" y="${OPY+OPH/2}" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700" fill="#333333" font-family="${F}">${esc(outcome)}</text>`;
+
+  // Scorers
+  if (scorerLinesArr.length) {
+    s += `<line x1="${PAD}" y1="${DIV3_Y}" x2="${W-PAD}" y2="${DIV3_Y}" stroke="#EBEBEB" stroke-width="1"/>`;
+    s += `<text x="${CX_M}" y="${SCR_HDR_Y}" text-anchor="middle" font-size="10" font-weight="700" fill="#1F2A24" letter-spacing="2" font-family="${F}">SCORERS</text>`;
+    scorerLinesArr.forEach((ln, i) => {
+      s += `<text x="${CX_M}" y="${SCR_START_Y + i*22}" text-anchor="middle" font-size="13" fill="#444444" font-family="${F}">${esc(ln)}</text>`;
+    });
+  }
+
+  // Bottom accent bar
+  s += `<rect x="0" y="${BAR_Y}" width="${W}" height="${H-BAR_Y}" fill="${GREEN}"/>`;
+  s += `</g></svg>`;
+  return s;
 }
 
-function showScoreGraphic(label) {
-  // eslint-disable-next-line no-restricted-syntax -- safe: all user values through esc() inside builder
-  document.getElementById('score-graphic-wrap').innerHTML = _buildScoreGraphicHTML(label);
+function _svgToPNGBlob(svgString, w, h) {
+  return new Promise((resolve, reject) => {
+    const scale = 2;
+    const canvas = document.createElement('canvas');
+    canvas.width  = w * scale;
+    canvas.height = h * scale;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(scale, scale);
+    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const img  = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('toBlob failed')), 'image/png');
+    };
+    img.onerror = e => { URL.revokeObjectURL(url); reject(e); };
+    img.src = url;
+  });
+}
+
+function _buildShareBtns() {
+  const base = 'border:none;border-radius:999px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px;touch-action:manipulation;white-space:nowrap;';
+  let h = `<div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;justify-content:center;padding-bottom:4px;">`;
+  h += `<button style="${base}background:#1F5B3A;color:#fff;" onclick="_scoreGraphicShare('native')"><i class="fas fa-share-nodes"></i> Share</button>`;
+  h += `<button style="${base}background:#25D366;color:#fff;" onclick="_scoreGraphicShare('whatsapp')"><i class="fab fa-whatsapp"></i> WhatsApp</button>`;
+  h += `<button style="${base}background:#000;color:#fff;" onclick="_scoreGraphicShare('twitter')"><i class="fab fa-x-twitter"></i> X</button>`;
+  h += `<button style="${base}background:#E8F0FE;color:#1A73E8;" onclick="_scoreGraphicShare('download')"><i class="fas fa-download"></i> Save</button>`;
+  h += `</div>`;
+  return h;
+}
+
+async function _scoreGraphicShare(type) {
+  if (type === 'whatsapp') {
+    window.open('https://wa.me/?text=' + encodeURIComponent(_sgShareText), '_blank');
+    return;
+  }
+  if (type === 'twitter') {
+    window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(_sgShareText), '_blank');
+    return;
+  }
+  const svg = document.querySelector('#score-graphic-wrap svg');
+  if (!svg) return;
+  const W = parseInt(svg.getAttribute('width'));
+  const H = parseInt(svg.getAttribute('height'));
+  let pngBlob;
+  try {
+    pngBlob = await _svgToPNGBlob(new XMLSerializer().serializeToString(svg), W, H);
+  } catch { toast('Could not generate image'); return; }
+  const fname = 'score-card.png';
+  const file  = new File([pngBlob], fname, { type: 'image/png' });
+  if (type === 'native' && navigator.share && navigator.canShare?.({ files: [file] })) {
+    navigator.share({ files: [file], title: fname }).catch(() => {});
+    return;
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(pngBlob);
+  a.download = fname;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+}
+
+async function showScoreGraphic(label) {
+  const wrap = document.getElementById('score-graphic-wrap');
   document.getElementById('score-graphic-panel').classList.add('open');
+  wrap.innerHTML = `<div style="text-align:center;padding:48px 20px;color:#9A9E99;font-size:14px;font-family:inherit;">Building graphic…</div>`;
+
+  const isHT = label === 'HT', isFT = label === 'FT';
+  let g, p, og, op;
+  if (isHT) {
+    g = state.htGoals ?? state.goals; p  = state.htPts ?? state.pts;
+    og = state.htOg   ?? state.og;    op = state.htOp  ?? state.op_;
+  } else if (isFT) {
+    g = state.ftGoals ?? state.goals; p  = state.ftPts ?? state.pts;
+    og = state.ftOg   ?? state.og;    op = state.ftOp  ?? state.op_;
+  } else {
+    g = state.goals; p = state.pts; og = state.og; op = state.op_;
+  }
+  const usT = g*3+p, oppT = og*3+op;
+  const labelTxt = isHT ? 'Half Time' : isFT ? 'Full Time' : label;
+  _sgShareText = (state.competition ? state.competition + ' | ' : '')
+    + `${state.usN||'Us'} ${g}-${pad(p)} (${usT}) v ${state.oppN||'Opposition'} ${og}-${pad(op)} (${oppT}) — ${labelTxt}`;
+
+  const svgStr = await _buildScoreGraphicSVG(label);
+  wrap.innerHTML = svgStr + _buildShareBtns();
 }
 
 function closeScoreGraphic() {
