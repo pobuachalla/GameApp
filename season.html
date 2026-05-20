@@ -175,14 +175,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .gv-card { background: var(--card); border-radius: var(--radius-lg); padding: 20px 22px; box-shadow: var(--shadow); }
 .gv-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .gv-date { font-size: 12px; color: var(--t3); font-weight: 500; }
-.gv-score-block { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
-.gv-score-team { display: flex; align-items: center; gap: 10px; }
-.gv-team-name { font-size: 13px; font-weight: 700; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.gv-score-team.us .gv-team-name { color: var(--green); }
-.gv-score-team.opp .gv-team-name { color: var(--t2); }
-.gv-team-score { font-size: 20px; font-weight: 800; color: var(--t1); letter-spacing: -0.5px; white-space: nowrap; line-height: 1; }
-.gv-team-score small { font-size: 12px; font-weight: 500; color: var(--t3); margin-left: 3px; }
-.gv-score-divider { height: 0.5px; background: var(--bm); margin: 2px 0; }
+.gv-score-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.gv-score-us { font-size: 26px; font-weight: 800; color: var(--t1); letter-spacing: -0.5px; line-height: 1; }
+.gv-score-us small { font-size: 14px; font-weight: 500; color: var(--t3); margin-left: 4px; }
+.gv-score-sep { font-size: 13px; color: var(--t3); font-weight: 600; flex: 1; text-align: center; }
+.gv-score-opp { text-align: right; }
+.gv-opp-name { font-size: 15px; font-weight: 700; color: var(--t1); }
+.gv-opp-score { font-size: 13px; color: var(--t3); margin-top: 2px; }
 .gv-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
 .gv-chip { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--bg); color: var(--t2); }
 .gv-chip.green { background: var(--green-l); color: var(--green-d,var(--green)); }
@@ -926,16 +925,13 @@ function buildGameView(matches) {
     h += `<span class="res-pill res-${m.result}">${m.result}${margin !== 0 ? ' · ' + (margin > 0 ? '+' : '') + margin : ''}</span>`;
     h += `</div>`;
 
-    // Score block
-    h += `<div class="gv-score-block">`;
-    h += `<div class="gv-score-team us">`;
-    h += `<span class="gv-team-name">${esc(m.name)}</span>`;
-    h += `<span class="gv-team-score">${m.usG}-${m.usP}<small> (${m.usT})</small></span>`;
-    h += `</div>`;
-    h += `<div class="gv-score-divider"></div>`;
-    h += `<div class="gv-score-team opp">`;
-    h += `<span class="gv-team-name">${esc(m.opp)}</span>`;
-    h += `<span class="gv-team-score">${m.ogG}-${m.ogP}<small> (${m.ogT})</small></span>`;
+    // Score row
+    h += `<div class="gv-score-row">`;
+    h += `<div class="gv-score-us">${m.usG}-${m.usP} <small>(${m.usT})</small></div>`;
+    h += `<div class="gv-score-sep">vs</div>`;
+    h += `<div class="gv-score-opp">`;
+    h += `<div class="gv-opp-name">${esc(m.opp)}</div>`;
+    h += `<div class="gv-opp-score">${m.ogG}-${m.ogP} (${m.ogT})</div>`;
     h += `</div>`;
     h += `</div>`;
 
