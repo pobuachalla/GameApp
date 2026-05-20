@@ -1278,7 +1278,7 @@ function buildPlayerShotMap(p) {
       return `<button class="sn-sort-btn${active}" onclick="setPdShotFilter(decodeURIComponent('${safeVal}'))">${esc(label)}</button>`;
     };
     h += chip('all', 'All games');
-    matchList.forEach(([key, m]) => h += chip(key, m.date || m.opp));
+    matchList.forEach(([key, m]) => h += chip(key, m.opp || m.date));
     h += '</div>';
   }
 
