@@ -305,10 +305,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 </div>
 
 <script src="js/constants.js"></script>
+<script src="js/pitch-svg.js"></script>
+<script src="js/game-utils.js"></script>
 <script>
 'use strict';
 
-// PLACED_BALL from constants.js
+// PLACED_BALL, TEAM_US_COLOR, TEAM_OPP_COLOR, ZPX/ZPY/ZPW/ZPH from constants.js
+// PITCH_SVG_INNER from pitch-svg.js; computeShotDots/shotJitter from game-utils.js
+
+const SHOT_ACTIONS = new Set(['Goal','Point','2 Point','Wide','Short','Saved']);
 
 // ── Column definitions (player table) ────────────────────────────────────────
 const COL_DEFS = [
@@ -328,7 +333,8 @@ const DEFAULT_COLS = Object.fromEntries(COL_DEFS.map(c => [c.key, true]));
 
 // ── App state ────────────────────────────────────────────────────────────────
 let S = { files: [], parsed: [], sortKey: 'totalScore', sortDesc: true, view: 'team',
-          cols: { ...DEFAULT_COLS }, colPickerOpen: false, pbOpen: false };
+          cols: { ...DEFAULT_COLS }, colPickerOpen: false, pbOpen: false,
+          pdShotFilter: 'all', pdCurrentPlayer: null };
 
 // ── Utils ────────────────────────────────────────────────────────────────────
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -519,6 +525,10 @@ function aggregateAll(parsed) {
       else if (ev.action === 'Turnover Won') { p.twon++; ms.twon++; }
       else if (ev.action === 'Turnover Lost'){ p.tlost++; ms.tlost++; }
       else if (ev.action === 'Free Won')     { p.freesWon++; ms.freesWon++; }
+      if (ev.zone && SHOT_ACTIONS.has(ev.action)) {
+        p.shots.push({ action: ev.action, zone: ev.zone, placed, sec: ev.sec||null, pi,
+                       matchDate: st.matchDate||'', opp: st.oppN||'Opposition' });
+      }
     });
 
     // games played / play time — also finalise per-match records
@@ -568,7 +578,7 @@ function blankPlayer(name) {
            yc:0, syc:0, bc:0, rc:0, totalScore:0, wides:0,
            pbFree: blankPbType(), pb6545: blankPbType(),
            pbPen:  blankPbType(), pbSide: blankPbType(),
-           matchLog:[] };
+           matchLog:[], shots:[] };
 }
 
 function blankMatchStat(date, opp, result) {
@@ -1217,6 +1227,8 @@ function addMoreFiles(fileList) {
 function openPlayerDetail(key) {
   const p = S.agg.players.find(x => norm(x.name) === key);
   if (!p) return;
+  S.pdShotFilter = 'all';
+  S.pdCurrentPlayer = p;
   document.getElementById('pd-content').innerHTML = buildPlayerDetail(p);
   document.getElementById('pd-overlay').classList.add('open');
   document.getElementById('pd-panel').scrollTop = 0;
@@ -1224,6 +1236,83 @@ function openPlayerDetail(key) {
 
 function closePlayerDetail() {
   document.getElementById('pd-overlay').classList.remove('open');
+}
+
+function setPdShotFilter(val) {
+  S.pdShotFilter = val;
+  if (!S.pdCurrentPlayer) return;
+  document.getElementById('pd-content').innerHTML = buildPlayerDetail(S.pdCurrentPlayer);
+}
+
+function buildPlayerShotMap(p) {
+  if (!p.shots || p.shots.length === 0) return '';
+
+  // Group shots by match, sorted chronologically
+  const keyOf = s => s.matchDate || ('opp:' + s.opp);
+  const seenKeys = new Map();
+  p.shots.forEach(s => {
+    const k = keyOf(s);
+    if (!seenKeys.has(k)) seenKeys.set(k, { date: s.matchDate, opp: s.opp });
+  });
+  const matchList = [...seenKeys.entries()].sort((a, b) => (a[1].date||'').localeCompare(b[1].date||''));
+  // matchList = [[key, {date, opp}], ...]
+
+  if (S.pdShotFilter !== 'all' && !seenKeys.has(S.pdShotFilter)) S.pdShotFilter = 'all';
+
+  const filteredShots = S.pdShotFilter === 'all'
+    ? p.shots
+    : p.shots.filter(s => keyOf(s) === S.pdShotFilter);
+
+  const ini = p.name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 3);
+  const { dots, thirds } = computeShotDots(filteredShots, () => ini);
+  const svg = `<svg viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:8px;display:block;" preserveAspectRatio="xMidYMid meet">${PITCH_SVG_INNER}${dots}</svg>`;
+
+  let h = '<div class="pd-card">';
+  h += '<div class="pd-ctitle"><i class="fas fa-crosshairs"></i> Shot Map</div>';
+
+  if (matchList.length > 1) {
+    h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">';
+    const chip = (val, label) => {
+      const active = S.pdShotFilter === val ? ' active' : '';
+      const safeVal = encodeURIComponent(val);
+      return `<button class="sn-sort-btn${active}" onclick="setPdShotFilter(decodeURIComponent('${safeVal}'))">${esc(label)}</button>`;
+    };
+    h += chip('all', 'All games');
+    matchList.forEach(([key, m]) => h += chip(key, m.date || m.opp));
+    h += '</div>';
+  }
+
+  if (filteredShots.length === 0) {
+    h += '<div style="font-size:13px;color:var(--t3);padding:8px 0;">No shot location data for this game</div>';
+    h += '</div>';
+    return h;
+  }
+
+  h += `<div style="border-radius:8px;overflow:hidden;margin-bottom:10px;">${svg}</div>`;
+
+  h += '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:11px;color:var(--t2);align-items:center;">';
+  h += `<span style="display:flex;align-items:center;gap:3px;"><svg width="10" height="10"><circle cx="5" cy="5" r="4" fill="${TEAM_US_COLOR}" opacity=".82"/></svg> Score</span>`;
+  h += `<span style="display:flex;align-items:center;gap:3px;"><svg width="10" height="10"><circle cx="5" cy="5" r="4" fill="${TEAM_OPP_COLOR}" opacity=".82"/></svg> Wide</span>`;
+  h += `<span style="display:flex;align-items:center;gap:3px;"><svg width="10" height="10"><circle cx="5" cy="5" r="4" fill="#9E9E9E" opacity=".82"/></svg> Short</span>`;
+  h += `<span style="display:flex;align-items:center;gap:3px;"><svg width="10" height="10"><circle cx="5" cy="5" r="4" fill="#F97316" opacity=".82"/></svg> Saved</span>`;
+  h += `<span style="display:flex;align-items:center;gap:3px;"><svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="${TEAM_US_COLOR}" opacity=".82" stroke="white" stroke-width="1.5"/></svg> Goal</span>`;
+  h += `<span style="display:flex;align-items:center;gap:3px;"><svg width="16" height="16"><circle cx="8" cy="8" r="7" fill="none" stroke="${TEAM_US_COLOR}" stroke-width="1.5" opacity=".7"/><circle cx="8" cy="8" r="4" fill="${TEAM_US_COLOR}" opacity=".82" stroke="white" stroke-width="1"/></svg> Placed</span>`;
+  h += '</div>';
+
+  const thirdRows = [['Attacking third', thirds.att], ['Middle third', thirds.mid], ['Defensive third', thirds.def]];
+  if (thirdRows.some(([, d]) => d.shots > 0)) {
+    h += '<table style="width:100%;font-size:12px;border-collapse:collapse;">';
+    h += '<tr><th style="text-align:left;padding:4px 0;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);">Zone</th><th style="text-align:center;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);">Shots</th><th style="text-align:center;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);">Scores</th><th style="text-align:center;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);">Conv%</th></tr>';
+    thirdRows.forEach(([label, d]) => {
+      if (d.shots === 0) return;
+      const conv = Math.round(d.scores / d.shots * 100) + '%';
+      h += `<tr><td style="padding:3px 0;color:var(--t2);">${label}</td><td style="text-align:center;">${d.shots}</td><td style="text-align:center;">${d.scores}</td><td style="text-align:center;font-weight:600;color:var(--green);">${conv}</td></tr>`;
+    });
+    h += '</table>';
+  }
+
+  h += '</div>';
+  return h;
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closePlayerDetail(); });
@@ -1296,6 +1385,8 @@ function buildPlayerDetail(p) {
     h += `</div>`;
   }
   h += `</div>`;
+
+  h += buildPlayerShotMap(p);
 
   // ── Turnovers & Discipline
   const hasTurnovers  = p.twon + p.tlost > 0;
