@@ -301,6 +301,10 @@ function _buildShareBtns() {
 }
 
 async function _scoreGraphicShare(type) {
+  if (type === 'whatsapp') {
+    window.open('https://wa.me/?text=' + encodeURIComponent(_sgShareText), '_blank');
+    return;
+  }
   if (type === 'twitter') {
     window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(_sgShareText), '_blank');
     return;
@@ -315,34 +319,15 @@ async function _scoreGraphicShare(type) {
   } catch { toast('Could not generate image'); return; }
   const fname = 'score-card.png';
   const file  = new File([pngBlob], fname, { type: 'image/png' });
-
-  if (type === 'download') {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(pngBlob);
-    a.download = fname;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-    return;
-  }
-
-  // 'native' and 'whatsapp' both use the system share sheet to deliver the PNG.
-  // On mobile the sheet includes WhatsApp, Instagram, Messages etc.
-  if (navigator.share && navigator.canShare?.({ files: [file] })) {
+  if (type === 'native' && navigator.share && navigator.canShare?.({ files: [file] })) {
     navigator.share({ files: [file], title: fname }).catch(() => {});
     return;
   }
-
-  // Fallback when Web Share API is unavailable:
-  // whatsapp → text link; native → download
-  if (type === 'whatsapp') {
-    window.open('https://wa.me/?text=' + encodeURIComponent(_sgShareText), '_blank');
-  } else {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(pngBlob);
-    a.download = fname;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(pngBlob);
+  a.download = fname;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
 }
 
 async function showScoreGraphic(label) {
