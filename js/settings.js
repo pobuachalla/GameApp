@@ -431,7 +431,7 @@ try {
 } catch {}
 
 function _gradeFromBirthYear(birthYear) {
-  return 'U' + (new Date().getFullYear() - birthYear + 1);
+  return 'U' + (new Date().getFullYear() - birthYear);
 }
 
 function _rosterSuggestions(q) {
