@@ -433,20 +433,21 @@ try {
 function _rosterSuggestions(q) {
   const players = _loadRoster();
   if (!players.length || q.length < 1) return [];
-  const sport  = (state.sport || 'hurling').toLowerCase();
-  const ql     = q.toLowerCase();
-  const starts  = [];
-  const contains = [];
+  const sport      = (state.sport || 'hurling').toLowerCase();
+  const ageGrade   = (state.ageGrade || '').toUpperCase();
+  const ql         = q.toLowerCase();
+  const starts     = [];
+  const contains   = [];
   players.forEach(p => {
     const nl = p.name.toLowerCase();
     if (!nl.includes(ql)) return;
-    // Prefer players whose sport matches; others still shown but ranked lower
-    const sportMatch = sport === 'football' ? p.football : p.hurling;
-    const entry = { name: p.name, grade: p.grade, sportMatch };
+    const gradeMatch = !!ageGrade && p.grade === ageGrade;
+    const sportMatch = sport === 'football' ? !!p.football : !!p.hurling;
+    const entry = { name: p.name, grade: p.grade, gradeMatch, sportMatch };
     (nl.startsWith(ql) ? starts : contains).push(entry);
   });
-  // Sort: sport-matching first within each bucket
-  const cmp = (a, b) => (b.sportMatch - a.sportMatch) || a.name.localeCompare(b.name);
+  // Grade match is highest priority, then sport match, then alphabetical
+  const cmp = (a, b) => (b.gradeMatch - a.gradeMatch) || (b.sportMatch - a.sportMatch) || a.name.localeCompare(b.name);
   return [...starts.sort(cmp), ...contains.sort(cmp)].slice(0, 8);
 }
 
@@ -478,11 +479,14 @@ function _initPlayerTypeahead(input) {
 
     drop.innerHTML = suggestions.map(s => {
       const gradeColor = {U13:'#1B5E20',U14:'#0D47A1',U15:'#E65100',U16:'#4A148C'}[s.grade] || 'var(--t3)';
-      const gradeBg    = {U13:'#E8F5E9',U14:'#E3F2FD',U15:'#FFF8E1',U16:'#EDE7F6'}[s.grade] || 'transparent';
+      const gradeBg    = s.gradeMatch
+        ? ({U13:'#2E7D32',U14:'#1565C0',U15:'#E65100',U16:'#6A1B9A'}[s.grade] || '#555')
+        : ({U13:'#E8F5E9',U14:'#E3F2FD',U15:'#FFF8E1',U16:'#EDE7F6'}[s.grade] || 'transparent');
+      const badgeColor = s.gradeMatch ? '#fff' : gradeColor;
       return `<div class="pta-item" data-name="${esc(s.name)}" `
         + `style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;cursor:pointer;font-size:14px;color:var(--t1);">`
         + `<span>${esc(s.name)}</span>`
-        + `<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:${gradeBg};color:${gradeColor};">${esc(s.grade)}</span>`
+        + `<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:${gradeBg};color:${badgeColor};">${esc(s.grade)}</span>`
         + `</div>`;
     }).join('');
 
