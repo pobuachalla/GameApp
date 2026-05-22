@@ -302,7 +302,7 @@ body{
     <button class="icon-btn" onclick="exportRoster()" title="Export roster as JSON"><i class="fas fa-file-export"></i> Export</button>
     <label class="icon-btn" title="Import roster from JSON" style="cursor:pointer;">
       <i class="fas fa-file-import"></i> Import
-      <input type="file" id="import-file" accept=".json,application/json" style="display:none;" onchange="importRoster(this)">
+      <input type="file" id="import-file" accept=".json,application/json" style="display:none;" onclick="this.value=''" onchange="importRoster(this)">
     </label>
     <button class="add-btn" onclick="openModal()"><i class="fas fa-plus"></i> Add Player</button>
   </div>
@@ -339,15 +339,7 @@ body{
       </div>
       <div class="form-row">
         <label>Birth Year</label>
-        <select id="f-year" onchange="updateGradePreview(this.value)">
-          <option value="2015">2015</option>
-          <option value="2014">2014</option>
-          <option value="2013">2013</option>
-          <option value="2012">2012</option>
-          <option value="2011">2011</option>
-          <option value="2010">2010</option>
-          <option value="2009">2009</option>
-        </select>
+        <input id="f-year" type="number" min="2000" max="2020" step="1" placeholder="e.g. 2012" onchange="updateGradePreview(this.value)" oninput="updateGradePreview(this.value)">
         <div id="grade-preview" style="margin-top:5px;font-size:12px;color:var(--t3);"></div>
       </div>
       <div class="form-row">
@@ -565,20 +557,9 @@ function _syncToggle(type, checked) {
   el.classList.toggle('checked-' + type, checked);
 }
 
+// Sync visual class whenever the checkbox state changes (via label click or direct toggle)
 document.getElementById('f-hurling').addEventListener('change', function() { _syncToggle('h', this.checked); });
 document.getElementById('f-football').addEventListener('change', function() { _syncToggle('f', this.checked); });
-
-// Clicking the label toggles the hidden checkbox
-document.getElementById('toggle-h').addEventListener('click', function() {
-  const chk = document.getElementById('f-hurling');
-  chk.checked = !chk.checked;
-  _syncToggle('h', chk.checked);
-});
-document.getElementById('toggle-f').addEventListener('click', function() {
-  const chk = document.getElementById('f-football');
-  chk.checked = !chk.checked;
-  _syncToggle('f', chk.checked);
-});
 
 function closeModal() {
   document.getElementById('modal-ovly').classList.remove('open');
@@ -587,9 +568,11 @@ function closeModal() {
 function savePlayer() {
   const name = document.getElementById('f-name').value.trim();
   if (!name) { document.getElementById('f-name').focus(); return; }
+  const by = Number(document.getElementById('f-year').value);
+  if (!by || by < 2000 || by > 2020) { document.getElementById('f-year').focus(); return; }
   const rec = {
     name,
-    birthYear: Number(document.getElementById('f-year').value),
+    birthYear: by,
     hurling:   document.getElementById('f-hurling').checked,
     football:  document.getElementById('f-football').checked,
   };
@@ -637,12 +620,15 @@ function importRoster(input) {
     const valid = imported.filter(p => p && typeof p.name === 'string' && p.name.trim());
     if (!valid.length) { alert('No valid player records found.'); input.value = ''; return; }
     // Normalise missing fields with safe defaults
-    const normalised = valid.map(p => ({
-      name:      p.name.trim(),
-      birthYear: Number.isFinite(Number(p.birthYear)) ? Number(p.birthYear) : 2013,
-      hurling:   !!p.hurling,
-      football:  !!p.football,
-    }));
+    const normalised = valid.map(p => {
+      const by = Number(p.birthYear);
+      return {
+        name:      p.name.trim(),
+        birthYear: (Number.isFinite(by) && by >= 2000 && by <= 2020) ? by : 2013,
+        hurling:   !!p.hurling,
+        football:  !!p.football,
+      };
+    });
     const action = roster.length
       ? confirm(`Merge ${valid.length} imported players with existing ${roster.length}? \n\nOK = Merge (skip duplicates)\nCancel = Replace all`)
       : false;

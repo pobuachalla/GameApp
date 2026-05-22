@@ -315,6 +315,7 @@ function onSizeToggle(checked) {
   // eslint-disable-next-line no-restricted-syntax -- safe: clears element, no user data
   el.pslist.innerHTML='';
   (TEAM_SLOTS[size]||TEAM_SLOTS[15]).forEach(i => el.pslist.appendChild(buildPlayerRow(i)));
+  _attachPlayerTypeaheads();
   saveState();
 }
 
@@ -512,7 +513,8 @@ function loadRosterIntoStorage() {
   const existing = localStorage.getItem(_ROSTER_KEY);
   if (existing) {
     try {
-      const count = JSON.parse(existing).length;
+      const parsed = JSON.parse(existing);
+      const count = Array.isArray(parsed) ? parsed.length : '?';
       if (!confirm('Roster already loaded (' + count + ' players). Re-fetch from roster.json and replace?')) return;
     } catch {}
   }
