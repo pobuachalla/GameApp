@@ -142,6 +142,14 @@ function openSettings(){
   const sz = state.teamSize || 15;
   (TEAM_SLOTS[sz]||TEAM_SLOTS[15]).forEach(i => el.pslist.appendChild(buildPlayerRow(i)));
   renderBench(); renderTpls();
+  const statusEl = document.getElementById('roster-status');
+  if (statusEl) {
+    const raw = localStorage.getItem(_ROSTER_KEY);
+    try {
+      const count = raw ? JSON.parse(raw).length : 0;
+      statusEl.textContent = count ? count + ' players ready for typeahead.' : 'No roster loaded — tap Load Roster to enable typeahead.';
+    } catch { statusEl.textContent = ''; }
+  }
   document.getElementById('setovly').classList.add('open');
   el.setpanel.classList.add('open');
   _initTypeahead(el.sun);
@@ -488,6 +496,30 @@ function _initPlayerTypeahead(input) {
 
   input.addEventListener('blur',    () => setTimeout(close, 200));
   input.addEventListener('keydown', e  => { if (e.key === 'Escape') { close(); input.blur(); } });
+}
+
+function loadRosterIntoStorage() {
+  const statusEl = document.getElementById('roster-status');
+  const existing = localStorage.getItem(_ROSTER_KEY);
+  if (existing) {
+    try {
+      const count = JSON.parse(existing).length;
+      if (!confirm('Roster already loaded (' + count + ' players). Re-fetch from roster.json and replace?')) return;
+    } catch {}
+  }
+  if (statusEl) statusEl.textContent = 'Loading…';
+  fetch('roster.json')
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(data => {
+      if (!Array.isArray(data) || !data.length) throw new Error('Empty or invalid roster.json');
+      localStorage.setItem(_ROSTER_KEY, JSON.stringify(data));
+      _rosterCache = null;
+      if (statusEl) statusEl.textContent = data.length + ' players loaded — typeahead is ready.';
+      try { new BroadcastChannel('gaa_roster').postMessage('updated'); } catch {}
+    })
+    .catch(err => {
+      if (statusEl) statusEl.textContent = 'Failed to load roster: ' + err.message;
+    });
 }
 
 function _attachPlayerTypeaheads() {
