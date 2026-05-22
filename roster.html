@@ -265,6 +265,8 @@ body{
   .roster-table th,.roster-table td{padding:8px 8px;}
   .roster-table th:nth-child(3),
   .roster-table td:nth-child(3){display:none;}
+  .roster-table th:nth-child(2) span,
+  .roster-table td:nth-child(2) span:last-child{display:none;}
 }
 </style>
 </head>
@@ -313,8 +315,7 @@ body{
     <thead>
       <tr>
         <th data-col="name">Name <i class="fas fa-sort sort-icon"></i></th>
-        <th data-col="grade">Grade <i class="fas fa-sort sort-icon"></i></th>
-        <th data-col="birthYear">Born <i class="fas fa-sort sort-icon"></i></th>
+        <th data-col="birthYear" id="th-grade">Grade / Born <i class="fas fa-sort sort-icon"></i></th>
         <th>Sports</th>
         <th></th>
       </tr>
@@ -337,23 +338,17 @@ body{
         <input id="f-name" type="text" placeholder="Player name" maxlength="50" autocomplete="off">
       </div>
       <div class="form-row">
-        <label>2026 Grade</label>
-        <select id="f-grade">
-          <option value="U13">U13</option>
-          <option value="U14">U14</option>
-          <option value="U15">U15</option>
-          <option value="U16">U16</option>
-        </select>
-      </div>
-      <div class="form-row">
         <label>Birth Year</label>
-        <select id="f-year">
+        <select id="f-year" onchange="updateGradePreview(this.value)">
+          <option value="2015">2015</option>
           <option value="2014">2014</option>
           <option value="2013">2013</option>
           <option value="2012">2012</option>
           <option value="2011">2011</option>
           <option value="2010">2010</option>
+          <option value="2009">2009</option>
         </select>
+        <div id="grade-preview" style="margin-top:5px;font-size:12px;color:var(--t3);"></div>
       </div>
       <div class="form-row">
         <label>Sports</label>
@@ -420,11 +415,17 @@ function persist() {
   try { new BroadcastChannel('gaa_roster').postMessage('updated'); } catch {}
 }
 
+// ── Grade helper ──────────────────────────────────────────────────────────────
+const THIS_YEAR = new Date().getFullYear();
+function gradeFromBirthYear(birthYear) {
+  return 'U' + (THIS_YEAR - birthYear + 1);
+}
+
 // ── Filtering / Sorting ───────────────────────────────────────────────────────
 function filtered() {
   return roster.filter(p => {
     if (searchQ && !p.name.toLowerCase().includes(searchQ)) return false;
-    if (filterGrade !== 'all' && p.grade !== filterGrade) return false;
+    if (filterGrade !== 'all' && gradeFromBirthYear(p.birthYear) !== filterGrade) return false;
     if (filterSport === 'hurling'  && !p.hurling)  return false;
     if (filterSport === 'football' && !p.football) return false;
     return true;
@@ -456,7 +457,7 @@ function render() {
   const total = roster.length;
   const shown = rows.length;
   const byGrade = {};
-  roster.forEach(p => { byGrade[p.grade] = (byGrade[p.grade]||0)+1; });
+  roster.forEach(p => { const g = gradeFromBirthYear(p.birthYear); byGrade[g] = (byGrade[g]||0)+1; });
   sb.innerHTML = `<div class="stat-chip"><strong>${total}</strong> players</div>`
     + Object.entries(byGrade).sort((a,b)=>a[0].localeCompare(b[0])).map(([g,n]) =>
         `<div class="stat-chip"><strong>${n}</strong> ${esc(g)}</div>`
@@ -475,20 +476,20 @@ function render() {
   });
 
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><i class="fas fa-users-slash"></i>No players match your filters</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><i class="fas fa-users-slash"></i>No players match your filters</div></td></tr>';
     return;
   }
 
-  tbody.innerHTML = rows.map((p, vi) => {
+  tbody.innerHTML = rows.map((p) => {
     const ri = roster.indexOf(p);
+    const grade = gradeFromBirthYear(p.birthYear);
     const sports = (p.hurling ? '<span class="sport-dot dot-h"></span>H' : '')
       + (p.hurling && p.football ? ' ' : '')
       + (p.football ? '<span class="sport-dot dot-f"></span>F' : '')
       + (!p.hurling && !p.football ? '<span style="color:var(--t3);font-size:12px;">—</span>' : '');
     return `<tr>
       <td>${esc(p.name)}</td>
-      <td><span class="grade-badge ${gradeCls(p.grade)}">${esc(p.grade)}</span></td>
-      <td>${esc(p.birthYear)}</td>
+      <td><span class="grade-badge ${gradeCls(grade)}">${esc(grade)}</span> <span style="color:var(--t3);font-size:12px;">${esc(p.birthYear)}</span></td>
       <td style="white-space:nowrap;">${sports}</td>
       <td><div class="row-actions">
         <button class="row-btn edit" onclick="editPlayer(${ri})" title="Edit"><i class="fas fa-pen"></i></button>
@@ -537,12 +538,18 @@ document.querySelectorAll('.roster-table th[data-col]').forEach(th => {
 });
 
 // ── Add / Edit modal ──────────────────────────────────────────────────────────
+function updateGradePreview(year) {
+  const el = document.getElementById('grade-preview');
+  if (el) el.textContent = 'Grade in ' + THIS_YEAR + ': ' + gradeFromBirthYear(Number(year));
+}
+
 function openModal(p, idx) {
   document.getElementById('modal-title').textContent = idx !== undefined ? 'Edit Player' : 'Add Player';
   document.getElementById('edit-idx').value = idx !== undefined ? idx : '';
   document.getElementById('f-name').value   = p ? p.name : '';
-  document.getElementById('f-grade').value  = p ? p.grade : 'U14';
-  document.getElementById('f-year').value   = p ? String(p.birthYear) : '2013';
+  const year = p ? String(p.birthYear) : '2013';
+  document.getElementById('f-year').value   = year;
+  updateGradePreview(year);
   const hChk = document.getElementById('f-hurling');
   const fChk = document.getElementById('f-football');
   hChk.checked = p ? !!p.hurling : false;
@@ -582,7 +589,6 @@ function savePlayer() {
   if (!name) { document.getElementById('f-name').focus(); return; }
   const rec = {
     name,
-    grade:     document.getElementById('f-grade').value,
     birthYear: Number(document.getElementById('f-year').value),
     hurling:   document.getElementById('f-hurling').checked,
     football:  document.getElementById('f-football').checked,
@@ -633,7 +639,6 @@ function importRoster(input) {
     // Normalise missing fields with safe defaults
     const normalised = valid.map(p => ({
       name:      p.name.trim(),
-      grade:     ['U13','U14','U15','U16'].includes(p.grade) ? p.grade : 'U14',
       birthYear: Number.isFinite(Number(p.birthYear)) ? Number(p.birthYear) : 2013,
       hurling:   !!p.hurling,
       football:  !!p.football,

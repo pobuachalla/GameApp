@@ -430,6 +430,10 @@ try {
   new BroadcastChannel('gaa_roster').addEventListener('message', () => { _rosterCache = null; });
 } catch {}
 
+function _gradeFromBirthYear(birthYear) {
+  return 'U' + (new Date().getFullYear() - birthYear + 1);
+}
+
 function _rosterSuggestions(q) {
   const players = _loadRoster();
   if (!players.length || q.length < 1) return [];
@@ -441,9 +445,10 @@ function _rosterSuggestions(q) {
   players.forEach(p => {
     const nl = p.name.toLowerCase();
     if (!nl.includes(ql)) return;
-    const gradeMatch = !!ageGrade && p.grade === ageGrade;
+    const grade      = _gradeFromBirthYear(p.birthYear);
+    const gradeMatch = !!ageGrade && grade === ageGrade;
     const sportMatch = sport === 'football' ? !!p.football : !!p.hurling;
-    const entry = { name: p.name, grade: p.grade, gradeMatch, sportMatch };
+    const entry = { name: p.name, grade, gradeMatch, sportMatch };
     (nl.startsWith(ql) ? starts : contains).push(entry);
   });
   // Grade match is highest priority, then sport match, then alphabetical
