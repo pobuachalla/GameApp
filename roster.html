@@ -82,15 +82,21 @@ body{
 .fpill.sport-h.active{background:#8D5524;border-color:#8D5524;}
 .fpill.sport-f.active{background:var(--blue);border-color:var(--blue);}
 
-.add-btn{
+.add-btn,
+.icon-btn{
   display:flex;align-items:center;gap:7px;
   padding:9px 16px;border-radius:10px;
-  background:var(--green);color:white;border:none;
   font-size:13px;font-weight:700;cursor:pointer;
   white-space:nowrap;
-  transition:background .12s;
+  transition:background .12s,border-color .12s,color .12s;
 }
+.add-btn{background:var(--green);color:white;border:none;}
 .add-btn:hover{background:var(--green-d);}
+.icon-btn{
+  background:var(--card);color:var(--t2);
+  border:1.5px solid var(--border);
+}
+.icon-btn:hover{background:var(--bg);border-color:#b8bdb4;color:var(--t1);}
 
 /* ── Stats bar ── */
 .stats-bar{
@@ -290,7 +296,14 @@ body{
     <button class="fpill sport-h" data-filter="hurling">Hurling</button>
     <button class="fpill sport-f" data-filter="football">Football</button>
   </div>
-  <button class="add-btn" onclick="openModal()"><i class="fas fa-plus"></i> Add Player</button>
+  <div style="display:flex;gap:8px;">
+    <button class="icon-btn" onclick="exportRoster()" title="Export roster as JSON"><i class="fas fa-file-export"></i> Export</button>
+    <label class="icon-btn" title="Import roster from JSON" style="cursor:pointer;">
+      <i class="fas fa-file-import"></i> Import
+      <input type="file" id="import-file" accept=".json,application/json" style="display:none;" onchange="importRoster(this)">
+    </label>
+    <button class="add-btn" onclick="openModal()"><i class="fas fa-plus"></i> Add Player</button>
+  </div>
 </div>
 
 <div class="stats-bar" id="stats-bar"></div>
@@ -591,6 +604,58 @@ function deletePlayer(idx) {
   roster.splice(idx, 1);
   persist();
   render();
+}
+
+// ── Import / Export ───────────────────────────────────────────────────────────
+function exportRoster() {
+  const json = JSON.stringify(roster, null, 2);
+  const blob = new Blob([json], {type: 'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'roster.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importRoster(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    let imported;
+    try { imported = JSON.parse(e.target.result); }
+    catch { alert('Invalid JSON file.'); input.value = ''; return; }
+    if (!Array.isArray(imported)) { alert('Expected a JSON array of players.'); input.value = ''; return; }
+    // Validate each entry has at least a name field
+    const valid = imported.filter(p => p && typeof p.name === 'string' && p.name.trim());
+    if (!valid.length) { alert('No valid player records found.'); input.value = ''; return; }
+    // Normalise missing fields with safe defaults
+    const normalised = valid.map(p => ({
+      name:      p.name.trim(),
+      grade:     ['U13','U14','U15','U16'].includes(p.grade) ? p.grade : 'U14',
+      birthYear: Number.isFinite(Number(p.birthYear)) ? Number(p.birthYear) : 2013,
+      hurling:   !!p.hurling,
+      football:  !!p.football,
+    }));
+    const action = roster.length
+      ? confirm(`Merge ${valid.length} imported players with existing ${roster.length}? \n\nOK = Merge (skip duplicates)\nCancel = Replace all`)
+      : false;
+    if (action) {
+      // Merge: skip players whose name already exists (case-insensitive)
+      const existing = new Set(roster.map(p => p.name.toLowerCase()));
+      const added = normalised.filter(p => !existing.has(p.name.toLowerCase()));
+      roster.push(...added);
+      alert(`Added ${added.length} new player${added.length !== 1 ? 's' : ''} (${valid.length - added.length} duplicate${valid.length - added.length !== 1 ? 's' : ''} skipped).`);
+    } else {
+      roster = normalised;
+      alert(`Roster replaced with ${normalised.length} player${normalised.length !== 1 ? 's' : ''}.`);
+    }
+    persist();
+    render();
+    input.value = '';
+  };
+  reader.readAsText(file);
 }
 
 // Keyboard shortcut for modal
