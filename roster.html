@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Roster — GAA Match Tracker</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+<meta name="theme-color" content="#1F5B3A">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green:#2E7D32;--green-d:#1B5E20;--green-l:#E8F5E9;
+  --bg:#EEF0EA;--card:#FFFFFF;
+  --t1:#1A2E1A;--t2:#4A5A4A;--t3:#7A8A7A;
+  --border:#E0E3DC;
+  --shadow:0 2px 14px rgba(0,0,0,0.07),0 0 0 1px rgba(0,0,0,0.04);
+  --r:18px;
+  --amber:#D97706;--amber-l:#FFF8E1;
+  --blue:#1565C0;--blue-l:#E3F2FD;
+  --red:#C62828;--red-l:#FFEBEE;
+}
+html,body{height:100%;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);color:var(--t1);
+  min-height:100vh;-webkit-font-smoothing:antialiased;
+}
+
+/* ── Header ── */
+.hdr{
+  background:linear-gradient(140deg,#1a5c1e 0%,#2E7D32 55%,#3a9140 100%);
+  color:white;padding:24px 20px 20px;
+  display:flex;align-items:center;gap:14px;
+}
+.hdr-back{
+  width:36px;height:36px;border-radius:10px;
+  background:rgba(255,255,255,0.15);border:none;color:white;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;cursor:pointer;flex-shrink:0;
+  text-decoration:none;
+}
+.hdr-back:hover{background:rgba(255,255,255,0.25);}
+.hdr-text{flex:1;}
+.hdr-title{font-size:20px;font-weight:800;letter-spacing:-.3px;}
+.hdr-sub{font-size:13px;opacity:.75;margin-top:2px;}
+
+/* ── Toolbar ── */
+.toolbar{
+  max-width:760px;margin:0 auto;
+  padding:16px 16px 0;
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+}
+.search-wrap{
+  flex:1;min-width:160px;
+  position:relative;
+}
+.search-wrap i{
+  position:absolute;left:11px;top:50%;transform:translateY(-50%);
+  color:var(--t3);font-size:13px;pointer-events:none;
+}
+#search{
+  width:100%;padding:9px 10px 9px 32px;
+  border:1.5px solid var(--border);border-radius:10px;
+  font-size:14px;background:var(--card);color:var(--t1);
+  outline:none;
+}
+#search:focus{border-color:var(--green);}
+
+.filter-pills{
+  display:flex;gap:6px;flex-wrap:wrap;
+}
+.fpill{
+  padding:6px 12px;border-radius:999px;
+  border:1.5px solid var(--border);background:var(--card);
+  font-size:12px;font-weight:600;color:var(--t3);
+  cursor:pointer;white-space:nowrap;
+  transition:background .12s,color .12s,border-color .12s;
+}
+.fpill.active{background:var(--green);color:white;border-color:var(--green);}
+.fpill.sport-h.active{background:#8D5524;border-color:#8D5524;}
+.fpill.sport-f.active{background:var(--blue);border-color:var(--blue);}
+
+.add-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:9px 16px;border-radius:10px;
+  background:var(--green);color:white;border:none;
+  font-size:13px;font-weight:700;cursor:pointer;
+  white-space:nowrap;
+  transition:background .12s;
+}
+.add-btn:hover{background:var(--green-d);}
+
+/* ── Stats bar ── */
+.stats-bar{
+  max-width:760px;margin:12px auto 0;
+  padding:0 16px;
+  display:flex;gap:10px;flex-wrap:wrap;
+}
+.stat-chip{
+  padding:5px 10px;border-radius:8px;
+  background:var(--card);border:1px solid var(--border);
+  font-size:12px;color:var(--t2);
+  display:flex;align-items:center;gap:5px;
+}
+.stat-chip strong{color:var(--t1);font-weight:700;}
+
+/* ── Table wrapper ── */
+.table-wrap{
+  max-width:760px;margin:14px auto 40px;
+  padding:0 16px;
+}
+.roster-table{
+  width:100%;border-collapse:collapse;
+  background:var(--card);border-radius:14px;
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.roster-table th{
+  padding:10px 12px;
+  font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.5px;
+  color:var(--t3);
+  background:#F5F7F2;
+  text-align:left;border-bottom:1.5px solid var(--border);
+  cursor:pointer;user-select:none;white-space:nowrap;
+}
+.roster-table th:hover{color:var(--t2);}
+.roster-table th .sort-icon{margin-left:4px;opacity:.4;font-size:10px;}
+.roster-table th.sorted .sort-icon{opacity:1;color:var(--green);}
+.roster-table td{
+  padding:10px 12px;
+  font-size:14px;color:var(--t1);
+  border-bottom:1px solid var(--border);
+  vertical-align:middle;
+}
+.roster-table tr:last-child td{border-bottom:none;}
+.roster-table tr:hover td{background:#F9FBF7;}
+
+.grade-badge{
+  display:inline-block;padding:2px 8px;
+  border-radius:999px;font-size:11px;font-weight:700;
+}
+.grade-u13{background:#E8F5E9;color:#1B5E20;}
+.grade-u14{background:#E3F2FD;color:#0D47A1;}
+.grade-u15{background:#FFF8E1;color:#E65100;}
+.grade-u16{background:#EDE7F6;color:#4A148C;}
+
+.sport-dot{
+  display:inline-block;width:8px;height:8px;
+  border-radius:50%;margin-right:4px;
+}
+.dot-h{background:#8D5524;}
+.dot-f{background:var(--blue);}
+
+.row-actions{display:flex;gap:6px;align-items:center;}
+.row-btn{
+  width:30px;height:30px;border-radius:8px;
+  border:1.5px solid var(--border);background:transparent;
+  color:var(--t3);font-size:12px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .12s,color .12s,border-color .12s;
+}
+.row-btn.edit:hover{background:var(--green-l);color:var(--green);border-color:var(--green);}
+.row-btn.del:hover{background:var(--red-l);color:var(--red);border-color:var(--red);}
+
+.empty-state{
+  text-align:center;padding:48px 20px;
+  color:var(--t3);font-size:14px;
+}
+.empty-state i{font-size:32px;margin-bottom:12px;display:block;opacity:.4;}
+
+/* ── Modal ── */
+.modal-ovly{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.45);z-index:200;
+  align-items:center;justify-content:center;
+  padding:20px;
+}
+.modal-ovly.open{display:flex;}
+.modal{
+  background:var(--card);border-radius:var(--r);
+  width:100%;max-width:440px;
+  box-shadow:0 8px 40px rgba(0,0,0,0.2);
+  overflow:hidden;
+}
+.modal-hdr{
+  padding:20px 20px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.modal-hdr h2{font-size:17px;font-weight:800;color:var(--t1);}
+.modal-close{
+  width:32px;height:32px;border-radius:8px;
+  border:none;background:transparent;cursor:pointer;
+  color:var(--t3);font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-close:hover{background:var(--bg);color:var(--t1);}
+.modal-body{padding:20px;}
+.form-row{margin-bottom:14px;}
+.form-row label{
+  display:block;font-size:12px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.4px;
+  color:var(--t3);margin-bottom:5px;
+}
+.form-row input,
+.form-row select{
+  width:100%;padding:10px 12px;
+  border:1.5px solid var(--border);border-radius:10px;
+  font-size:14px;color:var(--t1);background:var(--card);
+  outline:none;
+}
+.form-row input:focus,
+.form-row select:focus{border-color:var(--green);}
+.sport-toggles{display:flex;gap:10px;}
+.sport-toggle{
+  flex:1;display:flex;align-items:center;gap:8px;
+  padding:10px 12px;border-radius:10px;
+  border:1.5px solid var(--border);background:var(--card);
+  cursor:pointer;font-size:13px;font-weight:600;color:var(--t2);
+  transition:background .12s,border-color .12s,color .12s;
+}
+.sport-toggle input[type=checkbox]{display:none;}
+.sport-toggle.checked-h{background:#FFF3E0;border-color:#8D5524;color:#8D5524;}
+.sport-toggle.checked-f{background:var(--blue-l);border-color:var(--blue);color:var(--blue);}
+.modal-foot{
+  padding:16px 20px;border-top:1px solid var(--border);
+  display:flex;gap:10px;justify-content:flex-end;
+}
+.btn-cancel{
+  padding:10px 18px;border-radius:10px;
+  border:1.5px solid var(--border);background:transparent;
+  font-size:14px;font-weight:600;color:var(--t2);cursor:pointer;
+}
+.btn-cancel:hover{background:var(--bg);}
+.btn-save{
+  padding:10px 20px;border-radius:10px;
+  border:none;background:var(--green);color:white;
+  font-size:14px;font-weight:700;cursor:pointer;
+}
+.btn-save:hover{background:var(--green-d);}
+
+/* ── Import banner ── */
+.import-banner{
+  max-width:760px;margin:12px auto 0;padding:0 16px;
+}
+.import-note{
+  padding:10px 14px;border-radius:10px;
+  background:var(--amber-l);border:1px solid #F5CBA7;
+  font-size:12px;color:#7A4F01;
+  display:flex;align-items:center;gap:8px;
+}
+
+@media(max-width:520px){
+  .hdr{padding:20px 16px 16px;}
+  .toolbar{padding:12px 12px 0;}
+  .table-wrap{padding:0 10px;margin-bottom:28px;}
+  .roster-table th,.roster-table td{padding:8px 8px;}
+  .roster-table th:nth-child(3),
+  .roster-table td:nth-child(3){display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <a href="home.html" class="hdr-back"><i class="fas fa-arrow-left"></i></a>
+  <div class="hdr-text">
+    <div class="hdr-title">Roster</div>
+    <div class="hdr-sub">Manage your squad for typeahead in Team Setup</div>
+  </div>
+</div>
+
+<div class="import-banner" id="import-banner" style="display:none;">
+  <div class="import-note"><i class="fas fa-circle-info"></i> Roster seeded from roster.json — changes are saved locally to your device.</div>
+</div>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <i class="fas fa-magnifying-glass"></i>
+    <input id="search" type="search" placeholder="Search players…" autocomplete="off">
+  </div>
+  <div class="filter-pills">
+    <button class="fpill active" data-filter="all">All</button>
+    <button class="fpill" data-filter="U13">U13</button>
+    <button class="fpill" data-filter="U14">U14</button>
+    <button class="fpill" data-filter="U15">U15</button>
+    <button class="fpill" data-filter="U16">U16</button>
+    <button class="fpill sport-h" data-filter="hurling">Hurling</button>
+    <button class="fpill sport-f" data-filter="football">Football</button>
+  </div>
+  <button class="add-btn" onclick="openModal()"><i class="fas fa-plus"></i> Add Player</button>
+</div>
+
+<div class="stats-bar" id="stats-bar"></div>
+
+<div class="table-wrap">
+  <table class="roster-table">
+    <thead>
+      <tr>
+        <th data-col="name">Name <i class="fas fa-sort sort-icon"></i></th>
+        <th data-col="grade">Grade <i class="fas fa-sort sort-icon"></i></th>
+        <th data-col="birthYear">Born <i class="fas fa-sort sort-icon"></i></th>
+        <th>Sports</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="roster-body"></tbody>
+  </table>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-ovly" id="modal-ovly" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2 id="modal-title">Add Player</h2>
+      <button class="modal-close" onclick="closeModal()"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-idx" value="">
+      <div class="form-row">
+        <label>Name</label>
+        <input id="f-name" type="text" placeholder="Player name" maxlength="50" autocomplete="off">
+      </div>
+      <div class="form-row">
+        <label>2026 Grade</label>
+        <select id="f-grade">
+          <option value="U13">U13</option>
+          <option value="U14">U14</option>
+          <option value="U15">U15</option>
+          <option value="U16">U16</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Birth Year</label>
+        <select id="f-year">
+          <option value="2014">2014</option>
+          <option value="2013">2013</option>
+          <option value="2012">2012</option>
+          <option value="2011">2011</option>
+          <option value="2010">2010</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Sports</label>
+        <div class="sport-toggles">
+          <label class="sport-toggle" id="toggle-h">
+            <input type="checkbox" id="f-hurling">
+            <i class="fas fa-circle-dot" style="color:#8D5524;font-size:14px;"></i> Hurling
+          </label>
+          <label class="sport-toggle" id="toggle-f">
+            <input type="checkbox" id="f-football">
+            <i class="fas fa-futbol" style="color:var(--blue);font-size:14px;"></i> Football
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="savePlayer()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+const STORAGE_KEY = 'gaa_roster_v1';
+const SEED_URL    = 'roster.json';
+
+let roster = [];
+let sortCol = 'name';
+let sortAsc = true;
+let filterGrade = 'all';
+let filterSport = null;
+let searchQ = '';
+let seeded = false;
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+async function init() {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored) {
+    try { roster = JSON.parse(stored); }
+    catch { roster = []; }
+  }
+  if (!roster.length) {
+    await seedFromJson();
+  }
+  render();
+}
+
+async function seedFromJson() {
+  try {
+    const res = await fetch(SEED_URL);
+    if (!res.ok) return;
+    roster = await res.json();
+    persist();
+    seeded = true;
+    document.getElementById('import-banner').style.display = '';
+  } catch {}
+}
+
+function persist() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(roster));
+  // Also write to a broadcast channel so settings.js can pick up changes
+  try { new BroadcastChannel('gaa_roster').postMessage('updated'); } catch {}
+}
+
+// ── Filtering / Sorting ───────────────────────────────────────────────────────
+function filtered() {
+  return roster.filter(p => {
+    if (searchQ && !p.name.toLowerCase().includes(searchQ)) return false;
+    if (filterGrade !== 'all' && p.grade !== filterGrade) return false;
+    if (filterSport === 'hurling'  && !p.hurling)  return false;
+    if (filterSport === 'football' && !p.football) return false;
+    return true;
+  }).sort((a, b) => {
+    let va = a[sortCol], vb = b[sortCol];
+    if (typeof va === 'string') va = va.toLowerCase();
+    if (typeof vb === 'string') vb = vb.toLowerCase();
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ?  1 : -1;
+    return 0;
+  });
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function gradeCls(g) {
+  return {U13:'grade-u13',U14:'grade-u14',U15:'grade-u15',U16:'grade-u16'}[g] || '';
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function render() {
+  const rows = filtered();
+  const tbody = document.getElementById('roster-body');
+
+  // Stats bar
+  const sb = document.getElementById('stats-bar');
+  const total = roster.length;
+  const shown = rows.length;
+  const byGrade = {};
+  roster.forEach(p => { byGrade[p.grade] = (byGrade[p.grade]||0)+1; });
+  sb.innerHTML = `<div class="stat-chip"><strong>${total}</strong> players</div>`
+    + Object.entries(byGrade).sort((a,b)=>a[0].localeCompare(b[0])).map(([g,n]) =>
+        `<div class="stat-chip"><strong>${n}</strong> ${esc(g)}</div>`
+      ).join('')
+    + (shown < total ? `<div class="stat-chip" style="color:var(--amber)"><strong>${shown}</strong> shown</div>` : '');
+
+  // Sort headers
+  document.querySelectorAll('.roster-table th[data-col]').forEach(th => {
+    const icon = th.querySelector('.sort-icon');
+    th.classList.toggle('sorted', th.dataset.col === sortCol);
+    if (th.dataset.col === sortCol) {
+      icon.className = 'fas sort-icon ' + (sortAsc ? 'fa-sort-up' : 'fa-sort-down');
+    } else {
+      icon.className = 'fas fa-sort sort-icon';
+    }
+  });
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><i class="fas fa-users-slash"></i>No players match your filters</div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map((p, vi) => {
+    const ri = roster.indexOf(p);
+    const sports = (p.hurling ? '<span class="sport-dot dot-h"></span>H' : '')
+      + (p.hurling && p.football ? ' ' : '')
+      + (p.football ? '<span class="sport-dot dot-f"></span>F' : '')
+      + (!p.hurling && !p.football ? '<span style="color:var(--t3);font-size:12px;">—</span>' : '');
+    return `<tr>
+      <td>${esc(p.name)}</td>
+      <td><span class="grade-badge ${gradeCls(p.grade)}">${esc(p.grade)}</span></td>
+      <td>${esc(p.birthYear)}</td>
+      <td style="white-space:nowrap;">${sports}</td>
+      <td><div class="row-actions">
+        <button class="row-btn edit" onclick="editPlayer(${ri})" title="Edit"><i class="fas fa-pen"></i></button>
+        <button class="row-btn del"  onclick="deletePlayer(${ri})" title="Delete"><i class="fas fa-trash-can"></i></button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Filter pills ──────────────────────────────────────────────────────────────
+document.querySelectorAll('.fpill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const f = btn.dataset.filter;
+    if (f === 'hurling' || f === 'football') {
+      filterSport = (filterSport === f) ? null : f;
+    } else {
+      filterGrade = f;
+      filterSport = null;
+    }
+    document.querySelectorAll('.fpill').forEach(b => {
+      const bf = b.dataset.filter;
+      if (bf === 'hurling' || bf === 'football') {
+        b.classList.toggle('active', filterSport === bf);
+      } else {
+        b.classList.toggle('active', bf === filterGrade && !filterSport);
+      }
+    });
+    render();
+  });
+});
+
+// ── Search ────────────────────────────────────────────────────────────────────
+document.getElementById('search').addEventListener('input', function() {
+  searchQ = this.value.trim().toLowerCase();
+  render();
+});
+
+// ── Sort ──────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.roster-table th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (sortCol === col) { sortAsc = !sortAsc; }
+    else { sortCol = col; sortAsc = true; }
+    render();
+  });
+});
+
+// ── Add / Edit modal ──────────────────────────────────────────────────────────
+function openModal(p, idx) {
+  document.getElementById('modal-title').textContent = idx !== undefined ? 'Edit Player' : 'Add Player';
+  document.getElementById('edit-idx').value = idx !== undefined ? idx : '';
+  document.getElementById('f-name').value   = p ? p.name : '';
+  document.getElementById('f-grade').value  = p ? p.grade : 'U14';
+  document.getElementById('f-year').value   = p ? String(p.birthYear) : '2013';
+  const hChk = document.getElementById('f-hurling');
+  const fChk = document.getElementById('f-football');
+  hChk.checked = p ? !!p.hurling : false;
+  fChk.checked = p ? !!p.football : false;
+  _syncToggle('h', hChk.checked);
+  _syncToggle('f', fChk.checked);
+  document.getElementById('modal-ovly').classList.add('open');
+  setTimeout(() => document.getElementById('f-name').focus(), 60);
+}
+
+function _syncToggle(type, checked) {
+  const el = document.getElementById('toggle-' + type);
+  el.classList.toggle('checked-' + type, checked);
+}
+
+document.getElementById('f-hurling').addEventListener('change', function() { _syncToggle('h', this.checked); });
+document.getElementById('f-football').addEventListener('change', function() { _syncToggle('f', this.checked); });
+
+// Clicking the label toggles the hidden checkbox
+document.getElementById('toggle-h').addEventListener('click', function() {
+  const chk = document.getElementById('f-hurling');
+  chk.checked = !chk.checked;
+  _syncToggle('h', chk.checked);
+});
+document.getElementById('toggle-f').addEventListener('click', function() {
+  const chk = document.getElementById('f-football');
+  chk.checked = !chk.checked;
+  _syncToggle('f', chk.checked);
+});
+
+function closeModal() {
+  document.getElementById('modal-ovly').classList.remove('open');
+}
+
+function savePlayer() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { document.getElementById('f-name').focus(); return; }
+  const rec = {
+    name,
+    grade:     document.getElementById('f-grade').value,
+    birthYear: Number(document.getElementById('f-year').value),
+    hurling:   document.getElementById('f-hurling').checked,
+    football:  document.getElementById('f-football').checked,
+  };
+  const idx = document.getElementById('edit-idx').value;
+  if (idx !== '') { roster[Number(idx)] = rec; }
+  else { roster.push(rec); }
+  persist();
+  closeModal();
+  render();
+}
+
+function editPlayer(idx) {
+  openModal(roster[idx], idx);
+}
+
+function deletePlayer(idx) {
+  if (!confirm('Remove ' + roster[idx].name + ' from roster?')) return;
+  roster.splice(idx, 1);
+  persist();
+  render();
+}
+
+// Keyboard shortcut for modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+init();
+</script>
+</body>
+</html>

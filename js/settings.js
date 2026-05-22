@@ -146,6 +146,7 @@ function openSettings(){
   el.setpanel.classList.add('open');
   _initTypeahead(el.sun);
   _initTypeahead(el.son);
+  _attachPlayerTypeaheads();
 }
 
 function closeSettings(){ flushSettings(); document.getElementById('setovly').classList.remove('open'); el.setpanel.classList.remove('open'); }
@@ -164,7 +165,9 @@ function addBRow(c,idx){
   row.innerHTML='<span class="drag-handle" title="Drag to swap player"><i class="fas fa-grip-vertical"></i></span><div class="pbadge sub">'+idx+'</div><input class="sinput" id="sn'+idx+'" type="text" placeholder="'+(idx===16?'Sub GK':'Sub #'+idx)+'" maxlength="30" value="'+esc(gn(idx)||'')+'">';
   c.appendChild(row);
   attachDragHandle(row);
-  document.getElementById('sn'+idx).addEventListener('input',function(){
+  const inp = document.getElementById('sn'+idx);
+  _initPlayerTypeahead(inp);
+  inp.addEventListener('input',function(){
     const ti=Number.parseInt(this.id.replace('sn',''));
     if(this.value.trim()&&ti>=state.maxB){
       state.maxB=ti+1;
@@ -399,6 +402,104 @@ function updatePresetUI() {
   });
   const desc = document.getElementById('trk-preset-desc');
   if (desc) desc.textContent = _TRK_DESCS[active] || 'Custom mix of tracking options.';
+}
+
+// ─── PLAYER NAME TYPEAHEAD ────────────────────────────────────────────────────
+const _ROSTER_KEY = 'gaa_roster_v1';
+let _rosterCache  = null;
+
+function _loadRoster() {
+  if (_rosterCache) return _rosterCache;
+  try {
+    const raw = localStorage.getItem(_ROSTER_KEY);
+    _rosterCache = raw ? JSON.parse(raw) : [];
+  } catch { _rosterCache = []; }
+  return _rosterCache;
+}
+
+// Invalidate cache when roster page updates localStorage
+try {
+  new BroadcastChannel('gaa_roster').addEventListener('message', () => { _rosterCache = null; });
+} catch {}
+
+function _rosterSuggestions(q) {
+  const players = _loadRoster();
+  if (!players.length || q.length < 1) return [];
+  const sport  = (state.sport || 'hurling').toLowerCase();
+  const ql     = q.toLowerCase();
+  const starts  = [];
+  const contains = [];
+  players.forEach(p => {
+    const nl = p.name.toLowerCase();
+    if (!nl.includes(ql)) return;
+    // Prefer players whose sport matches; others still shown but ranked lower
+    const sportMatch = sport === 'football' ? p.football : p.hurling;
+    const entry = { name: p.name, grade: p.grade, sportMatch };
+    (nl.startsWith(ql) ? starts : contains).push(entry);
+  });
+  // Sort: sport-matching first within each bucket
+  const cmp = (a, b) => (b.sportMatch - a.sportMatch) || a.name.localeCompare(b.name);
+  return [...starts.sort(cmp), ...contains.sort(cmp)].slice(0, 8);
+}
+
+function _initPlayerTypeahead(input) {
+  if (input._ptaInit) return;
+  input._ptaInit = true;
+
+  const anchor = input.parentElement;
+  anchor.style.position = 'relative';
+
+  const drop = document.createElement('div');
+  drop.style.cssText = 'position:absolute;z-index:9999;background:var(--bg1);border:.5px solid var(--bm);'
+    + 'border-radius:var(--r);overflow-y:auto;max-height:200px;display:none;'
+    + 'box-shadow:0 4px 16px rgba(0,0,0,0.14);-webkit-overflow-scrolling:touch;'
+    + 'top:100%;left:0;width:100%;';
+  anchor.appendChild(drop);
+
+  const close = () => { drop.style.display = 'none'; };
+
+  const pick = (name) => {
+    input.value = name;
+    close();
+  };
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim();
+    const suggestions = _rosterSuggestions(q);
+    if (!suggestions.length) { close(); return; }
+
+    drop.innerHTML = suggestions.map(s => {
+      const gradeColor = {U13:'#1B5E20',U14:'#0D47A1',U15:'#E65100',U16:'#4A148C'}[s.grade] || 'var(--t3)';
+      const gradeBg    = {U13:'#E8F5E9',U14:'#E3F2FD',U15:'#FFF8E1',U16:'#EDE7F6'}[s.grade] || 'transparent';
+      return `<div class="pta-item" data-name="${esc(s.name)}" `
+        + `style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;cursor:pointer;font-size:14px;color:var(--t1);">`
+        + `<span>${esc(s.name)}</span>`
+        + `<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:${gradeBg};color:${gradeColor};">${esc(s.grade)}</span>`
+        + `</div>`;
+    }).join('');
+
+    drop.querySelectorAll('.pta-item').forEach(row => {
+      row.addEventListener('mousedown', e => { e.preventDefault(); pick(row.dataset.name); });
+      row.addEventListener('touchend',  e => { e.preventDefault(); pick(row.dataset.name); });
+    });
+
+    drop.style.display = 'block';
+  });
+
+  input.addEventListener('blur',    () => setTimeout(close, 200));
+  input.addEventListener('keydown', e  => { if (e.key === 'Escape') { close(); input.blur(); } });
+}
+
+function _attachPlayerTypeaheads() {
+  const sz = state.teamSize || 15;
+  for (let i = 1; i <= sz; i++) {
+    const inp = document.getElementById('sn' + i);
+    if (inp) _initPlayerTypeahead(inp);
+  }
+  for (let i = 16; i <= (state.maxB || 17); i++) {
+    const inp = document.getElementById('sn' + i);
+    if (inp) _initPlayerTypeahead(inp);
+  }
 }
 
 // ─── TEAM NAME TYPEAHEAD ──────────────────────────────────────────────────────
