@@ -369,9 +369,9 @@ function filtered() {
     if (filterGrade !== 'all' && gradeFromBirthYear(p.birthYear) !== filterGrade) return false;
     if (filterSport === 'hurling'  && !p.hurling)  return false;
     if (filterSport === 'football' && !p.football) return false;
-    if (filterUnavail && pd.available) return false;
-    // by default hide inactive; "Inactive" pill reveals them
-    if (!filterInactive && !pd.active) return false;
+    if (filterUnavail  &&  pd.available) return false;
+    if (filterInactive &&  pd.active)   return false; // "Inactive" shows only inactive
+    if (!filterInactive && !pd.active)  return false; // default: hide inactive
     return true;
   }).sort((a, b) => {
     let va = a[sortCol], vb = b[sortCol];
@@ -481,7 +481,6 @@ document.querySelectorAll('.fpill').forEach(btn => {
       filterUnavail  = false;
     } else if (f === 'unavailable') {
       filterUnavail  = !filterUnavail;
-      filterInactive = filterUnavail; // show inactive too when filtering unavailable
     } else {
       filterGrade  = f;
       filterSport  = null;
