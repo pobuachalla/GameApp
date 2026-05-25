@@ -435,25 +435,34 @@ function _gradeFromBirthYear(birthYear) {
   return 'U' + (new Date().getFullYear() - birthYear);
 }
 
+function _gradeNum(grade) {
+  const m = grade.match(/^U(\d+)$/);
+  return m ? Number(m[1]) : 0;
+}
+
 function _rosterSuggestions(q) {
   const players = _loadRoster();
   if (!players.length || q.length < 1) return [];
-  const sport      = (state.sport || 'hurling').toLowerCase();
-  const ageGrade   = (state.ageGrade || '').toUpperCase();
-  const ql         = q.toLowerCase();
-  const starts     = [];
-  const contains   = [];
+  const sport        = (state.sport || 'hurling').toLowerCase();
+  const ageGrade     = (state.ageGrade || '').toUpperCase();
+  const gameGradeNum = _gradeNum(ageGrade);
+  const ql           = q.toLowerCase();
+  const starts       = [];
+  const contains     = [];
   players.forEach(p => {
     const nl = p.name.toLowerCase();
     if (!nl.includes(ql)) return;
-    const grade      = _gradeFromBirthYear(p.birthYear);
+    const grade          = _gradeFromBirthYear(p.birthYear);
+    const playerGradeNum = _gradeNum(grade);
+    // Eligible: no game grade set, or player grade ≤ game grade (can play up, not down)
+    const eligible   = !gameGradeNum || playerGradeNum <= gameGradeNum;
     const gradeMatch = !!ageGrade && grade === ageGrade;
     const sportMatch = sport === 'football' ? !!p.football : !!p.hurling;
-    const entry = { name: p.name, grade, gradeMatch, sportMatch };
+    const entry = { name: p.name, grade, eligible, gradeMatch, sportMatch };
     (nl.startsWith(ql) ? starts : contains).push(entry);
   });
-  // Grade match is highest priority, then sport match, then alphabetical
-  const cmp = (a, b) => (b.gradeMatch - a.gradeMatch) || (b.sportMatch - a.sportMatch) || a.name.localeCompare(b.name);
+  // Eligible first, then exact grade match, then sport match, then alpha
+  const cmp = (a, b) => (b.eligible - a.eligible) || (b.gradeMatch - a.gradeMatch) || (b.sportMatch - a.sportMatch) || a.name.localeCompare(b.name);
   return [...starts.sort(cmp), ...contains.sort(cmp)].slice(0, 8);
 }
 
@@ -484,15 +493,24 @@ function _initPlayerTypeahead(input) {
     if (!suggestions.length) { close(); return; }
 
     drop.innerHTML = suggestions.map(s => {
-      const gradeColor = {U13:'#1B5E20',U14:'#0D47A1',U15:'#E65100',U16:'#4A148C'}[s.grade] || 'var(--t3)';
-      const gradeBg    = s.gradeMatch
-        ? ({U13:'#2E7D32',U14:'#1565C0',U15:'#E65100',U16:'#6A1B9A'}[s.grade] || '#555')
-        : ({U13:'#E8F5E9',U14:'#E3F2FD',U15:'#FFF8E1',U16:'#EDE7F6'}[s.grade] || 'transparent');
-      const badgeColor = s.gradeMatch ? '#fff' : gradeColor;
+      let gradeBg, badgeColor;
+      if (!s.eligible) {
+        // Ineligible (too old to play down) — muted red tint
+        gradeBg = '#FFEBEE'; badgeColor = '#C62828';
+      } else if (s.gradeMatch) {
+        // Exact grade match — solid filled
+        gradeBg    = {U13:'#2E7D32',U14:'#1565C0',U15:'#E65100',U16:'#6A1B9A'}[s.grade] || '#555';
+        badgeColor = '#fff';
+      } else {
+        // Eligible, younger grade — light tint
+        gradeBg    = {U13:'#E8F5E9',U14:'#E3F2FD',U15:'#FFF8E1',U16:'#EDE7F6'}[s.grade] || 'transparent';
+        badgeColor = {U13:'#1B5E20',U14:'#0D47A1',U15:'#E65100',U16:'#4A148C'}[s.grade] || 'var(--t3)';
+      }
+      const nameStyle = s.eligible ? '' : 'color:var(--t3);';
       return `<div class="pta-item" data-name="${esc(s.name)}" `
-        + `style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;cursor:pointer;font-size:14px;color:var(--t1);">`
-        + `<span>${esc(s.name)}</span>`
-        + `<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:${gradeBg};color:${badgeColor};">${esc(s.grade)}</span>`
+        + `style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;cursor:pointer;font-size:14px;">`
+        + `<span style="${nameStyle}">${esc(s.name)}</span>`
+        + `<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:${gradeBg};color:${badgeColor};flex-shrink:0;">${esc(s.grade)}</span>`
         + `</div>`;
     }).join('');
 
