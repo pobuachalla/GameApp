@@ -308,6 +308,10 @@ const LINE_CLS = {
   'GK':'gk','Full Back':'fb','Half Back':'hb',
   'Midfield':'mid','Half Forward':'hf','Full Forward':'ff',
 };
+const LINE_ABR = {
+  'GK':'GK','Full Back':'FB','Half Back':'HB',
+  'Midfield':'MID','Half Forward':'HF','Full Forward':'FF',
+};
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let roster      = [];
@@ -425,7 +429,7 @@ function render() {
     const grade = gradeFromBirthYear(p.birthYear);
 
     const lineBadges = (pd.lines||[]).map(l =>
-      `<span class="line-badge line-${LINE_CLS[l]||'mid'}">${esc(l)}</span>`
+      `<span class="line-badge line-${LINE_CLS[l]||'mid'}" title="${esc(l)}">${esc(LINE_ABR[l]||l)}</span>`
     ).join('');
 
     const sports = (p.hurling  ? '<span class="sport-dot dot-h"></span>H' : '')
