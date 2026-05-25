@@ -440,16 +440,28 @@ function _gradeNum(grade) {
   return m ? Number(m[1]) : 0;
 }
 
-function _rosterSuggestions(q) {
+function _slotPosition(slot) {
+  if (slot === 1)                return 'GK';
+  if (slot >= 2  && slot <= 4)   return 'Full Back';
+  if (slot >= 5  && slot <= 7)   return 'Half Back';
+  if (slot >= 8  && slot <= 9)   return 'Midfield';
+  if (slot >= 10 && slot <= 12)  return 'Half Forward';
+  if (slot >= 13 && slot <= 15)  return 'Full Forward';
+  return null;
+}
+
+function _rosterSuggestions(q, slot) {
   const players = _loadRoster();
   if (!players.length || q.length < 1) return [];
   const sport        = (state.sport || 'hurling').toLowerCase();
   const ageGrade     = (state.ageGrade || '').toUpperCase();
   const gameGradeNum = _gradeNum(ageGrade);
+  const slotLine     = slot ? _slotPosition(slot) : null;
   const ql           = q.toLowerCase();
   const starts       = [];
   const contains     = [];
   players.forEach(p => {
+    if (p.active === false) return; // inactive players never appear in typeahead
     const nl = p.name.toLowerCase();
     if (!nl.includes(ql)) return;
     const grade          = _gradeFromBirthYear(p.birthYear);
@@ -458,11 +470,20 @@ function _rosterSuggestions(q) {
     const eligible   = !gameGradeNum || playerGradeNum <= gameGradeNum;
     const gradeMatch = !!ageGrade && grade === ageGrade;
     const sportMatch = sport === 'football' ? !!p.football : !!p.hurling;
-    const entry = { name: p.name, grade, eligible, gradeMatch, sportMatch };
+    const available  = p.available !== false;
+    const lines      = Array.isArray(p.lines) ? p.lines : [];
+    const posMatch   = !!slotLine && lines.includes(slotLine);
+    const entry = { name: p.name, grade, eligible, gradeMatch, sportMatch, available, posMatch };
     (nl.startsWith(ql) ? starts : contains).push(entry);
   });
-  // Eligible first, then exact grade match, then sport match, then alpha
-  const cmp = (a, b) => (b.eligible - a.eligible) || (b.gradeMatch - a.gradeMatch) || (b.sportMatch - a.sportMatch) || a.name.localeCompare(b.name);
+  // Eligible → position match → grade match → sport match → available → alpha
+  const cmp = (a, b) =>
+    (b.eligible   - a.eligible)   ||
+    (b.posMatch   - a.posMatch)   ||
+    (b.gradeMatch - a.gradeMatch) ||
+    (b.sportMatch - a.sportMatch) ||
+    (b.available  - a.available)  ||
+    a.name.localeCompare(b.name);
   return [...starts.sort(cmp), ...contains.sort(cmp)].slice(0, 8);
 }
 
@@ -488,8 +509,9 @@ function _initPlayerTypeahead(input) {
   };
 
   input.addEventListener('input', () => {
-    const q = input.value.trim();
-    const suggestions = _rosterSuggestions(q);
+    const q    = input.value.trim();
+    const slot = Number.parseInt(input.id.replace('sn', ''), 10) || 0;
+    const suggestions = _rosterSuggestions(q, slot);
     if (!suggestions.length) { close(); return; }
 
     drop.innerHTML = suggestions.map(s => {
@@ -506,12 +528,17 @@ function _initPlayerTypeahead(input) {
         gradeBg    = {U13:'#E8F5E9',U14:'#E3F2FD',U15:'#FFF8E1',U16:'#EDE7F6'}[s.grade] || 'transparent';
         badgeColor = {U13:'#1B5E20',U14:'#0D47A1',U15:'#E65100',U16:'#4A148C'}[s.grade] || 'var(--t3)';
       }
-      const nameStyle = s.eligible ? '' : 'color:var(--t3);';
+      const nameStyle     = !s.eligible ? 'color:var(--t3);' : !s.available ? 'color:var(--t2);' : '';
+      const unavailBadge  = !s.available
+        ? '<span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:999px;background:#F5F5F5;color:#9E9E9E;flex-shrink:0;">Unavail</span>'
+        : '';
       return `<div class="pta-item" data-name="${esc(s.name)}" `
         + `style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;cursor:pointer;font-size:14px;">`
         + `<span style="${nameStyle}">${esc(s.name)}</span>`
+        + `<div style="display:flex;align-items:center;gap:4px;">`
+        + unavailBadge
         + `<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:${gradeBg};color:${badgeColor};flex-shrink:0;">${esc(s.grade)}</span>`
-        + `</div>`;
+        + `</div></div>`;
     }).join('');
 
     drop.querySelectorAll('.pta-item').forEach(row => {

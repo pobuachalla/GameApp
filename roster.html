@@ -22,251 +22,147 @@
   --red:#C62828;--red-l:#FFEBEE;
 }
 html,body{height:100%;}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  background:var(--bg);color:var(--t1);
-  min-height:100vh;-webkit-font-smoothing:antialiased;
-}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;-webkit-font-smoothing:antialiased;}
 
 /* ── Header ── */
-.hdr{
-  background:linear-gradient(140deg,#1a5c1e 0%,#2E7D32 55%,#3a9140 100%);
-  color:white;padding:24px 20px 20px;
-  display:flex;align-items:center;gap:14px;
-}
-.hdr-back{
-  width:36px;height:36px;border-radius:10px;
-  background:rgba(255,255,255,0.15);border:none;color:white;
-  display:flex;align-items:center;justify-content:center;
-  font-size:16px;cursor:pointer;flex-shrink:0;
-  text-decoration:none;
-}
+.hdr{background:linear-gradient(140deg,#1a5c1e 0%,#2E7D32 55%,#3a9140 100%);color:white;padding:24px 20px 20px;display:flex;align-items:center;gap:14px;}
+.hdr-back{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.15);border:none;color:white;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;flex-shrink:0;text-decoration:none;}
 .hdr-back:hover{background:rgba(255,255,255,0.25);}
 .hdr-text{flex:1;}
 .hdr-title{font-size:20px;font-weight:800;letter-spacing:-.3px;}
 .hdr-sub{font-size:13px;opacity:.75;margin-top:2px;}
 
 /* ── Toolbar ── */
-.toolbar{
-  max-width:760px;margin:0 auto;
-  padding:16px 16px 0;
-  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
-}
-.search-wrap{
-  flex:1;min-width:160px;
-  position:relative;
-}
-.search-wrap i{
-  position:absolute;left:11px;top:50%;transform:translateY(-50%);
-  color:var(--t3);font-size:13px;pointer-events:none;
-}
-#search{
-  width:100%;padding:9px 10px 9px 32px;
-  border:1.5px solid var(--border);border-radius:10px;
-  font-size:14px;background:var(--card);color:var(--t1);
-  outline:none;
-}
+.toolbar{max-width:760px;margin:0 auto;padding:16px 16px 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.search-wrap{flex:1;min-width:160px;position:relative;}
+.search-wrap i{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:13px;pointer-events:none;}
+#search{width:100%;padding:9px 10px 9px 32px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;background:var(--card);color:var(--t1);outline:none;}
 #search:focus{border-color:var(--green);}
 
-.filter-pills{
-  display:flex;gap:6px;flex-wrap:wrap;
-}
-.fpill{
-  padding:6px 12px;border-radius:999px;
-  border:1.5px solid var(--border);background:var(--card);
-  font-size:12px;font-weight:600;color:var(--t3);
-  cursor:pointer;white-space:nowrap;
-  transition:background .12s,color .12s,border-color .12s;
-}
+.filter-pills{display:flex;gap:6px;flex-wrap:wrap;}
+.fpill{padding:6px 12px;border-radius:999px;border:1.5px solid var(--border);background:var(--card);font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;white-space:nowrap;transition:background .12s,color .12s,border-color .12s;}
 .fpill.active{background:var(--green);color:white;border-color:var(--green);}
 .fpill.sport-h.active{background:#8D5524;border-color:#8D5524;}
 .fpill.sport-f.active{background:var(--blue);border-color:var(--blue);}
+.fpill.status-inactive.active{background:#6D4C41;border-color:#6D4C41;}
+.fpill.status-avail.active{background:#00695C;border-color:#00695C;}
 
-.add-btn,
-.icon-btn{
-  display:flex;align-items:center;gap:7px;
-  padding:9px 16px;border-radius:10px;
-  font-size:13px;font-weight:700;cursor:pointer;
-  white-space:nowrap;
-  transition:background .12s,border-color .12s,color .12s;
-}
+.add-btn,.icon-btn{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .12s,border-color .12s,color .12s;}
 .add-btn{background:var(--green);color:white;border:none;}
 .add-btn:hover{background:var(--green-d);}
-.icon-btn{
-  background:var(--card);color:var(--t2);
-  border:1.5px solid var(--border);
-}
+.icon-btn{background:var(--card);color:var(--t2);border:1.5px solid var(--border);}
 .icon-btn:hover{background:var(--bg);border-color:#b8bdb4;color:var(--t1);}
 
 /* ── Stats bar ── */
-.stats-bar{
-  max-width:760px;margin:12px auto 0;
-  padding:0 16px;
-  display:flex;gap:10px;flex-wrap:wrap;
-}
-.stat-chip{
-  padding:5px 10px;border-radius:8px;
-  background:var(--card);border:1px solid var(--border);
-  font-size:12px;color:var(--t2);
-  display:flex;align-items:center;gap:5px;
-}
+.stats-bar{max-width:760px;margin:12px auto 0;padding:0 16px;display:flex;gap:10px;flex-wrap:wrap;}
+.stat-chip{padding:5px 10px;border-radius:8px;background:var(--card);border:1px solid var(--border);font-size:12px;color:var(--t2);display:flex;align-items:center;gap:5px;}
 .stat-chip strong{color:var(--t1);font-weight:700;}
 
-/* ── Table wrapper ── */
-.table-wrap{
-  max-width:760px;margin:14px auto 40px;
-  padding:0 16px;
-}
-.roster-table{
-  width:100%;border-collapse:collapse;
-  background:var(--card);border-radius:14px;
-  box-shadow:var(--shadow);overflow:hidden;
-}
-.roster-table th{
-  padding:10px 12px;
-  font-size:11px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.5px;
-  color:var(--t3);
-  background:#F5F7F2;
-  text-align:left;border-bottom:1.5px solid var(--border);
-  cursor:pointer;user-select:none;white-space:nowrap;
-}
+/* ── Table ── */
+.table-wrap{max-width:760px;margin:14px auto 40px;padding:0 16px;}
+.roster-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;}
+.roster-table th{padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--t3);background:#F5F7F2;text-align:left;border-bottom:1.5px solid var(--border);cursor:pointer;user-select:none;white-space:nowrap;}
 .roster-table th:hover{color:var(--t2);}
 .roster-table th .sort-icon{margin-left:4px;opacity:.4;font-size:10px;}
 .roster-table th.sorted .sort-icon{opacity:1;color:var(--green);}
-.roster-table td{
-  padding:10px 12px;
-  font-size:14px;color:var(--t1);
-  border-bottom:1px solid var(--border);
-  vertical-align:middle;
-}
+.roster-table th.no-sort{cursor:default;}
+.roster-table th.no-sort:hover{color:var(--t3);}
+.roster-table td{padding:10px 12px;font-size:14px;color:var(--t1);border-bottom:1px solid var(--border);vertical-align:middle;}
 .roster-table tr:last-child td{border-bottom:none;}
 .roster-table tr:hover td{background:#F9FBF7;}
+.roster-table tr.row-inactive td{opacity:.4;}
 
-.grade-badge{
-  display:inline-block;padding:2px 8px;
-  border-radius:999px;font-size:11px;font-weight:700;
-}
+.grade-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;}
 .grade-u13{background:#E8F5E9;color:#1B5E20;}
 .grade-u14{background:#E3F2FD;color:#0D47A1;}
 .grade-u15{background:#FFF8E1;color:#E65100;}
 .grade-u16{background:#EDE7F6;color:#4A148C;}
 
-.sport-dot{
-  display:inline-block;width:8px;height:8px;
-  border-radius:50%;margin-right:4px;
-}
+.sport-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;}
 .dot-h{background:#8D5524;}
 .dot-f{background:var(--blue);}
 
-.row-actions{display:flex;gap:6px;align-items:center;}
-.row-btn{
-  width:30px;height:30px;border-radius:8px;
-  border:1.5px solid var(--border);background:transparent;
-  color:var(--t3);font-size:12px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:background .12s,color .12s,border-color .12s;
-}
+.line-badge{display:inline-block;padding:2px 6px;border-radius:5px;font-size:10px;font-weight:700;margin:1px;}
+.line-gk {background:#2E7D32;color:#fff;}
+.line-fb {background:#1565C0;color:#fff;}
+.line-hb {background:#0277BD;color:#fff;}
+.line-mid{background:#D97706;color:#fff;}
+.line-hf {background:#C62828;color:#fff;}
+.line-ff {background:#AD1457;color:#fff;}
+
+.avail-btn{width:28px;height:28px;border-radius:7px;border:1.5px solid var(--border);background:transparent;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s,border-color .12s;}
+.avail-btn.avail-yes{color:var(--green);border-color:var(--green);}
+.avail-btn.avail-no {color:var(--t3);border-color:var(--border);}
+.avail-btn:hover{background:var(--bg);}
+
+.row-actions{display:flex;gap:5px;align-items:center;}
+.row-btn{width:28px;height:28px;border-radius:7px;border:1.5px solid var(--border);background:transparent;color:var(--t3);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s,border-color .12s;}
 .row-btn.edit:hover{background:var(--green-l);color:var(--green);border-color:var(--green);}
 .row-btn.del:hover{background:var(--red-l);color:var(--red);border-color:var(--red);}
+.row-btn.archive:hover{background:#FFF3E0;color:#E65100;border-color:#E65100;}
+.row-btn.restore:hover{background:var(--green-l);color:var(--green);border-color:var(--green);}
 
-.empty-state{
-  text-align:center;padding:48px 20px;
-  color:var(--t3);font-size:14px;
-}
+.player-note{font-size:11px;color:var(--t3);margin-top:2px;font-style:italic;}
+
+.empty-state{text-align:center;padding:48px 20px;color:var(--t3);font-size:14px;}
 .empty-state i{font-size:32px;margin-bottom:12px;display:block;opacity:.4;}
 
 /* ── Modal ── */
-.modal-ovly{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,0.45);z-index:200;
-  align-items:center;justify-content:center;
-  padding:20px;
-}
+.modal-ovly{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
 .modal-ovly.open{display:flex;}
-.modal{
-  background:var(--card);border-radius:var(--r);
-  width:100%;max-width:440px;
-  box-shadow:0 8px 40px rgba(0,0,0,0.2);
-  overflow:hidden;
-}
-.modal-hdr{
-  padding:20px 20px 16px;
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-}
+.modal{background:var(--card);border-radius:var(--r);width:100%;max-width:440px;box-shadow:0 8px 40px rgba(0,0,0,0.2);overflow:hidden;margin:auto;}
+.modal-hdr{padding:20px 20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .modal-hdr h2{font-size:17px;font-weight:800;color:var(--t1);}
-.modal-close{
-  width:32px;height:32px;border-radius:8px;
-  border:none;background:transparent;cursor:pointer;
-  color:var(--t3);font-size:16px;
-  display:flex;align-items:center;justify-content:center;
-}
+.modal-close{width:32px;height:32px;border-radius:8px;border:none;background:transparent;cursor:pointer;color:var(--t3);font-size:16px;display:flex;align-items:center;justify-content:center;}
 .modal-close:hover{background:var(--bg);color:var(--t1);}
-.modal-body{padding:20px;}
+.modal-body{padding:20px;max-height:70vh;overflow-y:auto;}
 .form-row{margin-bottom:14px;}
-.form-row label{
-  display:block;font-size:12px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.4px;
-  color:var(--t3);margin-bottom:5px;
-}
-.form-row input,
-.form-row select{
-  width:100%;padding:10px 12px;
-  border:1.5px solid var(--border);border-radius:10px;
-  font-size:14px;color:var(--t1);background:var(--card);
-  outline:none;
-}
-.form-row input:focus,
-.form-row select:focus{border-color:var(--green);}
+.form-row>label:first-child{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--t3);margin-bottom:5px;}
+.form-row input[type=text],.form-row input[type=number],.form-row textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;color:var(--t1);background:var(--card);outline:none;font-family:inherit;}
+.form-row input:focus,.form-row textarea:focus{border-color:var(--green);}
+.form-row textarea{resize:vertical;min-height:56px;}
+
 .sport-toggles{display:flex;gap:10px;}
-.sport-toggle{
-  flex:1;display:flex;align-items:center;gap:8px;
-  padding:10px 12px;border-radius:10px;
-  border:1.5px solid var(--border);background:var(--card);
-  cursor:pointer;font-size:13px;font-weight:600;color:var(--t2);
-  transition:background .12s,border-color .12s,color .12s;
-}
+.sport-toggle{flex:1;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:13px;font-weight:600;color:var(--t2);transition:background .12s,border-color .12s,color .12s;}
 .sport-toggle input[type=checkbox]{display:none;}
 .sport-toggle.checked-h{background:#FFF3E0;border-color:#8D5524;color:#8D5524;}
 .sport-toggle.checked-f{background:var(--blue-l);border-color:var(--blue);color:var(--blue);}
-.modal-foot{
-  padding:16px 20px;border-top:1px solid var(--border);
-  display:flex;gap:10px;justify-content:flex-end;
-}
-.btn-cancel{
-  padding:10px 18px;border-radius:10px;
-  border:1.5px solid var(--border);background:transparent;
-  font-size:14px;font-weight:600;color:var(--t2);cursor:pointer;
-}
+
+.line-toggles{display:flex;gap:6px;flex-wrap:wrap;}
+.line-toggle{padding:7px 11px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;font-weight:700;color:var(--t2);transition:background .12s,border-color .12s,color .12s;white-space:nowrap;}
+.line-toggle.sel-gk {background:#2E7D32;border-color:#2E7D32;color:#fff;}
+.line-toggle.sel-fb {background:#1565C0;border-color:#1565C0;color:#fff;}
+.line-toggle.sel-hb {background:#0277BD;border-color:#0277BD;color:#fff;}
+.line-toggle.sel-mid{background:#D97706;border-color:#D97706;color:#fff;}
+.line-toggle.sel-hf {background:#C62828;border-color:#C62828;color:#fff;}
+.line-toggle.sel-ff {background:#AD1457;border-color:#AD1457;color:#fff;}
+
+.active-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--card);}
+.active-row span{font-size:14px;font-weight:600;color:var(--t2);}
+.toggle-switch{position:relative;width:44px;height:26px;flex-shrink:0;}
+.toggle-switch input{opacity:0;width:0;height:0;}
+.toggle-track{position:absolute;inset:0;border-radius:13px;background:var(--border);transition:background .2s;cursor:pointer;}
+.toggle-track::before{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,0.18);}
+.toggle-switch input:checked+.toggle-track{background:var(--green);}
+.toggle-switch input:checked+.toggle-track::before{transform:translateX(18px);}
+
+.modal-foot{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+.btn-cancel{padding:10px 18px;border-radius:10px;border:1.5px solid var(--border);background:transparent;font-size:14px;font-weight:600;color:var(--t2);cursor:pointer;}
 .btn-cancel:hover{background:var(--bg);}
-.btn-save{
-  padding:10px 20px;border-radius:10px;
-  border:none;background:var(--green);color:white;
-  font-size:14px;font-weight:700;cursor:pointer;
-}
+.btn-save{padding:10px 20px;border-radius:10px;border:none;background:var(--green);color:white;font-size:14px;font-weight:700;cursor:pointer;}
 .btn-save:hover{background:var(--green-d);}
 
 /* ── Import banner ── */
-.import-banner{
-  max-width:760px;margin:12px auto 0;padding:0 16px;
-}
-.import-note{
-  padding:10px 14px;border-radius:10px;
-  background:var(--amber-l);border:1px solid #F5CBA7;
-  font-size:12px;color:#7A4F01;
-  display:flex;align-items:center;gap:8px;
-}
+.import-banner{max-width:760px;margin:12px auto 0;padding:0 16px;}
+.import-note{padding:10px 14px;border-radius:10px;background:var(--amber-l);border:1px solid #F5CBA7;font-size:12px;color:#7A4F01;display:flex;align-items:center;gap:8px;}
 
 @media(max-width:520px){
   .hdr{padding:20px 16px 16px;}
   .toolbar{padding:12px 12px 0;}
   .table-wrap{padding:0 10px;margin-bottom:28px;}
   .roster-table th,.roster-table td{padding:8px 8px;}
-  .roster-table th:nth-child(3),
-  .roster-table td:nth-child(3){display:none;}
-  .roster-table th:nth-child(2) span,
-  .roster-table td:nth-child(2) span:last-child{display:none;}
+  .roster-table th:nth-child(3),.roster-table td:nth-child(3){display:none;}
+  .roster-table th:nth-child(4),.roster-table td:nth-child(4){display:none;}
 }
 </style>
 </head>
@@ -290,17 +186,20 @@ body{
     <input id="search" type="search" placeholder="Search players…" autocomplete="off">
   </div>
   <div class="filter-pills">
-    <button class="fpill active" data-filter="all">All</button>
-    <button class="fpill" data-filter="U13">U13</button>
-    <button class="fpill" data-filter="U14">U14</button>
-    <button class="fpill" data-filter="U15">U15</button>
-    <button class="fpill" data-filter="U16">U16</button>
-    <button class="fpill sport-h" data-filter="hurling">Hurling</button>
-    <button class="fpill sport-f" data-filter="football">Football</button>
+    <button class="fpill active"      data-filter="all">All</button>
+    <button class="fpill"             data-filter="U13">U13</button>
+    <button class="fpill"             data-filter="U14">U14</button>
+    <button class="fpill"             data-filter="U15">U15</button>
+    <button class="fpill"             data-filter="U16">U16</button>
+    <button class="fpill sport-h"     data-filter="hurling">Hurling</button>
+    <button class="fpill sport-f"     data-filter="football">Football</button>
+    <button class="fpill status-avail"  data-filter="unavailable" title="Show only unavailable players">Unavailable</button>
+    <button class="fpill status-inactive" data-filter="inactive" title="Show archived players">Inactive</button>
   </div>
-  <div style="display:flex;gap:8px;">
-    <button class="icon-btn" onclick="exportRoster()" title="Export roster as JSON"><i class="fas fa-file-export"></i> Export</button>
-    <label class="icon-btn" title="Import roster from JSON" style="cursor:pointer;">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="icon-btn" onclick="exportRoster()" title="Export as JSON"><i class="fas fa-file-export"></i> JSON</button>
+    <button class="icon-btn" onclick="exportCSV()"   title="Export as CSV"><i class="fas fa-file-csv"></i> CSV</button>
+    <label class="icon-btn" title="Import from JSON" style="cursor:pointer;">
       <i class="fas fa-file-import"></i> Import
       <input type="file" id="import-file" accept=".json,application/json" style="display:none;" onclick="this.value=''" onchange="importRoster(this)">
     </label>
@@ -315,9 +214,11 @@ body{
     <thead>
       <tr>
         <th data-col="name">Name <i class="fas fa-sort sort-icon"></i></th>
-        <th data-col="birthYear" id="th-grade">Grade / Born <i class="fas fa-sort sort-icon"></i></th>
-        <th>Sports</th>
-        <th></th>
+        <th data-col="birthYear">Grade / Born <i class="fas fa-sort sort-icon"></i></th>
+        <th class="no-sort">Lines</th>
+        <th class="no-sort">Sports</th>
+        <th class="no-sort" style="text-align:center;" title="Available for selection">Avail</th>
+        <th class="no-sort"></th>
       </tr>
     </thead>
     <tbody id="roster-body"></tbody>
@@ -333,15 +234,31 @@ body{
     </div>
     <div class="modal-body">
       <input type="hidden" id="edit-idx" value="">
+
       <div class="form-row">
         <label>Name</label>
         <input id="f-name" type="text" placeholder="Player name" maxlength="50" autocomplete="off">
       </div>
+
       <div class="form-row">
         <label>Birth Year</label>
-        <input id="f-year" type="number" min="2000" max="2020" step="1" placeholder="e.g. 2012" onchange="updateGradePreview(this.value)" oninput="updateGradePreview(this.value)">
+        <input id="f-year" type="number" min="2000" max="2020" step="1" placeholder="e.g. 2012"
+               onchange="updateGradePreview(this.value)" oninput="updateGradePreview(this.value)">
         <div id="grade-preview" style="margin-top:5px;font-size:12px;color:var(--t3);"></div>
       </div>
+
+      <div class="form-row">
+        <label>Lines (multi-select)</label>
+        <div class="line-toggles" id="line-toggles">
+          <button type="button" class="line-toggle" data-line="GK">GK</button>
+          <button type="button" class="line-toggle" data-line="Full Back">Full Back</button>
+          <button type="button" class="line-toggle" data-line="Half Back">Half Back</button>
+          <button type="button" class="line-toggle" data-line="Midfield">Midfield</button>
+          <button type="button" class="line-toggle" data-line="Half Forward">Half Forward</button>
+          <button type="button" class="line-toggle" data-line="Full Forward">Full Forward</button>
+        </div>
+      </div>
+
       <div class="form-row">
         <label>Sports</label>
         <div class="sport-toggles">
@@ -355,10 +272,25 @@ body{
           </label>
         </div>
       </div>
+
+      <div class="form-row">
+        <label>Notes</label>
+        <textarea id="f-notes" placeholder="Injury, permission, contact…" maxlength="120"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="active-row">
+          <span>Active in squad</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="f-active" checked>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
     </div>
     <div class="modal-foot">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-save" onclick="savePlayer()">Save</button>
+      <button class="btn-save"   onclick="savePlayer()">Save</button>
     </div>
   </div>
 </div>
@@ -368,25 +300,41 @@ body{
 
 const STORAGE_KEY = 'gaa_roster_v1';
 const SEED_URL    = 'roster.json';
+const THIS_YEAR   = new Date().getFullYear();
 
-let roster = [];
-let sortCol = 'name';
-let sortAsc = true;
+// ── Line meta ─────────────────────────────────────────────────────────────────
+const LINES = ['GK','Full Back','Half Back','Midfield','Half Forward','Full Forward'];
+const LINE_CLS = {
+  'GK':'gk','Full Back':'fb','Half Back':'hb',
+  'Midfield':'mid','Half Forward':'hf','Full Forward':'ff',
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let roster      = [];
+let sortCol     = 'name';
+let sortAsc     = true;
 let filterGrade = 'all';
 let filterSport = null;
-let searchQ = '';
-let seeded = false;
+let filterInactive  = false;  // when true, show inactive players
+let filterUnavail   = false;  // when true, show only unavailable
+let searchQ     = '';
+
+// ── Defaults ──────────────────────────────────────────────────────────────────
+function d(p) {
+  return {
+    lines:     [],
+    active:    true,
+    available: true,
+    notes:     '',
+    ...p,
+  };
+}
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {
   const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored) {
-    try { roster = JSON.parse(stored); }
-    catch { roster = []; }
-  }
-  if (!roster.length) {
-    await seedFromJson();
-  }
+  if (stored) { try { roster = JSON.parse(stored); } catch { roster = []; } }
+  if (!roster.length) await seedFromJson();
   render();
 }
 
@@ -396,30 +344,30 @@ async function seedFromJson() {
     if (!res.ok) return;
     roster = await res.json();
     persist();
-    seeded = true;
     document.getElementById('import-banner').style.display = '';
   } catch {}
 }
 
 function persist() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(roster));
-  // Also write to a broadcast channel so settings.js can pick up changes
   try { new BroadcastChannel('gaa_roster').postMessage('updated'); } catch {}
 }
 
-// ── Grade helper ──────────────────────────────────────────────────────────────
-const THIS_YEAR = new Date().getFullYear();
-function gradeFromBirthYear(birthYear) {
-  return 'U' + (THIS_YEAR - birthYear);
-}
+// ── Grade helpers ─────────────────────────────────────────────────────────────
+function gradeFromBirthYear(by) { return 'U' + (THIS_YEAR - by); }
+function gradeCls(g) { return {U13:'grade-u13',U14:'grade-u14',U15:'grade-u15',U16:'grade-u16'}[g]||''; }
 
-// ── Filtering / Sorting ───────────────────────────────────────────────────────
+// ── Filtering / sorting ───────────────────────────────────────────────────────
 function filtered() {
   return roster.filter(p => {
+    const pd = d(p);
     if (searchQ && !p.name.toLowerCase().includes(searchQ)) return false;
     if (filterGrade !== 'all' && gradeFromBirthYear(p.birthYear) !== filterGrade) return false;
     if (filterSport === 'hurling'  && !p.hurling)  return false;
     if (filterSport === 'football' && !p.football) return false;
+    if (filterUnavail && pd.available) return false;
+    // by default hide inactive; "Inactive" pill reveals them
+    if (!filterInactive && !pd.active) return false;
     return true;
   }).sort((a, b) => {
     let va = a[sortCol], vb = b[sortCol];
@@ -431,61 +379,88 @@ function filtered() {
   });
 }
 
-// ── Render ────────────────────────────────────────────────────────────────────
-function gradeCls(g) {
-  return {U13:'grade-u13',U14:'grade-u14',U15:'grade-u15',U16:'grade-u16'}[g] || '';
-}
-
+// ── Escape ────────────────────────────────────────────────────────────────────
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
+// ── Render ────────────────────────────────────────────────────────────────────
 function render() {
-  const rows = filtered();
+  const rows  = filtered();
   const tbody = document.getElementById('roster-body');
 
   // Stats bar
   const sb = document.getElementById('stats-bar');
-  const total = roster.length;
-  const shown = rows.length;
-  const byGrade = {};
-  roster.forEach(p => { const g = gradeFromBirthYear(p.birthYear); byGrade[g] = (byGrade[g]||0)+1; });
-  sb.innerHTML = `<div class="stat-chip"><strong>${total}</strong> players</div>`
+  const total    = roster.length;
+  const active   = roster.filter(p => d(p).active).length;
+  const avail    = roster.filter(p => d(p).active && d(p).available).length;
+  const byGrade  = {};
+  roster.filter(p => d(p).active).forEach(p => {
+    const g = gradeFromBirthYear(p.birthYear);
+    byGrade[g] = (byGrade[g]||0) + 1;
+  });
+  sb.innerHTML = `<div class="stat-chip"><strong>${total}</strong> total</div>`
+    + `<div class="stat-chip"><strong>${active}</strong> active</div>`
+    + `<div class="stat-chip" style="color:${avail < active ? 'var(--red)' : 'var(--t2)'}"><strong>${avail}</strong> available</div>`
     + Object.entries(byGrade).sort((a,b)=>a[0].localeCompare(b[0])).map(([g,n]) =>
         `<div class="stat-chip"><strong>${n}</strong> ${esc(g)}</div>`
       ).join('')
-    + (shown < total ? `<div class="stat-chip" style="color:var(--amber)"><strong>${shown}</strong> shown</div>` : '');
+    + (rows.length < roster.length ? `<div class="stat-chip" style="color:var(--amber)"><strong>${rows.length}</strong> shown</div>` : '');
 
   // Sort headers
   document.querySelectorAll('.roster-table th[data-col]').forEach(th => {
     const icon = th.querySelector('.sort-icon');
     th.classList.toggle('sorted', th.dataset.col === sortCol);
-    if (th.dataset.col === sortCol) {
-      icon.className = 'fas sort-icon ' + (sortAsc ? 'fa-sort-up' : 'fa-sort-down');
-    } else {
-      icon.className = 'fas fa-sort sort-icon';
-    }
+    icon.className = 'fas sort-icon ' + (th.dataset.col === sortCol ? (sortAsc ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort');
   });
 
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><i class="fas fa-users-slash"></i>No players match your filters</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-users-slash"></i>No players match your filters</div></td></tr>';
     return;
   }
 
-  tbody.innerHTML = rows.map((p) => {
-    const ri = roster.indexOf(p);
+  tbody.innerHTML = rows.map(p => {
+    const ri   = roster.indexOf(p);
+    const pd   = d(p);
     const grade = gradeFromBirthYear(p.birthYear);
-    const sports = (p.hurling ? '<span class="sport-dot dot-h"></span>H' : '')
+
+    const lineBadges = (pd.lines||[]).map(l =>
+      `<span class="line-badge line-${LINE_CLS[l]||'mid'}">${esc(l)}</span>`
+    ).join('');
+
+    const sports = (p.hurling  ? '<span class="sport-dot dot-h"></span>H' : '')
       + (p.hurling && p.football ? ' ' : '')
       + (p.football ? '<span class="sport-dot dot-f"></span>F' : '')
       + (!p.hurling && !p.football ? '<span style="color:var(--t3);font-size:12px;">—</span>' : '');
-    return `<tr>
-      <td>${esc(p.name)}</td>
-      <td><span class="grade-badge ${gradeCls(grade)}">${esc(grade)}</span> <span style="color:var(--t3);font-size:12px;">${esc(p.birthYear)}</span></td>
+
+    const noteLine = pd.notes
+      ? `<div class="player-note">${esc(pd.notes)}</div>` : '';
+
+    const availCls = pd.available ? 'avail-yes' : 'avail-no';
+    const availIcon= pd.available ? 'fa-check'  : 'fa-xmark';
+    const availTip = pd.available ? 'Available' : 'Unavailable — click to toggle';
+
+    const archiveCls  = pd.active ? 'archive' : 'restore';
+    const archiveIcon = pd.active ? 'fa-box-archive' : 'fa-box-open';
+    const archiveTip  = pd.active ? 'Archive player' : 'Restore player';
+
+    return `<tr class="${pd.active ? '' : 'row-inactive'}">
+      <td><div>${esc(p.name)}</div>${noteLine}</td>
+      <td>
+        <span class="grade-badge ${gradeCls(grade)}">${esc(grade)}</span>
+        <span style="color:var(--t3);font-size:12px;"> ${esc(p.birthYear)}</span>
+      </td>
+      <td style="white-space:nowrap;">${lineBadges || '<span style="color:var(--t3);font-size:12px;">—</span>'}</td>
       <td style="white-space:nowrap;">${sports}</td>
+      <td style="text-align:center;">
+        <button class="avail-btn ${availCls}" onclick="toggleAvailable(${ri})" title="${availTip}">
+          <i class="fas ${availIcon}"></i>
+        </button>
+      </td>
       <td><div class="row-actions">
-        <button class="row-btn edit" onclick="editPlayer(${ri})" title="Edit"><i class="fas fa-pen"></i></button>
-        <button class="row-btn del"  onclick="deletePlayer(${ri})" title="Delete"><i class="fas fa-trash-can"></i></button>
+        <button class="row-btn edit"       onclick="editPlayer(${ri})"   title="Edit"><i class="fas fa-pen"></i></button>
+        <button class="row-btn ${archiveCls}" onclick="toggleActive(${ri})" title="${archiveTip}"><i class="fas ${archiveIcon}"></i></button>
+        <button class="row-btn del"        onclick="deletePlayer(${ri})" title="Delete permanently"><i class="fas fa-trash-can"></i></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -497,21 +472,35 @@ document.querySelectorAll('.fpill').forEach(btn => {
     const f = btn.dataset.filter;
     if (f === 'hurling' || f === 'football') {
       filterSport = (filterSport === f) ? null : f;
+    } else if (f === 'inactive') {
+      filterInactive = !filterInactive;
+      filterUnavail  = false;
+    } else if (f === 'unavailable') {
+      filterUnavail  = !filterUnavail;
+      filterInactive = filterUnavail; // show inactive too when filtering unavailable
     } else {
-      filterGrade = f;
-      filterSport = null;
+      filterGrade  = f;
+      filterSport  = null;
     }
-    document.querySelectorAll('.fpill').forEach(b => {
-      const bf = b.dataset.filter;
-      if (bf === 'hurling' || bf === 'football') {
-        b.classList.toggle('active', filterSport === bf);
-      } else {
-        b.classList.toggle('active', bf === filterGrade && !filterSport);
-      }
-    });
+    syncPills();
     render();
   });
 });
+
+function syncPills() {
+  document.querySelectorAll('.fpill').forEach(b => {
+    const f = b.dataset.filter;
+    if (f === 'hurling' || f === 'football') {
+      b.classList.toggle('active', filterSport === f);
+    } else if (f === 'inactive') {
+      b.classList.toggle('active', filterInactive);
+    } else if (f === 'unavailable') {
+      b.classList.toggle('active', filterUnavail);
+    } else {
+      b.classList.toggle('active', f === filterGrade && !filterSport);
+    }
+  });
+}
 
 // ── Search ────────────────────────────────────────────────────────────────────
 document.getElementById('search').addEventListener('input', function() {
@@ -529,35 +518,65 @@ document.querySelectorAll('.roster-table th[data-col]').forEach(th => {
   });
 });
 
+// ── Line toggles in modal ─────────────────────────────────────────────────────
+let _selectedLines = [];
+
+function _syncLineToggles() {
+  document.querySelectorAll('#line-toggles .line-toggle').forEach(btn => {
+    const l   = btn.dataset.line;
+    const cls = 'sel-' + (LINE_CLS[l] || 'mid');
+    btn.classList.toggle(cls, _selectedLines.includes(l));
+  });
+}
+
+document.querySelectorAll('#line-toggles .line-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const l = btn.dataset.line;
+    if (_selectedLines.includes(l)) {
+      _selectedLines = _selectedLines.filter(x => x !== l);
+    } else {
+      _selectedLines.push(l);
+    }
+    _syncLineToggles();
+  });
+});
+
 // ── Add / Edit modal ──────────────────────────────────────────────────────────
 function updateGradePreview(year) {
   const el = document.getElementById('grade-preview');
-  if (el) el.textContent = 'Grade in ' + THIS_YEAR + ': ' + gradeFromBirthYear(Number(year));
+  if (el && year) el.textContent = 'Grade in ' + THIS_YEAR + ': ' + gradeFromBirthYear(Number(year));
 }
 
 function openModal(p, idx) {
+  const pd = p ? d(p) : null;
   document.getElementById('modal-title').textContent = idx !== undefined ? 'Edit Player' : 'Add Player';
   document.getElementById('edit-idx').value = idx !== undefined ? idx : '';
-  document.getElementById('f-name').value   = p ? p.name : '';
-  const year = p ? String(p.birthYear) : '2013';
+  document.getElementById('f-name').value   = pd ? pd.name : '';
+  const year = pd ? String(pd.birthYear) : '2013';
   document.getElementById('f-year').value   = year;
   updateGradePreview(year);
+
+  _selectedLines = pd ? [...(pd.lines||[])] : [];
+  _syncLineToggles();
+
   const hChk = document.getElementById('f-hurling');
   const fChk = document.getElementById('f-football');
-  hChk.checked = p ? !!p.hurling : false;
-  fChk.checked = p ? !!p.football : false;
+  hChk.checked = pd ? !!pd.hurling : false;
+  fChk.checked = pd ? !!pd.football : false;
   _syncToggle('h', hChk.checked);
   _syncToggle('f', fChk.checked);
+
+  document.getElementById('f-notes').value  = pd ? (pd.notes || '') : '';
+  document.getElementById('f-active').checked = pd ? (pd.active !== false) : true;
+
   document.getElementById('modal-ovly').classList.add('open');
   setTimeout(() => document.getElementById('f-name').focus(), 60);
 }
 
 function _syncToggle(type, checked) {
-  const el = document.getElementById('toggle-' + type);
-  el.classList.toggle('checked-' + type, checked);
+  document.getElementById('toggle-' + type).classList.toggle('checked-' + type, checked);
 }
 
-// Sync visual class whenever the checkbox state changes (via label click or direct toggle)
 document.getElementById('f-hurling').addEventListener('change', function() { _syncToggle('h', this.checked); });
 document.getElementById('f-football').addEventListener('change', function() { _syncToggle('f', this.checked); });
 
@@ -573,67 +592,111 @@ function savePlayer() {
   const rec = {
     name,
     birthYear: by,
+    lines:     [..._selectedLines],
     hurling:   document.getElementById('f-hurling').checked,
     football:  document.getElementById('f-football').checked,
+    notes:     document.getElementById('f-notes').value.trim(),
+    active:    document.getElementById('f-active').checked,
+    available: (() => {
+      const idx = document.getElementById('edit-idx').value;
+      return idx !== '' ? (d(roster[Number(idx)]).available) : true;
+    })(),
   };
   const idx = document.getElementById('edit-idx').value;
   if (idx !== '') { roster[Number(idx)] = rec; }
-  else { roster.push(rec); }
+  else            { roster.push(rec); }
   persist();
   closeModal();
   render();
 }
 
-function editPlayer(idx) {
-  openModal(roster[idx], idx);
-}
+function editPlayer(idx)   { openModal(roster[idx], idx); }
 
 function deletePlayer(idx) {
-  if (!confirm('Remove ' + roster[idx].name + ' from roster?')) return;
+  if (!confirm('Permanently remove ' + roster[idx].name + ' from roster?')) return;
   roster.splice(idx, 1);
   persist();
   render();
 }
 
-// ── Import / Export ───────────────────────────────────────────────────────────
+function toggleAvailable(idx) {
+  const p = d(roster[idx]);
+  roster[idx] = { ...roster[idx], available: !p.available };
+  persist();
+  render();
+}
+
+function toggleActive(idx) {
+  const p = d(roster[idx]);
+  roster[idx] = { ...roster[idx], active: !p.active };
+  persist();
+  render();
+}
+
+// ── Export ────────────────────────────────────────────────────────────────────
 function exportRoster() {
-  const json = JSON.stringify(roster, null, 2);
-  const blob = new Blob([json], {type: 'application/json'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = 'roster.json';
+  const blob = new Blob([JSON.stringify(roster, null, 2)], {type:'application/json'});
+  _download(blob, 'roster.json');
+}
+
+function exportCSV() {
+  const cols = ['Name','Birth Year','Grade','Lines','Hurling','Football','Active','Available','Notes'];
+  const rows = roster.map(p => {
+    const pd = d(p);
+    return [
+      pd.name,
+      pd.birthYear,
+      gradeFromBirthYear(pd.birthYear),
+      (pd.lines||[]).join('; '),
+      pd.hurling  ? 'Yes' : 'No',
+      pd.football ? 'Yes' : 'No',
+      pd.active   !== false ? 'Yes' : 'No',
+      pd.available !== false ? 'Yes' : 'No',
+      pd.notes || '',
+    ];
+  });
+  const csv = [cols, ...rows].map(r =>
+    r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')
+  ).join('\r\n');
+  _download(new Blob([csv], {type:'text/csv'}), 'roster.csv');
+}
+
+function _download(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement('a'), {href:url, download:name});
   a.click();
   URL.revokeObjectURL(url);
 }
 
+// ── Import ────────────────────────────────────────────────────────────────────
 function importRoster(input) {
   const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = function(e) {
     let imported;
-    try { imported = JSON.parse(e.target.result); }
+    try   { imported = JSON.parse(e.target.result); }
     catch { alert('Invalid JSON file.'); input.value = ''; return; }
     if (!Array.isArray(imported)) { alert('Expected a JSON array of players.'); input.value = ''; return; }
-    // Validate each entry has at least a name field
     const valid = imported.filter(p => p && typeof p.name === 'string' && p.name.trim());
     if (!valid.length) { alert('No valid player records found.'); input.value = ''; return; }
-    // Normalise missing fields with safe defaults
     const normalised = valid.map(p => {
       const by = Number(p.birthYear);
       return {
         name:      p.name.trim(),
         birthYear: (Number.isFinite(by) && by >= 2000 && by <= 2020) ? by : 2013,
+        lines:     Array.isArray(p.lines) ? p.lines.filter(l => LINES.includes(l)) : [],
         hurling:   !!p.hurling,
         football:  !!p.football,
+        notes:     typeof p.notes === 'string' ? p.notes.slice(0,120) : '',
+        active:    p.active !== false,
+        available: p.available !== false,
       };
     });
-    const action = roster.length
-      ? confirm(`Merge ${valid.length} imported players with existing ${roster.length}? \n\nOK = Merge (skip duplicates)\nCancel = Replace all`)
+    const merge = roster.length
+      ? confirm(`Merge ${valid.length} imported players with existing ${roster.length}?\n\nOK = Merge (skip duplicates)\nCancel = Replace all`)
       : false;
-    if (action) {
-      // Merge: skip players whose name already exists (case-insensitive)
+    if (merge) {
       const existing = new Set(roster.map(p => p.name.toLowerCase()));
       const added = normalised.filter(p => !existing.has(p.name.toLowerCase()));
       roster.push(...added);
@@ -649,10 +712,7 @@ function importRoster(input) {
   reader.readAsText(file);
 }
 
-// Keyboard shortcut for modal
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
-});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 init();
 </script>
