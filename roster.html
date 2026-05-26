@@ -40,7 +40,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 #search:focus{border-color:var(--green);}
 
 .filter-pills{display:flex;gap:6px;flex-wrap:wrap;}
-#grade-pills{display:contents;}
 .fpill{padding:6px 12px;border-radius:999px;border:1.5px solid var(--border);background:var(--card);font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;white-space:nowrap;transition:background .12s,color .12s,border-color .12s;}
 .fpill.active{background:var(--green);color:white;border-color:var(--green);}
 .fpill.sport-h.active{background:#8D5524;border-color:#8D5524;}
@@ -188,7 +187,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   </div>
   <div class="filter-pills" id="filter-pills">
     <button class="fpill active"      data-filter="all">All</button>
-    <span id="grade-pills"></span>
     <button class="fpill sport-h"     data-filter="hurling">Hurling</button>
     <button class="fpill sport-f"     data-filter="football">Football</button>
     <button class="fpill status-avail"  data-filter="unavailable" title="Show only unavailable players">Unavailable</button>
@@ -472,6 +470,9 @@ function render() {
 
 // ── Grade pills (dynamic) ─────────────────────────────────────────────────────
 function renderGradePills() {
+  // Remove any previously injected grade pills
+  document.querySelectorAll('#filter-pills .fpill-grade').forEach(el => el.remove());
+
   const grades = new Set();
   roster.forEach(p => { if (p.birthYear) grades.add(gradeFromBirthYear(p.birthYear)); });
   const sorted = [...grades].sort((a, b) => {
@@ -479,10 +480,19 @@ function renderGradePills() {
     const nb = Number.parseInt(b.replace('U', ''), 10) || 0;
     return na - nb;
   });
+
   if (filterGrade !== 'all' && !grades.has(filterGrade)) filterGrade = 'all';
-  document.getElementById('grade-pills').innerHTML = sorted.map(g =>
-    `<button class="fpill" data-filter="${esc(g)}">${esc(g)}</button>`
-  ).join('');
+
+  // Insert grade pills after the All button, in ascending order
+  const allBtn = document.querySelector('#filter-pills .fpill[data-filter="all"]');
+  // Reverse so each insertAdjacentElement('afterend') keeps ascending order
+  [...sorted].reverse().forEach(g => {
+    const btn = document.createElement('button');
+    btn.className  = 'fpill fpill-grade';
+    btn.dataset.filter = g;
+    btn.textContent = g;
+    allBtn.insertAdjacentElement('afterend', btn);
+  });
 }
 
 // ── Filter pills (delegated) ──────────────────────────────────────────────────
