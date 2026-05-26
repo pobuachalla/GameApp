@@ -470,9 +470,6 @@ function render() {
 
 // ── Grade pills (dynamic) ─────────────────────────────────────────────────────
 function renderGradePills() {
-  // Remove any previously injected grade pills
-  document.querySelectorAll('#filter-pills .fpill-grade').forEach(el => el.remove());
-
   const grades = new Set();
   roster.forEach(p => { if (p.birthYear) grades.add(gradeFromBirthYear(p.birthYear)); });
   const sorted = [...grades].sort((a, b) => {
@@ -480,19 +477,15 @@ function renderGradePills() {
     const nb = Number.parseInt(b.replace('U', ''), 10) || 0;
     return na - nb;
   });
-
   if (filterGrade !== 'all' && !grades.has(filterGrade)) filterGrade = 'all';
-
-  // Insert grade pills after the All button, in ascending order
-  const allBtn = document.querySelector('#filter-pills .fpill[data-filter="all"]');
-  // Reverse so each insertAdjacentElement('afterend') keeps ascending order
-  [...sorted].reverse().forEach(g => {
-    const btn = document.createElement('button');
-    btn.className  = 'fpill fpill-grade';
-    btn.dataset.filter = g;
-    btn.textContent = g;
-    allBtn.insertAdjacentElement('afterend', btn);
-  });
+  const gradePills = sorted.map(g => `<button class="fpill" data-filter="${g}">${g}</button>`).join('');
+  document.getElementById('filter-pills').innerHTML =
+      '<button class="fpill" data-filter="all">All</button>'
+    + gradePills
+    + '<button class="fpill sport-h" data-filter="hurling">Hurling</button>'
+    + '<button class="fpill sport-f" data-filter="football">Football</button>'
+    + '<button class="fpill status-avail" data-filter="unavailable" title="Show only unavailable players">Unavailable</button>'
+    + '<button class="fpill status-inactive" data-filter="inactive" title="Show archived players">Inactive</button>';
 }
 
 // ── Filter pills (delegated) ──────────────────────────────────────────────────
