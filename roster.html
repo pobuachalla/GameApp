@@ -185,12 +185,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <i class="fas fa-magnifying-glass"></i>
     <input id="search" type="search" placeholder="Search players…" autocomplete="off">
   </div>
-  <div class="filter-pills">
+  <div class="filter-pills" id="filter-pills">
     <button class="fpill active"      data-filter="all">All</button>
-    <button class="fpill"             data-filter="U13">U13</button>
-    <button class="fpill"             data-filter="U14">U14</button>
-    <button class="fpill"             data-filter="U15">U15</button>
-    <button class="fpill"             data-filter="U16">U16</button>
+    <span id="grade-pills"></span>
     <button class="fpill sport-h"     data-filter="hurling">Hurling</button>
     <button class="fpill sport-f"     data-filter="football">Football</button>
     <button class="fpill status-avail"  data-filter="unavailable" title="Show only unavailable players">Unavailable</button>
@@ -390,6 +387,8 @@ function esc(s) {
 
 // ── Render ────────────────────────────────────────────────────────────────────
 function render() {
+  renderGradePills();
+  syncPills();
   const rows  = filtered();
   const tbody = document.getElementById('roster-body');
 
@@ -470,38 +469,47 @@ function render() {
   }).join('');
 }
 
-// ── Filter pills ──────────────────────────────────────────────────────────────
-document.querySelectorAll('.fpill').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const f = btn.dataset.filter;
-    if (f === 'hurling' || f === 'football') {
-      filterSport = (filterSport === f) ? null : f;
-    } else if (f === 'inactive') {
-      filterInactive = !filterInactive;
-      filterUnavail  = false;
-    } else if (f === 'unavailable') {
-      filterUnavail  = !filterUnavail;
-    } else {
-      filterGrade  = f;
-      filterSport  = null;
-    }
-    syncPills();
-    render();
+// ── Grade pills (dynamic) ─────────────────────────────────────────────────────
+function renderGradePills() {
+  const grades = new Set();
+  roster.forEach(p => { if (p.birthYear) grades.add(gradeFromBirthYear(p.birthYear)); });
+  const sorted = [...grades].sort((a, b) => {
+    const na = Number.parseInt(a.replace('U', ''), 10) || 0;
+    const nb = Number.parseInt(b.replace('U', ''), 10) || 0;
+    return na - nb;
   });
+  if (filterGrade !== 'all' && !grades.has(filterGrade)) filterGrade = 'all';
+  document.getElementById('grade-pills').innerHTML = sorted.map(g =>
+    `<button class="fpill" data-filter="${esc(g)}">${esc(g)}</button>`
+  ).join('');
+}
+
+// ── Filter pills (delegated) ──────────────────────────────────────────────────
+document.getElementById('filter-pills').addEventListener('click', e => {
+  const btn = e.target.closest('.fpill');
+  if (!btn) return;
+  const f = btn.dataset.filter;
+  if (f === 'hurling' || f === 'football') {
+    filterSport = (filterSport === f) ? null : f;
+  } else if (f === 'inactive') {
+    filterInactive = !filterInactive;
+    filterUnavail  = false;
+  } else if (f === 'unavailable') {
+    filterUnavail  = !filterUnavail;
+  } else {
+    filterGrade = f;
+    filterSport = null;
+  }
+  render();
 });
 
 function syncPills() {
   document.querySelectorAll('.fpill').forEach(b => {
     const f = b.dataset.filter;
-    if (f === 'hurling' || f === 'football') {
-      b.classList.toggle('active', filterSport === f);
-    } else if (f === 'inactive') {
-      b.classList.toggle('active', filterInactive);
-    } else if (f === 'unavailable') {
-      b.classList.toggle('active', filterUnavail);
-    } else {
-      b.classList.toggle('active', f === filterGrade && !filterSport);
-    }
+    if      (f === 'hurling' || f === 'football') b.classList.toggle('active', filterSport === f);
+    else if (f === 'inactive')    b.classList.toggle('active', filterInactive);
+    else if (f === 'unavailable') b.classList.toggle('active', filterUnavail);
+    else                          b.classList.toggle('active', f === filterGrade && !filterSport);
   });
 }
 
