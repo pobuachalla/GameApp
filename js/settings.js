@@ -440,23 +440,12 @@ function _gradeNum(grade) {
   return m ? Number(m[1]) : 0;
 }
 
-function _slotPosition(slot) {
-  if (slot === 1)                return 'GK';
-  if (slot >= 2  && slot <= 4)   return 'Full Back';
-  if (slot >= 5  && slot <= 7)   return 'Half Back';
-  if (slot >= 8  && slot <= 9)   return 'Midfield';
-  if (slot >= 10 && slot <= 12)  return 'Half Forward';
-  if (slot >= 13 && slot <= 15)  return 'Full Forward';
-  return null;
-}
-
-function _rosterSuggestions(q, slot) {
+function _rosterSuggestions(q) {
   const players = _loadRoster();
   if (!players.length || q.length < 1) return [];
   const sport        = (state.sport || 'hurling').toLowerCase();
   const ageGrade     = (state.ageGrade || '').toUpperCase();
   const gameGradeNum = _gradeNum(ageGrade);
-  const slotLine     = slot ? _slotPosition(slot) : null;
   const ql           = q.toLowerCase();
   const starts       = [];
   const contains     = [];
@@ -471,15 +460,12 @@ function _rosterSuggestions(q, slot) {
     const gradeMatch = !!ageGrade && grade === ageGrade;
     const sportMatch = sport === 'football' ? !!p.football : !!p.hurling;
     const available  = p.available !== false;
-    const lines      = Array.isArray(p.lines) ? p.lines : [];
-    const posMatch   = !!slotLine && lines.includes(slotLine);
-    const entry = { name: p.name, grade, eligible, gradeMatch, sportMatch, available, posMatch };
+    const entry = { name: p.name, grade, eligible, gradeMatch, sportMatch, available };
     (nl.startsWith(ql) ? starts : contains).push(entry);
   });
-  // Eligible → position match → grade match → sport match → available → alpha
+  // Eligible → grade match → sport match → available → alpha
   const cmp = (a, b) =>
     (b.eligible   - a.eligible)   ||
-    (b.posMatch   - a.posMatch)   ||
     (b.gradeMatch - a.gradeMatch) ||
     (b.sportMatch - a.sportMatch) ||
     (b.available  - a.available)  ||
@@ -510,8 +496,7 @@ function _initPlayerTypeahead(input) {
 
   input.addEventListener('input', () => {
     const q    = input.value.trim();
-    const slot = Number.parseInt(input.id.replace('sn', ''), 10) || 0;
-    const suggestions = _rosterSuggestions(q, slot);
+    const suggestions = _rosterSuggestions(q);
     if (!suggestions.length) { close(); return; }
 
     drop.innerHTML = suggestions.map(s => {

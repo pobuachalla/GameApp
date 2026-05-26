@@ -82,14 +82,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .dot-h{background:#8D5524;}
 .dot-f{background:var(--blue);}
 
-.line-badge{display:inline-block;padding:2px 6px;border-radius:5px;font-size:10px;font-weight:700;margin:1px;}
-.line-gk {background:#2E7D32;color:#fff;}
-.line-fb {background:#1565C0;color:#fff;}
-.line-hb {background:#0277BD;color:#fff;}
-.line-mid{background:#D97706;color:#fff;}
-.line-hf {background:#C62828;color:#fff;}
-.line-ff {background:#AD1457;color:#fff;}
-
 .avail-btn{width:28px;height:28px;border-radius:7px;border:1.5px solid var(--border);background:transparent;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s,border-color .12s;}
 .avail-btn.avail-yes{color:var(--green);border-color:var(--green);}
 .avail-btn.avail-no {color:var(--t3);border-color:var(--border);}
@@ -128,15 +120,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .sport-toggle.checked-h{background:#FFF3E0;border-color:#8D5524;color:#8D5524;}
 .sport-toggle.checked-f{background:var(--blue-l);border-color:var(--blue);color:var(--blue);}
 
-.line-toggles{display:flex;gap:6px;flex-wrap:wrap;}
-.line-toggle{padding:7px 11px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;font-weight:700;color:var(--t2);transition:background .12s,border-color .12s,color .12s;white-space:nowrap;}
-.line-toggle.sel-gk {background:#2E7D32;border-color:#2E7D32;color:#fff;}
-.line-toggle.sel-fb {background:#1565C0;border-color:#1565C0;color:#fff;}
-.line-toggle.sel-hb {background:#0277BD;border-color:#0277BD;color:#fff;}
-.line-toggle.sel-mid{background:#D97706;border-color:#D97706;color:#fff;}
-.line-toggle.sel-hf {background:#C62828;border-color:#C62828;color:#fff;}
-.line-toggle.sel-ff {background:#AD1457;border-color:#AD1457;color:#fff;}
-
 .active-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--card);}
 .active-row span{font-size:14px;font-weight:600;color:var(--t2);}
 .toggle-switch{position:relative;width:44px;height:26px;flex-shrink:0;}
@@ -161,8 +144,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   .toolbar{padding:12px 12px 0;}
   .table-wrap{padding:0 10px;margin-bottom:28px;}
   .roster-table th,.roster-table td{padding:8px 8px;}
-  .roster-table th:nth-child(3),.roster-table td:nth-child(3){display:none;}
-  .roster-table th:nth-child(4),.roster-table td:nth-child(4){display:none;}
 }
 </style>
 </head>
@@ -211,7 +192,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <tr>
         <th data-col="name">Name <i class="fas fa-sort sort-icon"></i></th>
         <th data-col="birthYear">Grade / Born <i class="fas fa-sort sort-icon"></i></th>
-        <th class="no-sort">Lines</th>
         <th class="no-sort">Sports</th>
         <th class="no-sort" style="text-align:center;" title="Available for selection">Avail</th>
         <th class="no-sort"></th>
@@ -241,18 +221,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <input id="f-year" type="number" min="2000" max="2020" step="1" placeholder="e.g. 2012"
                onchange="updateGradePreview(this.value)" oninput="updateGradePreview(this.value)">
         <div id="grade-preview" style="margin-top:5px;font-size:12px;color:var(--t3);"></div>
-      </div>
-
-      <div class="form-row">
-        <label>Lines (multi-select)</label>
-        <div class="line-toggles" id="line-toggles">
-          <button type="button" class="line-toggle" data-line="GK">GK</button>
-          <button type="button" class="line-toggle" data-line="Full Back">Full Back</button>
-          <button type="button" class="line-toggle" data-line="Half Back">Half Back</button>
-          <button type="button" class="line-toggle" data-line="Midfield">Midfield</button>
-          <button type="button" class="line-toggle" data-line="Half Forward">Half Forward</button>
-          <button type="button" class="line-toggle" data-line="Full Forward">Full Forward</button>
-        </div>
       </div>
 
       <div class="form-row">
@@ -298,17 +266,6 @@ const STORAGE_KEY = 'gaa_roster_v1';
 const SEED_URL    = 'roster.json';
 const THIS_YEAR   = new Date().getFullYear();
 
-// ── Line meta ─────────────────────────────────────────────────────────────────
-const LINES = ['GK','Full Back','Half Back','Midfield','Half Forward','Full Forward'];
-const LINE_CLS = {
-  'GK':'gk','Full Back':'fb','Half Back':'hb',
-  'Midfield':'mid','Half Forward':'hf','Full Forward':'ff',
-};
-const LINE_ABR = {
-  'GK':'GK','Full Back':'FB','Half Back':'HB',
-  'Midfield':'MID','Half Forward':'HF','Full Forward':'FF',
-};
-
 // ── State ─────────────────────────────────────────────────────────────────────
 let roster      = [];
 let sortCol     = 'name';
@@ -322,7 +279,6 @@ let searchQ     = '';
 // ── Defaults ──────────────────────────────────────────────────────────────────
 function d(p) {
   return {
-    lines:     [],
     active:    true,
     available: true,
     notes:     '',
@@ -417,7 +373,7 @@ function render() {
   });
 
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-users-slash"></i>No players match your filters</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><i class="fas fa-users-slash"></i>No players match your filters</div></td></tr>';
     return;
   }
 
@@ -425,10 +381,6 @@ function render() {
     const ri   = roster.indexOf(p);
     const pd   = d(p);
     const grade = gradeFromBirthYear(p.birthYear);
-
-    const lineBadges = (pd.lines||[]).map(l =>
-      `<span class="line-badge line-${LINE_CLS[l]||'mid'}" title="${esc(l)}">${esc(LINE_ABR[l]||l)}</span>`
-    ).join('');
 
     const sports = (p.hurling  ? '<span class="sport-dot dot-h"></span>H' : '')
       + (p.hurling && p.football ? ' ' : '')
@@ -452,7 +404,6 @@ function render() {
         <span class="grade-badge ${gradeCls(grade)}">${esc(grade)}</span>
         <span style="color:var(--t3);font-size:12px;"> ${esc(p.birthYear)}</span>
       </td>
-      <td style="white-space:nowrap;">${lineBadges || '<span style="color:var(--t3);font-size:12px;">—</span>'}</td>
       <td style="white-space:nowrap;">${sports}</td>
       <td style="text-align:center;">
         <button class="avail-btn ${availCls}" onclick="toggleAvailable(${ri})" title="${availTip}">
@@ -533,29 +484,6 @@ document.querySelectorAll('.roster-table th[data-col]').forEach(th => {
   });
 });
 
-// ── Line toggles in modal ─────────────────────────────────────────────────────
-let _selectedLines = [];
-
-function _syncLineToggles() {
-  document.querySelectorAll('#line-toggles .line-toggle').forEach(btn => {
-    const l   = btn.dataset.line;
-    const cls = 'sel-' + (LINE_CLS[l] || 'mid');
-    btn.classList.toggle(cls, _selectedLines.includes(l));
-  });
-}
-
-document.querySelectorAll('#line-toggles .line-toggle').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const l = btn.dataset.line;
-    if (_selectedLines.includes(l)) {
-      _selectedLines = _selectedLines.filter(x => x !== l);
-    } else {
-      _selectedLines.push(l);
-    }
-    _syncLineToggles();
-  });
-});
-
 // ── Add / Edit modal ──────────────────────────────────────────────────────────
 function updateGradePreview(year) {
   const el = document.getElementById('grade-preview');
@@ -570,9 +498,6 @@ function openModal(p, idx) {
   const year = pd ? String(pd.birthYear) : '2013';
   document.getElementById('f-year').value   = year;
   updateGradePreview(year);
-
-  _selectedLines = pd ? [...(pd.lines||[])] : [];
-  _syncLineToggles();
 
   const hChk = document.getElementById('f-hurling');
   const fChk = document.getElementById('f-football');
@@ -607,7 +532,6 @@ function savePlayer() {
   const rec = {
     name,
     birthYear: by,
-    lines:     [..._selectedLines],
     hurling:   document.getElementById('f-hurling').checked,
     football:  document.getElementById('f-football').checked,
     notes:     document.getElementById('f-notes').value.trim(),
@@ -655,14 +579,13 @@ function exportRoster() {
 }
 
 function exportCSV() {
-  const cols = ['Name','Birth Year','Grade','Lines','Hurling','Football','Active','Available','Notes'];
+  const cols = ['Name','Birth Year','Grade','Hurling','Football','Active','Available','Notes'];
   const rows = roster.map(p => {
     const pd = d(p);
     return [
       pd.name,
       pd.birthYear,
       gradeFromBirthYear(pd.birthYear),
-      (pd.lines||[]).join('; '),
       pd.hurling  ? 'Yes' : 'No',
       pd.football ? 'Yes' : 'No',
       pd.active   !== false ? 'Yes' : 'No',
@@ -700,7 +623,6 @@ function importRoster(input) {
       return {
         name:      p.name.trim(),
         birthYear: (Number.isFinite(by) && by >= 2000 && by <= 2020) ? by : 2013,
-        lines:     Array.isArray(p.lines) ? p.lines.filter(l => LINES.includes(l)) : [],
         hurling:   !!p.hurling,
         football:  !!p.football,
         notes:     typeof p.notes === 'string' ? p.notes.slice(0,120) : '',
