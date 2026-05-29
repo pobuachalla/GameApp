@@ -83,8 +83,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .lu-slot input{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;color:var(--t1);outline:none;transition:border-color .15s;}
 .lu-slot input:focus{border-color:var(--green);}
 .lu-slot input.is-cap{border-color:var(--amber);background:var(--amber-l);}
-.lu-cap-btn{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border);background:white;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
-.lu-cap-btn.active{background:var(--amber);border-color:var(--amber);color:white;}
 .lu-hint{font-size:12px;color:var(--t3);margin-top:6px;}
 
 /* ── Events ──────────────────────────────────────────────────────────────── */
@@ -255,7 +253,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div id="pane-lineup" style="display:none;">
     <div class="card">
       <div class="card-title"><i class="fas fa-users"></i>Starting Lineup — <span id="lu-teamsize-lbl">15 Players</span></div>
-      <p class="lu-hint" style="margin-bottom:14px;"><i class="fas fa-star" style="color:var(--amber);font-size:10px;"></i> Tap the star next to a player to mark them as captain.</p>
+      <div class="form-group" style="max-width:280px;margin-bottom:18px;">
+        <label><i class="fas fa-star" style="color:var(--amber);font-size:10px;margin-right:4px;"></i>Captain</label>
+        <select id="lu-captain-sel" onchange="setCaptain(+this.value||null)">
+          <option value="">— No captain selected —</option>
+        </select>
+      </div>
       <div class="lu-grid" id="lu-grid"></div>
     </div>
     <div class="card">
@@ -516,21 +519,34 @@ function renderLineup() {
       h += `<div class="lu-slot">
         <div class="lu-num">${slot}</div>
         <input type="text" placeholder="Player name" value="${esc(name)}"
-          oninput="R.lineup[${slot}]=this.value;refreshPlayerSelect()"
+          oninput="R.lineup[${slot}]=this.value;refreshPlayerSelect();refreshCaptainSelect()"
           class="${isCap?'is-cap':''}">
-        <button class="lu-cap-btn${isCap?' active':''}" title="Captain" onclick="toggleCaptain(${slot})">
-          <i class="fas fa-star" style="font-size:10px;"></i>
-        </button>
       </div>`;
     });
     h += '</div>';
   });
   document.getElementById('lu-grid').innerHTML = h;
+  refreshCaptainSelect();
 }
 
-function toggleCaptain(slot) {
-  R.captain = R.captain === slot ? null : slot;
+function setCaptain(slot) {
+  R.captain = slot || null;
   renderLineup();
+}
+
+function refreshCaptainSelect() {
+  const sel = document.getElementById('lu-captain-sel');
+  if (!sel) return;
+  const rows = R.teamSize === 13 ? LU_ROWS_13 : LU_ROWS_15;
+  const validSlots = rows.flat();
+  if (R.captain && !validSlots.includes(R.captain)) R.captain = null;
+  const opts = validSlots
+    .filter(slot => (R.lineup[slot] || '').trim())
+    .map(slot => {
+      const n = R.lineup[slot].trim();
+      return `<option value="${slot}" ${R.captain===slot?'selected':''}>${esc(slot + '. ' + n)}</option>`;
+    });
+  sel.innerHTML = '<option value="">— No captain —</option>' + opts.join('');
 }
 
 // ── Substitutes ──────────────────────────────────────────────────────────────
