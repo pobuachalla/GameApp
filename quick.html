@@ -365,19 +365,16 @@ const COUNTIES = [
   'Sligo','Tipperary','Tyrone','Waterford','Westmeath','Wexford','Wicklow',
 ];
 
-function _norm(s) {
-  return s.toLowerCase()
-    .replace(/\s*[-\/–]\s*/g, '/')
-    .replace(/['‘’.]/g, '')
-    .replace(/\s+/g, ' ').trim();
-}
-
 function findClub(name) {
   if (!name) return null;
-  const n = _norm(name);
-  return MEATH_CLUBS.find(c => _norm(c.name) === n)
-      || MEATH_CLUBS.find(c => n.includes(_norm(c.name)))
-      || null;
+  const norm = s => s.toLowerCase()
+    .replace(/\s*[-\/–]\s*/g, ‘/’)
+    .replace(/[‘‘’.]/g, ‘’)
+    .replace(/\s+/g, ‘ ‘).trim();
+  const n = norm(name);
+  const exact = MEATH_CLUBS.find(c => norm(c.name) === n);
+  if (exact) return exact;
+  return MEATH_CLUBS.find(c => n.includes(norm(c.name))) || null;
 }
 
 function findCountyCrest(name) {
@@ -658,9 +655,10 @@ function buildGraphicHTML(snap, label) {
     const wrap = 'position:relative;width:60px;height:60px;flex-shrink:0;';
     const pair = findAmalgamPair(name);
     if (pair) {
+      const n = esc(name);
       return `<div style="${wrap}"><div style="${fbStyle}">${init}</div>`
-        + `<img src="${esc(pair[0].crest)}" style="position:absolute;top:0;left:0;width:38px;height:38px;object-fit:contain;" onerror="this.style.display='none'">`
-        + `<img src="${esc(pair[1].crest)}" style="position:absolute;bottom:0;right:0;width:42px;height:42px;object-fit:contain;" onerror="this.style.display='none'">`
+        + `<img src="${esc(pair[0].crest)}" alt="${n}" style="position:absolute;top:0;left:0;width:38px;height:38px;object-fit:contain;" onerror="this.style.display='none'">`
+        + `<img src="${esc(pair[1].crest)}" alt="${n}" style="position:absolute;bottom:0;right:0;width:42px;height:42px;object-fit:contain;" onerror="this.style.display='none'">`
         + '</div>';
     }
     const src = _teamCrest(name);
