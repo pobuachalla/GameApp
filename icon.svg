@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="25%" y1="0%" x2="75%" y2="100%">
+      <stop offset="0%" stop-color="#4CAF50"/>
+      <stop offset="100%" stop-color="#1B6620"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect width="1024" height="1024" rx="224" ry="224" fill="url(#bg)"/>
+
+  <!-- Shield outline — white stroke, transparent fill so background shows through -->
+  <path d="M512,145 L752,262 L752,572 Q728,758 512,902 Q296,758 272,572 L272,262 Z"
+        fill="none" stroke="white" stroke-width="34" stroke-linejoin="round"/>
+
+  <!-- Two white circles (goals / upper half) -->
+  <circle cx="413" cy="376" r="76" fill="white"/>
+  <circle cx="611" cy="376" r="76" fill="white"/>
+
+  <!-- Horizontal dividing line -->
+  <line x1="308" y1="500" x2="716" y2="500" stroke="white" stroke-width="28" stroke-linecap="round"/>
+
+  <!-- Bottom circle (point — semi-transparent) -->
+  <circle cx="512" cy="646" r="76" fill="rgba(255,255,255,0.38)"/>
+</svg>
