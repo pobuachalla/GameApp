@@ -214,9 +214,11 @@ body{
 .sg-tname{font-size:12px;font-weight:800;color:#1f2a24;text-align:center;text-transform:uppercase;letter-spacing:.5px;line-height:1.2;word-break:break-word;}
 .sg-score-num{font-size:38px;font-weight:900;color:#111;line-height:1;}
 .sg-total{font-size:13px;font-weight:600;color:#8b8b84;}
-.sg-mid{flex-shrink:0;width:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding-top:14px;}
-.sg-period{font-size:22px;font-weight:800;color:#3e4a42;line-height:1;}
-.sg-period-sub{font-size:7px;letter-spacing:2px;color:#aaa;text-transform:uppercase;}
+.sg-period-hdr{text-align:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #ebebeb;}
+.sg-period{font-size:20px;font-weight:900;color:#1F5B3A;line-height:1;letter-spacing:.5px;}
+.sg-period-sub{font-size:8px;letter-spacing:3px;color:#aaa;text-transform:uppercase;margin-top:3px;}
+.sg-mid{flex-shrink:0;width:32px;display:flex;align-items:center;justify-content:center;padding-top:20px;}
+.sg-vs{font-size:10px;font-weight:800;color:#ccc;letter-spacing:1px;}
 .sg-outcome{background:#f3f3ef;border-radius:12px;padding:10px 14px;text-align:center;font-size:14px;font-weight:700;color:#333;margin-bottom:16px;word-break:break-word;}
 .sg-bar{height:7px;background:#1F5B3A;margin:0 -16px;}
 </style>
@@ -678,12 +680,15 @@ function buildGraphicHTML(snap, label) {
     + `<div class="sg-score-num">${fmt}</div>`
     + `<div class="sg-total">(${total})</div></div>`;
 
-  let midHtml = `<div class="sg-mid"><div class="sg-period">${esc(label)}</div>`;
-  periodSubs.forEach(s => { midHtml += `<div class="sg-period-sub">${s}</div>`; });
-  midHtml += '</div>';
+  let periodHdr = `<div class="sg-period-hdr"><div class="sg-period">${esc(label)}</div>`;
+  periodSubs.forEach(s => { periodHdr += `<div class="sg-period-sub">${s}</div>`; });
+  periodHdr += '</div>';
+
+  const midHtml = `<div class="sg-mid"><div class="sg-vs">VS</div></div>`;
 
   return `<div class="sg">`
     + `<div class="sg-date">${dateStr}</div>`
+    + periodHdr
     + `<div class="sg-teams">${teamCol(S.usN, usFmt, usT)}${midHtml}${teamCol(S.oppN, ogFmt, ogT)}</div>`
     + `<div class="sg-outcome">${outcome}</div>`
     + `<div class="sg-bar"></div></div>`;
