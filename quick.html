@@ -61,32 +61,27 @@ body{
 /* ── Scoreboard strip ────────────────────────────────────────────────────── */
 .scoreboard{
   background:white;
-  display:flex;align-items:center;
-  padding:12px 14px;
+  padding:4px 10px;
   border-bottom:1px solid var(--border);
   flex-shrink:0;
   box-shadow:0 2px 8px rgba(0,0,0,.05);
-  gap:6px;
 }
-.sb-col{
-  flex:1;min-width:0;display:flex;flex-direction:column;
-  border-radius:10px;padding:6px 8px;cursor:pointer;
+.sb-row{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 4px;border-radius:10px;cursor:pointer;
+  transition:background .1s;
 }
-.sb-col:active{background:var(--green-l);}
-.sb-left{align-items:flex-start;}
-.sb-right{align-items:flex-end;}
-.sb-name-row{display:flex;align-items:center;gap:5px;width:100%;min-width:0;}
-.sb-right .sb-name-row{flex-direction:row-reverse;}
-.crest-zone{width:34px;height:34px;position:relative;flex-shrink:0;}
+.sb-row:active{background:var(--green-l);}
+.sb-row+.sb-row{border-top:1px solid var(--border);}
+.crest-zone{width:36px;height:36px;position:relative;flex-shrink:0;}
 .crest-zone img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;}
 .crest-initials{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#bbb;}
-.sb-name{font-size:13px;font-weight:800;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
-.sb-edit{font-size:9px;color:var(--t3);flex-shrink:0;}
-.sb-score-row{display:flex;align-items:baseline;gap:3px;line-height:1;}
-.sb-score-row span{font-size:44px;font-weight:900;color:var(--t1);font-variant-numeric:tabular-nums;}
-.sb-dash{font-size:26px !important;font-weight:700 !important;color:var(--t3) !important;}
-.sb-pts{font-size:11px;color:var(--t3);font-weight:600;margin-top:1px;}
-.sb-vs{font-size:10px;font-weight:800;color:var(--t3);letter-spacing:1px;flex-shrink:0;padding:0 4px;}
+.sb-team{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
+.sb-name{font-size:14px;font-weight:800;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sb-pts{font-size:11px;color:var(--t3);font-weight:600;}
+.sb-score-row{display:flex;align-items:baseline;gap:2px;flex-shrink:0;}
+.sb-score-row span{font-size:36px;font-weight:900;color:var(--t1);font-variant-numeric:tabular-nums;}
+.sb-dash{font-size:22px !important;font-weight:700 !important;color:var(--t3) !important;}
 
 /* ── Button grid: [+G us][−G us][−G opp][+G opp] ────────────────────────── */
 .btn-grid{
@@ -138,6 +133,7 @@ body{
 }
 .foot-btn:active{background:var(--border);}
 .foot-btn:disabled{opacity:.35;cursor:default;}
+.foot-new{color:var(--t3);}
 .foot-share{background:var(--green);color:white;border-color:var(--green);}
 .foot-share:active{background:var(--green-d);}
 
@@ -222,28 +218,25 @@ body{
 
 <!-- ── Scoreboard ───────────────────────────────────────────────────────── -->
 <div class="scoreboard">
-  <div class="sb-col sb-left" onclick="editName('us')">
+  <div class="sb-row" onclick="editName('us')">
     <div class="crest-zone" id="us-crest"></div>
-    <div class="sb-name-row">
+    <div class="sb-team">
       <span class="sb-name" id="us-name-txt">Home</span>
-      <i class="fas fa-pencil sb-edit"></i>
+      <span class="sb-pts" id="us-pts">0 pts</span>
     </div>
     <div class="sb-score-row">
       <span id="us-g">0</span><span class="sb-dash">–</span><span id="us-p">00</span>
     </div>
-    <div class="sb-pts" id="us-pts">0 pts</div>
   </div>
-  <div class="sb-vs">VS</div>
-  <div class="sb-col sb-right" onclick="editName('opp')">
+  <div class="sb-row" onclick="editName('opp')">
     <div class="crest-zone" id="opp-crest"></div>
-    <div class="sb-name-row">
+    <div class="sb-team">
       <span class="sb-name" id="opp-name-txt">Away</span>
-      <i class="fas fa-pencil sb-edit"></i>
+      <span class="sb-pts" id="opp-pts">0 pts</span>
     </div>
     <div class="sb-score-row">
       <span id="opp-g">0</span><span class="sb-dash">–</span><span id="opp-p">00</span>
     </div>
-    <div class="sb-pts" id="opp-pts">0 pts</div>
   </div>
 </div>
 
@@ -261,6 +254,10 @@ body{
 
 <!-- ── Footer ─────────────────────────────────────────────────────────── -->
 <div class="foot-bar">
+  <button class="foot-btn foot-new" onclick="newGame()">
+    <i class="fas fa-rotate-left"></i>
+    <span>New Game</span>
+  </button>
   <button class="foot-btn" id="half-btn" onclick="advanceHalf()">
     <i id="half-icon" class="fas fa-forward-step"></i>
     <span id="half-lbl">End 1st Half</span>
@@ -728,6 +725,18 @@ function doShare(which) {
   } else {
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
   }
+}
+
+// ── New game ──────────────────────────────────────────────────────────────────
+function newGame() {
+  if (!confirm('Reset scores and start a new game?')) return;
+  stopClock();
+  S.usG = 0; S.usP = 0; S.ogG = 0; S.ogP = 0;
+  S.period = '1h'; S.secs = 0;
+  S.htSnap = null; S.ftSnap = null;
+  renderScore();
+  renderTimer();
+  renderPeriod();
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
