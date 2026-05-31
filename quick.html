@@ -203,24 +203,7 @@ body{
   cursor:pointer;background:white;color:var(--t2);
 }
 
-/* ── Score graphic card ──────────────────────────────────────────────────── */
-.sg{background:#fff;border-radius:18px;padding:18px 16px 0;overflow:hidden;}
-.sg-date{font-size:10px;font-weight:700;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;text-align:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #ebebeb;}
-.sg-teams{display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;}
-.sg-team{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;}
-.sg-crest{width:52px;height:52px;position:relative;flex-shrink:0;}
-.sg-crest img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;}
-.sg-crest-init{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#bbb;}
-.sg-tname{font-size:12px;font-weight:800;color:#1f2a24;text-align:center;text-transform:uppercase;letter-spacing:.5px;line-height:1.2;word-break:break-word;}
-.sg-score-num{font-size:38px;font-weight:900;color:#111;line-height:1;}
-.sg-total{font-size:13px;font-weight:600;color:#8b8b84;}
-.sg-period-hdr{text-align:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #ebebeb;}
-.sg-period{font-size:20px;font-weight:900;color:#1F5B3A;line-height:1;letter-spacing:.5px;}
-.sg-period-sub{font-size:8px;letter-spacing:3px;color:#aaa;text-transform:uppercase;margin-top:3px;}
-.sg-mid{flex-shrink:0;width:32px;display:flex;align-items:center;justify-content:center;padding-top:20px;}
-.sg-vs{font-size:10px;font-weight:800;color:#ccc;letter-spacing:1px;}
-.sg-outcome{background:#f3f3ef;border-radius:12px;padding:10px 14px;text-align:center;font-size:14px;font-weight:700;color:#333;margin-bottom:16px;word-break:break-word;}
-.sg-bar{height:7px;background:#1F5B3A;margin:0 -16px;}
+/* share graphic uses inline styles only — no CSS classes needed */
 </style>
 </head>
 <body>
@@ -649,49 +632,80 @@ function showGraphic(which) {
 
 function buildGraphicHTML(snap, label) {
   const pad = n => String(n).padStart(2, '0');
+  const isHT = label === 'HT', isFT = label === 'FT';
+  const isTime = !isHT && !isFT;
+
   const usT = snap.usG * 3 + snap.usP, ogT = snap.ogG * 3 + snap.ogP;
   const usFmt = snap.usG + '–' + pad(snap.usP);
   const ogFmt = snap.ogG + '–' + pad(snap.ogP);
+
   const diff = Math.abs(usT - ogT);
   const pts = diff + ' pt' + (diff !== 1 ? 's' : '');
-  const outcome = usT > ogT ? esc(S.usN) + ' lead by ' + pts
-                : ogT > usT ? esc(S.oppN) + ' lead by ' + pts
-                : 'Level';
-  const isHT = label === 'HT', isFT = label === 'FT';
-  const periodSubs = isHT ? ['HALF','TIME'] : isFT ? ['FULL','TIME'] : [];
-  const dateStr = new Date().toLocaleDateString('en-IE',{weekday:'short',day:'numeric',month:'short',year:'numeric'}).toUpperCase();
+  const verb = isFT ? ' win' : ' lead';
+  const outcome = usT > ogT ? esc(S.usN) + verb + ' by ' + pts
+                : ogT > usT ? esc(S.oppN) + verb + ' by ' + pts
+                : isFT ? 'Draw' : 'Level';
 
-  function crestHTML(name) {
+  const dateStr = new Date().toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
+
+  function crestEl(name) {
+    const init = esc(_initials(name));
+    const fbStyle = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;'
+      + 'font-size:18px;font-weight:700;color:#BBBBB4;font-family:Arial,sans-serif;';
+    const wrap = 'position:relative;width:60px;height:60px;flex-shrink:0;';
     const pair = findAmalgamPair(name);
-    const init = `<div class="sg-crest-init">${esc(_initials(name))}</div>`;
     if (pair) {
-      return `<div class="sg-crest">${init}`
-        + `<img src="${esc(pair[0].crest)}" style="position:absolute;top:0;left:0;width:32px;height:32px;object-fit:contain;" onerror="this.style.display='none'">`
-        + `<img src="${esc(pair[1].crest)}" style="position:absolute;bottom:0;right:0;width:36px;height:36px;object-fit:contain;" onerror="this.style.display='none'">`
+      return `<div style="${wrap}"><div style="${fbStyle}">${init}</div>`
+        + `<img src="${esc(pair[0].crest)}" style="position:absolute;top:0;left:0;width:38px;height:38px;object-fit:contain;" onerror="this.style.display='none'">`
+        + `<img src="${esc(pair[1].crest)}" style="position:absolute;bottom:0;right:0;width:42px;height:42px;object-fit:contain;" onerror="this.style.display='none'">`
         + '</div>';
     }
     const src = _teamCrest(name);
-    return `<div class="sg-crest">${init}` + (src ? `<img src="${esc(src)}" onerror="this.style.display='none'">` : '') + '</div>';
+    return `<div style="${wrap}"><div style="${fbStyle}">${init}</div>`
+      + (src ? `<img src="${esc(src)}" alt="${esc(name)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;" onerror="this.style.display='none'">` : '')
+      + '</div>';
   }
 
-  const teamCol = (name, fmt, total) =>
-    `<div class="sg-team">${crestHTML(name)}`
-    + `<div class="sg-tname">${esc(name)}</div>`
-    + `<div class="sg-score-num">${fmt}</div>`
-    + `<div class="sg-total">(${total})</div></div>`;
+  function nameFontSize(name) {
+    const l = (name || '').length;
+    if (l <= 8)  return '16px';
+    if (l <= 13) return '13px';
+    return '11px';
+  }
 
-  let periodHdr = `<div class="sg-period-hdr"><div class="sg-period">${esc(label)}</div>`;
-  periodSubs.forEach(s => { periodHdr += `<div class="sg-period-sub">${s}</div>`; });
-  periodHdr += '</div>';
+  const teamCol = (name, scoreFmt, total) =>
+    `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;">`
+    + crestEl(name)
+    + `<div style="font-size:${nameFontSize(name)};font-weight:800;color:#1F2A24;text-align:center;`
+    + `letter-spacing:0.5px;text-transform:uppercase;line-height:1.2;word-break:break-word;">${esc(name || '')}</div>`
+    + `<div style="font-size:40px;font-weight:900;color:#111;line-height:1;">${scoreFmt}</div>`
+    + `<div style="font-size:15px;font-weight:600;color:#8B8B84;">(${total})</div></div>`;
 
-  const midHtml = `<div class="sg-mid"><div class="sg-vs">VS</div></div>`;
+  const labelFS = isTime ? (label.length > 3 ? '20px' : '24px') : '28px';
+  let periodHtml = `<div style="font-size:${labelFS};font-weight:800;color:#3E4A42;line-height:1;">${esc(label)}</div>`;
+  if (isHT) {
+    periodHtml += `<div style="font-size:8px;letter-spacing:2px;color:#AAA;text-transform:uppercase;">HALF</div>`
+      + `<div style="font-size:8px;letter-spacing:2px;color:#AAA;text-transform:uppercase;">TIME</div>`;
+  } else if (isFT) {
+    periodHtml += `<div style="font-size:8px;letter-spacing:2px;color:#AAA;text-transform:uppercase;">FULL</div>`
+      + `<div style="font-size:8px;letter-spacing:2px;color:#AAA;text-transform:uppercase;">TIME</div>`;
+  } else {
+    periodHtml += `<div style="font-size:8px;letter-spacing:2px;color:#AAA;text-transform:uppercase;">MINS</div>`;
+  }
 
-  return `<div class="sg">`
-    + `<div class="sg-date">${dateStr}</div>`
-    + periodHdr
-    + `<div class="sg-teams">${teamCol(S.usN, usFmt, usT)}${midHtml}${teamCol(S.oppN, ogFmt, ogT)}</div>`
-    + `<div class="sg-outcome">${outcome}</div>`
-    + `<div class="sg-bar"></div></div>`;
+  return `<div style="background:#fff;border-radius:20px;padding:20px;box-shadow:0 2px 24px rgba(0,0,0,0.10);overflow:hidden;">`
+    + `<div style="text-align:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #EBEBEB;">`
+    + `<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#AAA;text-transform:uppercase;">${dateStr}</div>`
+    + `</div>`
+    + `<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;">`
+    + teamCol(S.usN, usFmt, usT)
+    + `<div style="flex-shrink:0;width:52px;display:flex;flex-direction:column;align-items:center;gap:2px;padding-top:16px;">`
+    + periodHtml + `</div>`
+    + teamCol(S.oppN, ogFmt, ogT)
+    + `</div>`
+    + `<div style="background:#F3F3EF;border-radius:14px;padding:10px 14px;text-align:center;">`
+    + `<div style="font-size:14px;font-weight:700;color:#333;overflow-wrap:break-word;">${outcome}</div></div>`
+    + `<div style="margin:14px -20px -20px;height:8px;background:#1F5B3A;"></div></div>`;
 }
 
 function doShare(which) {
