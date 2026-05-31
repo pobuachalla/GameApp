@@ -75,8 +75,8 @@ body{
 .sb-col:active{background:var(--green-l);}
 .sb-left{align-items:flex-start;}
 .sb-right{align-items:flex-end;}
-.sb-top{display:flex;align-items:center;gap:6px;}
-.sb-top-r{flex-direction:row-reverse;}
+.sb-name-row{display:flex;align-items:center;gap:5px;width:100%;min-width:0;}
+.sb-right .sb-name-row{flex-direction:row-reverse;}
 .crest-zone{width:34px;height:34px;position:relative;flex-shrink:0;}
 .crest-zone img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;}
 .crest-initials{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#bbb;}
@@ -238,8 +238,8 @@ body{
 <!-- ── Scoreboard ───────────────────────────────────────────────────────── -->
 <div class="scoreboard">
   <div class="sb-col sb-left" onclick="editName('us')">
-    <div class="sb-top">
-      <div class="crest-zone" id="us-crest"></div>
+    <div class="crest-zone" id="us-crest"></div>
+    <div class="sb-name-row">
       <span class="sb-name" id="us-name-txt">Home</span>
       <i class="fas fa-pencil sb-edit"></i>
     </div>
@@ -250,10 +250,10 @@ body{
   </div>
   <div class="sb-vs">VS</div>
   <div class="sb-col sb-right" onclick="editName('opp')">
-    <div class="sb-top sb-top-r">
-      <i class="fas fa-pencil sb-edit"></i>
+    <div class="crest-zone" id="opp-crest"></div>
+    <div class="sb-name-row">
       <span class="sb-name" id="opp-name-txt">Away</span>
-      <div class="crest-zone" id="opp-crest"></div>
+      <i class="fas fa-pencil sb-edit"></i>
     </div>
     <div class="sb-score-row">
       <span id="opp-g">0</span><span class="sb-dash">–</span><span id="opp-p">00</span>
