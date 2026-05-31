@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Quick Match — GAA Tracker</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+<meta name="theme-color" content="#1F5B3A">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green:#2E7D32;--green-d:#1B5E20;--green-l:#E8F5E9;
+  --blue:#1565C0;--blue-d:#0d47a1;--blue-l:#E3F2FD;
+  --amber:#D97706;--amber-l:#FFF8E1;
+  --bg:#EEF0EA;--card:#fff;
+  --t1:#1A2E1A;--t2:#4A5A4A;--t3:#7A8A7A;
+  --border:#E0E3DC;
+  --shadow:0 2px 14px rgba(0,0,0,0.07),0 0 0 1px rgba(0,0,0,0.04);
+}
+html,body{height:100%;overflow:hidden;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);color:var(--t1);
+  display:flex;flex-direction:column;height:100vh;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.hdr{
+  background:linear-gradient(140deg,#1a5c1e 0%,#2E7D32 55%,#3a9140 100%);
+  color:white;
+  padding:10px 14px;
+  padding-top:calc(10px + env(safe-area-inset-top));
+  display:flex;align-items:center;gap:10px;
+  flex-shrink:0;
+}
+.hdr-back{
+  color:white;text-decoration:none;font-size:16px;
+  width:38px;height:38px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;background:rgba(255,255,255,.15);
+  flex-shrink:0;
+}
+.hdr-center{flex:1;text-align:center;}
+.period-lbl{font-size:11px;font-weight:700;opacity:.75;letter-spacing:.8px;text-transform:uppercase;}
+.timer{
+  font-size:30px;font-weight:900;letter-spacing:3px;line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.hdr-play{
+  width:42px;height:42px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.4);
+  background:rgba(255,255,255,.15);
+  color:white;font-size:15px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:background .1s;
+}
+.hdr-play:active{background:rgba(255,255,255,.35);}
+.hdr-play:disabled{opacity:.35;cursor:default;}
+
+/* ── Score panel ─────────────────────────────────────────────────────────── */
+.score-panel{
+  background:var(--card);
+  display:flex;align-items:center;
+  padding:10px 12px 8px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+  box-shadow:var(--shadow);
+  gap:4px;
+}
+.team-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;}
+.crest-zone{
+  width:36px;height:36px;position:relative;flex-shrink:0;
+}
+.crest-zone img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
+}
+.crest-initials{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#bbb;
+}
+.team-name-btn{
+  background:none;border:none;cursor:pointer;
+  font-size:12px;font-weight:700;color:var(--t1);
+  padding:2px 8px;border-radius:6px;
+  display:flex;align-items:center;gap:4px;
+  max-width:130px;
+  white-space:nowrap;overflow:hidden;
+}
+.team-name-btn:active{background:var(--green-l);}
+.team-name-txt{overflow:hidden;text-overflow:ellipsis;}
+.edit-icon{font-size:9px;color:var(--t3);flex-shrink:0;}
+.score-row{display:flex;align-items:baseline;gap:3px;}
+.score-g{font-size:34px;font-weight:900;color:var(--t1);line-height:1;font-variant-numeric:tabular-nums;}
+.score-sep{font-size:22px;font-weight:700;color:var(--t3);}
+.score-p{font-size:34px;font-weight:900;color:var(--t1);line-height:1;font-variant-numeric:tabular-nums;}
+.pts-line{font-size:11px;color:var(--t3);font-weight:500;}
+.score-mid{
+  display:flex;flex-direction:column;align-items:center;
+  flex-shrink:0;padding:0 4px;
+}
+.vs-badge{
+  font-size:10px;font-weight:800;color:var(--t3);
+  letter-spacing:1px;
+  background:var(--bg);border-radius:6px;padding:3px 6px;
+}
+
+/* ── Button area ─────────────────────────────────────────────────────────── */
+.btn-area{
+  flex:1;display:flex;gap:10px;
+  padding:10px 10px 8px;
+  min-height:0;
+}
+.team-btns{
+  flex:1;display:flex;flex-direction:column;gap:8px;min-height:0;
+}
+.score-btn{
+  flex:1;width:100%;border:none;border-radius:18px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;font-family:inherit;font-weight:800;
+  position:relative;overflow:hidden;
+  transition:opacity .1s,transform .07s;
+  min-height:0;
+}
+.score-btn:active{transform:scale(.97);opacity:.88;}
+.score-btn i{font-size:22px;}
+.score-btn span{font-size:15px;}
+.goal-us{background:var(--green);color:white;}
+.goal-opp{background:var(--blue);color:white;}
+.point-us{background:var(--green-l);color:var(--green);border:2px solid #C8E6C9;}
+.point-opp{background:var(--blue-l);color:var(--blue);border:2px solid #BBDEFB;}
+.twopt{
+  position:absolute;top:8px;right:10px;
+  font-size:11px;font-weight:800;
+  background:var(--amber);color:white;
+  border-radius:6px;padding:2px 7px;
+  opacity:0;pointer-events:none;transition:opacity .15s;
+}
+.twopt.show{opacity:1;}
+.minus-row{display:flex;gap:6px;flex-shrink:0;}
+.minus-btn{
+  flex:1;padding:9px 6px;
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:10px;font-size:13px;font-weight:700;color:var(--t2);
+  cursor:pointer;font-family:inherit;
+}
+.minus-btn:active{background:var(--border);}
+
+/* ── Footer bar ──────────────────────────────────────────────────────────── */
+.foot-bar{
+  display:flex;gap:8px;
+  padding:8px 10px;
+  padding-bottom:calc(8px + env(safe-area-inset-bottom));
+  background:var(--card);border-top:1px solid var(--border);
+  flex-shrink:0;
+}
+.foot-btn{
+  flex:1;padding:13px 10px;border:1.5px solid var(--border);
+  border-radius:12px;font-family:inherit;font-size:13px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;
+  background:var(--bg);color:var(--t1);transition:background .1s;
+}
+.foot-btn:active{background:var(--border);}
+.foot-btn:disabled{opacity:.35;cursor:default;}
+.foot-share{background:var(--green);color:white;border-color:var(--green);}
+.foot-share:active{background:var(--green-d);}
+
+/* ── Overlay / sheet ─────────────────────────────────────────────────────── */
+.ovly{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);
+  opacity:0;pointer-events:none;transition:opacity .25s;z-index:40;
+}
+.ovly.open{opacity:1;pointer-events:auto;}
+.sheet{
+  position:fixed;bottom:0;left:0;right:0;
+  background:white;border-radius:22px 22px 0 0;
+  padding:16px 18px calc(16px + env(safe-area-inset-bottom));
+  transform:translateY(100%);transition:transform .3s ease;
+  z-index:41;max-height:88vh;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.sheet.open{transform:translateY(0);}
+.sheet-handle{
+  width:36px;height:4px;border-radius:2px;background:var(--border);
+  margin:0 auto 14px;
+}
+.sheet-ttl{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:14px;}
+
+/* Name sheet */
+.name-inp{
+  width:100%;border:1.5px solid var(--border);border-radius:10px;
+  padding:11px 13px;font-size:15px;font-family:inherit;
+  color:var(--t1);outline:none;
+}
+.name-inp:focus{border-color:var(--green);}
+.name-suggs{margin-top:8px;display:flex;flex-direction:column;gap:4px;max-height:220px;overflow-y:auto;}
+.name-sugg{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:10px;cursor:pointer;
+  border:1.5px solid var(--border);background:white;
+  text-align:left;font-family:inherit;font-size:14px;color:var(--t1);
+  -webkit-tap-highlight-color:transparent;
+}
+.name-sugg:active{background:var(--green-l);}
+.name-sugg-crest{width:26px;height:26px;object-fit:contain;flex-shrink:0;}
+.name-sugg-initials{
+  width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:#bbb;flex-shrink:0;
+}
+.sheet-save-btn{
+  width:100%;margin-top:12px;padding:13px;
+  background:var(--green);color:white;border:none;
+  border-radius:12px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;
+}
+.sheet-save-btn:active{background:var(--green-d);}
+
+/* Share sheet */
+.share-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.share-opt-btn{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 14px;border-radius:12px;
+  border:1.5px solid var(--border);background:var(--bg);
+  font-family:inherit;font-size:14px;font-weight:600;color:var(--t1);
+  cursor:pointer;text-align:left;
+}
+.share-opt-btn:active{background:var(--border);}
+.share-opt-btn:disabled{opacity:.35;cursor:default;}
+.share-opt-btn i{font-size:15px;color:var(--green);width:18px;text-align:center;}
+.share-graphic-wrap{
+  border-radius:14px;overflow:hidden;
+  margin:0 -2px 10px;
+  box-shadow:0 2px 12px rgba(0,0,0,.1);
+}
+.share-hint{font-size:11px;color:var(--t3);text-align:center;margin-bottom:12px;line-height:1.5;}
+.sheet-close-btn{
+  width:100%;padding:12px;border:1.5px solid var(--border);
+  border-radius:12px;font-size:14px;font-weight:600;font-family:inherit;
+  cursor:pointer;background:white;color:var(--t2);
+}
+
+/* ── Score graphic card (inline, for screenshot) ─────────────────────────── */
+.sg{
+  background:#fff;border-radius:18px;padding:18px 16px 0;
+  overflow:hidden;
+}
+.sg-date{
+  font-size:10px;font-weight:700;letter-spacing:1.5px;color:#aaa;
+  text-transform:uppercase;text-align:center;margin-bottom:14px;
+  padding-bottom:12px;border-bottom:1px solid #ebebeb;
+}
+.sg-teams{display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;}
+.sg-team{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;}
+.sg-crest{width:52px;height:52px;position:relative;flex-shrink:0;}
+.sg-crest img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;}
+.sg-crest-init{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:700;color:#bbb;
+}
+.sg-tname{
+  font-size:12px;font-weight:800;color:#1f2a24;text-align:center;
+  text-transform:uppercase;letter-spacing:.5px;line-height:1.2;word-break:break-word;
+}
+.sg-score-num{font-size:38px;font-weight:900;color:#111;line-height:1;}
+.sg-total{font-size:13px;font-weight:600;color:#8b8b84;}
+.sg-mid{
+  flex-shrink:0;width:44px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;padding-top:14px;
+}
+.sg-period{font-size:22px;font-weight:800;color:#3e4a42;line-height:1;}
+.sg-period-sub{font-size:7px;letter-spacing:2px;color:#aaa;text-transform:uppercase;}
+.sg-outcome{
+  background:#f3f3ef;border-radius:12px;padding:10px 14px;
+  text-align:center;font-size:14px;font-weight:700;color:#333;
+  margin-bottom:16px;word-break:break-word;
+}
+.sg-bar{height:7px;background:#1F5B3A;margin:0 -16px;}
+</style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────────────── -->
+<header class="hdr">
+  <a href="home.html" class="hdr-back"><i class="fas fa-chevron-left"></i></a>
+  <div class="hdr-center">
+    <div class="period-lbl" id="period-lbl">1st Half</div>
+    <div class="timer" id="timer">00:00</div>
+  </div>
+  <button class="hdr-play" id="btn-play" onclick="toggleTimer()">
+    <i class="fas fa-play" id="play-icon"></i>
+  </button>
+</header>
+
+<!-- ── Score panel ────────────────────────────────────────────────────── -->
+<div class="score-panel">
+  <div class="team-col">
+    <div class="crest-zone" id="us-crest"></div>
+    <button class="team-name-btn" onclick="editName('us')">
+      <span class="team-name-txt" id="us-name-txt">Home</span>
+      <i class="fas fa-pencil edit-icon"></i>
+    </button>
+    <div class="score-row">
+      <span class="score-g" id="us-g">0</span>
+      <span class="score-sep">–</span>
+      <span class="score-p" id="us-p">00</span>
+    </div>
+    <div class="pts-line" id="us-pts">0 pts</div>
+  </div>
+
+  <div class="score-mid">
+    <div class="vs-badge">VS</div>
+  </div>
+
+  <div class="team-col">
+    <div class="crest-zone" id="opp-crest"></div>
+    <button class="team-name-btn" onclick="editName('opp')">
+      <span class="team-name-txt" id="opp-name-txt">Away</span>
+      <i class="fas fa-pencil edit-icon"></i>
+    </button>
+    <div class="score-row">
+      <span class="score-g" id="opp-g">0</span>
+      <span class="score-sep">–</span>
+      <span class="score-p" id="opp-p">00</span>
+    </div>
+    <div class="pts-line" id="opp-pts">0 pts</div>
+  </div>
+</div>
+
+<!-- ── Scoring buttons ────────────────────────────────────────────────── -->
+<div class="btn-area">
+  <!-- Our team -->
+  <div class="team-btns">
+    <button class="score-btn goal-us" onclick="adjust('us','g',1)">
+      <i class="fas fa-bullseye"></i>
+      <span>Goal</span>
+    </button>
+    <button class="score-btn point-us" id="us-pt-btn" onclick="pointTap('us')">
+      <i class="fas fa-circle-dot"></i>
+      <span>Point</span>
+      <span class="twopt" id="us-2pt">2pt!</span>
+    </button>
+    <div class="minus-row">
+      <button class="minus-btn" onclick="adjust('us','g',-1)">−G</button>
+      <button class="minus-btn" onclick="adjust('us','p',-1)">−P</button>
+    </div>
+  </div>
+
+  <!-- Opp team -->
+  <div class="team-btns">
+    <button class="score-btn goal-opp" onclick="adjust('opp','g',1)">
+      <i class="fas fa-bullseye"></i>
+      <span>Goal</span>
+    </button>
+    <button class="score-btn point-opp" id="opp-pt-btn" onclick="pointTap('opp')">
+      <i class="fas fa-circle-dot"></i>
+      <span>Point</span>
+      <span class="twopt" id="opp-2pt">2pt!</span>
+    </button>
+    <div class="minus-row">
+      <button class="minus-btn" onclick="adjust('opp','p',-1)">−P</button>
+      <button class="minus-btn" onclick="adjust('opp','g',-1)">−G</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Footer ─────────────────────────────────────────────────────────── -->
+<div class="foot-bar">
+  <button class="foot-btn" id="half-btn" onclick="advanceHalf()">
+    <i id="half-icon" class="fas fa-forward-step"></i>
+    <span id="half-lbl">End 1st Half</span>
+  </button>
+  <button class="foot-btn foot-share" onclick="openShare()">
+    <i class="fas fa-share-nodes"></i>
+    <span>Share</span>
+  </button>
+</div>
+
+<!-- ── Name edit sheet ─────────────────────────────────────────────── -->
+<div class="ovly" id="name-ovly" onclick="closeNameEdit()"></div>
+<div class="sheet" id="name-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-ttl" id="name-sheet-ttl">Edit Team Name</div>
+  <input type="text" class="name-inp" id="name-inp" placeholder="Type team name…"
+         autocomplete="off" autocorrect="off" spellcheck="false"
+         oninput="onNameInput(this.value)">
+  <div class="name-suggs" id="name-suggs"></div>
+  <button class="sheet-save-btn" onclick="saveName()">Save</button>
+</div>
+
+<!-- ── Share sheet ─────────────────────────────────────────────────── -->
+<div class="ovly" id="share-ovly" onclick="closeShare()"></div>
+<div class="sheet" id="share-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-ttl">Share Score</div>
+  <div class="share-opts" id="share-opts"></div>
+  <div class="share-graphic-wrap" id="share-graphic-wrap"></div>
+  <p class="share-hint">Tap a button above to share, or screenshot the card.</p>
+  <button class="sheet-close-btn" onclick="closeShare()">Done</button>
+</div>
+
+<script>
+'use strict';
+
+// ── Clubs ─────────────────────────────────────────────────────────────────────
+const MEATH_CLUBS = [
+  {name:"Ballinabrackey",crest:"crests/ballinabrackey.png"},
+  {name:"Ballinlough",crest:"crests/ballinlough.png"},
+  {name:"Ballivor",crest:"crests/ballivor.png"},
+  {name:"Bective",crest:"crests/bective.png"},
+  {name:"Blackhall Gaels",crest:"crests/blackhall_gaels.png"},
+  {name:"Boardsmill",crest:"crests/boardsmill.png"},
+  {name:"Carnaross",crest:"crests/carnaross.jpg"},
+  {name:"Castletown",crest:"crests/castletown.jpeg"},
+  {name:"Clann na nGael",crest:"crests/clann_na_ngael.png"},
+  {name:"Clonard",crest:"crests/clonard.png"},
+  {name:"Cortown",crest:"crests/cortown.jpg"},
+  {name:"Curraha",crest:"crests/curraha.png"},
+  {name:"Donaghmore / Ashbourne",crest:"crests/donaghmore__ashbourne.png"},
+  {name:"Drumbaragh Emmets",crest:"crests/drumbaragh_emmets.png"},
+  {name:"Drumconrath",crest:"crests/drumconrath.png"},
+  {name:"Drumree",crest:"crests/drumree.png"},
+  {name:"Duleek / Bellewstown",crest:"crests/duleek__bellewstown.jpg"},
+  {name:"Dunderry",crest:"crests/dunderry.png"},
+  {name:"Dunsany",crest:"crests/dunsany.png"},
+  {name:"Dunshaughlin",crest:"crests/dunshaughlin.png"},
+  {name:"Eastern Gaels",crest:"crests/eastern_gaels.jpg"},
+  {name:"Gaeil Colmcille",crest:"crests/gaeil_colmcille.png"},
+  {name:"Kilbride",crest:"crests/kilbride.png"},
+  {name:"Kildalkey",crest:"crests/kildalkey.png"},
+  {name:"Killyon",crest:"crests/killyon.png"},
+  {name:"Kilmainham",crest:"crests/kilmainham.png"},
+  {name:"Kilmainhamwood",crest:"crests/kilmainhamwood.jpeg"},
+  {name:"Kilmessan",crest:"crests/kilmessan.png"},
+  {name:"Kilskyre",crest:"crests/kilskyre.jpg"},
+  {name:"Kiltale",crest:"crests/kiltale.png"},
+  {name:"Longwood",crest:"crests/longwood.png"},
+  {name:"Meath Hill",crest:"crests/meath_hill.jpeg"},
+  {name:"Moylagh",crest:"crests/moylagh.png"},
+  {name:"Moynalty",crest:"crests/moynalty.png"},
+  {name:"Moynalvey",crest:"crests/moynalvey.jpg"},
+  {name:"Na Fianna",crest:"crests/na_fianna.png"},
+  {name:"Nobber",crest:"crests/nobber.png"},
+  {name:"O'Mahony's",crest:"crests/omahonys.png"},
+  {name:"Oldcastle",crest:"crests/oldcastle.png"},
+  {name:"Rathkenny",crest:"crests/rathkenny.png"},
+  {name:"Rathmolyon",crest:"crests/rathmolyon.jpg"},
+  {name:"Ratoath",crest:"crests/ratoath.png"},
+  {name:"Seneschalstown",crest:"crests/seneschalstown.png"},
+  {name:"Simonstown Gaels",crest:"crests/simonstown_gaels.png"},
+  {name:"Skryne",crest:"crests/skryne.png"},
+  {name:"Slane",crest:"crests/slane.jpg"},
+  {name:"St. Brigid's",crest:"crests/st_brigids.jpg"},
+  {name:"St. Colmcille's",crest:"crests/st_colmcilles.png"},
+  {name:"St. Mary's",crest:"crests/st_marys.png"},
+  {name:"St. Michael's",crest:"crests/st_michaels.png"},
+  {name:"St. Patrick's",crest:"crests/st_patricks.jpg"},
+  {name:"St. Paul's",crest:"crests/st_pauls.png"},
+  {name:"St. Peter's Dunboyne",crest:"crests/st_peters_dunboyne.png"},
+  {name:"St. Ultan's",crest:"crests/st_ultans.png"},
+  {name:"St. Vincent's",crest:"crests/st_vincents.png"},
+  {name:"Summerhill",crest:"crests/summerhill.jpg"},
+  {name:"Syddan",crest:"crests/syddan.png"},
+  {name:"Trim",crest:"crests/trim.png"},
+  {name:"Walterstown",crest:"crests/walterstown.jpg"},
+  {name:"Wolfe Tones",crest:"crests/wolfe_tones.png"},
+];
+
+const COUNTIES = [
+  'Antrim','Armagh','Carlow','Cavan','Clare','Cork','Derry','Donegal','Down',
+  'Dublin','Fermanagh','Galway','Kerry','Kildare','Kilkenny','Laois','Leitrim',
+  'Limerick','Longford','Louth','Mayo','Meath','Monaghan','Offaly','Roscommon',
+  'Sligo','Tipperary','Tyrone','Waterford','Westmeath','Wexford','Wicklow',
+];
+
+function _norm(s) {
+  return s.toLowerCase()
+    .replace(/\s*[-\/–]\s*/g, '/')
+    .replace(/['‘’.]/g, '')
+    .replace(/\s+/g, ' ').trim();
+}
+
+function findClub(name) {
+  if (!name) return null;
+  const n = _norm(name);
+  return MEATH_CLUBS.find(c => _norm(c.name) === n)
+      || MEATH_CLUBS.find(c => n.includes(_norm(c.name)))
+      || null;
+}
+
+function findCountyCrest(name) {
+  if (!name) return null;
+  const n = name.toLowerCase();
+  const c = COUNTIES.find(c => n.includes(c.toLowerCase()));
+  return c ? 'crests/' + c.toLowerCase() + '.png' : null;
+}
+
+function findAmalgamPair(name) {
+  if (!name?.includes('/')) return null;
+  if (findClub(name)?.name.includes('/')) return null;
+  const parts = name.split('/').map(p => p.trim()).filter(Boolean);
+  if (parts.length !== 2) return null;
+  const a = findClub(parts[0]), b = findClub(parts[1]);
+  return (a && b && a !== b) ? [a, b] : null;
+}
+
+function _teamCrest(name) {
+  return findClub(name)?.crest || findCountyCrest(name) || null;
+}
+
+function _initials(name) {
+  return (name || '').split(/[\s/-]+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+const S = {
+  usN: 'Home', oppN: 'Away',
+  usG: 0, usP: 0,
+  ogG: 0, ogP: 0,
+  period: '1h',   // '1h' | 'ht' | '2h' | 'ft'
+  running: false,
+  secs: 0,
+  htSnap: null,   // { usG, usP, ogG, ogP }
+  ftSnap: null,
+};
+
+// ── Timer ─────────────────────────────────────────────────────────────────────
+let _tick = null;
+
+function toggleTimer() {
+  if (S.period === 'ht' || S.period === 'ft') return;
+  S.running = !S.running;
+  if (S.running) {
+    _tick = setInterval(() => { S.secs++; renderTimer(); }, 1000);
+  } else {
+    clearInterval(_tick); _tick = null;
+  }
+  document.getElementById('play-icon').className = S.running ? 'fas fa-pause' : 'fas fa-play';
+}
+
+function renderTimer() {
+  const m = String(Math.floor(S.secs / 60)).padStart(2, '0');
+  const s = String(S.secs % 60).padStart(2, '0');
+  document.getElementById('timer').textContent = m + ':' + s;
+}
+
+// ── Period advancement ────────────────────────────────────────────────────────
+const PERIOD_LABEL = { '1h':'1st Half', 'ht':'Half Time', '2h':'2nd Half', 'ft':'Full Time' };
+const HALF_BTN_LABEL = { '1h':'End 1st Half', 'ht':'Start 2nd Half', '2h':'Full Time', 'ft':'Match Over' };
+const HALF_BTN_ICON  = { '1h':'fas fa-forward-step', 'ht':'fas fa-play', '2h':'fas fa-flag-checkered', 'ft':'fas fa-check' };
+
+function advanceHalf() {
+  if (S.period === 'ft') return;
+  if (S.period === '1h') {
+    stopClock();
+    S.htSnap = { usG: S.usG, usP: S.usP, ogG: S.ogG, ogP: S.ogP };
+    S.period = 'ht';
+  } else if (S.period === 'ht') {
+    S.period = '2h';
+    S.secs = 0;
+    renderTimer();
+  } else if (S.period === '2h') {
+    stopClock();
+    S.ftSnap = { usG: S.usG, usP: S.usP, ogG: S.ogG, ogP: S.ogP };
+    S.period = 'ft';
+  }
+  renderPeriod();
+}
+
+function stopClock() {
+  S.running = false;
+  clearInterval(_tick); _tick = null;
+}
+
+function renderPeriod() {
+  document.getElementById('period-lbl').textContent = PERIOD_LABEL[S.period];
+  document.getElementById('half-lbl').textContent   = HALF_BTN_LABEL[S.period];
+  document.getElementById('half-icon').className    = HALF_BTN_ICON[S.period];
+  document.getElementById('half-btn').disabled      = S.period === 'ft';
+  document.getElementById('btn-play').disabled      = S.period === 'ht' || S.period === 'ft';
+  document.getElementById('play-icon').className    = S.running ? 'fas fa-pause' : 'fas fa-play';
+}
+
+// ── Scoring ───────────────────────────────────────────────────────────────────
+function adjust(side, type, delta) {
+  if (side === 'us') {
+    if (type === 'g') S.usG = Math.max(0, S.usG + delta);
+    else              S.usP = Math.max(0, S.usP + delta);
+  } else {
+    if (type === 'g') S.ogG = Math.max(0, S.ogG + delta);
+    else              S.ogP = Math.max(0, S.ogP + delta);
+  }
+  renderScore();
+}
+
+// Double-tap: first tap +1 immediately; second tap within 380ms adds +1 and shows "2pt!" flash.
+const _tapTimers = { us: null, opp: null };
+
+function pointTap(side) {
+  if (_tapTimers[side]) {
+    clearTimeout(_tapTimers[side]);
+    _tapTimers[side] = null;
+    adjust(side, 'p', 1);
+    const badge = document.getElementById(side + '-2pt');
+    badge.classList.add('show');
+    setTimeout(() => badge.classList.remove('show'), 900);
+  } else {
+    adjust(side, 'p', 1);
+    _tapTimers[side] = setTimeout(() => { _tapTimers[side] = null; }, 380);
+  }
+}
+
+function renderScore() {
+  const pad = n => String(n).padStart(2, '0');
+  document.getElementById('us-g').textContent = S.usG;
+  document.getElementById('us-p').textContent = pad(S.usP);
+  document.getElementById('us-pts').textContent = (S.usG * 3 + S.usP) + ' pts';
+  document.getElementById('opp-g').textContent = S.ogG;
+  document.getElementById('opp-p').textContent = pad(S.ogP);
+  document.getElementById('opp-pts').textContent = (S.ogG * 3 + S.ogP) + ' pts';
+}
+
+// ── Crest rendering ───────────────────────────────────────────────────────────
+function renderCrest(side) {
+  const name = side === 'us' ? S.usN : S.oppN;
+  const el   = document.getElementById(side + '-crest');
+  const pair = findAmalgamPair(name);
+  const init = esc(_initials(name));
+  if (pair) {
+    el.innerHTML = `<div class="crest-initials">${init}</div>`
+      + `<img src="${esc(pair[0].crest)}" alt="" style="position:absolute;top:0;left:0;width:22px;height:22px;object-fit:contain;" onerror="this.style.display='none'">`
+      + `<img src="${esc(pair[1].crest)}" alt="" style="position:absolute;bottom:0;right:0;width:26px;height:26px;object-fit:contain;" onerror="this.style.display='none'">`;
+  } else {
+    const src = _teamCrest(name);
+    el.innerHTML = `<div class="crest-initials">${init}</div>`
+      + (src ? `<img src="${esc(src)}" alt="" onerror="this.style.display='none'">` : '');
+  }
+}
+
+// ── Name edit ─────────────────────────────────────────────────────────────────
+let _editSide = 'us';
+
+function editName(side) {
+  _editSide = side;
+  document.getElementById('name-sheet-ttl').textContent = side === 'us' ? 'Our Team Name' : 'Opposition Name';
+  const inp = document.getElementById('name-inp');
+  inp.value = side === 'us' ? S.usN : S.oppN;
+  renderNameSuggestions(inp.value);
+  document.getElementById('name-ovly').classList.add('open');
+  document.getElementById('name-sheet').classList.add('open');
+  setTimeout(() => inp.focus(), 320);
+}
+
+function closeNameEdit() {
+  document.getElementById('name-ovly').classList.remove('open');
+  document.getElementById('name-sheet').classList.remove('open');
+  document.getElementById('name-inp').blur();
+}
+
+function onNameInput(val) {
+  renderNameSuggestions(val);
+}
+
+function renderNameSuggestions(q) {
+  const wrap = document.getElementById('name-suggs');
+  if (!q || q.length < 1) { wrap.innerHTML = ''; return; }
+  const ql = q.toLowerCase();
+  const matches = MEATH_CLUBS
+    .filter(c => c.name.toLowerCase().includes(ql))
+    .slice(0, 6);
+  if (!matches.length) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = matches.map(c => {
+    const img = c.crest
+      ? `<img class="name-sugg-crest" src="${esc(c.crest)}" alt="" onerror="this.style.display='none'">`
+      : `<div class="name-sugg-initials">${esc(_initials(c.name))}</div>`;
+    return `<button class="name-sugg" onclick="selectClub(${JSON.stringify(esc(c.name))})">${img}${esc(c.name)}</button>`;
+  }).join('');
+}
+
+function selectClub(name) {
+  document.getElementById('name-inp').value = name;
+  document.getElementById('name-suggs').innerHTML = '';
+  saveName(name);
+}
+
+function saveName(forceName) {
+  const name = forceName ?? document.getElementById('name-inp').value.trim();
+  if (!name) { closeNameEdit(); return; }
+  if (_editSide === 'us') S.usN = name;
+  else S.oppN = name;
+  document.getElementById(_editSide + '-name-txt').textContent = name;
+  renderCrest(_editSide);
+  closeNameEdit();
+}
+
+// ── Share ─────────────────────────────────────────────────────────────────────
+function openShare() {
+  renderShareOpts();
+  showGraphic(S.period === 'ft' && S.ftSnap ? 'ft'
+            : S.period === 'ht' && S.htSnap ? 'ht'
+            : 'current');
+  document.getElementById('share-ovly').classList.add('open');
+  document.getElementById('share-sheet').classList.add('open');
+}
+
+function closeShare() {
+  document.getElementById('share-ovly').classList.remove('open');
+  document.getElementById('share-sheet').classList.remove('open');
+}
+
+function renderShareOpts() {
+  const opts = [
+    { id:'current', icon:'fas fa-clock',          label:'Share Current Score', always:true },
+    { id:'ht',      icon:'fas fa-hourglass-half',  label:'Share Half Time Score', snap: S.htSnap },
+    { id:'ft',      icon:'fas fa-flag-checkered',  label:'Share Full Time Score', snap: S.ftSnap },
+  ];
+  document.getElementById('share-opts').innerHTML = opts.map(o =>
+    `<button class="share-opt-btn" ${!o.always && !o.snap ? 'disabled' : ''}
+       onclick="doShare('${o.id}')">
+      <i class="${o.icon}"></i>${o.label}
+     </button>`
+  ).join('');
+}
+
+function showGraphic(which) {
+  const snap = which === 'ht' ? S.htSnap
+             : which === 'ft' ? S.ftSnap
+             : { usG: S.usG, usP: S.usP, ogG: S.ogG, ogP: S.ogP };
+  if (!snap) return;
+  const periodLabel = which === 'ht' ? 'HT' : which === 'ft' ? 'FT' : PERIOD_LABEL[S.period];
+  document.getElementById('share-graphic-wrap').innerHTML = buildGraphicHTML(snap, periodLabel);
+}
+
+function buildGraphicHTML(snap, label) {
+  const pad = n => String(n).padStart(2, '0');
+  const usT = snap.usG * 3 + snap.usP, ogT = snap.ogG * 3 + snap.ogP;
+  const usFmt = snap.usG + '–' + pad(snap.usP);
+  const ogFmt = snap.ogG + '–' + pad(snap.ogP);
+  const diff = Math.abs(usT - ogT);
+  const pts = diff + ' pt' + (diff !== 1 ? 's' : '');
+  const outcome = usT > ogT ? esc(S.usN) + ' lead by ' + pts
+                : ogT > usT ? esc(S.oppN) + ' lead by ' + pts
+                : 'Level';
+  const isHT = label === 'HT', isFT = label === 'FT';
+  const periodSubs = isHT ? ['HALF','TIME'] : isFT ? ['FULL','TIME'] : [];
+  const dateStr = new Date().toLocaleDateString('en-IE',{weekday:'short',day:'numeric',month:'short',year:'numeric'}).toUpperCase();
+
+  function crestHTML(name) {
+    const pair = findAmalgamPair(name);
+    const init = `<div class="sg-crest-init">${esc(_initials(name))}</div>`;
+    if (pair) {
+      return `<div class="sg-crest">${init}`
+        + `<img src="${esc(pair[0].crest)}" style="position:absolute;top:0;left:0;width:32px;height:32px;object-fit:contain;" onerror="this.style.display='none'">`
+        + `<img src="${esc(pair[1].crest)}" style="position:absolute;bottom:0;right:0;width:36px;height:36px;object-fit:contain;" onerror="this.style.display='none'">`
+        + '</div>';
+    }
+    const src = _teamCrest(name);
+    return `<div class="sg-crest">${init}` + (src ? `<img src="${esc(src)}" onerror="this.style.display='none'">` : '') + '</div>';
+  }
+
+  const teamCol = (name, fmt, total) =>
+    `<div class="sg-team">${crestHTML(name)}`
+    + `<div class="sg-tname">${esc(name)}</div>`
+    + `<div class="sg-score-num">${fmt}</div>`
+    + `<div class="sg-total">(${total})</div></div>`;
+
+  let midHtml = `<div class="sg-mid"><div class="sg-period">${esc(label)}</div>`;
+  periodSubs.forEach(s => { midHtml += `<div class="sg-period-sub">${s}</div>`; });
+  midHtml += '</div>';
+
+  return `<div class="sg">`
+    + `<div class="sg-date">${dateStr}</div>`
+    + `<div class="sg-teams">${teamCol(S.usN, usFmt, usT)}${midHtml}${teamCol(S.oppN, ogFmt, ogT)}</div>`
+    + `<div class="sg-outcome">${outcome}</div>`
+    + `<div class="sg-bar"></div></div>`;
+}
+
+function doShare(which) {
+  const snap = which === 'ht' ? S.htSnap
+             : which === 'ft' ? S.ftSnap
+             : { usG: S.usG, usP: S.usP, ogG: S.ogG, ogP: S.ogP };
+  if (!snap) return;
+
+  showGraphic(which);
+
+  const pad = n => String(n).padStart(2, '0');
+  const usT = snap.usG * 3 + snap.usP, ogT = snap.ogG * 3 + snap.ogP;
+  const label = which === 'ht' ? 'Half Time' : which === 'ft' ? 'Full Time' : PERIOD_LABEL[S.period];
+  const text = `*${label}*\n${S.usN}: ${snap.usG}-${pad(snap.usP)} (${usT})\n${S.oppN}: ${snap.ogG}-${pad(snap.ogP)} (${ogT})`;
+
+  if (navigator.share) {
+    navigator.share({ text }).catch(() => {});
+  } else {
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderCrest('us');
+renderCrest('opp');
+renderScore();
+renderPeriod();
+</script>
+</body>
+</html>
