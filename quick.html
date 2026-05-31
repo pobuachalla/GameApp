@@ -71,6 +71,7 @@ body{
   padding:8px 4px;border-radius:10px;cursor:pointer;
   transition:background .1s;
   width:100%;border:none;background:none;font-family:inherit;text-align:left;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
 }
 .sb-row:active{background:var(--green-l);}
 .sb-row+.sb-row{border-top:1px solid var(--border);}
@@ -219,7 +220,7 @@ body{
 
 <!-- ── Scoreboard ───────────────────────────────────────────────────────── -->
 <div class="scoreboard">
-  <button class="sb-row" onclick="editName('us')">
+  <button class="sb-row" id="sb-row-us">
     <div class="crest-zone" id="us-crest"></div>
     <div class="sb-team">
       <span class="sb-name" id="us-name-txt">Home</span>
@@ -229,7 +230,7 @@ body{
       <span id="us-g">0</span><span class="sb-dash">–</span><span id="us-p">00</span>
     </div>
   </button>
-  <button class="sb-row" onclick="editName('opp')">
+  <button class="sb-row" id="sb-row-opp">
     <div class="crest-zone" id="opp-crest"></div>
     <div class="sb-team">
       <span class="sb-name" id="opp-name-txt">Away</span>
@@ -797,6 +798,24 @@ renderCrest('opp');
 renderScore();
 renderTimer();
 renderPeriod();
+
+// Robust tap handlers for scoreboard rows — touchend fires before any 300ms
+// click delay and bypasses user-select:none interference on iOS PWA.
+(function() {
+  function attachTap(id, fn) {
+    const el = document.getElementById(id);
+    let _fired = false;
+    el.addEventListener('touchend', function(e) {
+      _fired = true;
+      e.preventDefault();
+      fn();
+      setTimeout(function() { _fired = false; }, 600);
+    }, { passive: false });
+    el.addEventListener('click', function() { if (!_fired) fn(); });
+  }
+  attachTap('sb-row-us',  function() { editName('us'); });
+  attachTap('sb-row-opp', function() { editName('opp'); });
+}());
 
 // After pinch-zoom/unzoom the visual viewport can be panned so the header
 // scrolls above the fold. Reset scroll whenever the visual viewport moves.
