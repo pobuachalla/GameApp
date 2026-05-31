@@ -58,75 +58,81 @@ body{
 .hdr-play:active{background:rgba(255,255,255,.35);}
 .hdr-play:disabled{opacity:.35;cursor:default;}
 
-/* ── Main: two team columns ──────────────────────────────────────────────── */
+/* ── Main area ───────────────────────────────────────────────────────────── */
 .main{
-  flex:1;display:flex;min-height:0;
-  background:white;
-}
-.col{
   flex:1;display:flex;flex-direction:column;
-  padding:12px 10px 6px;gap:8px;min-height:0;
+  justify-content:space-evenly;
+  padding:14px 16px;
+  background:var(--bg);
+  gap:0;
 }
-.col-div{width:1px;background:var(--border);flex-shrink:0;}
+.team-block{display:flex;flex-direction:column;gap:7px;}
 
-/* Team header row */
-.col-hdr{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.col-hdr-r{justify-content:flex-end;}
+/* Team card */
+.team-card{
+  display:flex;align-items:stretch;
+  background:white;border-radius:18px;
+  box-shadow:var(--shadow);overflow:hidden;
+  height:128px;
+}
+
+/* Left: info */
+.tc-info{
+  flex:1;display:flex;align-items:center;gap:10px;
+  padding:14px 12px;cursor:pointer;min-width:0;
+}
+.tc-info:active{background:var(--green-l);}
 .crest-zone{width:38px;height:38px;position:relative;flex-shrink:0;}
 .crest-zone img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;}
 .crest-initials{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   font-size:13px;font-weight:700;color:#bbb;
 }
-.team-name-btn{
-  background:none;border:none;cursor:pointer;
-  font-size:13px;font-weight:700;color:var(--t1);
-  padding:4px 6px;border-radius:7px;
-  display:flex;align-items:center;gap:5px;
-  min-width:0;flex:1;
-}
-.team-name-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
-.team-name-btn:active{background:var(--green-l);}
-.edit-icon{font-size:9px;color:var(--t3);flex-shrink:0;}
+.tc-text{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.tc-name{font-size:13px;font-weight:800;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tc-pts{font-size:11px;font-weight:600;color:var(--t3);}
+.edit-icon{font-size:9px;color:var(--t3);margin-top:1px;}
 
-/* Score display */
-.col-score{text-align:center;flex-shrink:0;padding:2px 0 4px;}
-.score-digits{
-  display:flex;align-items:baseline;justify-content:center;gap:3px;
-  font-size:52px;font-weight:900;color:var(--t1);line-height:1;
-  font-variant-numeric:tabular-nums;
+/* Centre: score */
+.tc-score{
+  display:flex;align-items:center;gap:3px;
+  padding:0 10px;flex-shrink:0;
+  font-size:40px;font-weight:900;color:var(--t1);
+  font-variant-numeric:tabular-nums;line-height:1;
 }
-.sdash{font-size:32px;font-weight:700;color:var(--t3);}
-.pts-lbl{font-size:12px;color:var(--t3);font-weight:600;margin-top:1px;}
+.tc-dash{font-size:24px;font-weight:700;color:var(--t3);}
 
-/* Scoring buttons */
-.sbtn{
-  flex:1;width:100%;border:none;border-radius:14px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  font-family:inherit;font-weight:800;font-size:16px;
-  position:relative;overflow:hidden;min-height:0;
-  transition:opacity .1s,transform .07s;
+/* Right: +Goal / +Point buttons */
+.tc-btns{display:flex;flex-direction:column;width:86px;flex-shrink:0;}
+.tc-btn{
+  flex:1;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  font-family:inherit;font-weight:800;font-size:13px;
+  position:relative;overflow:hidden;
 }
-.sbtn:active{transform:scale(.97);opacity:.85;}
-.sbtn i{font-size:20px;}
-.sbtn-us-g {background:var(--green);color:white;}
-.sbtn-opp-g{background:var(--blue);color:white;}
-.sbtn-us-p {background:var(--green-l);color:var(--green);border:2px solid #C8E6C9;}
-.sbtn-opp-p{background:var(--blue-l);color:var(--blue);border:2px solid #BBDEFB;}
+.tc-btn:active{opacity:.8;}
+.tc-btn i{font-size:15px;}
+.tcu-g{background:var(--green);color:white;}
+.tco-g{background:var(--blue);color:white;}
+.tcu-p{background:var(--green-l);color:var(--green);border-top:1px solid #C8E6C9;}
+.tco-p{background:var(--blue-l);color:var(--blue);border-top:1px solid #BBDEFB;}
+
+/* 2pt flash */
 .twopt{
-  position:absolute;top:7px;right:9px;
-  font-size:11px;font-weight:800;
+  position:absolute;top:5px;right:7px;
+  font-size:10px;font-weight:800;
   background:var(--amber);color:white;
-  border-radius:6px;padding:2px 7px;
+  border-radius:5px;padding:2px 6px;
   opacity:0;pointer-events:none;transition:opacity .15s;
 }
 .twopt.show{opacity:1;}
 
-/* Undo row */
-.undo-row{display:flex;gap:6px;flex-shrink:0;}
+/* Undo strip */
+.undo-strip{display:flex;gap:6px;padding:0 2px;}
+.undo-strip.right{justify-content:flex-end;}
 .undo-btn{
-  flex:1;padding:9px 4px;
-  background:var(--bg);border:1.5px solid var(--border);
+  padding:7px 14px;
+  background:white;border:1.5px solid var(--border);
   border-radius:9px;font-size:12px;font-weight:700;color:var(--t3);
   cursor:pointer;font-family:inherit;
 }
@@ -245,62 +251,64 @@ body{
   </button>
 </header>
 
-<!-- ── Main: two team columns ────────────────────────────────────────── -->
+<!-- ── Main ────────────────────────────────────────────────────────────── -->
 <div class="main">
 
   <!-- Our team -->
-  <div class="col">
-    <div class="col-hdr">
-      <div class="crest-zone" id="us-crest"></div>
-      <button class="team-name-btn" onclick="editName('us')">
-        <span id="us-name-txt">Home</span>
-        <i class="fas fa-pencil edit-icon"></i>
-      </button>
-    </div>
-    <div class="col-score">
-      <div class="score-digits">
-        <span id="us-g">0</span><span class="sdash">–</span><span id="us-p">00</span>
+  <div class="team-block">
+    <div class="team-card">
+      <div class="tc-info" onclick="editName('us')">
+        <div class="crest-zone" id="us-crest"></div>
+        <div class="tc-text">
+          <span class="tc-name" id="us-name-txt">Home</span>
+          <span class="tc-pts" id="us-pts">0 pts</span>
+          <span class="edit-icon"><i class="fas fa-pencil"></i></span>
+        </div>
       </div>
-      <div class="pts-lbl" id="us-pts">0 pts</div>
+      <div class="tc-score">
+        <span id="us-g">0</span><span class="tc-dash">–</span><span id="us-p">00</span>
+      </div>
+      <div class="tc-btns">
+        <button class="tc-btn tcu-g" onclick="adjust('us','g',1)">
+          <i class="fas fa-bullseye"></i> Goal
+        </button>
+        <button class="tc-btn tcu-p" onclick="pointTap('us')">
+          <i class="fas fa-circle-dot"></i> Point
+          <span class="twopt" id="us-2pt">2pt!</span>
+        </button>
+      </div>
     </div>
-    <button class="sbtn sbtn-us-g" onclick="adjust('us','g',1)">
-      <i class="fas fa-bullseye"></i> Goal
-    </button>
-    <button class="sbtn sbtn-us-p" onclick="pointTap('us')">
-      <i class="fas fa-circle-dot"></i> Point
-      <span class="twopt" id="us-2pt">2pt!</span>
-    </button>
-    <div class="undo-row">
+    <div class="undo-strip">
       <button class="undo-btn" onclick="adjust('us','g',-1)">−G</button>
       <button class="undo-btn" onclick="adjust('us','p',-1)">−P</button>
     </div>
   </div>
 
-  <div class="col-div"></div>
-
   <!-- Opposition -->
-  <div class="col">
-    <div class="col-hdr col-hdr-r">
-      <button class="team-name-btn" onclick="editName('opp')" style="justify-content:flex-end;">
-        <i class="fas fa-pencil edit-icon"></i>
-        <span id="opp-name-txt">Away</span>
-      </button>
-      <div class="crest-zone" id="opp-crest"></div>
-    </div>
-    <div class="col-score">
-      <div class="score-digits">
-        <span id="opp-g">0</span><span class="sdash">–</span><span id="opp-p">00</span>
+  <div class="team-block">
+    <div class="team-card">
+      <div class="tc-info" onclick="editName('opp')">
+        <div class="crest-zone" id="opp-crest"></div>
+        <div class="tc-text">
+          <span class="tc-name" id="opp-name-txt">Away</span>
+          <span class="tc-pts" id="opp-pts">0 pts</span>
+          <span class="edit-icon"><i class="fas fa-pencil"></i></span>
+        </div>
       </div>
-      <div class="pts-lbl" id="opp-pts">0 pts</div>
+      <div class="tc-score">
+        <span id="opp-g">0</span><span class="tc-dash">–</span><span id="opp-p">00</span>
+      </div>
+      <div class="tc-btns">
+        <button class="tc-btn tco-g" onclick="adjust('opp','g',1)">
+          <i class="fas fa-bullseye"></i> Goal
+        </button>
+        <button class="tc-btn tco-p" onclick="pointTap('opp')">
+          <i class="fas fa-circle-dot"></i> Point
+          <span class="twopt" id="opp-2pt">2pt!</span>
+        </button>
+      </div>
     </div>
-    <button class="sbtn sbtn-opp-g" onclick="adjust('opp','g',1)">
-      <i class="fas fa-bullseye"></i> Goal
-    </button>
-    <button class="sbtn sbtn-opp-p" onclick="pointTap('opp')">
-      <i class="fas fa-circle-dot"></i> Point
-      <span class="twopt" id="opp-2pt">2pt!</span>
-    </button>
-    <div class="undo-row">
+    <div class="undo-strip right">
       <button class="undo-btn" onclick="adjust('opp','p',-1)">−P</button>
       <button class="undo-btn" onclick="adjust('opp','g',-1)">−G</button>
     </div>
