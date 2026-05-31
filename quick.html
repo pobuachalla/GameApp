@@ -620,14 +620,44 @@ function renderShareOpts() {
 }
 
 function showGraphic(which) {
-  const snap = which === 'ht' ? S.htSnap
-             : which === 'ft' ? S.ftSnap
-             : { usG: S.usG, usP: S.usP, ogG: S.ogG, ogP: S.ogP };
+  const snap = _snapFor(which);
   if (!snap) return;
   const periodLabel = which === 'ht' ? 'HT'
                    : which === 'ft' ? 'FT'
                    : Math.floor((S.secs + (S.period === '2h' ? 1800 : 0)) / 60) + "'";
   document.getElementById('share-graphic-wrap').innerHTML = buildGraphicHTML(snap, periodLabel);
+}
+
+function _shareCrest(name) {
+  const init = esc(_initials(name));
+  const fbStyle = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;'
+    + 'font-size:18px;font-weight:700;color:#BBBBB4;font-family:Arial,sans-serif;';
+  const wrap = 'position:relative;width:60px;height:60px;flex-shrink:0;';
+  const pair = findAmalgamPair(name);
+  if (pair) {
+    const n = esc(name);
+    return `<div style="${wrap}"><div style="${fbStyle}">${init}</div>`
+      + `<img src="${esc(pair[0].crest)}" alt="${n}" style="position:absolute;top:0;left:0;width:38px;height:38px;object-fit:contain;" onerror="this.style.display='none'">`
+      + `<img src="${esc(pair[1].crest)}" alt="${n}" style="position:absolute;bottom:0;right:0;width:42px;height:42px;object-fit:contain;" onerror="this.style.display='none'">`
+      + '</div>';
+  }
+  const src = _teamCrest(name);
+  return `<div style="${wrap}"><div style="${fbStyle}">${init}</div>`
+    + (src ? `<img src="${esc(src)}" alt="${esc(name)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;" onerror="this.style.display='none'">` : '')
+    + '</div>';
+}
+
+function _shareNameFontSize(name) {
+  const l = (name || '').length;
+  if (l <= 8)  return '16px';
+  if (l <= 13) return '13px';
+  return '11px';
+}
+
+function _snapFor(which) {
+  if (which === 'ht') return S.htSnap;
+  if (which === 'ft') return S.ftSnap;
+  return { usG: S.usG, usP: S.usP, ogG: S.ogG, ogP: S.ogP };
 }
 
 function buildGraphicHTML(snap, label) {
@@ -648,36 +678,10 @@ function buildGraphicHTML(snap, label) {
 
   const dateStr = new Date().toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
 
-  function crestEl(name) {
-    const init = esc(_initials(name));
-    const fbStyle = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;'
-      + 'font-size:18px;font-weight:700;color:#BBBBB4;font-family:Arial,sans-serif;';
-    const wrap = 'position:relative;width:60px;height:60px;flex-shrink:0;';
-    const pair = findAmalgamPair(name);
-    if (pair) {
-      const n = esc(name);
-      return `<div style="${wrap}"><div style="${fbStyle}">${init}</div>`
-        + `<img src="${esc(pair[0].crest)}" alt="${n}" style="position:absolute;top:0;left:0;width:38px;height:38px;object-fit:contain;" onerror="this.style.display='none'">`
-        + `<img src="${esc(pair[1].crest)}" alt="${n}" style="position:absolute;bottom:0;right:0;width:42px;height:42px;object-fit:contain;" onerror="this.style.display='none'">`
-        + '</div>';
-    }
-    const src = _teamCrest(name);
-    return `<div style="${wrap}"><div style="${fbStyle}">${init}</div>`
-      + (src ? `<img src="${esc(src)}" alt="${esc(name)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;" onerror="this.style.display='none'">` : '')
-      + '</div>';
-  }
-
-  function nameFontSize(name) {
-    const l = (name || '').length;
-    if (l <= 8)  return '16px';
-    if (l <= 13) return '13px';
-    return '11px';
-  }
-
   const teamCol = (name, scoreFmt, total) =>
     `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;">`
-    + crestEl(name)
-    + `<div style="font-size:${nameFontSize(name)};font-weight:800;color:#1F2A24;text-align:center;`
+    + _shareCrest(name)
+    + `<div style="font-size:${_shareNameFontSize(name)};font-weight:800;color:#1F2A24;text-align:center;`
     + `letter-spacing:0.5px;text-transform:uppercase;line-height:1.2;word-break:break-word;">${esc(name || '')}</div>`
     + `<div style="font-size:40px;font-weight:900;color:#111;line-height:1;">${scoreFmt}</div>`
     + `<div style="font-size:15px;font-weight:600;color:#8B8B84;">(${total})</div></div>`;
@@ -710,9 +714,7 @@ function buildGraphicHTML(snap, label) {
 }
 
 function doShare(which) {
-  const snap = which === 'ht' ? S.htSnap
-             : which === 'ft' ? S.ftSnap
-             : { usG: S.usG, usP: S.usP, ogG: S.ogG, ogP: S.ogP };
+  const snap = _snapFor(which);
   if (!snap) return;
 
   showGraphic(which);
