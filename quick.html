@@ -90,14 +90,12 @@ body{
 
 /* ── Button grid: [+G us][−G us][−G opp][+G opp] ────────────────────────── */
 .btn-grid{
-  flex:1;
   display:grid;
   grid-template-columns:2fr 1fr 1fr 2fr;
-  grid-template-rows:minmax(0,90px) minmax(0,90px);
+  grid-template-rows:90px 90px;
   gap:8px;
   padding:10px;
-  align-content:center;
-  min-height:0;
+  flex-shrink:0;
 }
 .gbtn{
   border:none;border-radius:16px;cursor:pointer;
