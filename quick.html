@@ -427,11 +427,12 @@ function toggleTimer() {
   if (S.period === 'ht' || S.period === 'ft') return;
   S.running = !S.running;
   if (S.running) {
-    _tick = setInterval(() => { S.secs++; renderTimer(); }, 1000);
+    _tick = setInterval(() => { S.secs++; renderTimer(); saveState(); }, 1000);
   } else {
     clearInterval(_tick); _tick = null;
   }
   document.getElementById('play-icon').className = S.running ? 'fas fa-pause' : 'fas fa-play';
+  saveState();
 }
 
 function renderTimer() {
@@ -461,6 +462,7 @@ function advanceHalf() {
     S.period = 'ft';
   }
   renderPeriod();
+  saveState();
 }
 
 function stopClock() {
@@ -514,6 +516,7 @@ function renderScore() {
   document.getElementById('opp-g').textContent = S.ogG;
   document.getElementById('opp-p').textContent = pad(S.ogP);
   document.getElementById('opp-pts').textContent = (S.ogG * 3 + S.ogP) + ' pts';
+  saveState();
 }
 
 // ── Crest rendering ───────────────────────────────────────────────────────────
@@ -586,6 +589,7 @@ function saveName(forceName) {
   else S.oppN = name;
   document.getElementById(_editSide + '-name-txt').textContent = name;
   renderCrest(_editSide);
+  saveState();
   closeNameEdit();
 }
 
@@ -727,6 +731,49 @@ function doShare(which) {
   }
 }
 
+// ── Persistence ───────────────────────────────────────────────────────────────
+const STORE_KEY = 'gaa_quick_v1';
+let _saveTimer = null;
+
+function saveState() {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(saveStateNow, 500);
+}
+
+function saveStateNow() {
+  clearTimeout(_saveTimer);
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      usN: S.usN, oppN: S.oppN,
+      usG: S.usG, usP: S.usP, ogG: S.ogG, ogP: S.ogP,
+      period: S.period, secs: S.secs,
+      htSnap: S.htSnap, ftSnap: S.ftSnap,
+    }));
+  } catch(_) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.usN)  S.usN  = d.usN;
+    if (d.oppN) S.oppN = d.oppN;
+    S.usG    = d.usG    ?? 0;
+    S.usP    = d.usP    ?? 0;
+    S.ogG    = d.ogG    ?? 0;
+    S.ogP    = d.ogP    ?? 0;
+    S.period = d.period || '1h';
+    S.secs   = d.secs   || 0;
+    S.htSnap = d.htSnap || null;
+    S.ftSnap = d.ftSnap || null;
+  } catch(_) {}
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') saveStateNow();
+});
+
 // ── New game ──────────────────────────────────────────────────────────────────
 function newGame() {
   if (!confirm('Reset scores and start a new game?')) return;
@@ -734,15 +781,20 @@ function newGame() {
   S.usG = 0; S.usP = 0; S.ogG = 0; S.ogP = 0;
   S.period = '1h'; S.secs = 0;
   S.htSnap = null; S.ftSnap = null;
+  try { localStorage.removeItem(STORE_KEY); } catch(_) {}
   renderScore();
   renderTimer();
   renderPeriod();
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
+loadState();
+document.getElementById('us-name-txt').textContent  = S.usN;
+document.getElementById('opp-name-txt').textContent = S.oppN;
 renderCrest('us');
 renderCrest('opp');
 renderScore();
+renderTimer();
 renderPeriod();
 </script>
 </body>
