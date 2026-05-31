@@ -70,6 +70,7 @@ body{
   display:flex;align-items:center;gap:10px;
   padding:8px 4px;border-radius:10px;cursor:pointer;
   transition:background .1s;
+  width:100%;border:none;background:none;font-family:inherit;text-align:left;
 }
 .sb-row:active{background:var(--green-l);}
 .sb-row+.sb-row{border-top:1px solid var(--border);}
@@ -218,7 +219,7 @@ body{
 
 <!-- ── Scoreboard ───────────────────────────────────────────────────────── -->
 <div class="scoreboard">
-  <div class="sb-row" onclick="editName('us')">
+  <button class="sb-row" onclick="editName('us')">
     <div class="crest-zone" id="us-crest"></div>
     <div class="sb-team">
       <span class="sb-name" id="us-name-txt">Home</span>
@@ -227,8 +228,8 @@ body{
     <div class="sb-score-row">
       <span id="us-g">0</span><span class="sb-dash">–</span><span id="us-p">00</span>
     </div>
-  </div>
-  <div class="sb-row" onclick="editName('opp')">
+  </button>
+  <button class="sb-row" onclick="editName('opp')">
     <div class="crest-zone" id="opp-crest"></div>
     <div class="sb-team">
       <span class="sb-name" id="opp-name-txt">Away</span>
@@ -237,7 +238,7 @@ body{
     <div class="sb-score-row">
       <span id="opp-g">0</span><span class="sb-dash">–</span><span id="opp-p">00</span>
     </div>
-  </div>
+  </button>
 </div>
 
 <!-- ── Button grid ─────────────────────────────────────────────────────── -->

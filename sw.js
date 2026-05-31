@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE = 'gaa-tracker-v6';
+const CACHE = 'gaa-tracker-v7';
 
 // App shell — everything needed to run offline
 const SHELL = [
