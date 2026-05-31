@@ -796,6 +796,14 @@ renderCrest('opp');
 renderScore();
 renderTimer();
 renderPeriod();
+
+// After pinch-zoom/unzoom the visual viewport can be panned so the header
+// scrolls above the fold. Reset scroll whenever the visual viewport moves.
+if (window.visualViewport) {
+  const _resetScroll = () => { if (window.scrollY > 0) window.scrollTo(0, 0); };
+  window.visualViewport.addEventListener('scroll', _resetScroll);
+  window.visualViewport.addEventListener('resize', _resetScroll);
+}
 </script>
 </body>
 </html>
