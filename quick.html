@@ -587,7 +587,7 @@ function renderNameSuggestions(q) {
     const img = c.crest
       ? `<img class="name-sugg-crest" src="${esc(c.crest)}" alt="" onerror="this.style.display='none'">`
       : `<div class="name-sugg-initials">${esc(_initials(c.name))}</div>`;
-    return `<button class="name-sugg" onclick="selectClub(${JSON.stringify(esc(c.name))})">${img}${esc(c.name)}</button>`;
+    return `<button class="name-sugg" data-name="${esc(c.name)}" onclick="selectClub(this.dataset.name)">${img}${esc(c.name)}</button>`;
   }).join('');
 }
 
