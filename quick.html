@@ -626,7 +626,9 @@ function showGraphic(which) {
              : which === 'ft' ? S.ftSnap
              : { usG: S.usG, usP: S.usP, ogG: S.ogG, ogP: S.ogP };
   if (!snap) return;
-  const periodLabel = which === 'ht' ? 'HT' : which === 'ft' ? 'FT' : PERIOD_LABEL[S.period];
+  const periodLabel = which === 'ht' ? 'HT'
+                   : which === 'ft' ? 'FT'
+                   : Math.floor((S.secs + (S.period === '2h' ? 1800 : 0)) / 60) + "'";
   document.getElementById('share-graphic-wrap').innerHTML = buildGraphicHTML(snap, periodLabel);
 }
 
@@ -682,7 +684,7 @@ function buildGraphicHTML(snap, label) {
     + `<div style="font-size:15px;font-weight:600;color:#8B8B84;">(${total})</div></div>`;
 
   const labelFS = isTime ? (label.length > 3 ? '20px' : '24px') : '28px';
-  let periodHtml = `<div style="font-size:${labelFS};font-weight:800;color:#3E4A42;line-height:1;">${esc(label)}</div>`;
+  let periodHtml = `<div style="font-size:${labelFS};font-weight:800;color:#3E4A42;line-height:1;text-align:center;">${esc(label)}</div>`;
   if (isHT) {
     periodHtml += `<div style="font-size:8px;letter-spacing:2px;color:#AAA;text-transform:uppercase;">HALF</div>`
       + `<div style="font-size:8px;letter-spacing:2px;color:#AAA;text-transform:uppercase;">TIME</div>`;
