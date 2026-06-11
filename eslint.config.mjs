@@ -116,6 +116,7 @@ const appGlobals = {
   tail: 'writable',
   addRow: 'writable',
   pushUndo: 'writable',
+  clearUndos: 'writable',
   undoLast: 'writable',
   toggleSelMode: 'writable',
   toggleRow: 'writable',

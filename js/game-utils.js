@@ -32,16 +32,18 @@ function applyScoreBadge(ev, scores, oppN) {
     if      (d.includes('Goal added'))     { scores.oppG++; mType = 'Goal';    mTeam = 'opp'; }
     else if (d.includes('2 Point added'))  { scores.oppP += 2; mType = '2 Point'; mTeam = 'opp'; }
     else if (d.includes('Point added'))    { scores.oppP++; mType = 'Point';   mTeam = 'opp'; }
-    else if (d.includes('Goal removed'))   scores.oppG = Math.max(0, scores.oppG - 1);
-    else if (d.includes('Point removed'))  scores.oppP = Math.max(0, scores.oppP - 1);
+    else if (d.includes('Goal removed'))    scores.oppG = Math.max(0, scores.oppG - 1);
+    else if (d.includes('2 Point removed')) scores.oppP = Math.max(0, scores.oppP - 2);
+    else if (d.includes('Point removed'))   scores.oppP = Math.max(0, scores.oppP - 1);
   } else if (ev.badge === 'ADJ') {
     const d = ev.desc || '';
     const adjOpp = d.startsWith(oppN);
     if      (d.includes('Goal added'))    { if(adjOpp){scores.oppG++;mType='Goal';mTeam='opp';}else{scores.usG++;mType='Goal';mTeam='us';} }
     else if (d.includes('2 Point added')) { if(adjOpp){scores.oppP+=2;mType='2 Point';mTeam='opp';}else{scores.usP+=2;mType='2 Point';mTeam='us';} }
     else if (d.includes('Point added'))   { if(adjOpp){scores.oppP++;mType='Point';mTeam='opp';}else{scores.usP++;mType='Point';mTeam='us';} }
-    else if (d.includes('Goal removed'))  { if(adjOpp) scores.oppG=Math.max(0,scores.oppG-1); else scores.usG=Math.max(0,scores.usG-1); }
-    else if (d.includes('Point removed')) { if(adjOpp) scores.oppP=Math.max(0,scores.oppP-1); else scores.usP=Math.max(0,scores.usP-1); }
+    else if (d.includes('Goal removed'))    { if(adjOpp) scores.oppG=Math.max(0,scores.oppG-1); else scores.usG=Math.max(0,scores.usG-1); }
+    else if (d.includes('2 Point removed')) { if(adjOpp) scores.oppP=Math.max(0,scores.oppP-2); else scores.usP=Math.max(0,scores.usP-2); }
+    else if (d.includes('Point removed'))   { if(adjOpp) scores.oppP=Math.max(0,scores.oppP-1); else scores.usP=Math.max(0,scores.usP-1); }
   } else if (ev.action === 'Goal')    { scores.usG++;    mType = 'Goal';    mTeam = 'us'; }
     else if (ev.action === 'Point')   { scores.usP++;    mType = 'Point';   mTeam = 'us'; }
     else if (ev.action === '2 Point') { scores.usP += 2; mType = '2 Point'; mTeam = 'us'; }

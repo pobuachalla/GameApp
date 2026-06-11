@@ -42,6 +42,7 @@ function showFullTimeResult() {
   const clockStr = pad(now.getHours())+':'+pad(now.getMinutes());
   const desc = 'Match ended at '+clockStr+' — '+state.usN+' '+state.goals+'-'+state.pts+' ('+u+') v '+state.oppN+' '+state.og+'-'+state.op_+' ('+o+') — '+result;
   addRow(fmt(state.secs),'END','bperiod',desc);
+  clearUndos(); // the END row has no undo entry, and the undo button is repurposed below
   const ub = document.getElementById('undobtn');
   if (ub) {
     ub.id='resetbtn'; ub.disabled=false; ub.classList.remove('danger');

@@ -279,6 +279,7 @@ function computeStats(st) {
       else if(d.includes('2 Point added')){tlOP+=2;mType='2 Point';mTeam='opp';}
       else if(d.includes('Point added')){tlOP++;mType='Point';mTeam='opp';}
       else if(d.includes('Goal removed'))tlOG=Math.max(0,tlOG-1);
+      else if(d.includes('2 Point removed'))tlOP=Math.max(0,tlOP-2);
       else if(d.includes('Point removed'))tlOP=Math.max(0,tlOP-1);
     }else if(ev.badge==='ADJ'){
       const d=ev.desc||'';const adjOpp=d.startsWith(st.oppN||'');
@@ -286,6 +287,7 @@ function computeStats(st) {
       else if(d.includes('2 Point added')){if(adjOpp){tlOP+=2;mType='2 Point';mTeam='opp';}else{tlUP+=2;mType='2 Point';mTeam='us';}}
       else if(d.includes('Point added')){if(adjOpp){tlOP++;mType='Point';mTeam='opp';}else{tlUP++;mType='Point';mTeam='us';}}
       else if(d.includes('Goal removed')){if(adjOpp)tlOG=Math.max(0,tlOG-1);else tlUG=Math.max(0,tlUG-1);}
+      else if(d.includes('2 Point removed')){if(adjOpp)tlOP=Math.max(0,tlOP-2);else tlUP=Math.max(0,tlUP-2);}
       else if(d.includes('Point removed')){if(adjOpp)tlOP=Math.max(0,tlOP-1);else tlUP=Math.max(0,tlUP-1);}
     }else if(ev.action==='Goal'){
       gC++;if(p){placed?p.gPd++:p.gPl++;}if(placed)pgC++;
@@ -481,8 +483,8 @@ function buildReview(st) {
   // Substitution score tracking
   let sUG=0,sUP=0,sOG=0,sOP=0;const sSAt=[];
   st.evts.forEach(ev=>{
-    if(ev.badge==='OPP'){const d=ev.desc||'';if(d.includes('Goal added'))sOG++;else if(d.includes('2 Point added'))sOP+=2;else if(d.includes('Point added'))sOP++;else if(d.includes('Goal removed'))sOG=Math.max(0,sOG-1);else if(d.includes('Point removed'))sOP=Math.max(0,sOP-1);}
-    else if(ev.badge==='ADJ'){const d=ev.desc||'';const adjOpp=d.startsWith(st.oppN||'');if(d.includes('Goal added')){if(adjOpp)sOG++;else sUG++;}else if(d.includes('2 Point added')){if(adjOpp)sOP+=2;else sUP+=2;}else if(d.includes('Point added')){if(adjOpp)sOP++;else sUP++;}else if(d.includes('Goal removed')){if(adjOpp)sOG=Math.max(0,sOG-1);else sUG=Math.max(0,sUG-1);}else if(d.includes('Point removed')){if(adjOpp)sOP=Math.max(0,sOP-1);else sUP=Math.max(0,sUP-1);}}
+    if(ev.badge==='OPP'){const d=ev.desc||'';if(d.includes('Goal added'))sOG++;else if(d.includes('2 Point added'))sOP+=2;else if(d.includes('Point added'))sOP++;else if(d.includes('Goal removed'))sOG=Math.max(0,sOG-1);else if(d.includes('2 Point removed'))sOP=Math.max(0,sOP-2);else if(d.includes('Point removed'))sOP=Math.max(0,sOP-1);}
+    else if(ev.badge==='ADJ'){const d=ev.desc||'';const adjOpp=d.startsWith(st.oppN||'');if(d.includes('Goal added')){if(adjOpp)sOG++;else sUG++;}else if(d.includes('2 Point added')){if(adjOpp)sOP+=2;else sUP+=2;}else if(d.includes('Point added')){if(adjOpp)sOP++;else sUP++;}else if(d.includes('Goal removed')){if(adjOpp)sOG=Math.max(0,sOG-1);else sUG=Math.max(0,sUG-1);}else if(d.includes('2 Point removed')){if(adjOpp)sOP=Math.max(0,sOP-2);else sUP=Math.max(0,sUP-2);}else if(d.includes('Point removed')){if(adjOpp)sOP=Math.max(0,sOP-1);else sUP=Math.max(0,sUP-1);}}
     else if(ev.action==='Goal')sUG++;
     else if(ev.action==='Point')sUP++;
     else if(ev.action==='2 Point')sUP+=2;

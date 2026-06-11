@@ -23,20 +23,31 @@ function addRow(time, badge, cls, desc) {
 }
 
 // ─── UNDO ─────────────────────────────────────────────────────────────────────
-function pushUndo(lbl, fn) { undos.push({label:lbl, revert:fn}); syncMeta(); }
+// Contract: every undo entry that owns an event-log row (hasEvent, the default)
+// must be pushed by the same action that called addRow, so the entry and the
+// row stay paired LIFO. Actions that log no row pass {hasEvent:false}; actions
+// that log a row no one may undo past (period markers) call clearUndos().
+function pushUndo(lbl, fn, opts = {}) {
+  undos.push({label:lbl, revert:fn, hasEvent: opts.hasEvent !== false});
+  syncMeta();
+}
+
+function clearUndos() { undos = []; syncMeta(); }
 
 function undoLast() {
   if (!undos.length) return;
   const op = undos.pop(); op.revert();
-  state.evts.pop();
+  if (op.hasEvent) {
+    state.evts.pop();
+    const rows = el.evlog.querySelectorAll('.ev-row');
+    if (rows.length) rows[rows.length-1].remove();
+    if (!state.evts.length) el.logempty.style.display='';
+  }
   if (selMode) {
     selMode = false;
     el.seltoggle.classList.remove('active');
     el.removebar.classList.remove('show');
   }
-  const rows = el.evlog.querySelectorAll('.ev-row');
-  if (rows.length) rows[rows.length-1].remove();
-  if (!state.evts.length) el.logempty.style.display='';
   syncMeta(); saveState(); toast('Undone: '+op.label);
 }
 

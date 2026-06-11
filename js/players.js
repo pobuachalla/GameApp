@@ -650,6 +650,6 @@ function execPreGameSub(bi) {
     state.slotp[cs] = co;
     delete state.preGameSubs[cs];
     refBtn(cs);
-  });
+  }, { hasEvent: false });
   closeSubDrawer();
 }

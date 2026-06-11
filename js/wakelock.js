@@ -7,6 +7,9 @@ async function acquireWakeLock() {
   if (!('wakeLock' in navigator)) return;
   try {
     wakeLock = await navigator.wakeLock.request('screen');
+    // The OS releases the lock when the screen sleeps / app backgrounds;
+    // null the handle so reacquireWakeLock() knows to request a new one.
+    wakeLock.addEventListener('release', () => { wakeLock = null; });
   } catch(e) {}
 }
 
