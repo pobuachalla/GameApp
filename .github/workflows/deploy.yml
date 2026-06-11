@@ -31,8 +31,20 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Install dev dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
       - name: Build JS bundle
         run: node build.cjs
+
+      - name: Drop node_modules from the deployed artifact
+        run: rm -rf node_modules
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

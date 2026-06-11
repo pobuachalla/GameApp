@@ -6,6 +6,7 @@ Function-scoped: app  — navigates to a clean page with localStorage cleared
 """
 import http.server
 import os
+import subprocess
 import threading
 
 import pytest
@@ -27,6 +28,9 @@ class _SilentHandler(http.server.SimpleHTTPRequestHandler):
 
 @pytest.fixture(scope="session")
 def http_server():
+    # index.html loads js/bundle.js, which is gitignored — build it so a
+    # fresh clone can run the suite without a manual step.
+    subprocess.run(["node", "build.cjs"], cwd=SERVE_DIR, check=True)
     os.chdir(SERVE_DIR)
     server = http.server.HTTPServer(("127.0.0.1", PORT), _SilentHandler)
     t = threading.Thread(target=server.serve_forever, daemon=True)
@@ -43,7 +47,13 @@ def driver():
     opts.add_argument("--no-sandbox")
     opts.add_argument("--disable-dev-shm-usage")
     opts.add_argument("--window-size=430,932")
-    opts.binary_location = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    # Capture browser console logs so tests can assert "no JS errors"
+    opts.set_capability("goog:loggingPrefs", {"browser": "ALL"})
+    # Selenium Manager finds Chrome on PATH; only force the binary where the
+    # default macOS install location actually exists.
+    mac_chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    if os.path.exists(mac_chrome):
+        opts.binary_location = mac_chrome
     drv = webdriver.Chrome(options=opts)
     drv.implicitly_wait(0)
     yield drv
