@@ -9,7 +9,13 @@ function shareWA() {
 }
 
 function shareCSV() {
-  const csvEsc = v => '"' + String(v||'').replace(/"/g,'""') + '"';
+  // Quote, and neutralise leading =+-@ so player names can't become live
+  // formulas when the CSV is opened in Excel/Sheets
+  const csvEsc = v => {
+    let s = String(v||'').replace(/"/g,'""');
+    if (/^[=+\-@]/.test(s)) s = "'" + s;
+    return '"' + s + '"';
+  };
   const rows = [['Time','Event','Description','Action','Type','zone_id','zone_x','zone_y','gk_outcome','gk_intensity','gk_save_score','gk_final_value']];
   state.evts.forEach(e => rows.push([
     e.time, e.badge, e.desc,
@@ -339,6 +345,10 @@ function renderShareMainOpts() {
 
 function renderAITargetOpts() {
   let h = '<div class="share-opts">';
+  h += `<button class="share-opt" data-v="__back">`;
+  h += `<span class="share-opt-icon" style="background:var(--bg2);color:var(--t2);"><i class="fas fa-chevron-left"></i></span>`;
+  h += `<span class="share-opt-label">Back</span>`;
+  h += `</button>`;
   AI_CONFIG.targets.forEach(t => {
     h += `<button class="share-opt" data-v="${t.id}">`;
     const iconHtml = t.img ? `<img src="${t.img}" width="20" height="20" style="display:block;opacity:0.85;">` : `<i class="${t.icon}"></i>`;
@@ -366,27 +376,29 @@ function shareWithAI(targetId) {
   const target = AI_CONFIG.targets.find(t => t.id === targetId);
   if (!target) return;
   const text = AI_CONFIG.buildPrompt(AI_CONFIG.buildPayload(state));
+  closeShareMenu();
 
-  const launch = () => {
-    closeShareMenu();
-    if (!target.appUrl || !/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-      window.open(target.url, '_blank');
-      return;
-    }
-    // Try native app; fall back to web if app not installed
+  // Launch synchronously inside the click so popup blockers allow it —
+  // window.open inside a clipboard .then() or a setTimeout gets blocked,
+  // especially on iOS Safari.
+  if (!target.appUrl || !/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+    window.open(target.url, '_blank');
+  } else {
+    // Try the native app; if we never left the page, navigate to the web
+    // version (navigation is not subject to the popup blocker).
     let appOpened = false;
     const onHide = () => { appOpened = true; };
     document.addEventListener('visibilitychange', onHide, { once: true });
     window.location.href = target.appUrl;
     setTimeout(() => {
       document.removeEventListener('visibilitychange', onHide);
-      if (!appOpened) window.open(target.url, '_blank');
+      if (!appOpened) window.location.href = target.url;
     }, 1200);
-  };
+  }
 
   navigator.clipboard.writeText(text)
-    .then(() => { toast('Prompt copied — paste into ' + target.label); launch(); })
-    .catch(() => { toast('Open ' + target.label + ' and paste your data'); launch(); });
+    .then(() => toast('Prompt copied — paste into ' + target.label))
+    .catch(() => toast('Open ' + target.label + ' and paste your data'));
 }
 
 function closeShareMenu() {

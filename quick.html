@@ -416,20 +416,31 @@ const S = {
   period: '1h',   // '1h' | 'ht' | '2h' | 'ft'
   running: false,
   secs: 0,
+  h1Secs: null,   // actual 1st-half length, for cumulative minute labels
   htSnap: null,   // { usG, usP, ogG, ogP }
   ftSnap: null,
 };
 
 // ── Timer ─────────────────────────────────────────────────────────────────────
+// Anchored to the wall clock: mobile browsers throttle/suspend intervals when
+// the screen locks, so counting interval ticks under-counts on the sideline.
 let _tick = null;
+let _wallStart = null;
+
+function _syncSecs() {
+  if (_wallStart != null) S.secs = Math.floor((Date.now() - _wallStart) / 1000);
+}
 
 function toggleTimer() {
   if (S.period === 'ht' || S.period === 'ft') return;
   S.running = !S.running;
   if (S.running) {
-    _tick = setInterval(() => { S.secs++; renderTimer(); saveState(); }, 1000);
+    _wallStart = Date.now() - S.secs * 1000;
+    _tick = setInterval(() => { _syncSecs(); renderTimer(); saveState(); }, 1000);
   } else {
+    _syncSecs(); _wallStart = null;
     clearInterval(_tick); _tick = null;
+    renderTimer();
   }
   document.getElementById('play-icon').className = S.running ? 'fas fa-pause' : 'fas fa-play';
   saveState();
@@ -450,6 +461,7 @@ function advanceHalf() {
   if (S.period === 'ft') return;
   if (S.period === '1h') {
     stopClock();
+    S.h1Secs = S.secs;
     S.htSnap = { usG: S.usG, usP: S.usP, ogG: S.ogG, ogP: S.ogP };
     S.period = 'ht';
   } else if (S.period === 'ht') {
@@ -466,6 +478,7 @@ function advanceHalf() {
 }
 
 function stopClock() {
+  _syncSecs(); _wallStart = null;
   S.running = false;
   clearInterval(_tick); _tick = null;
 }
@@ -627,7 +640,7 @@ function showGraphic(which) {
   if (!snap) return;
   const periodLabel = which === 'ht' ? 'HT'
                    : which === 'ft' ? 'FT'
-                   : Math.floor((S.secs + (S.period === '2h' ? 1800 : 0)) / 60) + "'";
+                   : Math.floor((S.secs + (S.period === '2h' ? (S.h1Secs ?? 1800) : 0)) / 60) + "'";
   document.getElementById('share-graphic-wrap').innerHTML = buildGraphicHTML(snap, periodLabel);
 }
 
@@ -749,7 +762,7 @@ function saveStateNow() {
     localStorage.setItem(STORE_KEY, JSON.stringify({
       usN: S.usN, oppN: S.oppN,
       usG: S.usG, usP: S.usP, ogG: S.ogG, ogP: S.ogP,
-      period: S.period, secs: S.secs,
+      period: S.period, secs: S.secs, h1Secs: S.h1Secs,
       htSnap: S.htSnap, ftSnap: S.ftSnap,
     }));
   } catch(_) {}
@@ -768,6 +781,7 @@ function loadState() {
     S.ogP    = d.ogP    ?? 0;
     S.period = d.period || '1h';
     S.secs   = d.secs   || 0;
+    S.h1Secs = d.h1Secs ?? null;
     S.htSnap = d.htSnap || null;
     S.ftSnap = d.ftSnap || null;
   } catch(_) {}
@@ -775,6 +789,7 @@ function loadState() {
 
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') saveStateNow();
+  else if (S.running) { _syncSecs(); renderTimer(); }
 });
 
 // ── New game ──────────────────────────────────────────────────────────────────
@@ -782,7 +797,7 @@ function newGame() {
   if (!confirm('Reset scores and start a new game?')) return;
   stopClock();
   S.usG = 0; S.usP = 0; S.ogG = 0; S.ogP = 0;
-  S.period = '1h'; S.secs = 0;
+  S.period = '1h'; S.secs = 0; S.h1Secs = null;
   S.htSnap = null; S.ftSnap = null;
   try { localStorage.removeItem(STORE_KEY); } catch(_) {}
   renderScore();
