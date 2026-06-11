@@ -632,7 +632,14 @@ function buildReview(st) {
   }
 
   // ─── GK Performance ──────────────────────────────────────────────────────
-  const gkEvts=st.evts.filter(e=>e.gkOutcome!=null&&e.gkFinalValue!=null);
+  // Tag each GK event with its half from log position — badge holds player
+  // initials in live exports, so it can't be used to detect the half
+  let _gkInH2=false;
+  const gkEvts=[];
+  st.evts.forEach(e=>{
+    if(e.badge==='2H'){_gkInH2=true;return;}
+    if(e.gkOutcome!=null&&e.gkFinalValue!=null)gkEvts.push(Object.assign({_half:_gkInH2?'2H':'1H'},e));
+  });
   if(gkEvts.length>0){
     let wDevSum=0,wTotal=0,gkSaves=0,gkGoals=0;
     gkEvts.forEach(e=>{
@@ -684,8 +691,8 @@ function buildReview(st) {
     h+=`<div style="border-top:1px solid var(--bm);margin-top:20px;padding-top:18px;display:flex;gap:24px;flex-wrap:wrap;">`;
 
     // By Half
-    const gkHalfData=['1H','2H','ET'].map(hf=>{
-      const hv=gkEvts.filter(e=>e.badge===hf);
+    const gkHalfData=['1H','2H'].map(hf=>{
+      const hv=gkEvts.filter(e=>e._half===hf);
       if(!hv.length)return null;
       const sv=hv.filter(e=>e.gkOutcome==='save').length;
       const gl=hv.filter(e=>e.gkOutcome==='goal').length;

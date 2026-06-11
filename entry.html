@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1200">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GAA Post-Match Entry</title>
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -244,7 +244,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <span class="score-pts" id="score-ogT">(0 pts)</span>
         </div>
       </div>
-      <p style="font-size:12px;color:var(--t3);margin-top:14px;"><i class="fas fa-info-circle"></i> Our team score is computed from events. This final score is used for the opposition (simple mode) and for any half-time snapshot if entered on the Events tab.</p>
+      <p style="font-size:12px;color:var(--t3);margin-top:14px;"><i class="fas fa-info-circle"></i> Our team score is computed from events; if the final score entered here differs, correction entries are added to the export so the totals match. The opposition score is used directly in simple mode.</p>
     </div>
 
   </div><!-- /pane-details -->
@@ -832,56 +832,139 @@ function doExport() {
   });
   const captainPi = R.captain ? (slotp[R.captain] || null) : null;
 
-  // ── Convert events to state format
+  // ── Convert events to the live-tracker format (see js/players.js logEv).
+  // badge carries player initials (display-only); the '1H'/'2H' badges are
+  // reserved for the half-marker rows that review/stats split halves on.
   const slotPiMap = slotp; // slot→pi
-  const evts = [];
+  const fmtT = s => String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+  const initialsFor = p => {
+    const nm = (pnames[p]||'').trim(); if (!nm) return '#'+p;
+    const parts = nm.split(/\s+/);
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    const sur = parts[parts.length-1];
+    for (let ex = 1; ex <= sur.length; ex++) {
+      const cand = (parts[0][0] + sur.slice(0, ex)).toUpperCase();
+      const clash = Object.entries(pnames).some(([k, v]) => {
+        if (+k === p) return false;
+        const p2 = String(v).trim().split(/\s+/);
+        if (p2.length < 2) return false;
+        return (p2[0][0] + p2[p2.length-1].slice(0, ex)).toUpperCase() === cand;
+      });
+      if (!clash) return cand;
+    }
+    return (parts[0][0] + sur).toUpperCase();
+  };
+  const badgeClsFor = a => {
+    if (a === 'Goal') return 'bg';
+    if (a === 'Point' || a === '2 Point') return 'bp';
+    if (a === 'Wide') return 'bw';
+    if (a === 'Red Card') return 'br';
+    if (a === 'Yellow Card' || a === 'Second Yellow Card') return 'by';
+    if (a.indexOf('Card') >= 0) return 'bc';
+    return 'bo';
+  };
+
   const halfOrder = { '1H':0,'2H':1,'ET':2 };
   const sorted = [...R.evts].sort((a,b) => {
     const hd = (halfOrder[a.half]||0) - (halfOrder[b.half]||0);
     if (hd !== 0) return hd;
     return toSecs(a.time) - toSecs(b.time) || a.id - b.id;
   });
+
+  const buckets = { '1H': [], '2H': [] };
+  const bucketOf = h => buckets[h === '1H' ? '1H' : '2H']; // ET counts as 2nd half
   sorted.forEach(ev => {
-    const piVal = ev.slot ? (slotPiMap[ev.slot] || null) : null;
-    evts.push({
-      time: ev.time || ev.half + ' 0:00',
-      badge: ev.half,
-      desc: ev.desc,
-      action: ev.action,
-      sec: ev.sec || '',
-      slot: ev.slot || null,
-      pi: piVal,
+    if (ev.team === 'opp') {
+      bucketOf(ev.half).push({
+        time: ev.time || '00:00', badge: 'OPP', cls: 'bopp',
+        desc: (R.oppN||'Opposition') + ': ' + ev.action + ' added',
+        action: ev.action, sec: null, slot: null,
+      });
+    } else {
+      const piVal = slotPiMap[ev.slot] || null;
+      bucketOf(ev.half).push({
+        time: ev.time || '00:00',
+        badge: piVal ? initialsFor(piVal) : '#'+ev.slot,
+        cls: badgeClsFor(ev.action),
+        desc: getPlayerName(ev.slot) + (piVal ? ' (#'+piVal+')' : '') + ': ' + ev.action + (ev.sec ? ' · '+ev.sec : ''),
+        action: ev.action, sec: ev.sec || null, slot: ev.slot, pi: piVal,
+      });
+    }
+  });
+
+  // ── GK shots join their half's stream so half-based views attribute them right
+  const gkPi = slotp[1] || null;
+  [...R.gkEvts].sort((a,b) => (halfOrder[a.half]||0)-(halfOrder[b.half]||0) || a.id-b.id).forEach(e => {
+    bucketOf(e.half).push({
+      time: '00:00',
+      badge: gkPi ? initialsFor(gkPi) : 'GK', cls: 'bgk',
+      desc: getPlayerName(1) + (gkPi ? ' (#'+gkPi+')' : '') + ': ' + (e.outcome==='goal' ? 'Goal conceded' : 'Save')
+        + ' · ' + GK_I_LBL[e.intensity] + ' · ' + GK_S_LBL[e.saveScore],
+      action: 'GK Save', sec: null, slot: 1, pi: gkPi,
+      gkOutcome: e.outcome, gkIntensity: e.intensity, gkSaveScore: e.saveScore,
+      gkBaseValue: e.baseValue, gkFinalValue: e.finalValue, gkSecondary: null,
     });
   });
 
-  // ── Compute our score from events
-  let goals = 0, pts = 0;
-  evts.forEach(ev => {
-    if (ev.slot == null) return;
-    if (ev.action === 'Goal') goals++;
-    else if (ev.action === 'Point') pts++;
-    else if (ev.action === '2 Point') pts += 2;
-  });
+  // ── Scores from events, per half (also gives the HT snapshot)
+  const tally = rows => {
+    const t = { g:0, p:0, og:0, op:0 };
+    rows.forEach(ev => {
+      if (ev.badge === 'OPP') {
+        if (ev.action === 'Goal') t.og++;
+        else if (ev.action === '2 Point') t.op += 2;
+        else if (ev.action === 'Point') t.op++;
+      } else if (ev.slot != null) {
+        if (ev.action === 'Goal') t.g++;
+        else if (ev.action === '2 Point') t.p += 2;
+        else if (ev.action === 'Point') t.p++;
+      }
+    });
+    return t;
+  };
+  const t1 = tally(buckets['1H']), t2 = tally(buckets['2H']);
+  let goals = t1.g + t2.g, pts = t1.p + t2.p;
+  let og = t1.og + t2.og, op_ = t1.op + t2.op;
 
-  // ── Cards
-  const ycarded = [], bcarded = [], rcarded = [];
+  // ── Assemble the log with half markers
+  const h1End = Math.max(1800, ...buckets['1H'].map(e => toSecs(e.time)));
+  const h2End = Math.max(1800, ...buckets['2H'].map(e => toSecs(e.time)));
+  const evts = [];
+  evts.push({ time:'00:00', badge:'1H', cls:'bperiod', desc:'1st Half started' });
+  evts.push(...buckets['1H']);
+  evts.push({ time: fmtT(h1End), badge:'1H', cls:'bperiod', desc:'1st Half ended' });
+  evts.push({ time:'00:00', badge:'2H', cls:'bperiod', desc:'2nd Half started' });
+  evts.push(...buckets['2H']);
+
+  // ── Reconcile with the manually entered final score: emit correction events
+  // so replaying the log always reproduces the final totals
+  const entG = +R.usGoals||0, entP = +R.usPts||0;
+  const corr = desc => evts.push({ time: fmtT(h2End), badge:'ADJ', cls:'badj', desc });
+  if (entG + entP > 0) {
+    for (let i = goals; i < entG; i++) corr(R.usN+': Goal added · Final score correction');
+    for (let i = entG; i < goals; i++) corr(R.usN+': Goal removed · Final score correction');
+    for (let i = pts;  i < entP; i++)  corr(R.usN+': Point added · Final score correction');
+    for (let i = entP; i < pts; i++)   corr(R.usN+': Point removed · Final score correction');
+    goals = entG; pts = entP;
+  }
+  if (R.oppMode !== 'detailed') {
+    const sg = +R.ogGoals||0, sp = +R.ogPts||0;
+    for (let i = og; i < sg; i++)  evts.push({ time: fmtT(h2End), badge:'OPP', cls:'bopp', desc:(R.oppN||'Opposition')+': Goal added · Final score entry',  action:'Goal' });
+    for (let i = op_; i < sp; i++) evts.push({ time: fmtT(h2End), badge:'OPP', cls:'bopp', desc:(R.oppN||'Opposition')+': Point added · Final score entry', action:'Point' });
+    og = Math.max(og, sg); op_ = Math.max(op_, sp);
+  }
+  evts.push({ time: fmtT(h2End), badge:'END', cls:'bperiod',
+    desc: 'Match ended — '+R.usN+' '+goals+'-'+pts+' ('+(goals*3+pts)+') v '+R.oppN+' '+og+'-'+op_+' ('+(og*3+op_)+')' });
+
+  // ── Cards (objects keyed by pi, matching the live state shape)
+  const ycarded = {}, bcarded = {}, rcarded = {};
   evts.forEach(ev => {
     if (!ev.pi) return;
-    if (ev.action === 'Yellow Card' && !ycarded.includes(ev.pi)) ycarded.push(ev.pi);
-    if (ev.action === 'Black Card'  && !bcarded.includes(ev.pi)) bcarded.push(ev.pi);
-    if (ev.action === 'Red Card'    && !rcarded.includes(ev.pi)) rcarded.push(ev.pi);
+    if (ev.action === 'Yellow Card') ycarded[ev.pi] = (ycarded[ev.pi]||0)+1;
+    if (ev.action === 'Second Yellow Card') { ycarded[ev.pi] = (ycarded[ev.pi]||0)+1; rcarded[ev.pi] = true; }
+    if (ev.action === 'Black Card') bcarded[ev.pi] = (bcarded[ev.pi]||0)+1;
+    if (ev.action === 'Red Card') rcarded[ev.pi] = true;
   });
-
-  // ── Opposition score
-  let og = R.ogGoals, op_ = R.ogPts;
-  if (R.oppMode === 'detailed') {
-    og = 0; op_ = 0;
-    evts.forEach(ev => {
-      if (ev.slot !== null) return;
-      if (ev.action === 'Goal') og++;
-      else if (ev.action === 'Point') op_++;
-    });
-  }
 
   // ── Build filename base (same logic as transfer.js)
   const sport = (R.sport || 'football').toLowerCase();
@@ -912,27 +995,6 @@ function doExport() {
   const prefix  = grade + sc + cc;
   const filename = (prefix ? prefix + '_' : '') + dateStr + '_' + oppSafe + '.json';
 
-  // ── GK events
-  const gkPi = slotp[1] || null;
-  const halfOrd = { '1H':0,'2H':1,'ET':2 };
-  const gkEvts = [...R.gkEvts]
-    .sort((a,b) => (halfOrd[a.half]||0) - (halfOrd[b.half]||0) || a.id - b.id)
-    .map(e => ({
-      time: e.half + ' 0:00',
-      badge: e.half,
-      desc: (e.outcome==='goal'?'Goal conceded · ':'GK Save · ') + GK_I_LBL[e.intensity] + ' · ' + GK_S_LBL[e.saveScore],
-      action: 'GK Save',
-      sec: '',
-      slot: 1,
-      pi: gkPi,
-      gkOutcome: e.outcome,
-      gkIntensity: e.intensity,
-      gkSaveScore: e.saveScore,
-      gkBaseValue: e.baseValue,
-      gkFinalValue: e.finalValue,
-      gkSecondary: null,
-    }));
-
   // ── Assemble state object
   const out = {
     usN: R.usN, oppN: R.oppN,
@@ -941,15 +1003,15 @@ function doExport() {
     ageGrade: R.ageGrade, sport: R.sport,
     teamSize: R.teamSize,
     goals, pts, og, op_,
-    htGoals: null, htPts: null, htOg: null, htOp: null,
+    htGoals: t1.g, htPts: t1.p, htOg: t1.og, htOp: t1.op,
     ftGoals: goals, ftPts: pts, ftOg: og, ftOp: op_,
-    period: 2, secs: 0,
-    matchState: 'final',
-    tPausedAt: null, tWallStart: null,
+    period: 2, secs: h2End,
+    matchState: 'FULL_TIME',
+    tPausedAt: 0, tWallStart: null,
     pnames, slotp, startSlotp,
     captain: captainPi, startCaptain: captainPi,
-    ubench: [], suboff: [], ycarded, bcarded, rcarded,
-    maxB: 3, evts: evts.concat(gkEvts),
+    ubench: {}, suboff: {}, ycarded, bcarded, rcarded,
+    maxB: 17, evts,
     teamAssessment: { ...R.assessment },
     trackGameTime: false,
     trackShotLocations: false,
