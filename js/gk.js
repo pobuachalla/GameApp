@@ -337,7 +337,8 @@ function _gkSubmitGoal() {
   // Update the description and its DOM row so the log shows the rating
   const pi      = state.slotp[1];
   const gkName  = gn(pi) || ('GK #' + pi);
-  ev.desc += ' \xB7 ' + esc(gkName) + ' I\xB7' + I + ' V\xB7' + fv;
+  // desc is plain text — it gets escaped at render time, so no esc() here
+  ev.desc += ' \xB7 ' + gkName + ' I\xB7' + I + ' V\xB7' + fv;
   const row = el.evlog.querySelector('[data-ev-idx="' + idx + '"]');
   if (row) {
     const descEl = row.querySelector('span:last-child');

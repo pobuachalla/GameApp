@@ -90,6 +90,13 @@ function removeSelected() {
   const toRemove = rows.map((r,i) => r.classList.contains('selected')?i:-1).filter(i=>i>=0);
   for (let i=toRemove.length-1; i>=0; i--) { rows[toRemove[i]].remove(); state.evts.splice(toRemove[i],1); }
   undos = [];
+  // Re-number surviving rows so data-ev-idx lookups (OSC/GK enrichment) stay correct
+  Array.from(el.evlog.querySelectorAll('.ev-row')).forEach((r,i) => { r.dataset.evIdx = i; });
+  // Replay the surviving events so the scoreboard matches what stats/exports recompute
+  const scores = {usG:0, usP:0, oppG:0, oppP:0};
+  state.evts.forEach(ev => applyScoreBadge(ev, scores, state.oppN));
+  setUsGoals(scores.usG); setUsPts(scores.usP); setOppGoals(scores.oppG); setOppPts(scores.oppP);
+  upTot();
   if (!state.evts.length) el.logempty.style.display='';
   selMode=false; el.seltoggle.classList.remove('active'); el.removebar.classList.remove('show');
   syncMeta(); saveState();

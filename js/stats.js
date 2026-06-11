@@ -63,7 +63,7 @@ function buildTimelineHTML() {
     const dotCol=m.type==='Wide'?'#9E9E9E':m.type==='2 Point'?'#F59E0B':mcol;
     const dotR=m.type==='Goal'?3.5:m.type==='2 Point'?3:m.type==='Point'?3:2;
     if(m.placed)svg+=`<circle cx="${cx}" cy="${cy}" r="${dotR+2}" fill="none" stroke="${dotCol}" stroke-width="1" opacity="0.7"/>`;
-    if      (m.type==='Goal')    svg+=`<circle cx="${cx}" cy="${cy}" r="3.5" fill="${TEAM_US_COLOR}" stroke="#fff" stroke-width="1.2"/>`;
+    if      (m.type==='Goal')    svg+=`<circle cx="${cx}" cy="${cy}" r="3.5" fill="${mcol}" stroke="#fff" stroke-width="1.2"/>`;
     else if (m.type==='2 Point') svg+=`<circle cx="${cx}" cy="${cy}" r="3"   fill="#F59E0B" stroke="#fff" stroke-width="1.2"/>`;
     else if (m.type==='Point')   svg+=`<circle cx="${cx}" cy="${cy}" r="3"   fill="#fff"    stroke="#9A9E99" stroke-width="1.2"/>`;
     else if (m.type==='Wide')    svg+=`<circle cx="${cx}" cy="${cy}" r="2"   fill="#9E9E9E" stroke="none"/>`;
@@ -149,6 +149,12 @@ function computePlayTimes() {
     if (ev.badge === '2H') { inH2 = true; return; }
     if (inH2) t += halfSecs;
     lastSecs = Math.max(lastSecs, t);
+    if (ev.action === 'pos-swap' && ev.slot != null && ev.slotB != null) {
+      // Keep slot occupancy current, or a later sub stops the wrong player's clock
+      const a = curSlotPi[ev.slot], b = curSlotPi[ev.slotB];
+      curSlotPi[ev.slot] = b; curSlotPi[ev.slotB] = a;
+      return;
+    }
     if (ev.action === 'sub' && ev.slot != null) {
       const offPi = curSlotPi[ev.slot];
       const onM = (ev.desc||'').match(/\(#(\d+)\) on/);
@@ -212,7 +218,7 @@ function buildGKStatHTML() {
   const _gk = calculateGKRating(state.evts, state.ageGrade);
   if (!_gk) return '';
   const { rating, label, ratingColor, saves, goals, shots, saveRate, ratedEvts } = _gk;
-  const gkName = gn(1) || 'Goalkeeper';
+  const gkName = gn(state.slotp[1] || 1) || 'Goalkeeper';
   const intensityLabels = ['', 'Routine', 'Moderate', 'Challenging', 'Difficult', 'Exceptional'];
 
   let h = '<div class="stat-section"><div class="stat-section-title">Goalkeeper Performance</div>';

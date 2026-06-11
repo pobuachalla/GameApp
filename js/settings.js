@@ -91,7 +91,8 @@ function updateTpl(name) {
 
 function clearAllNames() {
   const sz = state.teamSize || 15;
-  for (let i = 1; i <= sz; i++) { const inp=document.getElementById('sn'+i); if(inp) inp.value=''; }
+  // TEAM_SLOTS is non-contiguous for 13-a-side (slot 15 exists, 3/14 don't)
+  (TEAM_SLOTS[sz]||TEAM_SLOTS[15]).forEach(s => { const inp=document.getElementById('sn'+s); if(inp) inp.value=''; });
   for (let i = 16; i <= state.maxB; i++) { const inp=document.getElementById('sn'+i); if(inp) inp.value=''; }
   flushSettings();
   toast('Names cleared');

@@ -81,7 +81,7 @@ function findCountyCrest(name) {
 
 function findClub(name) {
   if (!name) return null;
-  const norm = s => s.toLowerCase().replaceAll(/\s*[-\/\u2013]\s*/g, '/').replaceAll(/[\u0027\u2018\u2019.]/g, '').replaceAll(/\s+/g, ' ').trim();
+  const norm = s => s.toLowerCase().replaceAll(/\s*[-/\u2013]\s*/g, '/').replaceAll(/[\u0027\u2018\u2019.]/g, '').replaceAll(/\s+/g, ' ').trim();
   const n = norm(name);
   const exact = MEATH_CLUBS.find(c => norm(c.name) === n);
   if (exact) return exact;

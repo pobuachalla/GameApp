@@ -85,6 +85,8 @@ function resetMatch() {
 function doReset() {
   setUsGoals(0); setUsPts(0); setOppGoals(0); setOppPts(0);
   upTot();
+  state.htGoals=null; state.htPts=null; state.htOg=null; state.htOp=null;
+  state.ftGoals=null; state.ftPts=null; state.ftOg=null; state.ftOp=null;
   state.evts=[]; undos=[];
   state.matchNotes=''; const _mn=document.getElementById('match-notes-input'); if(_mn)_mn.value='';
   state.teamAssessment={ effort:0, skill:0, tactics:0, intensity:0, discipline:0, spirit:0, notes:'' };

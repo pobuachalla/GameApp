@@ -34,6 +34,7 @@ const ctx = {
     addEventListener: () => {},
   },
   navigator: { wakeLock: null },
+  addEventListener: () => {},
   window:    {},
   console,
   setTimeout,

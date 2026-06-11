@@ -571,6 +571,9 @@ function pickSubOn() {
 
 function execSub(bi) {
   const sl=subOff, out=state.slotp[sl];
+  // Capture the incoming player's prior bookkeeping so undo restores it exactly
+  // (a fresh bench player must not gain a fabricated 'previously subbed off' record)
+  const prevSuboffIn = state.suboff[bi], prevUbenchIn = state.ubench[bi];
   state.suboff[out]=sl; state.slotp[sl]=bi; state.ubench[bi]=true;
   if(state.suboff[bi])delete state.suboff[bi];
   const desc='Sub: '+pl(out)+' off / '+pl(bi)+' on (pos '+sl+')';
@@ -579,7 +582,9 @@ function execSub(bi) {
   const ev=state.evts[state.evts.length-1]; ev.slot=sl; ev.action='sub';
   const cs=sl,co=out,ci=bi;
   pushUndo(desc,()=>{
-    state.slotp[cs]=co; delete state.suboff[co]; delete state.ubench[ci]; state.suboff[ci]=cs;
+    state.slotp[cs]=co; delete state.suboff[co];
+    if (prevUbenchIn) state.ubench[ci]=true; else delete state.ubench[ci];
+    if (prevSuboffIn !== undefined) state.suboff[ci]=prevSuboffIn; else delete state.suboff[ci];
     const b2=document.querySelector('[data-s="'+cs+'"]');
     if(b2){ b2.classList.remove('sub'); if(state.ubench[co])b2.classList.add('sub'); }
     refBtn(cs);
@@ -624,7 +629,7 @@ function execSwap(slotA, slotB) {
   const desc = 'Pos swap: ' + pl(piA) + ' ↔ ' + pl(piB);
   addRow(fmt(state.secs), 'POS', 'bo', desc);
   const ev = state.evts[state.evts.length - 1];
-  ev.slot = slotA; ev.action = 'pos-swap'; ev.pi = piA;
+  ev.slot = slotA; ev.slotB = slotB; ev.action = 'pos-swap'; ev.pi = piA;
   pushUndo(desc, () => {
     state.slotp[slotA] = piA;
     state.slotp[slotB] = piB;
