@@ -367,6 +367,7 @@ function render() {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === view.tab));
   if (view.tab === 'progress') return renderProgress();
   if (view.mode === 'setup')   return renderSetup();
+  if (view.mode === 'manual')  return renderManual();
   if (view.mode === 'timing')  return renderTiming();
   if (view.mode === 'results') return renderResults();
   renderSessionList();
@@ -377,7 +378,8 @@ function curSession() { return D.sessions.find(s => s.id === view.sessionId) || 
 // ─── Sessions list ────────────────────────────────────────────────────────────
 function renderSessionList() {
   const sessions = sortedSessions().reverse();
-  let h = '<button class="btn btn-primary" id="btn-new" style="margin-bottom:14px;"><i class="fas fa-plus"></i> New Test Session</button>';
+  let h = '<button class="btn btn-primary" id="btn-new" style="margin-bottom:10px;"><i class="fas fa-plus"></i> New Test Session</button>';
+  h += '<button class="btn btn-ghost" id="btn-manual" style="margin-bottom:14px;"><i class="fas fa-user-clock"></i> Add individual result</button>';
   if (!sessions.length) {
     h += '<div class="empty"><i class="fas fa-stopwatch"></i>No test sessions yet.<br>Create one to run your first Bronco.</div>';
   }
@@ -397,6 +399,7 @@ function renderSessionList() {
   });
   $('screen').innerHTML = h;
   const nb = $('btn-new'); if (nb) nb.onclick = startNewSession;
+  const mb = $('btn-manual'); if (mb) mb.onclick = () => openManual();
   $('screen').querySelectorAll('[data-open]').forEach(b => b.onclick = () => openSession(b.dataset.open));
 }
 
@@ -464,6 +467,65 @@ function renderSetup() {
     view = { tab: 'sessions', sessionId: id, mode: 'timing' };
     render();
   };
+}
+
+// ─── Manual entry (make-up run for a player who missed a session) ────────────
+let manualForm = { name: '', date: todayStr(), time: '', notes: '' };
+function openManual(name) {
+  manualForm = { name: name || '', date: todayStr(), time: '', notes: '' };
+  view = { tab: 'sessions', sessionId: null, mode: 'manual' };
+  render();
+}
+function renderManual() {
+  const names = activePlayers().filter(gradePass).sort((a, b) => a.localeCompare(b));
+  let h = '<div class="card"><div class="card-title"><i class="fas fa-user-clock"></i> Add individual result — make-up run</div>';
+  h += gradeChipsHtml();
+  h += '<div class="fg"><label>Player</label><select id="m-name" style="border:1.5px solid var(--border);border-radius:9px;padding:10px 12px;font-size:14px;font-family:inherit;background:white;">';
+  h += '<option value="">— select player —</option>';
+  names.forEach(n => {
+    const y = playerYear(n);
+    h += `<option value="${esc(n)}"${manualForm.name === n ? ' selected' : ''}>${esc(n)}${y ? ' (' + esc(gradeOf(y)) + ')' : ''}</option>`;
+  });
+  h += '</select></div>';
+  h += `<div class="fg"><label>Date</label><input type="date" id="m-date" value="${esc(manualForm.date)}"></div>`;
+  h += `<div class="fg"><label>Time (m:ss.t)</label><input id="m-time" placeholder="5:04.3" value="${esc(manualForm.time)}"></div>`;
+  h += `<div class="fg"><label>Note (optional)</label><input id="m-note" placeholder="e.g. missed the panel session" value="${esc(manualForm.notes)}"></div>`;
+  h += '</div>';
+  h += '<button class="btn btn-primary" id="btn-msave" style="margin-bottom:8px;"><i class="fas fa-check"></i> Save result</button>';
+  h += '<button class="btn btn-ghost" id="btn-mcancel">Cancel</button>';
+  $('screen').innerHTML = h;
+
+  wireGradeChips();
+  $('m-name').onchange = e => { manualForm.name  = e.target.value; };
+  $('m-date').oninput  = e => { manualForm.date  = e.target.value; };
+  $('m-time').oninput  = e => { manualForm.time  = e.target.value; };
+  $('m-note').oninput  = e => { manualForm.notes = e.target.value; };
+  $('btn-mcancel').onclick = () => { view.mode = 'list'; render(); };
+  $('btn-msave').onclick = saveManual;
+}
+function saveManual() {
+  if (!manualForm.name) { toast('Pick a player'); return; }
+  const secs = parseTime(manualForm.time);
+  if (secs == null) { toast('Enter a time like 5:04.3'); return; }
+  const name = manualForm.name;
+  const date = manualForm.date || todayStr();
+  const note = manualForm.notes.trim();
+  // Slot into the session on that date if one exists, otherwise create one
+  let s = D.sessions.find(x => x.date === date);
+  if (!s) {
+    s = { id: 'b' + Date.now().toString(36), date, notes: note, results: [] };
+    D.sessions.push(s);
+  } else if (note) {
+    s.notes = s.notes ? s.notes + ' · ' + note : note;
+  }
+  const rounded = Math.round(secs * 10) / 10;
+  const r = s.results.find(x => x.name === name);
+  if (r) { r.secs = rounded; r.dnf = false; }
+  else s.results.push({ name, secs: rounded, dnf: false });
+  saveData();
+  view = { tab: 'sessions', sessionId: s.id, mode: 'results' };
+  render();
+  toast(name + ' — ' + fmtTime(rounded) + ' · MAS ' + fmtMAS(calcMAS(rounded, D.heavy[name])));
 }
 
 // ─── Timing screen ────────────────────────────────────────────────────────────
@@ -803,7 +865,8 @@ function renderPlayerDrawer() {
   const best = hist.length ? hist.reduce((a, b) => (b.mas > a.mas ? b : a)) : null;
 
   let h = `<div class="drawer-title">${esc(name)}
-    <button class="chip-toggle${D.heavy[name] ? ' on' : ''}" id="pd-heavy"><i class="fas fa-weight-hanging"></i> 100kg+</button>
+    <button class="chip-toggle" id="pd-addrun"><i class="fas fa-plus"></i> Add run</button>
+    <button class="chip-toggle${D.heavy[name] ? ' on' : ''}" id="pd-heavy" style="margin-left:8px;"><i class="fas fa-weight-hanging"></i> 100kg+</button>
   </div>`;
   const py = playerYear(name);
   h += `<div class="drawer-sub">${py ? esc(gradeOf(py)) + ' (' + py + ') · ' : ''}${hist.length} run${hist.length !== 1 ? 's' : ''}${best ? ' · best MAS ' + fmtMAS(best.mas) + ' (' + esc(fmtDate(best.date)) + ')' : ''}</div>`;
@@ -848,6 +911,7 @@ function renderPlayerDrawer() {
     h += '<div class="empty" style="padding:24px;">No completed runs yet.</div>';
   }
   $('pd-body').innerHTML = h;
+  $('pd-addrun').onclick = () => { closePlayer(); openManual(name); };
   $('pd-heavy').onclick = () => {
     if (D.heavy[name]) delete D.heavy[name]; else D.heavy[name] = true;
     saveData();
