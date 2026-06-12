@@ -73,6 +73,12 @@ button{font-family:inherit;}
 .runner-name{font-size:14px;font-weight:600;flex:1;}
 .runner-prev{font-size:12px;color:var(--t3);}
 
+/* ── Grade filter chips ── */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.chip{border:1.5px solid var(--border);background:var(--card);color:var(--t2);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;}
+.chip.on{background:var(--green);border-color:var(--green);color:white;}
+.runner-grade{font-size:10px;font-weight:700;color:var(--t3);background:var(--bg);border-radius:999px;padding:2px 7px;margin-left:6px;}
+
 /* ── Timer ── */
 .clock-card{text-align:center;padding:22px 18px;}
 .clock{font-size:54px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-1px;color:var(--t1);line-height:1;}
@@ -282,6 +288,48 @@ function activePlayers() {
   return roster.filter(p => p.active !== false).map(p => p.name);
 }
 
+// ─── Age grades ───────────────────────────────────────────────────────────────
+// Club convention: the 2011 cohort are U16 in 2026 → grade = year − birthYear + 1.
+// (roster.html displays year − birthYear; the chips show birth years too so
+// there's no ambiguity about who's in which group.)
+const THIS_YEAR = new Date().getFullYear();
+const gradeOf = by => 'U' + (THIS_YEAR - +by + 1);
+function playerYear(name) {
+  const p = roster.find(x => x.name === name);
+  const y = p ? +p.birthYear : NaN;
+  return isFinite(y) ? y : null;
+}
+// Two groups: oldest birth years together (U16/U15), youngest together (U14/U13)
+function gradeGroups() {
+  const yrs = [...new Set(roster.filter(p => p.active !== false).map(p => +p.birthYear).filter(isFinite))]
+    .sort((a, b) => a - b);
+  if (yrs.length < 2) return [];
+  const cut = Math.ceil(yrs.length / 2);
+  return [yrs.slice(0, cut), yrs.slice(cut)].map(ys => ({
+    label: ys.map(gradeOf).join('·'),
+    years: new Set(ys),
+  }));
+}
+let gradeFilter = -1; // -1 = all, otherwise index into gradeGroups()
+function gradePass(name) {
+  if (gradeFilter < 0) return true;
+  const g = gradeGroups()[gradeFilter];
+  if (!g) return true;
+  const y = playerYear(name);
+  return y != null && g.years.has(y);
+}
+function gradeChipsHtml() {
+  const groups = gradeGroups();
+  if (!groups.length) return '';
+  let h = '<div class="chips">';
+  h += `<button class="chip${gradeFilter < 0 ? ' on' : ''}" data-gf="-1">All</button>`;
+  groups.forEach((g, i) => h += `<button class="chip${gradeFilter === i ? ' on' : ''}" data-gf="${i}">${esc(g.label)}</button>`);
+  return h + '</div>';
+}
+function wireGradeChips() {
+  $('screen').querySelectorAll('[data-gf]').forEach(b => b.onclick = () => { gradeFilter = +b.dataset.gf; render(); });
+}
+
 // ─── History helpers ──────────────────────────────────────────────────────────
 const sortedSessions = () => [...D.sessions].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
 // All completed runs for a player, oldest → newest
@@ -297,8 +345,8 @@ function latestRun(name, beforeDate) {
   const h = playerHistory(name).filter(r => !beforeDate || r.date < beforeDate);
   return h.length ? h[h.length - 1] : null;
 }
-function sessionAvgMas(s) {
-  const vals = (s.results || []).filter(r => r.secs != null && !r.dnf)
+function sessionAvgMas(s, passFn) {
+  const vals = (s.results || []).filter(r => r.secs != null && !r.dnf && (!passFn || passFn(r.name)))
     .map(r => calcMAS(r.secs, D.heavy[r.name])).filter(v => v != null);
   return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
 }
@@ -352,6 +400,9 @@ function renderSessionList() {
 }
 
 function startNewSession() {
+  setupForm = { date: todayStr(), notes: '' };
+  setupSel = new Set();
+  activePlayers().forEach(n => latestRun(n) && setupSel.add(n)); // preselect returning runners
   view = { tab: 'sessions', sessionId: null, mode: 'setup' };
   render();
 }
@@ -362,21 +413,23 @@ function openSession(id) {
 
 // ─── New session setup ────────────────────────────────────────────────────────
 let setupSel = new Set();
+let setupForm = { date: todayStr(), notes: '' };
 function renderSetup() {
-  const names = seededOrder(activePlayers());
-  if (!setupSel.size) names.forEach(n => latestRun(n) && setupSel.add(n)); // preselect returning runners
+  const names = seededOrder(activePlayers().filter(gradePass));
   let h = '<div class="card"><div class="card-title"><i class="fas fa-circle-info"></i> Session details</div>';
-  h += `<div class="fg"><label>Date</label><input type="date" id="f-date" value="${todayStr()}"></div>`;
-  h += `<div class="fg"><label>Conditions / notes</label><textarea id="f-notes" placeholder="Pitch, weather, who's carrying a knock…"></textarea></div>`;
+  h += `<div class="fg"><label>Date</label><input type="date" id="f-date" value="${esc(setupForm.date)}"></div>`;
+  h += `<div class="fg"><label>Conditions / notes</label><textarea id="f-notes" placeholder="Pitch, weather, who's carrying a knock…">${esc(setupForm.notes)}</textarea></div>`;
   h += '</div>';
 
   h += '<div class="card"><div class="card-title"><i class="fas fa-person-running"></i> Runners — fastest first from previous tests</div>';
-  if (!names.length) h += '<div class="empty" style="padding:18px;">No active players in the roster.<br><a href="roster.html">Open the roster</a> to add players.</div>';
+  h += gradeChipsHtml();
+  if (!names.length) h += '<div class="empty" style="padding:18px;">No active players match.<br><a href="roster.html">Open the roster</a> to manage players.</div>';
   names.forEach(n => {
     const prev = latestRun(n);
+    const y = playerYear(n);
     h += `<div class="runner-row${setupSel.has(n) ? ' on' : ''}" data-name="${esc(n)}">
       <span class="runner-chk"><i class="fas fa-check"></i></span>
-      <span class="runner-name">${esc(n)}</span>
+      <span class="runner-name">${esc(n)}${y ? `<span class="runner-grade">${esc(gradeOf(y))}</span>` : ''}</span>
       <span class="runner-prev">${prev ? fmtTime(prev.secs) + ' · MAS ' + fmtMAS(prev.mas) : 'no previous run'}</span>
     </div>`;
   });
@@ -393,12 +446,15 @@ function renderSetup() {
     syncCreate();
   });
   syncCreate();
+  wireGradeChips();
+  $('f-date').oninput  = e => { setupForm.date  = e.target.value; };
+  $('f-notes').oninput = e => { setupForm.notes = e.target.value; };
   $('btn-cancel').onclick = () => { setupSel = new Set(); view.mode = 'list'; render(); };
   $('btn-create').onclick = () => {
-    const date = $('f-date').value || todayStr();
+    const date = setupForm.date || todayStr();
     const id = 'b' + Date.now().toString(36);
     const order = seededOrder([...setupSel], date);
-    D.sessions.push({ id, date, notes: $('f-notes').value.trim(), results: order.map(n => ({ name: n, secs: null, dnf: false })) });
+    D.sessions.push({ id, date, notes: setupForm.notes.trim(), results: order.map(n => ({ name: n, secs: null, dnf: false })) });
     saveData();
     setupSel = new Set();
     view = { tab: 'sessions', sessionId: id, mode: 'timing' };
@@ -599,7 +655,7 @@ function editTime(s, i) {
 
 // ─── Progress (team) ──────────────────────────────────────────────────────────
 function renderProgress() {
-  const sessions = sortedSessions().filter(s => sessionAvgMas(s) != null);
+  const sessions = sortedSessions().filter(s => sessionAvgMas(s, gradePass) != null);
   let h = '';
 
   h += '<div class="toolbar">';
@@ -607,21 +663,26 @@ function renderProgress() {
   h += '<label class="icon-btn" style="display:inline-flex;align-items:center;gap:6px;"><i class="fas fa-file-import"></i> Import<input type="file" id="f-import" accept=".json,application/json" style="display:none;"></label>';
   h += '</div>';
 
+  h += gradeChipsHtml();
+
   if (!sessions.length) {
     h += '<div class="empty"><i class="fas fa-chart-line"></i>No completed sessions yet — progress charts will appear here after your first Bronco.</div>';
     $('screen').innerHTML = h;
     wireProgressToolbar();
+    wireGradeChips();
     return;
   }
 
-  // Team average chart
-  h += '<div class="card"><div class="card-title"><i class="fas fa-chart-line"></i> Team average MAS by session</div>';
-  h += '<div class="chart-wrap">' + buildChart([{ col: '#2E7D32', pts: sessions.map(s => sessionAvgMas(s)) }], sessions.map(s => s.date), true) + '</div>';
+  // Average MAS chart for the selected group
+  const groups = gradeGroups();
+  const chartLbl = gradeFilter >= 0 && groups[gradeFilter] ? groups[gradeFilter].label + ' average' : 'Team average';
+  h += `<div class="card"><div class="card-title"><i class="fas fa-chart-line"></i> ${esc(chartLbl)} MAS by session</div>`;
+  h += '<div class="chart-wrap">' + buildChart([{ col: '#2E7D32', pts: sessions.map(s => sessionAvgMas(s, gradePass)) }], sessions.map(s => s.date), true) + '</div>';
   h += '</div>';
 
   // Player table: latest MAS, change vs previous run, trend
   const names = new Set();
-  sessions.forEach(s => (s.results || []).forEach(r => { if (r.secs != null && !r.dnf) names.add(r.name); }));
+  sessions.forEach(s => (s.results || []).forEach(r => { if (r.secs != null && !r.dnf && gradePass(r.name)) names.add(r.name); }));
   const rows = [...names].map(n => {
     const hist = playerHistory(n);
     const last = hist[hist.length - 1];
@@ -647,6 +708,7 @@ function renderProgress() {
   $('screen').innerHTML = h;
   $('screen').querySelectorAll('[data-pd]').forEach(el => el.onclick = () => openPlayer(decodeURIComponent(el.dataset.pd)));
   wireProgressToolbar();
+  wireGradeChips();
 }
 
 function wireProgressToolbar() {
@@ -740,7 +802,8 @@ function renderPlayerDrawer() {
   let h = `<div class="drawer-title">${esc(name)}
     <button class="chip-toggle${D.heavy[name] ? ' on' : ''}" id="pd-heavy"><i class="fas fa-weight-hanging"></i> 100kg+</button>
   </div>`;
-  h += `<div class="drawer-sub">${hist.length} run${hist.length !== 1 ? 's' : ''}${best ? ' · best MAS ' + fmtMAS(best.mas) + ' (' + esc(fmtDate(best.date)) + ')' : ''}</div>`;
+  const py = playerYear(name);
+  h += `<div class="drawer-sub">${py ? esc(gradeOf(py)) + ' (' + py + ') · ' : ''}${hist.length} run${hist.length !== 1 ? 's' : ''}${best ? ' · best MAS ' + fmtMAS(best.mas) + ' (' + esc(fmtDate(best.date)) + ')' : ''}</div>`;
 
   if (hist.length) {
     h += '<div class="card"><div class="card-title"><i class="fas fa-chart-line"></i> MAS over time</div>';
