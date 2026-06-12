@@ -163,6 +163,7 @@ table.res td.r,table.res th.r{text-align:right;}
 const BRONCO_KEY = 'gaa_bronco_v1';
 const ROSTER_KEY = 'gaa_roster_v1';
 const ROSTER_SEED = 'roster.json';
+const BRONCO_SEED = 'bronco-seed.json';
 // Turn-time correction subtracted from the finishing time before computing
 // MAS = 1200 / (secs − correction); heavier players (≥100 kg) lose more time
 // in the turns. Matches the coach's existing spreadsheet model.
@@ -240,10 +241,22 @@ function zoneRange(mas, z) {
 function loadData() {
   try {
     const raw = localStorage.getItem(BRONCO_KEY);
-    if (!raw) return;
+    if (!raw) return false;
     const d = JSON.parse(raw);
+    if (!Array.isArray(d.sessions)) return false;
+    D = { version: 1, heavy: (d.heavy && typeof d.heavy === 'object') ? d.heavy : {}, sessions: d.sessions };
+    return true;
+  } catch { return false; }
+}
+// First run on a device: seed historical results shipped with the app
+async function loadSeed() {
+  try {
+    const res = await fetch(BRONCO_SEED);
+    if (!res.ok) return;
+    const d = await res.json();
     if (!Array.isArray(d.sessions)) return;
     D = { version: 1, heavy: (d.heavy && typeof d.heavy === 'object') ? d.heavy : {}, sessions: d.sessions };
+    saveData();
   } catch {}
 }
 let _saveFailed = false;
@@ -655,8 +668,16 @@ function wireProgressToolbar() {
         const d = JSON.parse(ev.target.result);
         if (!Array.isArray(d.sessions)) throw new Error('not a bronco export');
         if (!d.sessions.every(s => s && typeof s.date === 'string' && Array.isArray(s.results))) throw new Error('bad session shape');
-        D = { version: 1, heavy: (d.heavy && typeof d.heavy === 'object') ? d.heavy : {}, sessions: d.sessions };
-        saveData(); render(); toast('Imported ' + d.sessions.length + ' sessions');
+        // Merge rather than replace: imported sessions win on id clashes,
+        // everything already on this device is kept
+        const byId = new Map(D.sessions.map(s => [s.id, s]));
+        d.sessions.forEach(s => byId.set(s.id, s));
+        D = {
+          version: 1,
+          heavy: { ...D.heavy, ...((d.heavy && typeof d.heavy === 'object') ? d.heavy : {}) },
+          sessions: [...byId.values()],
+        };
+        saveData(); render(); toast('Imported ' + d.sessions.length + ' sessions (merged, ' + D.sessions.length + ' total)');
       } catch (err) { toast('Import failed: ' + err.message); }
     };
     r.readAsText(f);
@@ -782,8 +803,11 @@ document.addEventListener('visibilitychange', () => {
   else if (timer.running) renderClock();
 });
 
-loadData();
-loadRoster().then(render);
+(async () => {
+  if (!loadData()) await loadSeed();
+  await loadRoster();
+  render();
+})();
 </script>
 </body>
 </html>
