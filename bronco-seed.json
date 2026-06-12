@@ -1,0 +1,355 @@
+{
+ "version": 1,
+ "heavy": {},
+ "sessions": [
+  {
+   "id": "seed-2026-01-17",
+   "date": "2026-01-17",
+   "notes": "Imported from spreadsheet",
+   "results": [
+    {
+     "name": "Leo Garry",
+     "secs": 476,
+     "dnf": false
+    },
+    {
+     "name": "Luke (Larry) Moran",
+     "secs": 427,
+     "dnf": false
+    },
+    {
+     "name": "Sam Brady",
+     "secs": 394,
+     "dnf": false
+    },
+    {
+     "name": "Cayden McQueen-Meek",
+     "secs": 373,
+     "dnf": false
+    },
+    {
+     "name": "Luke Moran",
+     "secs": 368,
+     "dnf": false
+    },
+    {
+     "name": "Neil Leonard-Palacios",
+     "secs": 367,
+     "dnf": false
+    },
+    {
+     "name": "Aaron Orohoe",
+     "secs": 366,
+     "dnf": false
+    },
+    {
+     "name": "Aaron Byrne",
+     "secs": 360,
+     "dnf": false
+    },
+    {
+     "name": "Harry Greene",
+     "secs": 360,
+     "dnf": false
+    },
+    {
+     "name": "Jake McCaffrey",
+     "secs": 360,
+     "dnf": false
+    },
+    {
+     "name": "Lee Byrne",
+     "secs": 359,
+     "dnf": false
+    },
+    {
+     "name": "James Gibbons",
+     "secs": 357,
+     "dnf": false
+    },
+    {
+     "name": "Joshua Butler",
+     "secs": 356,
+     "dnf": false
+    },
+    {
+     "name": "Daniel Gallagher",
+     "secs": 355,
+     "dnf": false
+    },
+    {
+     "name": "Daragh Donnelly",
+     "secs": 354,
+     "dnf": false
+    },
+    {
+     "name": "Donnacha Paget",
+     "secs": 354,
+     "dnf": false
+    },
+    {
+     "name": "George Davey",
+     "secs": 354,
+     "dnf": false
+    },
+    {
+     "name": "Liam Ward",
+     "secs": 348,
+     "dnf": false
+    },
+    {
+     "name": "Conall Daly",
+     "secs": 347,
+     "dnf": false
+    },
+    {
+     "name": "Conor Meehan",
+     "secs": 347,
+     "dnf": false
+    },
+    {
+     "name": "PJ McDonagh",
+     "secs": 347,
+     "dnf": false
+    },
+    {
+     "name": "Michael Colbert",
+     "secs": 344,
+     "dnf": false
+    },
+    {
+     "name": "William Harrington",
+     "secs": 344,
+     "dnf": false
+    },
+    {
+     "name": "Alfie Woods",
+     "secs": 340,
+     "dnf": false
+    },
+    {
+     "name": "James Thomas",
+     "secs": 337,
+     "dnf": false
+    },
+    {
+     "name": "John Farrell",
+     "secs": 336,
+     "dnf": false
+    },
+    {
+     "name": "Josh Carolan",
+     "secs": 330,
+     "dnf": false
+    },
+    {
+     "name": "Natas Gaidys",
+     "secs": 330,
+     "dnf": false
+    },
+    {
+     "name": "Alfie Lancaster",
+     "secs": 329,
+     "dnf": false
+    },
+    {
+     "name": "James Dexter",
+     "secs": 326,
+     "dnf": false
+    },
+    {
+     "name": "Oisín Breathnach",
+     "secs": 323,
+     "dnf": false
+    },
+    {
+     "name": "Sam Flynn",
+     "secs": 323,
+     "dnf": false
+    },
+    {
+     "name": "Conor Armstrong",
+     "secs": 319,
+     "dnf": false
+    },
+    {
+     "name": "Daniel Daly",
+     "secs": 315,
+     "dnf": false
+    },
+    {
+     "name": "Charlie Barry",
+     "secs": 311,
+     "dnf": false
+    },
+    {
+     "name": "Cillian Loughran",
+     "secs": 311,
+     "dnf": false
+    },
+    {
+     "name": "Liam Clinton",
+     "secs": 309,
+     "dnf": false
+    },
+    {
+     "name": "Noah Pender",
+     "secs": 308,
+     "dnf": false
+    },
+    {
+     "name": "Oisín Madden",
+     "secs": 302,
+     "dnf": false
+    },
+    {
+     "name": "Tadhg Ó Buachalla",
+     "secs": 302,
+     "dnf": false
+    },
+    {
+     "name": "James Daly",
+     "secs": 301,
+     "dnf": false
+    },
+    {
+     "name": "Craig Campbell",
+     "secs": 294,
+     "dnf": false
+    },
+    {
+     "name": "Conor Beggy",
+     "secs": 283,
+     "dnf": false
+    }
+   ]
+  },
+  {
+   "id": "seed-2026-02-14",
+   "date": "2026-02-14",
+   "notes": "Imported from spreadsheet",
+   "results": [
+    {
+     "name": "Cayden McQueen-Meek",
+     "secs": 405,
+     "dnf": false
+    },
+    {
+     "name": "Leo Garry",
+     "secs": 397,
+     "dnf": false
+    },
+    {
+     "name": "Lee Byrne",
+     "secs": 380,
+     "dnf": false
+    },
+    {
+     "name": "Luke (Larry) Moran",
+     "secs": 378,
+     "dnf": false
+    },
+    {
+     "name": "Joshua Butler",
+     "secs": 373,
+     "dnf": false
+    },
+    {
+     "name": "Aaron Byrne",
+     "secs": 372,
+     "dnf": false
+    },
+    {
+     "name": "Harry Greene",
+     "secs": 368,
+     "dnf": false
+    },
+    {
+     "name": "Conall Daly",
+     "secs": 362,
+     "dnf": false
+    },
+    {
+     "name": "Donnacha Paget",
+     "secs": 361,
+     "dnf": false
+    },
+    {
+     "name": "James Gibbons",
+     "secs": 359,
+     "dnf": false
+    },
+    {
+     "name": "Neil Leonard-Palacios",
+     "secs": 358,
+     "dnf": false
+    },
+    {
+     "name": "Aaron Orohoe",
+     "secs": 355,
+     "dnf": false
+    },
+    {
+     "name": "Liam Ward",
+     "secs": 348,
+     "dnf": false
+    },
+    {
+     "name": "Conor Armstrong",
+     "secs": 342,
+     "dnf": false
+    },
+    {
+     "name": "Oisín Breathnach",
+     "secs": 342,
+     "dnf": false
+    },
+    {
+     "name": "John Farrell",
+     "secs": 338,
+     "dnf": false
+    },
+    {
+     "name": "Michael Colbert",
+     "secs": 337,
+     "dnf": false
+    },
+    {
+     "name": "Alfie Woods",
+     "secs": 328,
+     "dnf": false
+    },
+    {
+     "name": "Charlie Barry",
+     "secs": 312,
+     "dnf": false
+    },
+    {
+     "name": "Josh Carolan",
+     "secs": 310,
+     "dnf": false
+    },
+    {
+     "name": "Cillian Loughran",
+     "secs": 304,
+     "dnf": false
+    },
+    {
+     "name": "Daniel Daly",
+     "secs": 303,
+     "dnf": false
+    },
+    {
+     "name": "Craig Campbell",
+     "secs": 301,
+     "dnf": false
+    },
+    {
+     "name": "Liam Clinton",
+     "secs": 301,
+     "dnf": false
+    }
+   ]
+  }
+ ]
+}
