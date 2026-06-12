@@ -289,11 +289,9 @@ function activePlayers() {
 }
 
 // ─── Age grades ───────────────────────────────────────────────────────────────
-// Club convention: the 2011 cohort are U16 in 2026 → grade = year − birthYear + 1.
-// (roster.html displays year − birthYear; the chips show birth years too so
-// there's no ambiguity about who's in which group.)
+// Same convention as roster.html: grade = year − birthYear (2011 → U15 in 2026)
 const THIS_YEAR = new Date().getFullYear();
-const gradeOf = by => 'U' + (THIS_YEAR - +by + 1);
+const gradeOf = by => 'U' + (THIS_YEAR - +by);
 function playerYear(name) {
   const p = roster.find(x => x.name === name);
   const y = p ? +p.birthYear : NaN;
