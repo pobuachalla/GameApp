@@ -441,7 +441,10 @@ function renderSetup() {
   h += '<button class="btn btn-ghost" id="btn-cancel">Cancel</button>';
   $('screen').innerHTML = h;
 
-  const syncCreate = () => { $('create-lbl').textContent = `Start timing (${setupSel.size} runner${setupSel.size !== 1 ? 's' : ''})`; $('btn-create').disabled = !setupSel.size; };
+  // Only visible (grade-passing) players count as selected — switching pills
+  // off drops their players from the session, switching back restores them
+  const effSel = () => [...setupSel].filter(gradePass);
+  const syncCreate = () => { const n = effSel().length; $('create-lbl').textContent = `Start timing (${n} runner${n !== 1 ? 's' : ''})`; $('btn-create').disabled = !n; };
   $('screen').querySelectorAll('.runner-row').forEach(r => r.onclick = () => {
     const n = r.dataset.name;
     if (setupSel.has(n)) setupSel.delete(n); else setupSel.add(n);
@@ -456,7 +459,7 @@ function renderSetup() {
   $('btn-create').onclick = () => {
     const date = setupForm.date || todayStr();
     const id = 'b' + Date.now().toString(36);
-    const order = seededOrder([...setupSel], date);
+    const order = seededOrder(effSel(), date);
     D.sessions.push({ id, date, notes: setupForm.notes.trim(), results: order.map(n => ({ name: n, secs: null, dnf: false })) });
     saveData();
     setupSel = new Set();
