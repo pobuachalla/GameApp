@@ -42,7 +42,8 @@ function exportMatchJSON() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = filename; a.click();
-  URL.revokeObjectURL(url);
+  // Defer revocation — revoking synchronously cancels the download in some browsers
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
   toast('Exported: ' + filename);
 }
 

@@ -23,20 +23,31 @@ function addRow(time, badge, cls, desc) {
 }
 
 // ─── UNDO ─────────────────────────────────────────────────────────────────────
-function pushUndo(lbl, fn) { undos.push({label:lbl, revert:fn}); syncMeta(); }
+// Contract: every undo entry that owns an event-log row (hasEvent, the default)
+// must be pushed by the same action that called addRow, so the entry and the
+// row stay paired LIFO. Actions that log no row pass {hasEvent:false}; actions
+// that log a row no one may undo past (period markers) call clearUndos().
+function pushUndo(lbl, fn, opts = {}) {
+  undos.push({label:lbl, revert:fn, hasEvent: opts.hasEvent !== false});
+  syncMeta();
+}
+
+function clearUndos() { undos = []; syncMeta(); }
 
 function undoLast() {
   if (!undos.length) return;
   const op = undos.pop(); op.revert();
-  state.evts.pop();
+  if (op.hasEvent) {
+    state.evts.pop();
+    const rows = el.evlog.querySelectorAll('.ev-row');
+    if (rows.length) rows[rows.length-1].remove();
+    if (!state.evts.length) el.logempty.style.display='';
+  }
   if (selMode) {
     selMode = false;
     el.seltoggle.classList.remove('active');
     el.removebar.classList.remove('show');
   }
-  const rows = el.evlog.querySelectorAll('.ev-row');
-  if (rows.length) rows[rows.length-1].remove();
-  if (!state.evts.length) el.logempty.style.display='';
   syncMeta(); saveState(); toast('Undone: '+op.label);
 }
 
@@ -79,6 +90,13 @@ function removeSelected() {
   const toRemove = rows.map((r,i) => r.classList.contains('selected')?i:-1).filter(i=>i>=0);
   for (let i=toRemove.length-1; i>=0; i--) { rows[toRemove[i]].remove(); state.evts.splice(toRemove[i],1); }
   undos = [];
+  // Re-number surviving rows so data-ev-idx lookups (OSC/GK enrichment) stay correct
+  Array.from(el.evlog.querySelectorAll('.ev-row')).forEach((r,i) => { r.dataset.evIdx = i; });
+  // Replay the surviving events so the scoreboard matches what stats/exports recompute
+  const scores = {usG:0, usP:0, oppG:0, oppP:0};
+  state.evts.forEach(ev => applyScoreBadge(ev, scores, state.oppN));
+  setUsGoals(scores.usG); setUsPts(scores.usP); setOppGoals(scores.oppG); setOppPts(scores.oppP);
+  upTot();
   if (!state.evts.length) el.logempty.style.display='';
   selMode=false; el.seltoggle.classList.remove('active'); el.removebar.classList.remove('show');
   syncMeta(); saveState();

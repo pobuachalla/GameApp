@@ -1,10 +1,8 @@
 'use strict';
 
 // ─── ACTION CONSTANTS ─────────────────────────────────────────────────────────
-const ACTS  = ['Goal','Point','2 Point','Wide','Short','Saved','Free','Mark','Advanced','Card','Substitution','Turnover Won','Turnover Lost'];
 const SSEC  = ['From Play','From Free','From Sideline','From Penalty','From 65'];
 const FSEC  = ['Push','Chop','Steps','Tackle','Pickup','Throw','Other'];
-const NS    = {Goal:SSEC,Point:SSEC,'2 Point':SSEC,Wide:SSEC,Short:SSEC,Saved:SSEC,Free:FSEC};
 
 // ─── SAVE KEY / DEFAULTS ──────────────────────────────────────────────────────
 const SAVE_KEY   = 'gaa_match_v1';

@@ -40,12 +40,13 @@ function restoreUI() {
     if (ub && ub.id === 'undobtn') {
       ub.id='resetbtn'; ub.disabled=false; ub.classList.remove('danger');
       // eslint-disable-next-line no-restricted-syntax -- safe: static HTML only
-      ub.innerHTML='<i class="fas fa-arrows-rotate" aria-hidden="true"></i>Reset';
+      ub.innerHTML='<i class="fas fa-arrows-rotate" aria-hidden="true"></i>New Game';
       ub.onclick=resetMatch;
     }
   }
-  state.evts.forEach(e => {
+  state.evts.forEach((e, i) => {
     const r=document.createElement('div'); r.className='ev-row';
+    r.dataset.evIdx = i; // OSC/GK enrichment looks rows up by index after a restore
     // eslint-disable-next-line no-restricted-syntax -- safe: time/cls are internal computed values; badge and desc pass through esc()
     r.innerHTML='<div class="ev-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ti)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"/></svg></div>'
       +'<span class="ev-time">'+e.time+'</span>'

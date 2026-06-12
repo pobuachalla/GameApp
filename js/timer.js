@@ -1,9 +1,5 @@
 'use strict';
 
-// ─── PERIOD LABELS ────────────────────────────────────────────────────────────
-const periodLabel = n => ['1st Half','2nd Half','1st Half ET','2nd Half ET'][n-1] || ('Period '+n);
-const periodBadge = n => ['1H','2H','ET1','ET2'][n-1] || ('P'+n);
-
 // ─── STATE MACHINE ────────────────────────────────────────────────────────────
 function transition(newState) {
   const allowed = VALID_TRANSITIONS[state.matchState];
@@ -33,7 +29,7 @@ function applyStateEffects(prev, next) {
         el['timer-display'].textContent = '00:00';
         el['timer-display'].classList.remove('overtime','muted');
         addRow('00:00','1H','bperiod','1st Half started at '+clockStr);
-        pushUndo('1st Half started',()=>{});
+        clearUndos(); // period markers are undo barriers — undoing past them would desync the state machine
         setGrid(true);
       } else {
         state.tWallStart = Date.now() - state.tPausedAt * 1000;
@@ -66,13 +62,17 @@ function applyStateEffects(prev, next) {
       el['timer-display'].classList.add('muted');
       el['timer-display'].classList.remove('overtime');
       addRow(fmt(state.secs),'1H','bperiod','1st Half ended at '+clockStr);
-      pushUndo('1st Half ended',()=>{});
+      clearUndos();
       setGrid(true);
       showScoreGraphic('HT');
       break;
 
     case 'RUNNING_SECOND_HALF':
       if (prev === 'HALF_TIME') {
+        // Rebase sin-bin start times into the 2nd-half clock (secs resets to 0,
+        // so a card at 25:00 in H1 becomes -1500: remaining time stays correct)
+        const h1End = state.secs;
+        Object.keys(state.bcardedAt || {}).forEach(pi => { state.bcardedAt[pi] -= h1End; });
         state.period = 2;
         state.secs = 0;
         state.tWallStart = Date.now();
@@ -82,7 +82,7 @@ function applyStateEffects(prev, next) {
         el['timer-display'].textContent = '00:00';
         el['timer-display'].classList.remove('overtime','muted');
         addRow('00:00','2H','bperiod','2nd Half started at '+clockStr);
-        pushUndo('2nd Half started',()=>{});
+        clearUndos();
         setGrid(true);
       } else {
         state.tWallStart = Date.now() - state.tPausedAt * 1000;

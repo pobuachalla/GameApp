@@ -337,7 +337,11 @@ let S = { files: [], parsed: [], sortKey: 'totalScore', sortDesc: true, view: 't
           pdShotFilter: 'all', pdCurrentPlayer: null };
 
 // ── Utils ────────────────────────────────────────────────────────────────────
-const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+// For values passed as JS string literals inside inline onclick attributes:
+// URI-encode (and the apostrophe, which encodeURIComponent leaves alone),
+// then decodeURIComponent on the receiving side.
+const jsArg = v => encodeURIComponent(v).replace(/'/g,'%27');
 const fmtT = secs => { const m=Math.floor(secs/60),sc=Math.round(secs%60); return m+':'+(sc<10?'0':'')+sc; };
 const fmtScore = (g,p) => g+'-'+p+' <small style="opacity:.6;">('+((g*3)+p)+')</small>';
 const norm = name => (name||'').trim().toLowerCase();
@@ -365,7 +369,7 @@ function removeFile(name) {
 function renderFileList() {
   const list = document.getElementById('file-list');
   list.innerHTML = S.files.map(f =>
-    `<div class="lc-file-item"><i class="fas fa-file-code"></i>${esc(f.name)}<button class="rm" onclick="removeFile('${esc(f.name)}')" title="Remove"><i class="fas fa-xmark"></i></button></div>`
+    `<div class="lc-file-item"><i class="fas fa-file-code"></i>${esc(f.name)}<button class="rm" onclick="removeFile(decodeURIComponent('${jsArg(f.name)}'))" title="Remove"><i class="fas fa-xmark"></i></button></div>`
   ).join('');
   document.getElementById('load-btn').disabled = S.files.length === 0;
 }
@@ -1109,7 +1113,7 @@ function buildPlayerView(players, totalGames, totalGtTracked) {
                 + (p.bc?`<span style="display:inline-block;width:8px;height:12px;border-radius:1px;background:#222;margin:0 1px;vertical-align:middle;"></span>`.repeat(p.bc):'')
                 + (p.rc?`<span style="display:inline-block;width:8px;height:12px;border-radius:1px;background:var(--red);margin:0 1px;vertical-align:middle;"></span>`.repeat(p.rc):'');
     const pKey = norm(p.name);
-    h += `<tr onclick="openPlayerDetail('${esc(pKey)}')" title="View ${esc(p.name)}'s scorecard">`;
+    h += `<tr onclick="openPlayerDetail(decodeURIComponent('${jsArg(pKey)}'))" title="View ${esc(p.name)}'s scorecard">`;
     h += `<td>${esc(p.name)}<span class="sub-badge">${p.gamesStarted}S ${p.gamesSub}Sub</span>
       <div class="pt-bar"><div class="pt-bar-fill" style="width:${scorePct}%;background:var(--green);"></div></div></td>`;
     if (showPT) {
@@ -1207,20 +1211,25 @@ function resetCols() {
 
 function addMoreFiles(fileList) {
   handleFiles(fileList);
-  // re-parse and rebuild immediately
+  // re-parse and rebuild immediately — same validation as the initial load,
+  // a non-match JSON added here would otherwise crash or pollute aggregates
   const readers = S.files.map(f => new Promise((res, rej) => {
     const r = new FileReader();
     r.onload = e => {
-      try { const d = JSON.parse(e.target.result); res({ name: f.name, data: d }); }
-      catch(err) { rej(err); }
+      try {
+        const d = JSON.parse(e.target.result);
+        if (!Array.isArray(d.evts)) throw new Error('Not a valid export');
+        res({ name: f.name, data: d });
+      } catch(err) { rej(f.name + ': ' + err.message); }
     };
+    r.onerror = () => rej(f.name + ': read error');
     r.readAsText(f);
   }));
   Promise.all(readers).then(parsed => {
     S.parsed = parsed.sort((a,b) => (a.data.matchDate||'').localeCompare(b.data.matchDate||''));
     S.agg = aggregateAll(S.parsed);
     renderDashboard();
-  });
+  }).catch(err => alert('Error loading files:\n' + err));
 }
 
 // ── Player detail panel ───────────────────────────────────────────────────────
@@ -1274,8 +1283,7 @@ function buildPlayerShotMap(p) {
     h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">';
     const chip = (val, label) => {
       const active = S.pdShotFilter === val ? ' active' : '';
-      const safeVal = encodeURIComponent(val);
-      return `<button class="sn-sort-btn${active}" onclick="setPdShotFilter(decodeURIComponent('${safeVal}'))">${esc(label)}</button>`;
+      return `<button class="sn-sort-btn${active}" onclick="setPdShotFilter(decodeURIComponent('${jsArg(val)}'))">${esc(label)}</button>`;
     };
     h += chip('all', 'All games');
     matchList.forEach(([key, m]) => h += chip(key, m.opp || m.date));

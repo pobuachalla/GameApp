@@ -1,25 +1,43 @@
 'use strict';
 
-const CACHE = 'gaa-tracker-v7';
+const CACHE = 'gaa-tracker-8d41bde610'; // build.cjs rewrites this with a content hash
 
-// App shell — everything needed to run offline
+// App shell — everything needed to run offline.
+// Every page plus the scripts/data each one loads; crests/ (9MB) is left to
+// the runtime cache and fills in as crests are viewed.
 const SHELL = [
   '/',
+  '/index.html',
+  '/home.html',
+  '/quick.html',
+  '/entry.html',
   '/review.html',
   '/season.html',
+  '/merge.html',
+  '/roster.html',
+  '/gk-save-guide.html',
+  '/User_Manual.html',
   '/tokens.css',
   '/style.css',
   '/js/bundle.js',
+  '/js/constants.js',
+  '/js/game-utils.js',
+  '/js/pitch-svg.js',
+  '/roster.json',
   '/manifest.json',
   '/favicon.png',
   '/apple-touch-icon.png',
+  '/icon-192.png',
+  '/icon-512.png',
 ];
 
-// Pre-cache shell on install
+// Pre-cache shell on install. Add files individually rather than addAll —
+// addAll is all-or-nothing, and one missing file would silently leave the
+// whole app uncached.
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
-      .then(c => c.addAll(SHELL))
+      .then(c => Promise.allSettled(SHELL.map(u => c.add(u))))
       .then(() => self.skipWaiting())
   );
 });

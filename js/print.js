@@ -62,7 +62,7 @@ function buildPrintTimelineHTML() {
     const dotCol=m.type==='Wide'?'#9E9E9E':m.type==='2 Point'?'#F59E0B':mcol;
     const dotR=m.type==='Goal'?4:m.type==='2 Point'?3.5:m.type==='Point'?3.5:2.5;
     if(m.placed)svg+=`<circle cx="${cx}" cy="${cy}" r="${dotR+3.5}" fill="none" stroke="${dotCol}" stroke-width="1.5" opacity="0.7"/>`;
-    if      (m.type==='Goal')    svg+=`<circle cx="${cx}" cy="${cy}" r="4"   fill="${TEAM_US_COLOR}" stroke="#fff" stroke-width="1.5"/>`;
+    if      (m.type==='Goal')    svg+=`<circle cx="${cx}" cy="${cy}" r="4"   fill="${mcol}" stroke="#fff" stroke-width="1.5"/>`;
     else if (m.type==='2 Point') svg+=`<circle cx="${cx}" cy="${cy}" r="3.5" fill="#F59E0B" stroke="#fff" stroke-width="1.5"/>`;
     else if (m.type==='Point')   svg+=`<circle cx="${cx}" cy="${cy}" r="3.5" fill="#fff"    stroke="#9A9E99" stroke-width="1.5"/>`;
     else if (m.type==='Wide')    svg+=`<circle cx="${cx}" cy="${cy}" r="2.5" fill="#9E9E9E" stroke="none"/>`;
@@ -421,7 +421,7 @@ function buildPrintHTML() {
       const prRatingCol = _prGk ? _prGk.ratingColor : '#F59E0B';
       const prSaves = _prGk ? _prGk.saves : 0;
       const prGoals = _prGk ? _prGk.goals : 0;
-      const prGkName = gn(1) || 'Goalkeeper';
+      const prGkName = gn(state.slotp[1] || 1) || 'Goalkeeper';
       const prShots = prSaves + prGoals;
       const prSaveRate = prShots > 0 ? Math.round(prSaves / prShots * 100) : 0;
       const prIntLabels = ['', 'Routine', 'Moderate', 'Challenging', 'Difficult', 'Exceptional'];
@@ -625,7 +625,7 @@ function buildPrintShotMapHTML() {
   });
   if (shots.length === 0) return '';
 
-  const { dots, thirds } = computeShotDots(shots, pi => gi(pi));
+  const { dots, thirds } = computeShotDots(shots, pi => esc(gi(pi)));
   let h = '<div class="pr-section pr-break">';
   h += '<div class="pr-section-title">Shot Map</div>';
   h += '<div class="pr-card" style="padding:0;overflow:hidden;">';

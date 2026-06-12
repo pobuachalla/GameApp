@@ -16,10 +16,23 @@ function serializeState() {
           maxB,evts,sport,teamSize,captain,startSlotp,startCaptain,trackGameTime,trackShotLocations,showPlayerNumbers,trackTurnovers,trackGKPerformance,trackOppScorers,sidelineCards};
 }
 
+let _saveFailureToasted = false;
+function _writeState() {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(serializeState()));
+    _saveFailureToasted = false;
+  } catch(e) {
+    if (!_saveFailureToasted) {
+      _saveFailureToasted = true;
+      if (typeof toast === 'function') toast('Warning: match could not be saved to this device');
+    }
+  }
+}
+
 function saveState() {
   if (saveStateTimeoutId) clearTimeout(saveStateTimeoutId);
   saveStateTimeoutId = setTimeout(() => {
-    try { localStorage.setItem(SAVE_KEY, JSON.stringify(serializeState())); } catch(e) {}
+    _writeState();
     saveStateTimeoutId = null;
   }, 500);
 }
@@ -38,11 +51,15 @@ function loadSavedState() {
   } catch(e) { return false; }
 }
 
-const clearSavedState = () => { try { localStorage.removeItem(SAVE_KEY); } catch(e) {} };
+const clearSavedState = () => {
+  // Cancel any pending debounced save so it can't resurrect the cleared key
+  if (saveStateTimeoutId) { clearTimeout(saveStateTimeoutId); saveStateTimeoutId = null; }
+  try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+};
 
 function saveStateImmediate() {
   if (saveStateTimeoutId) { clearTimeout(saveStateTimeoutId); saveStateTimeoutId = null; }
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(serializeState())); } catch(e) {}
+  _writeState();
 }
 
 document.addEventListener('visibilitychange', () => {
@@ -59,3 +76,7 @@ document.addEventListener('visibilitychange', () => {
     reacquireWakeLock();
   }
 });
+
+// visibilitychange doesn't fire on every desktop close/crash path; pagehide
+// catches the remainder so the last action inside the debounce window isn't lost.
+window.addEventListener('pagehide', () => saveStateImmediate());

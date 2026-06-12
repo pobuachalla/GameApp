@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Match File Merger</title>
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -356,11 +356,56 @@ const S = {
 // ─── Helpers ─────────────────────────────────
 const $ = id => document.getElementById(id);
 const hidden = (el, v) => el.classList.toggle('hidden', v);
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
 function timeToSecs(t) {
   if (!t) return 0;
   const p = String(t).split(':');
   return parseInt(p[0] || 0, 10) * 60 + parseInt(p[1] || 0, 10);
+}
+
+// What kind of event this is, for matching across files. In live exports the
+// badge holds the *player's initials* (display only) — the structured fields
+// (action, and the desc text on OPP/ADJ rows) identify the event type.
+function evKind(ev) {
+  if (ev.badge === 'OPP' || ev.badge === 'ADJ') {
+    const d = ev.desc || '';
+    const what =
+      d.includes('Goal added')      ? 'Goal+'   :
+      d.includes('2 Point added')   ? '2Point+' :
+      d.includes('Point added')     ? 'Point+'  :
+      d.includes('Goal removed')    ? 'Goal-'   :
+      d.includes('2 Point removed') ? '2Point-' :
+      d.includes('Point removed')   ? 'Point-'  :
+      d.includes('Wide')            ? 'Wide'    : 'other';
+    return ev.badge + ':' + what;
+  }
+  if (ev.action) return 'act:' + ev.action;
+  return 'badge:' + (ev.badge || '?');
+}
+
+// Score contribution of one event, in the same terms applyScoreBadge uses.
+// Returns {goals, pts, og, op} (all optional) or null for non-scoring events.
+function scoreDelta(ev, oppN) {
+  const d = ev.desc || '';
+  if (ev.badge === 'OPP' || ev.badge === 'ADJ') {
+    const isOpp = ev.badge === 'OPP' || (oppN && d.startsWith(oppN));
+    const sign = d.includes(' removed') ? -1 : d.includes(' added') ? 1 : 0;
+    if (!sign) return null;
+    const n = d.includes('Goal') ? { kind: 'g', v: 1 } : d.includes('2 Point') ? { kind: 'p', v: 2 } : d.includes('Point') ? { kind: 'p', v: 1 } : null;
+    if (!n) return null;
+    if (isOpp) return n.kind === 'g' ? { og: sign * n.v } : { op: sign * n.v };
+    return n.kind === 'g' ? { goals: sign * n.v } : { pts: sign * n.v };
+  }
+  if (ev.action === 'Goal')    return { goals: 1 };
+  if (ev.action === 'Point')   return { pts: 1 };
+  if (ev.action === '2 Point') return { pts: 2 };
+  return null;
+}
+
+function applyDelta(scores, delta, sign) {
+  if (!delta) return;
+  for (const [k, v] of Object.entries(delta)) scores[k] = Math.max(0, (scores[k] || 0) + sign * v);
 }
 
 function playerLabel(data, slot) {
@@ -417,16 +462,21 @@ function removeFile(name) {
 function renderFileList() {
   const el = $('file-list');
   if (!S.raw.length) { el.innerHTML = ''; return; }
-  el.innerHTML = S.raw.map(f => `
+  el.innerHTML = S.raw.map((f, i) => `
     <div class="lc-file-item">
-      <span class="lc-fname">${f.name}</span>
+      <span class="lc-fname">${esc(f.name)}</span>
       ${f.error
         ? `<span class="lc-badge err">Invalid</span>`
         : `<span class="lc-badge">${f.data.evts.length} events</span>`}
-      <button class="lc-rm" onclick="removeFile('${f.name.replaceAll("'", String.raw`\'`)}')"><i class="fas fa-xmark"></i></button>
+      <button class="lc-rm" data-rm="${i}"><i class="fas fa-xmark"></i></button>
     </div>
   `).join('');
 }
+
+$('file-list').addEventListener('click', e => {
+  const btn = e.target.closest('[data-rm]');
+  if (btn && S.raw[+btn.dataset.rm]) removeFile(S.raw[+btn.dataset.rm].name);
+});
 
 function validateStep1() {
   const btn = $('btn-to-2');
@@ -484,8 +534,8 @@ function buildStep2() {
   $('game-card').innerHTML = `
     <h2>Match</h2>
     <div class="game-meta">
-      <strong>${ref.usN || 'Team'}</strong> vs <strong>${ref.oppN || 'Opposition'}</strong><br>
-      ${ref.matchDate || 'Date unknown'}${ref.competition ? ' · ' + ref.competition : ''}${ref.location ? ' · ' + ref.location : ''}
+      <strong>${esc(ref.usN || 'Team')}</strong> vs <strong>${esc(ref.oppN || 'Opposition')}</strong><br>
+      ${esc(ref.matchDate || 'Date unknown')}${ref.competition ? ' · ' + esc(ref.competition) : ''}${ref.location ? ' · ' + esc(ref.location) : ''}
     </div>
   `;
 
@@ -493,7 +543,7 @@ function buildStep2() {
   $('primary-list').innerHTML = S.files.map((f, i) => `
     <div class="primary-item ${i === S.opts.priIdx ? 'on' : ''}" id="pri-item-${i}" onclick="setPrimary(${i})">
       <div class="radio-circle"><div class="radio-dot" style="display:${i === S.opts.priIdx ? 'block' : 'none'}"></div></div>
-      <span class="pname">${f.name}</span>
+      <span class="pname">${esc(f.name)}</span>
       <span class="fbadge ${i === S.opts.priIdx ? 'primary' : 'ok'}">${f.data.evts.length} evt</span>
     </div>
   `).join('');
@@ -527,9 +577,10 @@ $('tol-range').addEventListener('input', e => {
 
 function findBestMatch(ev, candidates, used, tol) {
   const evSec = timeToSecs(ev.time);
+  const kind = evKind(ev);
   let bestIdx = -1, bestScore = -Infinity;
   candidates.forEach((c, i) => {
-    if (used.has(i) || c.badge !== ev.badge) return;
+    if (used.has(i) || evKind(c) !== kind) return;
     const dt = Math.abs(timeToSecs(c.time) - evSec);
     if (dt > tol) return;
     // Higher score = closer in time + bonus for same player slot
@@ -555,7 +606,6 @@ function analyze(files, tol, priIdx) {
 
   for (const secFile of secs) {
     const secEvts = (secFile.data.evts || []).filter(e => !STRUCTURAL.has(e.badge));
-    const usedInSec = new Set();
 
     for (let si = 0; si < secEvts.length; si++) {
       const sev = secEvts[si];
@@ -563,7 +613,6 @@ function analyze(files, tol, priIdx) {
 
       if (pi >= 0) {
         usedInPri.add(pi);
-        usedInSec.add(si);
         const pev = priGame[pi];
         const playerConflict = pev.slot != null && sev.slot != null && pev.slot !== sev.slot;
 
@@ -579,7 +628,7 @@ function analyze(files, tol, priIdx) {
             pi_: pev.pi ?? sev.pi
           });
         }
-      } else if (!usedInSec.has(si)) {
+      } else {
         uniqueSec.push({ ev: sev, file: secFile });
       }
     }
@@ -629,34 +678,27 @@ function buildOutput(analysis, resolutions) {
 
   // Recalculate scores:
   // Start from primary's scores, then add for events unique to secondary,
-  // then subtract for any scoring events skipped via conflict resolution.
-  let { goals = 0, pts = 0, og = 0, op_ = 0 } = a.pri.data;
+  // add again for conflicts kept as 'both', and subtract for skipped ones.
+  const oppN = a.pri.data.oppN || '';
+  const scores = {
+    goals: a.pri.data.goals || 0, pts: a.pri.data.pts || 0,
+    og: a.pri.data.og || 0, op: a.pri.data.op_ || 0,
+  };
 
-  for (const { ev } of a.uniqueSec) {
-    if (ev.badge === 'G') goals++;
-    else if (ev.badge === 'P') pts++;
-    else if (ev.badge === 'OPP') {
-      if ((ev.desc || '').toLowerCase().includes('goal')) og++;
-      else op_++;
-    }
-  }
+  for (const { ev } of a.uniqueSec) applyDelta(scores, scoreDelta(ev, oppN), 1);
 
   for (let i = 0; i < a.conflicts.length; i++) {
     const res = resolutions[i] || 'primary';
-    if (res !== 'skip') continue;
-    const { pri } = a.conflicts[i];
-    // Skipping a primary scoring event means removing it from the count
-    if (pri.badge === 'G') goals--;
-    else if (pri.badge === 'P') pts--;
-    else if (pri.badge === 'OPP') {
-      if ((pri.desc || '').toLowerCase().includes('goal')) og--;
-      else op_--;
-    }
+    const { pri, sec } = a.conflicts[i];
+    // 'skip' removes the score from the total; 'both' double-counts it
+    // (the UI warns about each); 'primary'/'secondary' keep one copy.
+    if (res === 'skip') applyDelta(scores, scoreDelta(pri, oppN), -1);
+    if (res === 'both') applyDelta(scores, scoreDelta(sec, oppN), 1);
   }
 
   return {
     ...a.pri.data,
-    goals, pts, og, op_,
+    goals: scores.goals, pts: scores.pts, og: scores.og, op_: scores.op,
     evts: events,
     _mergedFrom: [a.pri.name, ...a.secs.map(f => f.name)],
     _mergedAt: new Date().toISOString()
@@ -682,19 +724,21 @@ function runMerge() {
 }
 
 // ─── Step 3: Conflict resolution UI ──────────
+// Bound once — buildStep3 can run again after Start Over, and re-binding
+// here would fire each handler multiple times per click.
+$('btn-cprev').addEventListener('click', () => {
+  if (S.curConflict > 0) { S.curConflict--; renderConflict(S.curConflict); }
+});
+$('btn-cnext').addEventListener('click', () => {
+  if (S.curConflict < S.analysis.conflicts.length - 1) {
+    S.curConflict++;
+    renderConflict(S.curConflict);
+  }
+});
+$('btn-finish-c').addEventListener('click', finalise);
+
 function buildStep3() {
   renderConflict(0);
-
-  $('btn-cprev').addEventListener('click', () => {
-    if (S.curConflict > 0) { S.curConflict--; renderConflict(S.curConflict); }
-  });
-  $('btn-cnext').addEventListener('click', () => {
-    if (S.curConflict < S.analysis.conflicts.length - 1) {
-      S.curConflict++;
-      renderConflict(S.curConflict);
-    }
-  });
-  $('btn-finish-c').addEventListener('click', finalise);
 }
 
 function renderConflict(idx) {
@@ -710,7 +754,7 @@ function renderConflict(idx) {
 
   const priLabel = playerLabel(c.priFile.data, c.pri.slot) || 'Unknown player';
   const secLabel = playerLabel(c.secFile.data, c.sec.slot) || 'Unknown player';
-  const isScoring = ['G', 'P', 'OPP'].includes(c.pri.badge);
+  const isScoring = scoreDelta(c.pri, (S.files[S.opts.priIdx]?.data.oppN) || '') != null;
   const cur = S.resolutions[idx];
 
   const opts = [
@@ -745,18 +789,18 @@ function renderConflict(idx) {
   ];
 
   $('c-body').innerHTML = `
-    <span class="c-badge">${c.pri.badge}</span>
-    <div class="c-event">${c.pri.action || c.pri.desc || c.pri.badge}</div>
-    <div class="c-time">~${c.pri.time} &mdash; same event, different player attribution</div>
+    <span class="c-badge">${esc(c.pri.badge)}</span>
+    <div class="c-event">${esc(c.pri.action || c.pri.desc || c.pri.badge)}</div>
+    <div class="c-time">~${esc(c.pri.time)} &mdash; same event, different player attribution</div>
     <div class="c-options">
       ${opts.map(o => `
         <div class="c-opt ${cur === o.id ? 'sel' : ''}" onclick="selectRes(${idx}, '${o.id}')">
-          <span class="c-opt-src">${o.src}</span>
+          <span class="c-opt-src">${esc(o.src)}</span>
           <div class="c-opt-detail">
             ${o.player != null
-              ? `<div class="c-opt-player">${o.player}</div>
-                 <div class="c-opt-meta">at ${o.time}</div>`
-              : `<div class="c-opt-note">${o.note || ''}</div>`
+              ? `<div class="c-opt-player">${esc(o.player)}</div>
+                 <div class="c-opt-meta">at ${esc(o.time)}</div>`
+              : `<div class="c-opt-note">${esc(o.note || '')}</div>`
             }
           </div>
         </div>
@@ -815,8 +859,8 @@ function buildStep4() {
       return `
         <div class="conflict-log-item">
           <div class="cldesc">
-            <strong>${c.pri.badge}</strong> at ~${c.pri.time}
-            <span style="color:var(--muted)"> · ${priP} vs ${secP}</span>
+            <strong>${esc(c.pri.badge)}</strong> at ~${esc(c.pri.time)}
+            <span style="color:var(--muted)"> · ${esc(priP)} vs ${esc(secP)}</span>
           </div>
           <span class="fbadge ok clres">${resLabel}</span>
         </div>

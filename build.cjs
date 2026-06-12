@@ -26,3 +26,25 @@ fs.writeFileSync(out, bundle);
 
 const kb = (bundle.length / 1024).toFixed(1);
 console.log(`bundle.js written — ${kb} KB unminified (${FILES.length} files)`);
+
+// ── Service-worker cache version ──────────────────────────────────────────────
+// Deterministic content hash over everything the SW precaches, so the cache
+// name changes exactly when a cached asset changes. CI runs this before
+// deploy; commit the updated sw.js when it shows as modified locally.
+const crypto = require('crypto');
+const swPath = path.join(__dirname, 'sw.js');
+let sw = fs.readFileSync(swPath, 'utf8');
+const shellFiles = [...(sw.match(/^\s*'\/([^']*)',\s*$/gm) || [])]
+  .map(l => l.trim().replace(/^'\/?|',$/g, ''))
+  .map(f => f === '' ? 'index.html' : f);
+const hash = crypto.createHash('sha256');
+for (const f of [...new Set(shellFiles)]) {
+  const p = path.join(__dirname, f);
+  if (fs.existsSync(p)) hash.update(f).update(fs.readFileSync(p));
+}
+const ver = hash.digest('hex').slice(0, 10);
+const next = sw.replace(/const CACHE = 'gaa-tracker-[^']*';/, `const CACHE = 'gaa-tracker-${ver}';`);
+if (next !== sw) {
+  fs.writeFileSync(swPath, next);
+  console.log(`sw.js cache version → gaa-tracker-${ver}`);
+}

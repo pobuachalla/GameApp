@@ -1,39 +1,5 @@
 'use strict';
 
-// ─── SCORER SUMMARY ───────────────────────────────────────────────────────────
-function buildScorerSummary() {
-  const scorers = {}; // pi -> {name, gPlay,gPlaced,pPlay,pPlaced}
-  state.evts.forEach(ev => {
-    if (!ev.slot || !ev.action) return;
-    const a = ev.action;
-    if (a !== 'Goal' && a !== 'Point' && a !== '2 Point') return;
-    const pi = ev.pi != null ? ev.pi : state.slotp[ev.slot];
-    if (!pi) return;
-    if (!scorers[pi]) scorers[pi] = {name: pl(pi), gPlay:0, gPlaced:0, pPlay:0, pPlaced:0};
-    const s = scorers[pi];
-    const placed = PLACED_BALL.has(ev.sec);
-    if (a === 'Goal')    { placed ? s.gPlaced++ : s.gPlay++; }
-    if (a === 'Point')   { placed ? s.pPlaced++ : s.pPlay++; }
-    if (a === '2 Point') { placed ? s.pPlaced+=2 : s.pPlay+=2; }
-  });
-  return Object.values(scorers).sort((a, b) => {
-    const ta = (a.gPlay+a.gPlaced)*3 + (a.pPlay+a.pPlaced);
-    const tb = (b.gPlay+b.gPlaced)*3 + (b.pPlay+b.pPlaced);
-    return tb !== ta ? tb - ta : a.name.localeCompare(b.name);
-  });
-}
-
-function formatScorer(s) {
-  const g = s.gPlay+s.gPlaced, p = s.pPlay+s.pPlaced;
-  const total = g*3+p;
-  const parts = [];
-  if (s.gPlay||s.pPlay)   parts.push((s.gPlay)+'-'+(s.pPlay)+' from play');
-  if (s.gPlaced||s.pPlaced) parts.push((s.gPlaced)+'-'+(s.pPlaced)+' from placed balls');
-  return esc(s.name)+' <span style="font-weight:600;">'+g+'-'+p+'</span>'
-    +' <span style="color:var(--t2);font-size:12px;">('+total+'pts)</span>'
-    +(parts.length ? '<br><span style="font-size:11px;color:var(--t2);">'+parts.join(', ')+'</span>' : '');
-}
-
 // ─── FULL TIME RESULT ─────────────────────────────────────────────────────────
 function showFullTimeResult() {
   const u = usTotal(), o = oppTotal();
@@ -42,6 +8,7 @@ function showFullTimeResult() {
   const clockStr = pad(now.getHours())+':'+pad(now.getMinutes());
   const desc = 'Match ended at '+clockStr+' — '+state.usN+' '+state.goals+'-'+state.pts+' ('+u+') v '+state.oppN+' '+state.og+'-'+state.op_+' ('+o+') — '+result;
   addRow(fmt(state.secs),'END','bperiod',desc);
+  clearUndos(); // the END row has no undo entry, and the undo button is repurposed below
   const ub = document.getElementById('undobtn');
   if (ub) {
     ub.id='resetbtn'; ub.disabled=false; ub.classList.remove('danger');
@@ -84,6 +51,8 @@ function resetMatch() {
 function doReset() {
   setUsGoals(0); setUsPts(0); setOppGoals(0); setOppPts(0);
   upTot();
+  state.htGoals=null; state.htPts=null; state.htOg=null; state.htOp=null;
+  state.ftGoals=null; state.ftPts=null; state.ftOg=null; state.ftOp=null;
   state.evts=[]; undos=[];
   state.matchNotes=''; const _mn=document.getElementById('match-notes-input'); if(_mn)_mn.value='';
   state.teamAssessment={ effort:0, skill:0, tactics:0, intensity:0, discipline:0, spirit:0, notes:'' };
@@ -231,6 +200,7 @@ function adjUs(t, d, side, how) {
   let desc = state.usN+': '+type+' '+(d>0?'added':'removed');
   if (how && d>0) desc += ' · '+how;
   addRow(fmt(state.secs),'ADJ','badj',desc);
+  state.evts[state.evts.length-1].side = 'us';
   if (d>0 && how) state.evts[state.evts.length-1].sec = how;
   const ct=t,cp=prev;
   pushUndo(desc,()=>{ if(ct==='g') setUsGoals(cp); else setUsPts(cp); upTot(); });
@@ -246,6 +216,7 @@ function adjOpp(t, d, side, how) {
   let desc = state.oppN+': '+type+' '+(nxt>prev?'added':'removed');
   if (how && nxt>prev) desc += ' · '+how;
   addRow(fmt(state.secs),'OPP','bopp',desc);
+  state.evts[state.evts.length-1].side = 'opp';
   if (nxt>prev) { state.evts[state.evts.length-1].action = type; if (how) state.evts[state.evts.length-1].sec = how; }
   const ct=t,cp=prev;
   pushUndo(desc,()=>{ if(ct==='g') setOppGoals(cp); else setOppPts(cp); upTot(); });
@@ -264,6 +235,7 @@ function adjFootball(d, side, how) {
   let desc = team+': 2 Point '+(d>0?'added':'removed');
   if (how && d>0) desc += ' · '+how;
   addRow(fmt(state.secs),'ADJ','badj',desc);
+  state.evts[state.evts.length-1].side = isUs ? 'us' : 'opp';
   if (nxt>prev) {
     const ev2pt = state.evts[state.evts.length-1];
     if (!isUs) ev2pt.action = '2 Point';

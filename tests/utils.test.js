@@ -34,6 +34,7 @@ const ctx = {
     addEventListener: () => {},
   },
   navigator: { wakeLock: null },
+  addEventListener: () => {},
   window:    {},
   console,
   setTimeout,
@@ -198,9 +199,11 @@ describe('serializeState — only persisted keys are included', () => {
   it('round-trips through JSON without loss for defined values', () => {
     const s1 = fn('serializeState')();
     const s2 = JSON.parse(JSON.stringify(s1));
-    // undefined values are dropped by JSON; only compare keys that survived
+    // undefined values are dropped by JSON; only compare keys that survived.
+    // Compare via JSON: s1's objects come from the vm realm, so deepStrictEqual
+    // would fail on the cross-realm Object.prototype despite identical values.
     for (const [k, v] of Object.entries(s2)) {
-      assert.deepEqual(s1[k], v, `key "${k}" changed after round-trip`);
+      assert.equal(JSON.stringify(s1[k]), JSON.stringify(v), `key "${k}" changed after round-trip`);
     }
   });
 });
