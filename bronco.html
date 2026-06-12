@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2E7D32">
+<title>Bronco Tracker — GAA Match Tracker</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green:#2E7D32;--green-d:#1B5E20;--green-l:#E8F5E9;
+  --red:#C62828;--red-l:#FFEBEE;
+  --amber:#D97706;--amber-l:#FFF8E1;
+  --blue:#1565C0;--blue-l:#E3F2FD;
+  --bg:#EEF0EA;--card:#FFFFFF;
+  --border:#E0E3DC;
+  --shadow:0 2px 14px rgba(0,0,0,0.07),0 0 0 1px rgba(0,0,0,0.04);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;-webkit-font-smoothing:antialiased;padding-bottom:40px;}
+button{font-family:inherit;}
+
+/* ── Header ── */
+.hdr{background:linear-gradient(140deg,#1a5c1e 0%,#2E7D32 55%,#3a9140 100%);color:white;padding:18px 20px;display:flex;align-items:center;gap:12px;}
+.hdr a{color:white;text-decoration:none;font-size:18px;padding:6px;}
+.hdr-title{font-size:19px;font-weight:800;letter-spacing:-.3px;flex:1;}
+.hdr-sub{font-size:12px;opacity:.75;}
+.hdr-btn{background:rgba(255,255,255,.18);border:none;color:white;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:600;cursor:pointer;}
+
+/* ── Layout ── */
+.wrap{max-width:760px;margin:0 auto;padding:16px;}
+.card{background:var(--card);border-radius:var(--radius-lg);padding:18px;box-shadow:var(--shadow);margin-bottom:14px;}
+.card-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);margin-bottom:14px;}
+.card-title i{margin-right:6px;}
+
+/* ── Tabs ── */
+.tabs{display:flex;background:var(--card);border-radius:14px;padding:5px;box-shadow:var(--shadow);margin-bottom:16px;}
+.tab{flex:1;padding:10px 0;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;color:var(--t2);background:none;}
+.tab.active{background:var(--green);color:white;}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:12px;padding:13px 18px;font-size:15px;font-weight:700;cursor:pointer;width:100%;}
+.btn-primary{background:var(--green);color:white;}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+.btn-ghost{background:none;color:var(--t2);border:1.5px solid var(--border);}
+.btn-danger-ghost{background:none;color:var(--red);border:1.5px solid var(--red-l);}
+.btn-amber{background:var(--amber);color:white;}
+
+/* ── Session list ── */
+.sess-item{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);margin-bottom:10px;cursor:pointer;border:none;width:100%;text-align:left;}
+.sess-date{font-size:15px;font-weight:700;color:var(--t1);}
+.sess-meta{font-size:12px;color:var(--t3);margin-top:2px;}
+.sess-avg{margin-left:auto;text-align:right;flex-shrink:0;}
+.sess-avg-val{font-size:16px;font-weight:800;color:var(--green);}
+.sess-avg-lbl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;}
+.empty{text-align:center;padding:40px 20px;color:var(--t3);font-size:14px;}
+.empty i{font-size:30px;display:block;margin-bottom:10px;opacity:.35;}
+
+/* ── Forms ── */
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+.fg label{font-size:12px;font-weight:600;color:var(--t2);}
+.fg input,.fg textarea{border:1.5px solid var(--border);border-radius:9px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--t1);background:white;outline:none;}
+.fg input:focus,.fg textarea:focus{border-color:var(--green);}
+.fg textarea{resize:vertical;min-height:60px;}
+
+/* ── Runner picker ── */
+.runner-row{display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid var(--border);cursor:pointer;}
+.runner-row:last-child{border-bottom:none;}
+.runner-chk{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;flex-shrink:0;}
+.runner-row.on .runner-chk{background:var(--green);border-color:var(--green);}
+.runner-name{font-size:14px;font-weight:600;flex:1;}
+.runner-prev{font-size:12px;color:var(--t3);}
+
+/* ── Timer ── */
+.clock-card{text-align:center;padding:22px 18px;}
+.clock{font-size:54px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-1px;color:var(--t1);line-height:1;}
+.clock.running{color:var(--green);}
+.clock-sub{font-size:12px;color:var(--t3);margin-top:6px;}
+.time-row{display:flex;align-items:center;gap:10px;padding:4px 0;}
+.tap-btn{flex:1;display:flex;align-items:center;gap:10px;background:var(--green-l);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;color:var(--green-d);cursor:pointer;text-align:left;}
+.tap-btn:active{background:#d4ecd6;}
+.tap-btn .fin-time{margin-left:auto;font-variant-numeric:tabular-nums;}
+.tap-btn.done{background:var(--card);box-shadow:inset 0 0 0 1.5px var(--border);color:var(--t1);cursor:default;}
+.tap-btn.done .fin-time{color:var(--green);font-weight:800;}
+.dnf-btn{background:none;border:none;color:var(--t3);font-size:12px;cursor:pointer;padding:8px;}
+
+/* ── Results table ── */
+table.res{width:100%;border-collapse:collapse;}
+table.res th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t3);text-align:left;padding:6px 8px;border-bottom:1.5px solid var(--border);}
+table.res td{font-size:14px;padding:9px 8px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums;}
+table.res tr:last-child td{border-bottom:none;}
+table.res td.r,table.res th.r{text-align:right;}
+.delta-up{color:var(--green);font-weight:700;font-size:12px;}
+.delta-down{color:var(--red);font-weight:700;font-size:12px;}
+.delta-flat{color:var(--t3);font-size:12px;}
+.row-click{cursor:pointer;}
+.row-click:hover td{background:#F9FBF7;}
+
+/* ── Zones ── */
+.zone-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.zone-row:last-child{border-bottom:none;}
+.zone-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.zone-name{font-size:13px;font-weight:700;flex:1;}
+.zone-pct{font-size:11px;color:var(--t3);}
+.zone-vals{text-align:right;font-variant-numeric:tabular-nums;}
+.zone-spd{font-size:13px;font-weight:700;}
+.zone-alt{font-size:11px;color:var(--t3);margin-top:1px;}
+
+/* ── Chart ── */
+.chart-wrap{overflow-x:auto;}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--t2);margin-top:8px;}
+.legend span{display:inline-flex;align-items:center;gap:5px;}
+.legend i{width:10px;height:3px;border-radius:2px;display:inline-block;}
+
+/* ── Player drawer ── */
+.ovly{position:fixed;inset:0;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .25s;z-index:40;}
+.ovly.open{opacity:1;pointer-events:auto;}
+.drawer{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-radius:18px 18px 0 0;max-height:88vh;overflow-y:auto;transform:translateY(102%);transition:transform .28s;z-index:50;padding:18px 16px 32px;}
+.drawer.open{transform:translateY(0);}
+.drawer-hdl{width:40px;height:4px;border-radius:2px;background:var(--bm);margin:0 auto 14px;}
+.drawer-title{font-size:18px;font-weight:800;margin-bottom:2px;display:flex;align-items:center;gap:10px;}
+.drawer-sub{font-size:12px;color:var(--t3);margin-bottom:14px;}
+.chip-toggle{margin-left:auto;font-size:11px;font-weight:700;border-radius:999px;border:1.5px solid var(--border);background:none;color:var(--t3);padding:5px 10px;cursor:pointer;}
+.chip-toggle.on{background:var(--amber-l);border-color:var(--amber);color:var(--amber);}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#243024;color:white;padding:11px 20px;border-radius:12px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:90;max-width:90vw;text-align:center;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.note-banner{font-size:12px;color:var(--t3);background:var(--card);border-radius:10px;padding:10px 12px;margin-bottom:14px;}
+.icon-btn{background:none;border:1.5px solid var(--border);border-radius:9px;color:var(--t2);font-size:12px;font-weight:600;padding:8px 12px;cursor:pointer;}
+.toolbar{display:flex;gap:8px;justify-content:flex-end;margin-bottom:12px;flex-wrap:wrap;}
+@media(max-width:480px){ .clock{font-size:44px;} }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <a href="home.html" aria-label="Back to home"><i class="fas fa-arrow-left"></i></a>
+  <div>
+    <div class="hdr-title">Bronco Tracker</div>
+    <div class="hdr-sub">1200&nbsp;m shuttle &middot; MAS &amp; training speeds</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab active" id="tab-sessions" data-tab="sessions">Sessions</button>
+    <button class="tab" id="tab-progress" data-tab="progress">Progress</button>
+  </div>
+  <div id="screen"></div>
+</div>
+
+<div class="ovly" id="pd-ovly"></div>
+<div class="drawer" id="pd-drawer"><div class="drawer-hdl"></div><div id="pd-body"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+const BRONCO_KEY = 'gaa_bronco_v1';
+const ROSTER_KEY = 'gaa_roster_v1';
+const ROSTER_SEED = 'roster.json';
+// Turn-time correction subtracted from the finishing time before computing
+// MAS = 1200 / (secs − correction); heavier players (≥100 kg) lose more time
+// in the turns. Matches the coach's existing spreadsheet model.
+const TURN_CORRECTION = 20.3;
+const TURN_CORRECTION_HEAVY = 29;
+const ZONES = [
+  { key:'rec', label:'Recovery',        lo:60,  hi:70,  col:'#7CB342' },
+  { key:'aer', label:'Aerobic',         lo:70,  hi:85,  col:'#2E7D32' },
+  { key:'thr', label:'Threshold',       lo:85,  hi:100, col:'#D97706' },
+  { key:'hi',  label:'High Intensity',  lo:100, hi:110, col:'#E64A19' },
+  { key:'se',  label:'Speed Endurance', lo:110, hi:120, col:'#C62828' },
+];
+
+// ─── State ────────────────────────────────────────────────────────────────────
+// D.sessions: [{id, date:'YYYY-MM-DD', notes, results:[{name, secs|null, dnf}]}]
+// D.heavy:    { playerName: true }  — ≥100 kg flag for the MAS correction
+let D = { version: 1, heavy: {}, sessions: [] };
+let roster = [];
+let view = { tab: 'sessions', sessionId: null, mode: 'list' }; // mode: list|setup|timing|results
+let timer = { running: false, t0: null, int: null };
+
+// ─── Utils ────────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const jsArg = v => encodeURIComponent(v).replace(/'/g,'%27');
+const todayStr = () => new Date().toISOString().slice(0, 10);
+
+function fmtTime(secs) {
+  if (secs == null) return '—';
+  const m = Math.floor(secs / 60);
+  const s = secs - m * 60;
+  return m + ':' + (s < 10 ? '0' : '') + s.toFixed(1);
+}
+// Accepts "5:04.3", "5:04", "304.3", "304"
+function parseTime(str) {
+  const t = String(str || '').trim();
+  if (!t) return null;
+  const m = t.match(/^(\d+):([0-5]?\d(?:\.\d+)?)$/);
+  if (m) return (+m[1]) * 60 + (+m[2]);
+  const n = parseFloat(t);
+  return isFinite(n) && n > 0 ? n : null;
+}
+function fmtDate(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString(undefined, { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+}
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ─── MAS & zones ──────────────────────────────────────────────────────────────
+function calcMAS(secs, heavy) {
+  if (secs == null) return null;
+  const corr = heavy ? TURN_CORRECTION_HEAVY : TURN_CORRECTION;
+  const eff = secs - corr;
+  return eff > 0 ? 1200 / eff : null;
+}
+const fmtMAS = m => m == null ? '—' : m.toFixed(2);
+const round5 = m => Math.round(m / 5) * 5;
+// Range of speeds for a zone given MAS, with display strings
+function zoneRange(mas, z) {
+  const lo = mas * z.lo / 100, hi = mas * z.hi / 100;
+  return {
+    ms:   lo.toFixed(2) + '–' + hi.toFixed(2) + ' m/s',
+    kmh:  (lo * 3.6).toFixed(1) + '–' + (hi * 3.6).toFixed(1) + ' km/h',
+    d15:  round5(lo * 15) + '–' + round5(hi * 15) + ' m / 15s',
+    d30:  round5(lo * 30) + '–' + round5(hi * 30) + ' m / 30s',
+  };
+}
+
+// ─── Persistence ──────────────────────────────────────────────────────────────
+function loadData() {
+  try {
+    const raw = localStorage.getItem(BRONCO_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (!Array.isArray(d.sessions)) return;
+    D = { version: 1, heavy: (d.heavy && typeof d.heavy === 'object') ? d.heavy : {}, sessions: d.sessions };
+  } catch {}
+}
+let _saveFailed = false;
+function saveData() {
+  try { localStorage.setItem(BRONCO_KEY, JSON.stringify(D)); _saveFailed = false; }
+  catch { if (!_saveFailed) { _saveFailed = true; toast('Warning: could not save to this device'); } }
+}
+
+async function loadRoster() {
+  try {
+    const raw = localStorage.getItem(ROSTER_KEY);
+    if (raw) { roster = JSON.parse(raw) || []; }
+  } catch { roster = []; }
+  if (!roster.length) {
+    try {
+      const res = await fetch(ROSTER_SEED);
+      if (res.ok) roster = await res.json();
+    } catch {}
+  }
+  if (!Array.isArray(roster)) roster = [];
+}
+function activePlayers() {
+  return roster.filter(p => p.active !== false).map(p => p.name);
+}
+
+// ─── History helpers ──────────────────────────────────────────────────────────
+const sortedSessions = () => [...D.sessions].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+// All completed runs for a player, oldest → newest
+function playerHistory(name) {
+  const out = [];
+  sortedSessions().forEach(s => {
+    const r = (s.results || []).find(x => x.name === name && x.secs != null && !x.dnf);
+    if (r) out.push({ date: s.date, secs: r.secs, mas: calcMAS(r.secs, D.heavy[name]) });
+  });
+  return out;
+}
+function latestRun(name, beforeDate) {
+  const h = playerHistory(name).filter(r => !beforeDate || r.date < beforeDate);
+  return h.length ? h[h.length - 1] : null;
+}
+function sessionAvgMas(s) {
+  const vals = (s.results || []).filter(r => r.secs != null && !r.dnf)
+    .map(r => calcMAS(r.secs, D.heavy[r.name])).filter(v => v != null);
+  return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+}
+// Order names fastest → slowest by most recent run; never-run players last, A–Z
+function seededOrder(names, beforeDate) {
+  return [...names].sort((a, b) => {
+    const ra = latestRun(a, beforeDate), rb = latestRun(b, beforeDate);
+    if (ra && rb) return ra.secs - rb.secs;
+    if (ra) return -1;
+    if (rb) return 1;
+    return a.localeCompare(b);
+  });
+}
+
+// ─── Render dispatch ──────────────────────────────────────────────────────────
+function render() {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === view.tab));
+  if (view.tab === 'progress') return renderProgress();
+  if (view.mode === 'setup')   return renderSetup();
+  if (view.mode === 'timing')  return renderTiming();
+  if (view.mode === 'results') return renderResults();
+  renderSessionList();
+}
+
+function curSession() { return D.sessions.find(s => s.id === view.sessionId) || null; }
+
+// ─── Sessions list ────────────────────────────────────────────────────────────
+function renderSessionList() {
+  const sessions = sortedSessions().reverse();
+  let h = '<button class="btn btn-primary" id="btn-new" style="margin-bottom:14px;"><i class="fas fa-plus"></i> New Test Session</button>';
+  if (!sessions.length) {
+    h += '<div class="empty"><i class="fas fa-stopwatch"></i>No test sessions yet.<br>Create one to run your first Bronco.</div>';
+  }
+  sessions.forEach(s => {
+    const done = (s.results || []).filter(r => r.secs != null && !r.dnf).length;
+    const avg = sessionAvgMas(s);
+    h += `<button class="sess-item" data-open="${esc(s.id)}">
+      <div>
+        <div class="sess-date">${esc(fmtDate(s.date))}</div>
+        <div class="sess-meta">${done} runner${done !== 1 ? 's' : ''}${s.notes ? ' · ' + esc(s.notes.slice(0, 48)) + (s.notes.length > 48 ? '…' : '') : ''}</div>
+      </div>
+      <div class="sess-avg">
+        <div class="sess-avg-val">${avg != null ? fmtMAS(avg) : '—'}</div>
+        <div class="sess-avg-lbl">avg MAS</div>
+      </div>
+    </button>`;
+  });
+  $('screen').innerHTML = h;
+  const nb = $('btn-new'); if (nb) nb.onclick = startNewSession;
+  $('screen').querySelectorAll('[data-open]').forEach(b => b.onclick = () => openSession(b.dataset.open));
+}
+
+function startNewSession() {
+  view = { tab: 'sessions', sessionId: null, mode: 'setup' };
+  render();
+}
+function openSession(id) {
+  view = { tab: 'sessions', sessionId: id, mode: 'results' };
+  render();
+}
+
+// ─── New session setup ────────────────────────────────────────────────────────
+let setupSel = new Set();
+function renderSetup() {
+  const names = seededOrder(activePlayers());
+  if (!setupSel.size) names.forEach(n => latestRun(n) && setupSel.add(n)); // preselect returning runners
+  let h = '<div class="card"><div class="card-title"><i class="fas fa-circle-info"></i> Session details</div>';
+  h += `<div class="fg"><label>Date</label><input type="date" id="f-date" value="${todayStr()}"></div>`;
+  h += `<div class="fg"><label>Conditions / notes</label><textarea id="f-notes" placeholder="Pitch, weather, who's carrying a knock…"></textarea></div>`;
+  h += '</div>';
+
+  h += '<div class="card"><div class="card-title"><i class="fas fa-person-running"></i> Runners — fastest first from previous tests</div>';
+  if (!names.length) h += '<div class="empty" style="padding:18px;">No active players in the roster.<br><a href="roster.html">Open the roster</a> to add players.</div>';
+  names.forEach(n => {
+    const prev = latestRun(n);
+    h += `<div class="runner-row${setupSel.has(n) ? ' on' : ''}" data-name="${esc(n)}">
+      <span class="runner-chk"><i class="fas fa-check"></i></span>
+      <span class="runner-name">${esc(n)}</span>
+      <span class="runner-prev">${prev ? fmtTime(prev.secs) + ' · MAS ' + fmtMAS(prev.mas) : 'no previous run'}</span>
+    </div>`;
+  });
+  h += '</div>';
+  h += '<button class="btn btn-primary" id="btn-create" style="margin-bottom:8px;"><i class="fas fa-stopwatch"></i> <span id="create-lbl">Start timing</span></button>';
+  h += '<button class="btn btn-ghost" id="btn-cancel">Cancel</button>';
+  $('screen').innerHTML = h;
+
+  const syncCreate = () => { $('create-lbl').textContent = `Start timing (${setupSel.size} runner${setupSel.size !== 1 ? 's' : ''})`; $('btn-create').disabled = !setupSel.size; };
+  $('screen').querySelectorAll('.runner-row').forEach(r => r.onclick = () => {
+    const n = r.dataset.name;
+    if (setupSel.has(n)) setupSel.delete(n); else setupSel.add(n);
+    r.classList.toggle('on', setupSel.has(n));
+    syncCreate();
+  });
+  syncCreate();
+  $('btn-cancel').onclick = () => { setupSel = new Set(); view.mode = 'list'; render(); };
+  $('btn-create').onclick = () => {
+    const date = $('f-date').value || todayStr();
+    const id = 'b' + Date.now().toString(36);
+    const order = seededOrder([...setupSel], date);
+    D.sessions.push({ id, date, notes: $('f-notes').value.trim(), results: order.map(n => ({ name: n, secs: null, dnf: false })) });
+    saveData();
+    setupSel = new Set();
+    view = { tab: 'sessions', sessionId: id, mode: 'timing' };
+    render();
+  };
+}
+
+// ─── Timing screen ────────────────────────────────────────────────────────────
+// Wall-clock anchored: browsers throttle intervals when the screen dims, so
+// elapsed time is always recomputed from t0, never accumulated by ticks.
+const elapsed = () => (Date.now() - timer.t0) / 1000;
+let lastTaps = []; // stack of result indices, for undo
+
+function startClock() {
+  timer = { running: true, t0: Date.now(), int: setInterval(renderClock, 100) };
+  renderTiming();
+}
+function stopClock() {
+  if (timer.int) clearInterval(timer.int);
+  timer = { running: false, t0: null, int: null };
+}
+function renderClock() {
+  const c = $('clock');
+  if (c && timer.running) c.textContent = fmtTime(Math.floor(elapsed() * 10) / 10);
+}
+
+function renderTiming() {
+  const s = curSession();
+  if (!s) { view.mode = 'list'; return render(); }
+  const remaining = s.results.filter(r => r.secs == null && !r.dnf);
+  const finished  = s.results.filter(r => r.secs != null || r.dnf);
+
+  let h = `<div class="card clock-card">
+    <div class="clock${timer.running ? ' running' : ''}" id="clock">${timer.running ? fmtTime(elapsed()) : '0:00.0'}</div>
+    <div class="clock-sub">${esc(fmtDate(s.date))} · 1200 m — 5 × (20 + 40 + 60 m out &amp; back)</div>`;
+  if (!timer.running) {
+    h += '<button class="btn btn-primary" id="btn-start" style="margin-top:14px;"><i class="fas fa-play"></i> Start clock</button>';
+  } else {
+    h += '<div style="display:flex;gap:8px;margin-top:14px;">';
+    h += `<button class="btn btn-ghost" id="btn-undo" ${lastTaps.length ? '' : 'disabled'} style="flex:1;"><i class="fas fa-rotate-left"></i> Undo tap</button>`;
+    h += '<button class="btn btn-amber" id="btn-finish" style="flex:1;"><i class="fas fa-flag-checkered"></i> Finish</button>';
+    h += '</div>';
+  }
+  h += '</div>';
+
+  if (remaining.length) {
+    h += '<div class="card"><div class="card-title"><i class="fas fa-hand-pointer"></i> Tap as each player crosses the line</div>';
+    remaining.forEach(r => {
+      const i = s.results.indexOf(r);
+      h += `<div class="time-row">
+        <button class="tap-btn" data-tap="${i}" ${timer.running ? '' : 'disabled'}>${esc(r.name)}<span class="fin-time">${timer.running ? '· · ·' : ''}</span></button>
+        <button class="dnf-btn" data-dnf="${i}" title="Did not finish">DNF</button>
+      </div>`;
+    });
+    h += '</div>';
+  }
+  if (finished.length) {
+    h += '<div class="card"><div class="card-title"><i class="fas fa-check"></i> Finished</div>';
+    finished.forEach(r => {
+      h += `<div class="time-row"><button class="tap-btn done">${esc(r.name)}
+        <span class="fin-time">${r.dnf ? 'DNF' : fmtTime(r.secs) + ' · MAS ' + fmtMAS(calcMAS(r.secs, D.heavy[r.name]))}</span></button></div>`;
+    });
+    h += '</div>';
+  }
+  if (!timer.running && !finished.length) {
+    h += '<button class="btn btn-ghost" id="btn-abandon">Cancel session</button>';
+  }
+  $('screen').innerHTML = h;
+
+  const sb = $('btn-start');   if (sb) sb.onclick = startClock;
+  const ub = $('btn-undo');    if (ub) ub.onclick = undoTap;
+  const fb = $('btn-finish');  if (fb) fb.onclick = finishTiming;
+  const ab = $('btn-abandon'); if (ab) ab.onclick = abandonSession;
+  $('screen').querySelectorAll('[data-tap]').forEach(b => b.onclick = () => recordTap(+b.dataset.tap));
+  $('screen').querySelectorAll('[data-dnf]').forEach(b => b.onclick = () => markDnf(+b.dataset.dnf));
+}
+
+function recordTap(i) {
+  const s = curSession();
+  if (!s || !timer.running) return;
+  s.results[i].secs = Math.round(elapsed() * 10) / 10;
+  lastTaps.push(i);
+  saveData();
+  renderTiming();
+}
+function undoTap() {
+  const s = curSession();
+  const i = lastTaps.pop();
+  if (s && i != null && s.results[i]) { s.results[i].secs = null; saveData(); }
+  renderTiming();
+}
+function markDnf(i) {
+  const s = curSession();
+  if (!s) return;
+  s.results[i].dnf = true; s.results[i].secs = null;
+  saveData();
+  renderTiming();
+}
+function finishTiming() {
+  stopClock();
+  lastTaps = [];
+  view.mode = 'results';
+  saveData();
+  render();
+}
+function abandonSession() {
+  stopClock();
+  lastTaps = [];
+  D.sessions = D.sessions.filter(s => s.id !== view.sessionId);
+  saveData();
+  view = { tab: 'sessions', sessionId: null, mode: 'list' };
+  render();
+}
+
+// ─── Results screen ───────────────────────────────────────────────────────────
+function renderResults() {
+  const s = curSession();
+  if (!s) { view.mode = 'list'; return render(); }
+  const rows = [...s.results].sort((a, b) => {
+    if (a.dnf || a.secs == null) return 1;
+    if (b.dnf || b.secs == null) return -1;
+    return a.secs - b.secs;
+  });
+  const avg = sessionAvgMas(s);
+
+  let h = `<div class="card">
+    <div style="display:flex;align-items:baseline;gap:10px;">
+      <div class="sess-date" style="font-size:17px;">${esc(fmtDate(s.date))}</div>
+      <div style="margin-left:auto;text-align:right;">
+        <div class="sess-avg-val">${avg != null ? fmtMAS(avg) : '—'}</div>
+        <div class="sess-avg-lbl">team avg MAS (m/s)</div>
+      </div>
+    </div>`;
+  h += `<div class="fg" style="margin-top:12px;"><label>Conditions / notes</label><textarea id="r-notes">${esc(s.notes || '')}</textarea></div>`;
+  h += '</div>';
+
+  h += '<div class="card"><div class="card-title"><i class="fas fa-ranking-star"></i> Results — tap a time to edit, a name for player detail</div>';
+  h += '<table class="res"><tr><th>#</th><th>Player</th><th class="r">Time</th><th class="r">MAS</th><th class="r">vs prev</th></tr>';
+  let rank = 0;
+  rows.forEach(r => {
+    const mas = r.dnf ? null : calcMAS(r.secs, D.heavy[r.name]);
+    const prev = latestRun(r.name, s.date);
+    let delta = '<span class="delta-flat">—</span>';
+    if (mas != null && prev && prev.mas != null) {
+      const d = mas - prev.mas;
+      delta = Math.abs(d) < 0.005 ? '<span class="delta-flat">=</span>'
+        : d > 0 ? `<span class="delta-up">▲ ${d.toFixed(2)}</span>`
+                : `<span class="delta-down">▼ ${(-d).toFixed(2)}</span>`;
+    }
+    const ridx = s.results.indexOf(r);
+    h += `<tr>
+      <td>${r.secs != null && !r.dnf ? ++rank : ''}</td>
+      <td class="row-click" data-pd="${jsArg(r.name)}">${esc(r.name)}${D.heavy[r.name] ? ' <i class="fas fa-weight-hanging" style="font-size:10px;color:var(--amber);" title="100kg+ correction"></i>' : ''}</td>
+      <td class="r row-click" data-edit="${ridx}">${r.dnf ? 'DNF' : fmtTime(r.secs)}</td>
+      <td class="r">${fmtMAS(mas)}</td>
+      <td class="r">${delta}</td>
+    </tr>`;
+  });
+  h += '</table></div>';
+
+  h += '<div style="display:flex;gap:8px;margin-bottom:8px;">';
+  h += '<button class="btn btn-ghost" id="btn-resume" style="flex:1;"><i class="fas fa-stopwatch"></i> Timing view</button>';
+  h += '<button class="btn btn-ghost" id="btn-back" style="flex:1;"><i class="fas fa-list"></i> All sessions</button>';
+  h += '</div>';
+  h += '<button class="btn btn-danger-ghost" id="btn-del">Delete this session</button>';
+  $('screen').innerHTML = h;
+
+  $('r-notes').onchange = () => { s.notes = $('r-notes').value.trim(); saveData(); };
+  $('btn-resume').onclick = () => { view.mode = 'timing'; render(); };
+  $('btn-back').onclick = () => { view = { tab: 'sessions', sessionId: null, mode: 'list' }; render(); };
+  $('btn-del').onclick = () => {
+    if (!confirm('Delete this session and all its times?')) return;
+    D.sessions = D.sessions.filter(x => x.id !== s.id);
+    saveData();
+    view = { tab: 'sessions', sessionId: null, mode: 'list' };
+    render();
+  };
+  $('screen').querySelectorAll('[data-edit]').forEach(el => el.onclick = () => editTime(s, +el.dataset.edit));
+  $('screen').querySelectorAll('[data-pd]').forEach(el => el.onclick = () => openPlayer(decodeURIComponent(el.dataset.pd)));
+}
+
+function editTime(s, i) {
+  const r = s.results[i];
+  const cur = r.secs != null ? fmtTime(r.secs) : '';
+  const inp = prompt(`Time for ${r.name} (m:ss.t — blank to clear, "dnf" for did-not-finish):`, cur);
+  if (inp == null) return;
+  const t = inp.trim().toLowerCase();
+  if (t === 'dnf') { r.dnf = true; r.secs = null; }
+  else if (t === '') { r.dnf = false; r.secs = null; }
+  else {
+    const secs = parseTime(t);
+    if (secs == null) { toast('Could not read that time — use m:ss.t'); return; }
+    r.dnf = false; r.secs = Math.round(secs * 10) / 10;
+  }
+  saveData();
+  render();
+}
+
+// ─── Progress (team) ──────────────────────────────────────────────────────────
+function renderProgress() {
+  const sessions = sortedSessions().filter(s => sessionAvgMas(s) != null);
+  let h = '';
+
+  h += '<div class="toolbar">';
+  h += '<button class="icon-btn" id="btn-export"><i class="fas fa-file-export"></i> Export</button>';
+  h += '<label class="icon-btn" style="display:inline-flex;align-items:center;gap:6px;"><i class="fas fa-file-import"></i> Import<input type="file" id="f-import" accept=".json,application/json" style="display:none;"></label>';
+  h += '</div>';
+
+  if (!sessions.length) {
+    h += '<div class="empty"><i class="fas fa-chart-line"></i>No completed sessions yet — progress charts will appear here after your first Bronco.</div>';
+    $('screen').innerHTML = h;
+    wireProgressToolbar();
+    return;
+  }
+
+  // Team average chart
+  h += '<div class="card"><div class="card-title"><i class="fas fa-chart-line"></i> Team average MAS by session</div>';
+  h += '<div class="chart-wrap">' + buildChart([{ col: '#2E7D32', pts: sessions.map(s => sessionAvgMas(s)) }], sessions.map(s => s.date), true) + '</div>';
+  h += '</div>';
+
+  // Player table: latest MAS, change vs previous run, trend
+  const names = new Set();
+  sessions.forEach(s => (s.results || []).forEach(r => { if (r.secs != null && !r.dnf) names.add(r.name); }));
+  const rows = [...names].map(n => {
+    const hist = playerHistory(n);
+    const last = hist[hist.length - 1];
+    const prev = hist.length > 1 ? hist[hist.length - 2] : null;
+    return { name: n, hist, last, delta: prev ? last.mas - prev.mas : null };
+  }).sort((a, b) => b.last.mas - a.last.mas);
+
+  h += '<div class="card"><div class="card-title"><i class="fas fa-users"></i> Players — latest MAS (tap for detail)</div>';
+  h += '<table class="res"><tr><th>Player</th><th class="r">Runs</th><th class="r">Latest MAS</th><th class="r">Change</th></tr>';
+  rows.forEach(r => {
+    let delta = '<span class="delta-flat">first run</span>';
+    if (r.delta != null) {
+      delta = Math.abs(r.delta) < 0.005 ? '<span class="delta-flat">=</span>'
+        : r.delta > 0 ? `<span class="delta-up">▲ ${r.delta.toFixed(2)}</span>`
+                      : `<span class="delta-down">▼ ${(-r.delta).toFixed(2)}</span>`;
+    }
+    h += `<tr class="row-click" data-pd="${jsArg(r.name)}">
+      <td>${esc(r.name)}</td><td class="r">${r.hist.length}</td>
+      <td class="r" style="font-weight:700;">${fmtMAS(r.last.mas)}</td><td class="r">${delta}</td></tr>`;
+  });
+  h += '</table></div>';
+
+  $('screen').innerHTML = h;
+  $('screen').querySelectorAll('[data-pd]').forEach(el => el.onclick = () => openPlayer(decodeURIComponent(el.dataset.pd)));
+  wireProgressToolbar();
+}
+
+function wireProgressToolbar() {
+  const ex = $('btn-export');
+  if (ex) ex.onclick = () => {
+    const blob = new Blob([JSON.stringify(D, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'bronco-' + todayStr() + '.json'; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  };
+  const im = $('f-import');
+  if (im) im.onchange = e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      try {
+        const d = JSON.parse(ev.target.result);
+        if (!Array.isArray(d.sessions)) throw new Error('not a bronco export');
+        if (!d.sessions.every(s => s && typeof s.date === 'string' && Array.isArray(s.results))) throw new Error('bad session shape');
+        D = { version: 1, heavy: (d.heavy && typeof d.heavy === 'object') ? d.heavy : {}, sessions: d.sessions };
+        saveData(); render(); toast('Imported ' + d.sessions.length + ' sessions');
+      } catch (err) { toast('Import failed: ' + err.message); }
+    };
+    r.readAsText(f);
+  };
+}
+
+// ─── SVG chart ────────────────────────────────────────────────────────────────
+function buildChart(series, dates, showLabels) {
+  const W = Math.max(320, dates.length * 56), H = 180, PL = 34, PR = 10, PT = 12, PB = showLabels ? 34 : 14;
+  const all = series.flatMap(s => s.pts).filter(v => v != null);
+  if (!all.length) return '';
+  let lo = Math.min(...all), hi = Math.max(...all);
+  if (hi - lo < 0.4) { const m = (hi + lo) / 2; lo = m - 0.2; hi = m + 0.2; }
+  const pad = (hi - lo) * 0.12; lo -= pad; hi += pad;
+  const x = i => dates.length === 1 ? PL + (W - PL - PR) / 2 : PL + (W - PL - PR) * i / (dates.length - 1);
+  const y = v => PT + (H - PT - PB) * (1 - (v - lo) / (hi - lo));
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="display:block;">`;
+  for (let g = 0; g < 4; g++) {
+    const gv = lo + (hi - lo) * g / 3;
+    svg += `<line x1="${PL}" y1="${y(gv)}" x2="${W - PR}" y2="${y(gv)}" stroke="rgba(0,0,0,.08)" stroke-width="1"/>`;
+    svg += `<text x="${PL - 5}" y="${y(gv) + 3}" font-size="9" fill="#7A8A7A" text-anchor="end">${gv.toFixed(1)}</text>`;
+  }
+  series.forEach(s => {
+    const segs = s.pts.map((v, i) => v == null ? null : `${x(i)},${y(v)}`);
+    const line = segs.filter(Boolean).join(' ');
+    if (line.split(' ').length > 1) svg += `<polyline points="${line}" fill="none" stroke="${s.col}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    s.pts.forEach((v, i) => {
+      if (v == null) return;
+      svg += `<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="${s.col}" stroke="#fff" stroke-width="1.2"/>`;
+      svg += `<text x="${x(i)}" y="${y(v) - 7}" font-size="9" font-weight="700" fill="${s.col}" text-anchor="middle">${v.toFixed(2)}</text>`;
+    });
+  });
+  if (showLabels) dates.forEach((d, i) => {
+    const lbl = d.slice(5).replace('-', '/');
+    svg += `<text x="${x(i)}" y="${H - 6}" font-size="9" fill="#7A8A7A" text-anchor="middle">${esc(lbl)}</text>`;
+  });
+  svg += '</svg>';
+  return svg;
+}
+
+// ─── Player drawer ────────────────────────────────────────────────────────────
+let pdName = null;
+function openPlayer(name) {
+  pdName = name;
+  renderPlayerDrawer();
+  $('pd-ovly').classList.add('open');
+  $('pd-drawer').classList.add('open');
+}
+function closePlayer() {
+  $('pd-ovly').classList.remove('open');
+  $('pd-drawer').classList.remove('open');
+}
+function renderPlayerDrawer() {
+  const name = pdName;
+  const hist = playerHistory(name);
+  const last = hist.length ? hist[hist.length - 1] : null;
+  const best = hist.length ? hist.reduce((a, b) => (b.mas > a.mas ? b : a)) : null;
+
+  let h = `<div class="drawer-title">${esc(name)}
+    <button class="chip-toggle${D.heavy[name] ? ' on' : ''}" id="pd-heavy"><i class="fas fa-weight-hanging"></i> 100kg+</button>
+  </div>`;
+  h += `<div class="drawer-sub">${hist.length} run${hist.length !== 1 ? 's' : ''}${best ? ' · best MAS ' + fmtMAS(best.mas) + ' (' + esc(fmtDate(best.date)) + ')' : ''}</div>`;
+
+  if (hist.length) {
+    h += '<div class="card"><div class="card-title"><i class="fas fa-chart-line"></i> MAS over time</div>';
+    h += '<div class="chart-wrap">' + buildChart([{ col: '#2E7D32', pts: hist.map(r => r.mas) }], hist.map(r => r.date), true) + '</div></div>';
+  }
+
+  if (last) {
+    h += `<div class="card"><div class="card-title"><i class="fas fa-gauge-high"></i> Training speeds — MAS ${fmtMAS(last.mas)} m/s (${esc(fmtDate(last.date))})</div>`;
+    ZONES.forEach(z => {
+      const r = zoneRange(last.mas, z);
+      h += `<div class="zone-row">
+        <span class="zone-dot" style="background:${z.col};"></span>
+        <div style="flex:1;"><div class="zone-name">${z.label}</div><div class="zone-pct">${z.lo}–${z.hi}% MAS</div></div>
+        <div class="zone-vals">
+          <div class="zone-spd">${r.ms}</div>
+          <div class="zone-alt">${r.kmh}</div>
+          <div class="zone-alt">${r.d15} · ${r.d30}</div>
+        </div>
+      </div>`;
+    });
+    h += '</div>';
+  }
+
+  if (hist.length) {
+    h += '<div class="card"><div class="card-title"><i class="fas fa-list"></i> Run history</div>';
+    h += '<table class="res"><tr><th>Date</th><th class="r">Time</th><th class="r">MAS</th><th class="r">Δ</th></tr>';
+    for (let i = hist.length - 1; i >= 0; i--) {
+      const r = hist[i], p = i > 0 ? hist[i - 1] : null;
+      let delta = '<span class="delta-flat">—</span>';
+      if (p) {
+        const d = r.mas - p.mas;
+        delta = Math.abs(d) < 0.005 ? '<span class="delta-flat">=</span>'
+          : d > 0 ? `<span class="delta-up">▲ ${d.toFixed(2)}</span>` : `<span class="delta-down">▼ ${(-d).toFixed(2)}</span>`;
+      }
+      h += `<tr><td>${esc(fmtDate(r.date))}</td><td class="r">${fmtTime(r.secs)}</td><td class="r">${fmtMAS(r.mas)}</td><td class="r">${delta}</td></tr>`;
+    }
+    h += '</table></div>';
+  } else {
+    h += '<div class="empty" style="padding:24px;">No completed runs yet.</div>';
+  }
+  $('pd-body').innerHTML = h;
+  $('pd-heavy').onclick = () => {
+    if (D.heavy[name]) delete D.heavy[name]; else D.heavy[name] = true;
+    saveData();
+    renderPlayerDrawer(); // MAS values change with the correction
+    render();
+  };
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  view = { tab: t.dataset.tab, sessionId: null, mode: 'list' };
+  render();
+});
+$('pd-ovly').onclick = closePlayer;
+
+try { new BroadcastChannel('gaa_roster').onmessage = () => loadRoster().then(render); } catch {}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') saveData();
+  else if (timer.running) renderClock();
+});
+
+loadData();
+loadRoster().then(render);
+</script>
+</body>
+</html>
