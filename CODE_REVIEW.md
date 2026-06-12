@@ -2,6 +2,16 @@
 
 *Full-codebase review — June 2026. Covers `js/` modules, all HTML pages and their inline scripts, the service worker/PWA setup, and the test suites. Every finding below was verified against the source; file:line references point at the relevant code.*
 
+> **Status update:** the findings below have since been fixed on this branch — all
+> High items (H1–H9), the Medium items M1–M14 except the SW update-flow prompt in
+> M15, and most Low/hygiene items (silent persistence failure, CSV injection,
+> deferred URL revocation, dead code, repo hygiene, eslint globals drift, CI
+> test/lint steps, restored-row `data-ev-idx`). Still open: a
+> "new version available" reload prompt (M15), the ~1s pause/resume truncation,
+> self-hosting Font Awesome for offline icons, the accessibility items, and the
+> theme-color/CSP/tokens.css consistency sweep across pages. File:line references
+> below describe the pre-fix code.
+
 ## Verdict
 
 For a hand-rolled vanilla-JS PWA this is well above average: a single state object with disciplined setter helpers, an explicit match-phase state machine, wall-clock-anchored timing, a real escaping strategy (`esc()` + the `html` tagged template, enforced by a custom ESLint rule), and a genuinely substantial Selenium suite (~160 tests). The problems cluster around three structural seams rather than sloppy code:

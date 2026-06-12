@@ -1,9 +1,5 @@
 'use strict';
 
-// ─── PERIOD LABELS ────────────────────────────────────────────────────────────
-const periodLabel = n => ['1st Half','2nd Half','1st Half ET','2nd Half ET'][n-1] || ('Period '+n);
-const periodBadge = n => ['1H','2H','ET1','ET2'][n-1] || ('P'+n);
-
 // ─── STATE MACHINE ────────────────────────────────────────────────────────────
 function transition(newState) {
   const allowed = VALID_TRANSITIONS[state.matchState];

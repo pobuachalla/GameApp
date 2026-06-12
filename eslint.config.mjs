@@ -10,7 +10,6 @@ const appGlobals = {
   selMode: 'writable',
   selSlot: 'writable',
   swapSlot: 'writable',
-  pendAct: 'writable',
   subOff: 'writable',
   pendScoreAdj: 'writable',
   pendActSaved: 'writable',
@@ -18,7 +17,6 @@ const appGlobals = {
   pendSlotSaved: 'writable',
   zoneSelectedId: 'writable',
   zoneSelectedCoords: 'writable',
-  shotMapTeamFilter: 'writable',
   shotMapHalfFilter: 'writable',
   shotMapPlayerFilter: 'writable',
   tInt: 'writable',
@@ -39,10 +37,8 @@ const appGlobals = {
   initEl: 'writable',
 
   // ── constants.js ──
-  ACTS: 'writable',
   SSEC: 'writable',
   FSEC: 'writable',
-  NS: 'writable',
   SAVE_KEY: 'writable',
   DEFAULT_US: 'writable',
   PITCH_SVG_INNER: 'writable',
@@ -118,8 +114,6 @@ const appGlobals = {
   closeMod: 'writable',
 
   // ── timer.js ──
-  periodLabel: 'writable',
-  periodBadge: 'writable',
   transition: 'writable',
   applyStateEffects: 'writable',
   renderTimerUI: 'writable',
@@ -144,8 +138,6 @@ const appGlobals = {
   removeSelected: 'writable',
 
   // ── scoring.js ──
-  buildScorerSummary: 'writable',
-  formatScorer: 'writable',
   showFullTimeResult: 'writable',
   closeConfirmDrawer: 'writable',
   showConfirmDrawer: 'writable',

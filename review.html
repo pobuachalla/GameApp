@@ -127,14 +127,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .rv-sub-off { flex: 1; font-size: 14px; color: var(--t2); }
 
 /* ── Lineup ──────────────────────────────────────────────────────────────── */
-.rv-lu-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-.rv-lu-p { background: var(--green-l); border-radius: 10px; padding: 11px 8px; text-align: center; }
-.rv-lu-p.gk { background: var(--amber-l); }
-.rv-lu-num { font-size: 11px; font-weight: 700; color: var(--green); opacity: .65; }
-.rv-lu-p.gk .rv-lu-num { color: var(--amber); }
-.rv-lu-name { font-size: 13px; font-weight: 600; color: var(--green); margin-top: 3px; line-height: 1.25; word-break: break-word; }
-.rv-lu-p.gk .rv-lu-name { color: var(--amber); }
-.rv-lu-cap { font-size: 10px; color: var(--green); opacity: .6; margin-top: 3px; }
 
 /* ── Ring ────────────────────────────────────────────────────────────────── */
 .rv-ring-w { display: flex; align-items: center; gap: 20px; margin: 4px 0 14px; }
@@ -154,7 +146,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 @media (max-width: 640px) {
   .rv-g3 { grid-template-columns: 1fr; }
   .rv-score-big { font-size: 44px; }
-  .rv-lu-grid { grid-template-columns: repeat(3, 1fr); }
   .rv-sm-wrap { flex-direction: column; }
 }
 @media print {
@@ -162,7 +153,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   #review { max-width: 100%; padding: 12px; }
   .rv-card { box-shadow: none; border: 1px solid var(--bm); }
   .rv-hdr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .rv-lu-p, .rv-lu-p.gk { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 </style>
 </head>

@@ -256,7 +256,6 @@ function psAction(a) {
   }
   const SCORE_ACTS = new Set(['Goal','Point','2 Point','Wide','Short','Saved']);
   if (SCORE_ACTS.has(a)) {
-    pendAct = a;
     const from65 = state.sport === 'football' ? 'From 45' : 'From 65';
     let opts = a === '2 Point'
       ? ['From Play','From Free','From Sideline']

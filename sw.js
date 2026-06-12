@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE = 'gaa-tracker-a06d32c3cb'; // build.cjs rewrites this with a content hash
+const CACHE = 'gaa-tracker-8d41bde610'; // build.cjs rewrites this with a content hash
 
 // App shell — everything needed to run offline.
 // Every page plus the scripts/data each one loads; crests/ (9MB) is left to
