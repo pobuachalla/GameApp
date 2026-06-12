@@ -299,35 +299,38 @@ function playerYear(name) {
   const y = p ? +p.birthYear : NaN;
   return isFinite(y) ? y : null;
 }
-// Two groups: oldest birth years together (U16/U15), youngest together (U14/U13)
-function gradeGroups() {
-  const yrs = [...new Set(roster.filter(p => p.active !== false).map(p => +p.birthYear).filter(isFinite))]
+// One chip per grade; multiple can be selected (empty selection = everyone)
+function gradeYears() {
+  return [...new Set(roster.filter(p => p.active !== false).map(p => +p.birthYear).filter(isFinite))]
     .sort((a, b) => a - b);
-  if (yrs.length < 2) return [];
-  const cut = Math.ceil(yrs.length / 2);
-  return [yrs.slice(0, cut), yrs.slice(cut)].map(ys => ({
-    label: ys.map(gradeOf).join('·'),
-    years: new Set(ys),
-  }));
 }
-let gradeFilter = -1; // -1 = all, otherwise index into gradeGroups()
+let gradeSel = new Set(); // selected birth years
 function gradePass(name) {
-  if (gradeFilter < 0) return true;
-  const g = gradeGroups()[gradeFilter];
-  if (!g) return true;
+  if (!gradeSel.size) return true;
   const y = playerYear(name);
-  return y != null && g.years.has(y);
+  return y != null && gradeSel.has(y);
+}
+function gradeLabel() {
+  return [...gradeSel].sort((a, b) => a - b).map(gradeOf).join('·');
 }
 function gradeChipsHtml() {
-  const groups = gradeGroups();
-  if (!groups.length) return '';
+  const yrs = gradeYears();
+  if (yrs.length < 2) return '';
   let h = '<div class="chips">';
-  h += `<button class="chip${gradeFilter < 0 ? ' on' : ''}" data-gf="-1">All</button>`;
-  groups.forEach((g, i) => h += `<button class="chip${gradeFilter === i ? ' on' : ''}" data-gf="${i}">${esc(g.label)}</button>`);
+  h += `<button class="chip${!gradeSel.size ? ' on' : ''}" data-gy="all">All</button>`;
+  yrs.forEach(y => h += `<button class="chip${gradeSel.has(y) ? ' on' : ''}" data-gy="${y}">${esc(gradeOf(y))}</button>`);
   return h + '</div>';
 }
 function wireGradeChips() {
-  $('screen').querySelectorAll('[data-gf]').forEach(b => b.onclick = () => { gradeFilter = +b.dataset.gf; render(); });
+  $('screen').querySelectorAll('[data-gy]').forEach(b => b.onclick = () => {
+    if (b.dataset.gy === 'all') gradeSel.clear();
+    else {
+      const y = +b.dataset.gy;
+      if (gradeSel.has(y)) gradeSel.delete(y); else gradeSel.add(y);
+      if (gradeSel.size === gradeYears().length) gradeSel.clear(); // all selected = All
+    }
+    render();
+  });
 }
 
 // ─── History helpers ──────────────────────────────────────────────────────────
@@ -673,9 +676,8 @@ function renderProgress() {
     return;
   }
 
-  // Average MAS chart for the selected group
-  const groups = gradeGroups();
-  const chartLbl = gradeFilter >= 0 && groups[gradeFilter] ? groups[gradeFilter].label + ' average' : 'Team average';
+  // Average MAS chart for the selected grades
+  const chartLbl = gradeSel.size ? gradeLabel() + ' average' : 'Team average';
   h += `<div class="card"><div class="card-title"><i class="fas fa-chart-line"></i> ${esc(chartLbl)} MAS by session</div>`;
   h += '<div class="chart-wrap">' + buildChart([{ col: '#2E7D32', pts: sessions.map(s => sessionAvgMas(s, gradePass)) }], sessions.map(s => s.date), true) + '</div>';
   h += '</div>';
