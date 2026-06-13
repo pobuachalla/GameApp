@@ -154,6 +154,7 @@ table.res td.r,table.res th.r{text-align:right;}
   <div class="tabs">
     <button class="tab active" id="tab-sessions" data-tab="sessions">Sessions</button>
     <button class="tab" id="tab-progress" data-tab="progress">Progress</button>
+    <button class="tab" id="tab-data" data-tab="data">Data</button>
   </div>
   <div id="screen"></div>
 </div>
@@ -271,18 +272,52 @@ function saveData() {
   catch { if (!_saveFailed) { _saveFailed = true; toast('Warning: could not save to this device'); } }
 }
 
+// rosterSource: 'shared' (from the match tracker's localStorage),
+// 'seed' (roster.json shipped with the app), or 'imported' (a file the coach loaded)
+let rosterSource = 'none';
 async function loadRoster() {
   try {
     const raw = localStorage.getItem(ROSTER_KEY);
-    if (raw) { roster = JSON.parse(raw) || []; }
+    if (raw) { roster = JSON.parse(raw) || []; rosterSource = 'shared'; }
   } catch { roster = []; }
   if (!roster.length) {
     try {
       const res = await fetch(ROSTER_SEED);
-      if (res.ok) roster = await res.json();
+      if (res.ok) { roster = await res.json(); rosterSource = 'seed'; }
     } catch {}
   }
   if (!Array.isArray(roster)) roster = [];
+}
+// Persist to the shared roster key so the match tracker and roster manager
+// see the same squad, and notify any other open tab.
+function saveRoster() {
+  try {
+    localStorage.setItem(ROSTER_KEY, JSON.stringify(roster));
+    new BroadcastChannel('gaa_roster').postMessage('updated');
+  } catch {}
+}
+// Normalise an imported player record to the roster app's shape
+function normPlayer(p) {
+  const by = Number(p.birthYear);
+  return {
+    name:      String(p.name).trim(),
+    birthYear: (Number.isFinite(by) && by >= 2000 && by <= 2020) ? by : 2013,
+    hurling:   !!p.hurling,
+    football:  !!p.football,
+    notes:     typeof p.notes === 'string' ? p.notes.slice(0, 120) : '',
+    active:    p.active !== false,
+    available: p.available !== false,
+  };
+}
+// Merge imported players into the roster, skipping names already present.
+// Returns how many were added.
+function mergeRoster(players) {
+  const valid = (players || []).filter(p => p && typeof p.name === 'string' && p.name.trim()).map(normPlayer);
+  const existing = new Set(roster.map(p => p.name.toLowerCase()));
+  const added = valid.filter(p => !existing.has(p.name.toLowerCase()));
+  roster.push(...added);
+  if (added.length) { saveRoster(); rosterSource = 'imported'; }
+  return added.length;
 }
 function activePlayers() {
   return roster.filter(p => p.active !== false).map(p => p.name);
@@ -366,11 +401,30 @@ function seededOrder(names, beforeDate) {
 function render() {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === view.tab));
   if (view.tab === 'progress') return renderProgress();
+  if (view.tab === 'data')     return renderData();
   if (view.mode === 'setup')   return renderSetup();
   if (view.mode === 'manual')  return renderManual();
   if (view.mode === 'timing')  return renderTiming();
   if (view.mode === 'results') return renderResults();
   renderSessionList();
+}
+
+// Trigger a browser download of a JSON object
+function downloadJson(obj, filename) {
+  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+// Read a File as parsed JSON, calling back(parsed) or reporting a toast on failure
+function readJsonFile(file, cb) {
+  const r = new FileReader();
+  r.onload = ev => {
+    try { cb(JSON.parse(ev.target.result)); }
+    catch { toast('That file is not valid JSON'); }
+  };
+  r.readAsText(file);
 }
 
 function curSession() { return D.sessions.find(s => s.id === view.sessionId) || null; }
@@ -724,17 +778,11 @@ function renderProgress() {
   const sessions = sortedSessions().filter(s => sessionAvgMas(s, gradePass) != null);
   let h = '';
 
-  h += '<div class="toolbar">';
-  h += '<button class="icon-btn" id="btn-export"><i class="fas fa-file-export"></i> Export</button>';
-  h += '<label class="icon-btn" style="display:inline-flex;align-items:center;gap:6px;"><i class="fas fa-file-import"></i> Import<input type="file" id="f-import" accept=".json,application/json" style="display:none;"></label>';
-  h += '</div>';
-
   h += gradeChipsHtml();
 
   if (!sessions.length) {
     h += '<div class="empty"><i class="fas fa-chart-line"></i>No completed sessions yet — progress charts will appear here after your first Bronco.</div>';
     $('screen').innerHTML = h;
-    wireProgressToolbar();
     wireGradeChips();
     return;
   }
@@ -772,43 +820,163 @@ function renderProgress() {
 
   $('screen').innerHTML = h;
   $('screen').querySelectorAll('[data-pd]').forEach(el => el.onclick = () => openPlayer(decodeURIComponent(el.dataset.pd)));
-  wireProgressToolbar();
   wireGradeChips();
 }
 
-function wireProgressToolbar() {
-  const ex = $('btn-export');
-  if (ex) ex.onclick = () => {
-    const blob = new Blob([JSON.stringify(D, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'bronco-' + todayStr() + '.json'; a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
+// ─── Data tab — roster loading + session import/export & sharing ───────────────
+let exportSel = null; // Set of session ids chosen for export (null = not yet built)
+function renderData() {
+  if (!exportSel) exportSel = new Set(D.sessions.map(s => s.id)); // default: all
+  const srcLabel = {
+    shared:   'shared with the match tracker',
+    imported: 'imported from a file',
+    seed:     'seeded from roster.json',
+    none:     'no roster loaded',
+  }[rosterSource] || 'loaded';
+
+  let h = '';
+
+  // ── Roster ──
+  h += '<div class="card"><div class="card-title"><i class="fas fa-users"></i> Roster</div>';
+  h += `<div class="note-banner" style="margin-bottom:12px;">${roster.length} player${roster.length !== 1 ? 's' : ''} · ${esc(srcLabel)}.<br>Loading a roster here updates the shared squad used across the match tracker too.</div>`;
+  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  h += '<label class="icon-btn" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;"><i class="fas fa-file-import"></i> Import roster<input type="file" id="d-rimport" accept=".json,application/json" style="display:none;"></label>';
+  h += '<button class="icon-btn" id="d-rexport"><i class="fas fa-file-export"></i> Export roster</button>';
+  h += '<a class="icon-btn" href="roster.html" style="text-decoration:none;"><i class="fas fa-arrow-up-right-from-square"></i> Roster manager</a>';
+  h += '</div></div>';
+
+  // ── Sessions: export ──
+  h += '<div class="card"><div class="card-title"><i class="fas fa-file-export"></i> Export sessions</div>';
+  if (!D.sessions.length) {
+    h += '<div class="empty" style="padding:18px;">No sessions to export yet.</div>';
+  } else {
+    h += '<div class="note-banner" style="margin-bottom:12px;">Pick the sessions to share, then export a file another team can import.</div>';
+    h += '<div style="display:flex;gap:14px;margin-bottom:8px;font-size:12px;font-weight:600;">';
+    h += '<button class="dnf-btn" id="d-all" style="color:var(--green-d);">Select all</button>';
+    h += '<button class="dnf-btn" id="d-none">Select none</button></div>';
+    sortedSessions().reverse().forEach(s => {
+      const done = (s.results || []).filter(r => r.secs != null && !r.dnf).length;
+      h += `<div class="runner-row${exportSel.has(s.id) ? ' on' : ''}" data-sid="${esc(s.id)}">
+        <span class="runner-chk"><i class="fas fa-check"></i></span>
+        <span class="runner-name">${esc(fmtDate(s.date))}<span class="runner-grade">${done} run${done !== 1 ? 's' : ''}</span></span>
+        <span class="runner-prev">${s.notes ? esc(s.notes.slice(0, 30)) + (s.notes.length > 30 ? '…' : '') : ''}</span>
+      </div>`;
+    });
+    h += '<label class="runner-row" id="d-incl-row" style="cursor:pointer;margin-top:6px;">';
+    h += `<span class="runner-chk" id="d-incl-chk"><i class="fas fa-check"></i></span>`;
+    h += '<span class="runner-name">Include roster<span style="display:block;font-size:11px;font-weight:400;color:var(--t3);">so another team gets player ages without a separate file</span></span></label>';
+    h += '<button class="btn btn-primary" id="d-export" style="margin-top:12px;"><i class="fas fa-file-export"></i> <span id="d-export-lbl">Export</span></button>';
+  }
+  h += '</div>';
+
+  // ── Sessions: import ──
+  h += '<div class="card"><div class="card-title"><i class="fas fa-file-import"></i> Import sessions</div>';
+  h += '<div class="note-banner" style="margin-bottom:12px;">Add sessions from a file — yours from another device, or a file shared by another team. Sessions are merged in; matching dates/ids are updated, nothing already here is lost. If the file includes a roster, you can add any new players too.</div>';
+  h += '<label class="btn btn-ghost" style="cursor:pointer;"><i class="fas fa-file-import"></i> Choose file<input type="file" id="d-simport" accept=".json,application/json" style="display:none;"></label>';
+  h += '</div>';
+
+  $('screen').innerHTML = h;
+  wireDataTab();
+}
+
+let exportInclRoster = false;
+function wireDataTab() {
+  // Roster import / export
+  const ri = $('d-rimport');
+  if (ri) ri.onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    readJsonFile(f, data => {
+      const players = Array.isArray(data) ? data : (Array.isArray(data.roster) ? data.roster : null);
+      if (!players) { toast('That file has no player list'); return; }
+      const valid = players.filter(p => p && typeof p.name === 'string' && p.name.trim());
+      if (!valid.length) { toast('No valid players in that file'); return; }
+      const replace = roster.length &&
+        !confirm(`Merge ${valid.length} players with your existing ${roster.length}?\n\nOK = Merge (skip duplicates)\nCancel = Replace all`);
+      if (replace) { roster = valid.map(normPlayer); saveRoster(); rosterSource = 'imported'; toast('Roster replaced — ' + roster.length + ' players'); }
+      else { const n = mergeRoster(valid); toast(n ? 'Added ' + n + ' player' + (n !== 1 ? 's' : '') : 'No new players to add'); }
+      render();
+    });
+    e.target.value = '';
   };
-  const im = $('f-import');
-  if (im) im.onchange = e => {
-    const f = e.target.files[0];
-    if (!f) return;
-    const r = new FileReader();
-    r.onload = ev => {
-      try {
-        const d = JSON.parse(ev.target.result);
-        if (!Array.isArray(d.sessions)) throw new Error('not a bronco export');
-        if (!d.sessions.every(s => s && typeof s.date === 'string' && Array.isArray(s.results))) throw new Error('bad session shape');
-        // Merge rather than replace: imported sessions win on id clashes,
-        // everything already on this device is kept
-        const byId = new Map(D.sessions.map(s => [s.id, s]));
-        d.sessions.forEach(s => byId.set(s.id, s));
-        D = {
-          version: 1,
-          heavy: { ...D.heavy, ...((d.heavy && typeof d.heavy === 'object') ? d.heavy : {}) },
-          sessions: [...byId.values()],
-        };
-        saveData(); render(); toast('Imported ' + d.sessions.length + ' sessions (merged, ' + D.sessions.length + ' total)');
-      } catch (err) { toast('Import failed: ' + err.message); }
-    };
-    r.readAsText(f);
+  const re = $('d-rexport');
+  if (re) re.onclick = () => {
+    if (!roster.length) { toast('No roster to export'); return; }
+    downloadJson(roster, 'roster.json');
   };
+
+  // Session export selection
+  const syncExport = () => {
+    const n = exportSel.size;
+    const lbl = $('d-export-lbl');
+    if (lbl) lbl.textContent = n ? `Export ${n} session${n !== 1 ? 's' : ''}` : 'Export';
+    const btn = $('d-export'); if (btn) btn.disabled = !n;
+  };
+  $('screen').querySelectorAll('[data-sid]').forEach(row => row.onclick = () => {
+    const id = row.dataset.sid;
+    if (exportSel.has(id)) exportSel.delete(id); else exportSel.add(id);
+    row.classList.toggle('on', exportSel.has(id));
+    syncExport();
+  });
+  const all = $('d-all');   if (all)  all.onclick  = () => { exportSel = new Set(D.sessions.map(s => s.id)); render(); };
+  const non = $('d-none');  if (non)  non.onclick  = () => { exportSel = new Set(); render(); };
+  const inclRow = $('d-incl-row');
+  if (inclRow) {
+    inclRow.classList.toggle('on', exportInclRoster);
+    inclRow.onclick = e => { e.preventDefault(); exportInclRoster = !exportInclRoster; inclRow.classList.toggle('on', exportInclRoster); };
+  }
+  const ex = $('d-export');
+  if (ex) ex.onclick = () => exportSessions();
+  syncExport();
+
+  // Session import
+  const si = $('d-simport');
+  if (si) si.onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    readJsonFile(f, data => importSessions(data));
+    e.target.value = '';
+  };
+}
+
+function exportSessions() {
+  const chosen = D.sessions.filter(s => exportSel.has(s.id));
+  if (!chosen.length) { toast('Select at least one session'); return; }
+  // Only the heavy flags for players appearing in the chosen sessions
+  const names = new Set(chosen.flatMap(s => (s.results || []).map(r => r.name)));
+  const heavy = {};
+  Object.keys(D.heavy).forEach(n => { if (names.has(n)) heavy[n] = true; });
+  const out = { version: 1, heavy, sessions: chosen };
+  if (exportInclRoster) out.roster = roster.filter(p => names.has(p.name));
+  const fname = chosen.length === 1
+    ? 'bronco-' + chosen[0].date + '.json'
+    : 'bronco-' + chosen.length + '-sessions-' + todayStr() + '.json';
+  downloadJson(out, fname);
+  toast('Exported ' + chosen.length + ' session' + (chosen.length !== 1 ? 's' : '') + (exportInclRoster ? ' + roster' : ''));
+}
+
+function importSessions(d) {
+  if (!d || !Array.isArray(d.sessions)) { toast('No sessions found in that file'); return; }
+  if (!d.sessions.every(s => s && typeof s.date === 'string' && Array.isArray(s.results))) { toast('That file has an unexpected session format'); return; }
+  // Merge sessions by id; imported wins on a clash, local-only sessions kept
+  const byId = new Map(D.sessions.map(s => [s.id, s]));
+  d.sessions.forEach(s => byId.set(s.id, s));
+  D = {
+    version: 1,
+    heavy: { ...D.heavy, ...((d.heavy && typeof d.heavy === 'object') ? d.heavy : {}) },
+    sessions: [...byId.values()],
+  };
+  saveData();
+  exportSel = null;
+  // Offer to bring in any players the file carried that we don't have
+  let added = 0;
+  if (Array.isArray(d.roster) && d.roster.length) {
+    const have = new Set(roster.map(p => p.name.toLowerCase()));
+    const newOnes = d.roster.filter(p => p && p.name && !have.has(String(p.name).toLowerCase()));
+    if (newOnes.length && confirm(`Import also includes ${newOnes.length} player${newOnes.length !== 1 ? 's' : ''} not in your roster. Add them?`)) {
+      added = mergeRoster(newOnes);
+    }
+  }
+  render();
+  toast('Imported ' + d.sessions.length + ' session' + (d.sessions.length !== 1 ? 's' : '') + (added ? ' + ' + added + ' players' : '') + ' (' + D.sessions.length + ' total)');
 }
 
 // ─── SVG chart ────────────────────────────────────────────────────────────────
@@ -922,6 +1090,7 @@ function renderPlayerDrawer() {
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  exportSel = null; // rebuild export selection (default: all) when entering the Data tab
   view = { tab: t.dataset.tab, sessionId: null, mode: 'list' };
   render();
 });
