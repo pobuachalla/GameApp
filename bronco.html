@@ -163,6 +163,7 @@ table.res td.r,table.res th.r{text-align:right;}
 <div class="drawer" id="pd-drawer"><div class="drawer-hdl"></div><div id="pd-body"></div></div>
 <div class="toast" id="toast"></div>
 
+<script src="js/age-grade.js"></script>
 <script>
 'use strict';
 
@@ -324,9 +325,10 @@ function activePlayers() {
 }
 
 // ─── Age grades ───────────────────────────────────────────────────────────────
-// Same convention as roster.html: grade = year − birthYear (2011 → U15 in 2026)
+// Grade derivation lives in js/age-grade.js (shared with the roster manager and
+// live tracker). grade = year − birthYear, so 2012 → U14 in 2026.
 const THIS_YEAR = new Date().getFullYear();
-const gradeOf = by => 'U' + (THIS_YEAR - +by);
+const gradeOf = by => ageGradeFor(by, THIS_YEAR);
 function playerYear(name) {
   const p = roster.find(x => x.name === name);
   const y = p ? +p.birthYear : NaN;

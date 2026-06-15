@@ -433,7 +433,7 @@ try {
 } catch {}
 
 function _gradeFromBirthYear(birthYear) {
-  return 'U' + (new Date().getFullYear() - birthYear);
+  return ageGradeFor(birthYear); // shared helper — see js/age-grade.js
 }
 
 function _gradeNum(grade) {
