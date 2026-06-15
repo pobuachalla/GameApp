@@ -259,6 +259,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   </div>
 </div>
 
+<script src="js/age-grade.js"></script>
 <script>
 'use strict';
 
@@ -310,7 +311,7 @@ function persist() {
 }
 
 // ── Grade helpers ─────────────────────────────────────────────────────────────
-function gradeFromBirthYear(by) { return 'U' + (THIS_YEAR - by); }
+function gradeFromBirthYear(by) { return ageGradeFor(by, THIS_YEAR); }
 function gradeCls(g) { return {U13:'grade-u13',U14:'grade-u14',U15:'grade-u15',U16:'grade-u16'}[g]||''; }
 
 // ── Filtering / sorting ───────────────────────────────────────────────────────

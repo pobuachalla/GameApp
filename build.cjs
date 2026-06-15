@@ -8,7 +8,7 @@ const fs   = require('fs');
 const path = require('path');
 
 const FILES = [
-  'clubs.js','pitch-svg.js','constants.js','state.js','wakelock.js',
+  'clubs.js','age-grade.js','pitch-svg.js','constants.js','state.js','wakelock.js',
   'persistence.js','ui-core.js','modal.js','timer.js','events.js',
   'scoring.js','players.js','ai-config.js','share.js','settings.js',
   'layout.js','game-utils.js','stats.js','print.js','transfer.js',

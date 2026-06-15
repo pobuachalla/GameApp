@@ -65,6 +65,9 @@ const appGlobals = {
   TEAM_US_COLOR: 'writable',
   TEAM_OPP_COLOR: 'writable',
 
+  // ── age-grade.js ──
+  ageGradeFor: 'writable',
+
   // ── game-utils.js ──
   toSeconds: 'writable',
   formatSeconds: 'writable',
