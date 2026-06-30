@@ -566,10 +566,13 @@ function loadRosterIntoStorage() {
 
 function _attachPlayerTypeaheads() {
   const sz = state.teamSize || 15;
-  for (let i = 1; i <= sz; i++) {
+  // Slot numbers are not contiguous (e.g. 13-a-side is [1,2,4,…,13,15]), so
+  // iterate the actual slot list rather than 1..sz — otherwise slot 15 in the
+  // 13-a-side layout never gets a typeahead.
+  (TEAM_SLOTS[sz] || TEAM_SLOTS[15]).forEach(i => {
     const inp = document.getElementById('sn' + i);
     if (inp) _initPlayerTypeahead(inp);
-  }
+  });
   for (let i = 16; i <= (state.maxB || 17); i++) {
     const inp = document.getElementById('sn' + i);
     if (inp) _initPlayerTypeahead(inp);
