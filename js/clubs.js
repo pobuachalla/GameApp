@@ -33,6 +33,7 @@ const MEATH_CLUBS = [
   {name:"Kilskyre",pitch:"Kilskyre, Kells, Co. Meath.",crest:"crests/kilskyre.jpg"},
   {name:"Kiltale",pitch:"Kiltale Hurling Club",crest:"crests/kiltale.png"},
   {name:"Longwood",pitch:"Longwood, Co. Meath.",crest:"crests/longwood.png"},
+  {name:"Loughcrew Gaels",pitch:"Loughcrew, Oldcastle, Co. Meath.",crest:"crests/loughcrew_gaels.png"},
   {name:"Meath Hill",pitch:"Meath Hill GFC",crest:"crests/meath_hill.jpeg"},
   {name:"Moylagh",pitch:"Moylagh, Co. Meath.",crest:"crests/moylagh.png"},
   {name:"Moynalty",pitch:"Moynalty GFC",crest:"crests/moynalty.png"},
