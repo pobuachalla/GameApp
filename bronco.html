@@ -49,12 +49,16 @@ button{font-family:inherit;}
 .btn-amber{background:var(--amber);color:white;}
 
 /* ── Session list ── */
-.sess-item{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);margin-bottom:10px;cursor:pointer;border:none;width:100%;text-align:left;}
+.sess-item{display:flex;align-items:center;gap:4px;background:var(--card);border-radius:14px;padding:6px 6px 6px 16px;box-shadow:var(--shadow);margin-bottom:10px;}
+.sess-item-main{display:flex;align-items:center;gap:12px;flex:1;min-width:0;padding:8px 0;cursor:pointer;background:none;border:none;text-align:left;font:inherit;color:inherit;}
+.sess-del-btn{background:none;border:none;color:var(--t3);font-size:14px;padding:10px;cursor:pointer;border-radius:8px;flex-shrink:0;}
+.sess-del-btn:hover{color:var(--red);background:var(--red-l);}
 .sess-date{font-size:15px;font-weight:700;color:var(--t1);}
 .sess-meta{font-size:12px;color:var(--t3);margin-top:2px;}
 .sess-avg{margin-left:auto;text-align:right;flex-shrink:0;}
 .sess-avg-val{font-size:16px;font-weight:800;color:var(--green);}
 .sess-avg-lbl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;}
+.excl-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--amber);background:var(--amber-l);border-radius:999px;padding:2px 7px;margin-left:6px;vertical-align:middle;}
 .empty{text-align:center;padding:40px 20px;color:var(--t3);font-size:14px;}
 .empty i{font-size:30px;display:block;margin-bottom:10px;opacity:.35;}
 
@@ -186,7 +190,7 @@ const ZONES = [
 ];
 
 // ─── State ────────────────────────────────────────────────────────────────────
-// D.sessions: [{id, date:'YYYY-MM-DD', notes, results:[{name, secs|null, dnf}]}]
+// D.sessions: [{id, date:'YYYY-MM-DD', notes, excludeFromProgress, results:[{name, secs|null, dnf}]}]
 // D.heavy:    { playerName: true }  — ≥100 kg flag for the MAS correction
 let D = { version: 1, heavy: {}, sessions: [] };
 let roster = [];
@@ -370,10 +374,13 @@ function wireGradeChips() {
 
 // ─── History helpers ──────────────────────────────────────────────────────────
 const sortedSessions = () => [...D.sessions].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-// All completed runs for a player, oldest → newest
+// Sessions that count toward progress/trend stats — excludes sessions the
+// coach has flagged as unreliable (bad conditions, wrong distance, etc.)
+const progressSessions = () => sortedSessions().filter(s => !s.excludeFromProgress);
+// All completed runs for a player, oldest → newest (skips excluded sessions)
 function playerHistory(name) {
   const out = [];
-  sortedSessions().forEach(s => {
+  progressSessions().forEach(s => {
     const r = (s.results || []).find(x => x.name === name && x.secs != null && !x.dnf);
     if (r) out.push({ date: s.date, secs: r.secs, mas: calcMAS(r.secs, D.heavy[name]) });
   });
@@ -442,21 +449,35 @@ function renderSessionList() {
   sessions.forEach(s => {
     const done = (s.results || []).filter(r => r.secs != null && !r.dnf).length;
     const avg = sessionAvgMas(s);
-    h += `<button class="sess-item" data-open="${esc(s.id)}">
-      <div>
-        <div class="sess-date">${esc(fmtDate(s.date))}</div>
-        <div class="sess-meta">${done} runner${done !== 1 ? 's' : ''}${s.notes ? ' · ' + esc(s.notes.slice(0, 48)) + (s.notes.length > 48 ? '…' : '') : ''}</div>
-      </div>
-      <div class="sess-avg">
-        <div class="sess-avg-val">${avg != null ? fmtMAS(avg) : '—'}</div>
-        <div class="sess-avg-lbl">avg MAS</div>
-      </div>
-    </button>`;
+    h += `<div class="sess-item">
+      <button class="sess-item-main" data-open="${esc(s.id)}">
+        <div>
+          <div class="sess-date">${esc(fmtDate(s.date))}${s.excludeFromProgress ? '<span class="excl-badge">Excluded</span>' : ''}</div>
+          <div class="sess-meta">${done} runner${done !== 1 ? 's' : ''}${s.notes ? ' · ' + esc(s.notes.slice(0, 48)) + (s.notes.length > 48 ? '…' : '') : ''}</div>
+        </div>
+        <div class="sess-avg">
+          <div class="sess-avg-val">${avg != null ? fmtMAS(avg) : '—'}</div>
+          <div class="sess-avg-lbl">avg MAS</div>
+        </div>
+      </button>
+      <button class="sess-del-btn" data-del="${esc(s.id)}" title="Delete session"><i class="fas fa-trash"></i></button>
+    </div>`;
   });
   $('screen').innerHTML = h;
   const nb = $('btn-new'); if (nb) nb.onclick = startNewSession;
   const mb = $('btn-manual'); if (mb) mb.onclick = () => openManual();
   $('screen').querySelectorAll('[data-open]').forEach(b => b.onclick = () => openSession(b.dataset.open));
+  $('screen').querySelectorAll('[data-del]').forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const id = b.dataset.del;
+    const s = D.sessions.find(x => x.id === id);
+    if (!s) return;
+    if (!confirm(`Delete the ${fmtDate(s.date)} session and all its times? This can't be undone.`)) return;
+    D.sessions = D.sessions.filter(x => x.id !== id);
+    saveData();
+    render();
+    toast('Session deleted');
+  });
 }
 
 function startNewSession() {
@@ -517,7 +538,7 @@ function renderSetup() {
     const date = setupForm.date || todayStr();
     const id = 'b' + Date.now().toString(36);
     const order = seededOrder(effSel(), date);
-    D.sessions.push({ id, date, notes: setupForm.notes.trim(), results: order.map(n => ({ name: n, secs: null, dnf: false })) });
+    D.sessions.push({ id, date, notes: setupForm.notes.trim(), excludeFromProgress: false, results: order.map(n => ({ name: n, secs: null, dnf: false })) });
     saveData();
     setupSel = new Set();
     view = { tab: 'sessions', sessionId: id, mode: 'timing' };
@@ -710,6 +731,9 @@ function renderResults() {
         <div class="sess-avg-lbl">team avg MAS (m/s)</div>
       </div>
     </div>`;
+  h += `<div style="margin-top:10px;">
+      <button class="chip-toggle${s.excludeFromProgress ? ' on' : ''}" id="btn-exclude" style="margin-left:0;"><i class="fas fa-eye-slash"></i> ${s.excludeFromProgress ? 'Excluded from progress stats' : 'Exclude from progress stats'}</button>
+    </div>`;
   h += `<div class="fg" style="margin-top:12px;"><label>Conditions / notes</label><textarea id="r-notes">${esc(s.notes || '')}</textarea></div>`;
   h += '</div>';
 
@@ -745,6 +769,12 @@ function renderResults() {
   $('screen').innerHTML = h;
 
   $('r-notes').onchange = () => { s.notes = $('r-notes').value.trim(); saveData(); };
+  $('btn-exclude').onclick = () => {
+    s.excludeFromProgress = !s.excludeFromProgress;
+    saveData();
+    render();
+    toast(s.excludeFromProgress ? 'Session excluded from progress stats' : 'Session included in progress stats');
+  };
   $('btn-resume').onclick = () => { view.mode = 'timing'; render(); };
   $('btn-back').onclick = () => { view = { tab: 'sessions', sessionId: null, mode: 'list' }; render(); };
   $('btn-del').onclick = () => {
@@ -777,7 +807,7 @@ function editTime(s, i) {
 
 // ─── Progress (team) ──────────────────────────────────────────────────────────
 function renderProgress() {
-  const sessions = sortedSessions().filter(s => sessionAvgMas(s, gradePass) != null);
+  const sessions = progressSessions().filter(s => sessionAvgMas(s, gradePass) != null);
   let h = '';
 
   h += gradeChipsHtml();
