@@ -182,6 +182,7 @@ const appGlobals = {
   COUNTIES: 'writable',
   findCountyCrest: 'writable',
   findClub: 'writable',
+  resolveCrest: 'writable',
   findAmalgamPair: 'writable',
   fmtClubName: 'writable',
 
