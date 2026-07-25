@@ -86,7 +86,25 @@ function findClub(name) {
   const n = norm(name);
   const exact = MEATH_CLUBS.find(c => norm(c.name) === n);
   if (exact) return exact;
-  return MEATH_CLUBS.find(c => n.includes(norm(c.name))) || null;
+  const matches = MEATH_CLUBS.filter(c => n.includes(norm(c.name)));
+  if (!matches.length) return null;
+  return matches.reduce((best, c) => norm(c.name).length > norm(best.name).length ? c : best);
+}
+
+// Resolves the crest for a team/opponent name, preferring whichever candidate
+// (a Meath club or a county) matches the longest portion of the name. Without this,
+// a short club name that happens to be a substring of a longer county name (e.g.
+// "Trim" inside "Antrim") would incorrectly win over the correct county crest.
+function resolveCrest(name) {
+  if (!name) return null;
+  const club = findClub(name);
+  const countyCrest = findCountyCrest(name);
+  if (!club) return countyCrest;
+  if (!countyCrest) return club.crest;
+  const norm = s => s.toLowerCase().replaceAll(/\s*[-/–]\s*/g, '/').replaceAll(/['‘’.]/g, '').replaceAll(/\s+/g, ' ').trim();
+  if (norm(club.name) === norm(name)) return club.crest;
+  const county = COUNTIES.find(c => name.toLowerCase().includes(c.toLowerCase()));
+  return norm(club.name).length >= county.length ? club.crest : countyCrest;
 }
 
 // Ensures any "/" separator in a club name is surrounded by single spaces.

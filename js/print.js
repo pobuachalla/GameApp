@@ -239,10 +239,10 @@ function buildPrintHTML() {
       + '</div>';
   };
 
-  const usCrest    = usClub?.crest || findCountyCrest(state.usN) || '';
+  const usCrest    = resolveCrest(state.usN) || '';
   const oppCrestEl = oppPair
     ? crestImgPair(oppPair[0].crest, oppPair[1].crest, state.oppN)
-    : crestImg(oppClub?.crest || findCountyCrest(state.oppN) || '', state.oppN);
+    : crestImg(resolveCrest(state.oppN) || '', state.oppN);
 
   let h = '';
 

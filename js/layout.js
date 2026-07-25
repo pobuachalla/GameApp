@@ -2,8 +2,7 @@
 
 // ─── LAYOUT PANEL ─────────────────────────────────────────────────────────────
 function _teamCrest(name) {
-  const club = findClub(name);
-  return club?.crest || findCountyCrest(name) || null;
+  return resolveCrest(name);
 }
 
 const _crestImg = (src, alt) =>
