@@ -201,7 +201,7 @@ function adjUs(t, d, side, how) {
   if (how && d>0) desc += ' · '+how;
   addRow(fmt(state.secs),'ADJ','badj',desc);
   state.evts[state.evts.length-1].side = 'us';
-  if (d>0 && how) state.evts[state.evts.length-1].sec = how;
+  if (d>0) { state.evts[state.evts.length-1].action = type; if (how) state.evts[state.evts.length-1].sec = how; }
   const ct=t,cp=prev;
   pushUndo(desc,()=>{ if(ct==='g') setUsGoals(cp); else setUsPts(cp); upTot(); });
   if (d>0) showRestartModal(side||'us');
@@ -238,7 +238,7 @@ function adjFootball(d, side, how) {
   state.evts[state.evts.length-1].side = isUs ? 'us' : 'opp';
   if (nxt>prev) {
     const ev2pt = state.evts[state.evts.length-1];
-    if (!isUs) ev2pt.action = '2 Point';
+    ev2pt.action = '2 Point';
     if (how) ev2pt.sec = how;
   }
   const cp=prev;

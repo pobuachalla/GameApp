@@ -343,3 +343,69 @@ describe('computeOppScoreBreakdown — opposition scoring split by type', () => 
     assert.equal(JSON.stringify(r), JSON.stringify({ goals: 0, twoPt: 0, pts: 0, wides: 0 }));
   });
 });
+
+describe('aggregateMatchStats — team-level score-adjust-drawer entries', () => {
+  // Regression test: adjUs()/adjFootball() (scoring.js) historically never
+  // set ev.action on our own team-level Goal/Point/2 Point additions (only
+  // adjOpp() did) — so goals scored via the score-adjust drawer instead of
+  // the per-player action sheet were silently dropped from goalCount/
+  // ptCount/twoPtCount, while wides (which always get ev.action='Wide') were
+  // counted fine. Real match data showed exactly this split: 3-15 on the
+  // scoreboard but 0 goals / 0 points in the stats breakdown. The fix in
+  // aggregateMatchStats matches on desc text instead of ev.action, so it
+  // covers both already-saved matches (no ev.action) and new ones.
+  const agg = evts => fn('aggregateMatchStats')(evts, false, {}, () => '');
+
+  it('counts a team-level goal with no ev.action (the historical/real-world case)', () => {
+    const r = agg([{ badge: 'ADJ', side: 'us', time: '10:00', desc: 'Donaghmore/Ashbourne: Goal added' }]);
+    assert.equal(r.goalCount, 1);
+  });
+
+  it('counts a team-level point and 2-pointer the same way', () => {
+    const r = agg([
+      { badge: 'ADJ', side: 'us', time: '10:00', desc: 'Donaghmore/Ashbourne: Point added' },
+      { badge: 'ADJ', side: 'us', time: '10:05', desc: 'Donaghmore/Ashbourne: 2 Point added' },
+    ]);
+    assert.equal(r.ptCount, 1);
+    assert.equal(r.twoPtCount, 1);
+  });
+
+  it('still counts a team-level goal when ev.action IS set (post-fix adjUs)', () => {
+    const r = agg([{ badge: 'ADJ', side: 'us', action: 'Goal', time: '10:00', desc: 'Donaghmore/Ashbourne: Goal added' }]);
+    assert.equal(r.goalCount, 1);
+  });
+
+  it('does not double-count a removed (corrected) team-level score', () => {
+    const r = agg([
+      { badge: 'ADJ', side: 'us', time: '10:00', desc: 'Donaghmore/Ashbourne: Goal added' },
+      { badge: 'ADJ', side: 'us', time: '10:30', desc: 'Donaghmore/Ashbourne: Goal removed' },
+    ]);
+    assert.equal(r.goalCount, 1); // the correction isn't a second score, and isn't subtracted either — matches existing (non-decrementing) convention for corrections elsewhere in this function
+  });
+
+  it('does not attribute a team-level score to any player', () => {
+    const r = agg([{ badge: 'ADJ', side: 'us', time: '10:00', desc: 'Donaghmore/Ashbourne: Goal added' }]);
+    assert.equal(Object.keys(r.pstats).length, 0);
+  });
+
+  it('still ignores opposition team-level scores (side: opp)', () => {
+    const r = agg([{ badge: 'ADJ', side: 'opp', time: '10:00', desc: 'Gaeil Colmcille: Goal added' }]);
+    assert.equal(r.goalCount, 0);
+  });
+
+  it('still counts a team-level wide via the existing ev.action path', () => {
+    const r = agg([{ badge: 'ADJ', side: 'us', action: 'Wide', time: '10:00', desc: 'Donaghmore/Ashbourne: Wide · From Play' }]);
+    assert.equal(r.wideCount, 1);
+  });
+
+  it('reproduces the real-world scoreboard: 3-15 with a mix of player and team-level scores', () => {
+    const r = agg([
+      { action: 'Goal', slot: 9, pi: 9, time: '5:00', desc: '' }, // one player-attributed goal
+      { badge: 'ADJ', side: 'us', time: '10:00', desc: 'Donaghmore/Ashbourne: Goal added' },
+      { badge: 'ADJ', side: 'us', time: '15:00', desc: 'Donaghmore/Ashbourne: Goal added' },
+      ...Array.from({ length: 15 }, (_, i) => ({ badge: 'ADJ', side: 'us', time: `${20 + i}:00`, desc: 'Donaghmore/Ashbourne: Point added' })),
+    ]);
+    assert.equal(r.goalCount, 3);
+    assert.equal(r.ptCount, 15);
+  });
+});

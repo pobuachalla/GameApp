@@ -75,11 +75,23 @@ function aggregateMatchStats(evts, trackTurnovers, slotp, getPlayerName) {
       else if (d.startsWith('Opposition')) { if(won)oppWon++; else if(lost)oppLost++; else oppUnclear++; }
       return;
     }
-    // Team wides logged from the score-adjust drawer carry no slot/player
-    if (ev.action === 'Wide' && !ev.slot && ev.badge === 'ADJ' && ev.side !== 'opp') {
-      wideCount++;
-      if (PLACED_BALL.has(ev.sec)) placedWides++;
-      return;
+    // Team-level scores/wides logged from the score-adjust drawer carry no
+    // slot/player. Wides always get ev.action='Wide' when logged, but Goal/
+    // Point/2 Point additions from adjUs()/adjFootball() historically don't
+    // set ev.action at all (only adjOpp() does) — match on desc text instead
+    // so both old saved matches and new ones are counted correctly.
+    if (ev.badge === 'ADJ' && !ev.slot && ev.side !== 'opp') {
+      if (ev.action === 'Wide') {
+        wideCount++;
+        if (PLACED_BALL.has(ev.sec)) placedWides++;
+        return;
+      }
+      const d = ev.desc || '';
+      const placed = PLACED_BALL.has(ev.sec);
+      if      (d.includes('Goal added'))    { goalCount++;  if (placed) placedGoals++; }
+      else if (d.includes('2 Point added')) { twoPtCount++; if (placed) placedTwoPts++; }
+      else if (d.includes('Point added'))   { ptCount++;    if (placed) placedPts++; }
+      return; // "removed" corrections and anything else here aren't new scoring events
     }
     if (!ev.action || !ev.slot) return;
     const pi = ev.pi != null ? ev.pi : slotp[ev.slot];
