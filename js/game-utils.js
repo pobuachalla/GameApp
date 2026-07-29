@@ -167,6 +167,32 @@ function computeTurnoverScores(evts, oppN) {
   return { usG, usP, oppG, oppP };
 }
 
+// ─── OPPOSITION SCORE BREAKDOWN ───────────────────────────────────────────────
+// Splits opposition scoring into goals / 2-pointers / points / wides. Tracks
+// the delta each event causes on a running accumulator (via applyScoreBadge)
+// rather than pattern-matching "added"/"removed" text directly, so a
+// correction from the score-adjust drawer (its own logged event) nets out
+// instead of being double-counted.
+function computeOppScoreBreakdown(evts, oppN) {
+  let goals = 0, twoPt = 0, pts = 0, wides = 0;
+  const sc = { usG: 0, usP: 0, oppG: 0, oppP: 0 };
+
+  evts.forEach(ev => {
+    const prevG = sc.oppG, prevP = sc.oppP;
+    const res = applyScoreBadge(ev, sc, oppN);
+    if (res && res.mTeam === 'opp' && res.mType === 'Wide') { wides++; return; }
+    const dG = sc.oppG - prevG, dP = sc.oppP - prevP;
+    if      (dG > 0) goals++;
+    else if (dG < 0) goals = Math.max(0, goals - 1);
+    if      (dP === 2)  twoPt++;
+    else if (dP === -2) twoPt = Math.max(0, twoPt - 1);
+    else if (dP === 1)  pts++;
+    else if (dP === -1) pts = Math.max(0, pts - 1);
+  });
+
+  return { goals, twoPt, pts, wides };
+}
+
 // ─── PLAYER FILTERING ─────────────────────────────────────────────────────────
 function getScorers(pstats) {
   return Object.values(pstats).filter(p =>

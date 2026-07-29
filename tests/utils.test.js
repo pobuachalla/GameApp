@@ -296,3 +296,50 @@ describe('computeTurnoverScores — score attribution within time window', () =>
     assertScores(r, { usG: 0, usP: 2, oppG: 0, oppP: 0 });
   });
 });
+
+describe('computeOppScoreBreakdown — opposition scoring split by type', () => {
+  const cob = evts => fn('computeOppScoreBreakdown')(evts, 'Ratoath');
+
+  it('counts a goal added via the score-adjust drawer', () => {
+    const r = cob([{ badge: 'OPP', action: 'Goal', time: '10:00', desc: 'Ratoath: Goal added' }]);
+    assert.equal(JSON.stringify(r), JSON.stringify({ goals: 1, twoPt: 0, pts: 0, wides: 0 }));
+  });
+
+  it('counts a point and a 2-pointer added separately', () => {
+    const r = cob([
+      { badge: 'OPP', action: 'Point',   time: '10:00', desc: 'Ratoath: Point added' },
+      { badge: 'ADJ', action: '2 Point', side: 'opp', time: '10:05', desc: 'Ratoath: 2 Point added' },
+    ]);
+    assert.equal(JSON.stringify(r), JSON.stringify({ goals: 0, twoPt: 1, pts: 1, wides: 0 }));
+  });
+
+  it('counts an opposition wide', () => {
+    const r = cob([{ badge: 'OPP', action: 'Wide', side: 'opp', time: '10:00', desc: 'Ratoath: Wide · From Play' }]);
+    assert.equal(JSON.stringify(r), JSON.stringify({ goals: 0, twoPt: 0, pts: 0, wides: 1 }));
+  });
+
+  it('nets out a correction instead of double-counting', () => {
+    const r = cob([
+      { badge: 'OPP', action: 'Goal', time: '10:00', desc: 'Ratoath: Goal added' },
+      { badge: 'OPP', side: 'opp',    time: '10:30', desc: 'Ratoath: Goal removed' }, // mis-tap correction
+    ]);
+    assert.equal(JSON.stringify(r), JSON.stringify({ goals: 0, twoPt: 0, pts: 0, wides: 0 }));
+  });
+
+  it('nets out a removed 2-pointer independently of points', () => {
+    const r = cob([
+      { badge: 'ADJ', action: '2 Point', side: 'opp', time: '10:00', desc: 'Ratoath: 2 Point added' },
+      { badge: 'OPP', action: 'Point',                time: '10:05', desc: 'Ratoath: Point added' },
+      { badge: 'ADJ', side: 'opp',                    time: '10:10', desc: 'Ratoath: 2 Point removed' },
+    ]);
+    assert.equal(JSON.stringify(r), JSON.stringify({ goals: 0, twoPt: 0, pts: 1, wides: 0 }));
+  });
+
+  it('ignores our own scores', () => {
+    const r = cob([
+      { action: 'Goal', slot: 7, time: '10:00', desc: '' },
+      { action: 'Point', slot: 7, time: '10:05', desc: '' },
+    ]);
+    assert.equal(JSON.stringify(r), JSON.stringify({ goals: 0, twoPt: 0, pts: 0, wides: 0 }));
+  });
+});

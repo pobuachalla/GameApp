@@ -297,6 +297,169 @@ function showLineupGraphic() {
   document.getElementById('score-graphic-panel').classList.add('open');
 }
 
+// ─── MATCH STORY GRAPHIC ──────────────────────────────────────────────────────
+// Team-level comparison, generated at full time — "why the winner won", built
+// entirely from data already captured during the match (see game-utils.js:
+// computeOppScoreBreakdown, computeTurnoverScores).
+function _matchStoryStats() {
+  const {
+    goalCount, ptCount, twoPtCount, wideCount,
+    turnoversWon, turnoversLost,
+    ownWon, ownLost, ownUnclear, oppWon, oppLost, oppUnclear,
+  } = aggregateMatchStats(state.evts, state.trackTurnovers, state.slotp, pl);
+  const oppB = computeOppScoreBreakdown(state.evts, state.oppN);
+  const ts   = computeTurnoverScores(state.evts, state.oppN);
+
+  return {
+    us:  { goals: goalCount, twoPt: twoPtCount, pts: ptCount, wides: wideCount,
+           total: goalCount * 3 + twoPtCount * 2 + ptCount },
+    opp: { goals: oppB.goals, twoPt: oppB.twoPt, pts: oppB.pts, wides: oppB.wides,
+           total: oppB.goals * 3 + oppB.twoPt * 2 + oppB.pts },
+    ownRestarts: { usWon: ownWon, oppWon: ownLost, total: ownWon + ownLost + ownUnclear },
+    oppRestarts: { usWon: oppWon, oppWon: oppLost, total: oppWon + oppLost + oppUnclear },
+    turnovers: { won: turnoversWon, lost: turnoversLost },
+    turnoverScores: ts,
+  };
+}
+
+// Picks the single stat with the biggest proportional swing (as a % split
+// between the two sides) that also favours whichever team actually won —
+// the "standout number" callout. Returns null if nothing qualifies.
+function _matchStoryHighlight(st, usWon) {
+  const candidates = [];
+  const koUs = st.ownRestarts.usWon + st.oppRestarts.usWon;
+  const koOpp = st.ownRestarts.oppWon + st.oppRestarts.oppWon;
+  if (koUs + koOpp > 0) candidates.push({ label: 'Kickouts won', usVal: koUs, oppVal: koOpp, fmt: v => String(v) });
+
+  if (st.turnovers.won + st.turnovers.lost > 0)
+    candidates.push({ label: 'Turnovers won', usVal: st.turnovers.won, oppVal: st.turnovers.lost, fmt: v => String(v) });
+
+  const tsUs = st.turnoverScores.usG * 3 + st.turnoverScores.usP;
+  const tsOpp = st.turnoverScores.oppG * 3 + st.turnoverScores.oppP;
+  if (tsUs + tsOpp > 0) candidates.push({ label: 'Points from turnovers', usVal: tsUs, oppVal: tsOpp, fmt: v => String(v) });
+
+  const usAtt = st.us.goals + st.us.twoPt + st.us.pts + st.us.wides;
+  const oppAtt = st.opp.goals + st.opp.twoPt + st.opp.pts + st.opp.wides;
+  if (usAtt > 0 && oppAtt > 0) {
+    const usConv = Math.round((st.us.goals + st.us.twoPt + st.us.pts) / usAtt * 100);
+    const oppConv = Math.round((st.opp.goals + st.opp.twoPt + st.opp.pts) / oppAtt * 100);
+    candidates.push({ label: 'Shooting conversion', usVal: usConv, oppVal: oppConv, fmt: v => v + '%' });
+  }
+
+  let best = null, bestSkew = -1;
+  candidates.forEach(c => {
+    const tot = c.usVal + c.oppVal;
+    if (tot === 0) return;
+    const usPct = c.usVal / tot * 100;
+    const favoursWinner = usWon == null || (usWon ? usPct >= 50 : usPct <= 50);
+    const skew = Math.abs(usPct - 50);
+    if (favoursWinner && skew > bestSkew) { bestSkew = skew; best = c; }
+  });
+  return best;
+}
+
+function _matchStoryRow(label, usVal, oppVal, fmt) {
+  fmt = fmt || (v => String(v));
+  return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #F0F0EE;">`
+    + `<div style="flex:1;font-size:12px;color:#666;">${esc(label)}</div>`
+    + `<div style="width:56px;text-align:right;font-size:14px;font-weight:700;color:${TEAM_US_COLOR};">${fmt(usVal)}</div>`
+    + `<div style="width:56px;text-align:right;font-size:14px;font-weight:700;color:${TEAM_OPP_COLOR};">${fmt(oppVal)}</div>`
+    + `</div>`;
+}
+
+function _buildMatchStoryGraphicHTML() {
+  const g  = state.ftGoals ?? state.goals, p  = state.ftPts ?? state.pts;
+  const og = state.ftOg    ?? state.og,    op = state.ftOp  ?? state.op_;
+  const usT = g * 3 + p, oppT = og * 3 + op;
+  const usFmt  = g  + '–' + pad(p);
+  const oppFmt = og + '–' + pad(op);
+  const usWon = usT === oppT ? null : usT > oppT;
+  const winnerName = usWon == null ? null : (usWon ? state.usN : state.oppN);
+
+  const st = _matchStoryStats();
+  const hi = _matchStoryHighlight(st, usWon);
+
+  const dateStr = matchDisplayDate().toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
+  const compHtml = state.competition
+    ? `<div style="font-size:13px;font-weight:700;color:#1F5B3A;margin-bottom:3px;">${esc(state.competition)}</div>` : '';
+
+  // Amalgam clubs (e.g. "Donaghmore/Ashbourne") are long, slash-joined, and
+  // have no spaces for the browser to wrap at — hint a break right after
+  // each "/" so it doesn't fall back to breaking mid-word.
+  const headline = winnerName
+    ? 'WHY ' + esc(winnerName.toUpperCase()).split('/').join('/<wbr>') + ' WON'
+    : 'A LEVEL MATCH';
+
+  let h = `<div style="background:#fff;border-radius:20px;padding:20px;box-shadow:0 2px 24px rgba(0,0,0,0.10);overflow:hidden;">`;
+  h += `<div style="text-align:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #EBEBEB;">`;
+  h += compHtml;
+  h += `<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#AAA;text-transform:uppercase;">${dateStr}</div>`;
+  h += `</div>`;
+
+  h += `<div style="text-align:center;margin-bottom:14px;">`;
+  h += `<div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#AAA;text-transform:uppercase;margin-bottom:6px;">Full Time</div>`;
+  h += `<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:700;color:#111;line-height:1.15;word-break:break-word;">${headline}</div>`;
+  h += `</div>`;
+
+  // Stacked name-above-score per team (not a single crowded row) so a long
+  // or slash-joined club name has room to wrap instead of colliding with
+  // the score numbers — same word-break safety net the headline needs.
+  const teamBlock = (name, scoreFmt, total, color) =>
+    `<div style="flex:1;max-width:150px;text-align:center;">`
+    + `<div style="font-size:${_htmlNameFS(name)};font-weight:800;color:${color};text-transform:uppercase;word-break:break-word;line-height:1.2;">${esc(name || '').split('/').join('/<wbr>')}</div>`
+    + `<div style="font-size:22px;font-weight:900;color:#111;white-space:nowrap;margin-top:4px;">${scoreFmt} <span style="font-size:12px;color:#AAA;font-weight:600;">(${total})</span></div>`
+    + `</div>`;
+  h += `<div style="display:flex;align-items:flex-start;justify-content:center;gap:14px;margin-bottom:16px;">`;
+  h += teamBlock(state.usN, usFmt, usT, TEAM_US_COLOR);
+  h += `<div style="font-size:11px;color:#AAA;padding-top:6px;">v</div>`;
+  h += teamBlock(state.oppN, oppFmt, oppT, TEAM_OPP_COLOR);
+  h += `</div>`;
+
+  const rstLabel = state.sport === 'hurling' ? 'Puck Out' : 'Kickout';
+  h += `<div style="border-top:1px solid #EBEBEB;padding-top:4px;">`;
+  h += `<div style="display:flex;align-items:center;gap:8px;padding:4px 0 6px;">`;
+  h += `<div style="flex:1;font-size:10px;font-weight:800;letter-spacing:1px;color:#AAA;text-transform:uppercase;">Statistic</div>`;
+  h += html`<div style="width:56px;text-align:right;font-size:10px;font-weight:800;letter-spacing:.5px;color:${TEAM_US_COLOR};text-transform:uppercase;">${_statColHead(state.usN)}</div>`;
+  h += html`<div style="width:56px;text-align:right;font-size:10px;font-weight:800;letter-spacing:.5px;color:${TEAM_OPP_COLOR};text-transform:uppercase;">${_statColHead(state.oppN)}</div>`;
+  h += `</div>`;
+  h += _matchStoryRow('Goals', st.us.goals, st.opp.goals);
+  if (st.us.twoPt + st.opp.twoPt > 0) h += _matchStoryRow('2-Pointers', st.us.twoPt, st.opp.twoPt);
+  h += _matchStoryRow('Points', st.us.pts, st.opp.pts);
+  h += _matchStoryRow('Wides', st.us.wides, st.opp.wides);
+  h += _matchStoryRow('Total Score', usFmt + ' (' + usT + ')', oppFmt + ' (' + oppT + ')', v => v);
+  if (st.ownRestarts.total > 0) h += _matchStoryRow('Own ' + rstLabel + 's retained', st.ownRestarts.usWon, st.ownRestarts.oppWon);
+  if (st.oppRestarts.total > 0) h += _matchStoryRow('Opp ' + rstLabel + 's won back', st.oppRestarts.usWon, st.oppRestarts.oppWon);
+  const tsUsFmt = st.turnoverScores.usG + '-' + st.turnoverScores.usP, tsOppFmt = st.turnoverScores.oppG + '-' + st.turnoverScores.oppP;
+  if (tsUsFmt !== '0-0' || tsOppFmt !== '0-0') h += _matchStoryRow('Scored from turnovers', tsUsFmt, tsOppFmt, v => v);
+  h += `</div>`;
+
+  if (hi) {
+    const narrative = winnerName
+      ? `${esc(winnerName)} won it on ${hi.label.toLowerCase()}: ${hi.fmt(hi.usVal)} to ${hi.fmt(hi.oppVal)}.`
+      : `Closest call: ${hi.label.toLowerCase()} — ${hi.fmt(hi.usVal)} to ${hi.fmt(hi.oppVal)}.`;
+    h += `<div style="background:#F3F3EF;border-radius:14px;padding:12px 14px;margin-top:14px;text-align:center;">`;
+    h += `<div style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:#999;text-transform:uppercase;margin-bottom:4px;">The Standout Number</div>`;
+    h += `<div style="font-size:13px;color:#333;overflow-wrap:break-word;">${narrative}</div>`;
+    h += `</div>`;
+  }
+
+  h += `<div style="margin:14px -20px -20px;height:8px;background:#1F5B3A;"></div></div>`;
+  return h;
+}
+
+// Returns the raw (unescaped) truncated name — callers interpolate it inside
+// an `html` tagged template, which escapes it.
+function _statColHead(name) {
+  const n = (name || '').trim();
+  return n.length > 10 ? n.slice(0, 9) + '…' : n;
+}
+
+function showMatchStoryGraphic() {
+  // eslint-disable-next-line no-restricted-syntax -- safe: all user values pass through esc() or the html`` tag inside builder
+  document.getElementById('score-graphic-wrap').innerHTML = _buildMatchStoryGraphicHTML();
+  document.getElementById('score-graphic-panel').classList.add('open');
+}
+
 function openShareMenu() {
   document.getElementById('sharovly').classList.add('open');
   el.sharpanel.classList.add('open');
@@ -313,6 +476,7 @@ function renderShareMainOpts() {
     { v:'curr', icon:'fas fa-clock',             label:'Current Score Card',   bg:'#E3F2FD', fg:'#1565C0' },
     { v:'ht',   icon:'fas fa-hourglass-half',    label:'Half Time Score Card', bg:'#FFFDE7', fg:'#E65100', guard:hasHT },
     { v:'ft',   icon:'fas fa-flag-checkered',    label:'Full Time Score Card', bg:'#FFEBEE', fg:TEAM_OPP_COLOR, guard:hasFT },
+    { v:'story',icon:'fas fa-newspaper',         label:'Match Story',          bg:'#E0F2F1', fg:'#00695C', guard:hasFT },
     { v:'ai',   icon:'fas fa-brain',             label:'Analyse with AI',      bg:'#EDE7F6', fg:'#6A1B9A', guard:hasEvts },
   ];
 
@@ -340,6 +504,7 @@ function renderShareMainOpts() {
     if (v === 'curr') openCurrentScoreCard();
     if (v === 'ht')   showScoreGraphic('HT');
     if (v === 'ft')   showScoreGraphic('FT');
+    if (v === 'story') showMatchStoryGraphic();
   };
 }
 
