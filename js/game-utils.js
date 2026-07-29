@@ -129,6 +129,44 @@ function aggregateMatchStats(evts, trackTurnovers, slotp, getPlayerName) {
   };
 }
 
+// ─── SCORES FROM TURNOVERS ────────────────────────────────────────────────────
+// Attributes a score to the most recent turnover if it happened within
+// TURNOVER_SCORE_WINDOW seconds and the team matches (Turnover Won → our
+// score, Turnover Lost → their score). Only the single most recent turnover
+// is ever in play, so an earlier one can't retroactively claim a score, and
+// each score consumes it whether or not it ends up matching — a later score
+// needs a fresh turnover of its own to be credited.
+const TURNOVER_SCORE_WINDOW = 30;
+
+function computeTurnoverScores(evts, oppN) {
+  let usG = 0, usP = 0, oppG = 0, oppP = 0;
+  let halfSecs = 0, inH2 = false;
+  let lastTurnover = null; // { team: 'us'|'opp', t: secs }
+  const _sc = { usG: 0, usP: 0, oppG: 0, oppP: 0 }; // bookkeeping only, for applyScoreBadge
+
+  evts.forEach(ev => {
+    let t = toSeconds(ev.time);
+    if (ev.badge === '1H') { halfSecs = t; return; }
+    if (ev.badge === '2H') { inH2 = true; return; }
+    if (inH2) t += halfSecs;
+
+    if (ev.action === 'Turnover Won')  { lastTurnover = { team: 'us',  t }; return; }
+    if (ev.action === 'Turnover Lost') { lastTurnover = { team: 'opp', t }; return; }
+
+    const res = applyScoreBadge(ev, _sc, oppN);
+    if (!res || res.mType === 'Wide') return;
+
+    if (lastTurnover && res.mTeam === lastTurnover.team && (t - lastTurnover.t) <= TURNOVER_SCORE_WINDOW) {
+      const pts = res.mType === '2 Point' ? 2 : 1;
+      if (res.mTeam === 'us') { if (res.mType === 'Goal') usG++; else usP += pts; }
+      else                    { if (res.mType === 'Goal') oppG++; else oppP += pts; }
+    }
+    lastTurnover = null; // consumed — a later score needs its own turnover
+  });
+
+  return { usG, usP, oppG, oppP };
+}
+
 // ─── PLAYER FILTERING ─────────────────────────────────────────────────────────
 function getScorers(pstats) {
   return Object.values(pstats).filter(p =>

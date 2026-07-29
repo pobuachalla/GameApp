@@ -466,6 +466,15 @@ function buildStatsHTML() {
     h += '</div>';
     h += '<div class="stat-split-bar"><div class="stat-split-won" style="width:'+wonPct+'%"></div></div>';
     h += '<div class="stat-split-labels"><span style="color:'+TEAM_US_COLOR+';font-weight:600;">'+wonPct+'% won</span><span style="color:'+TEAM_OPP_COLOR+';font-weight:600;">'+(100-wonPct)+'% lost</span></div>';
+    const tScores = computeTurnoverScores(state.evts, state.oppN);
+    if (tScores.usG+tScores.usP+tScores.oppG+tScores.oppP > 0) {
+      h += '<div style="border-top:.5px solid var(--b);margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;align-items:center;">';
+      h += '<span style="font-size:11px;color:var(--t2);">Scored from turnovers <span style="color:var(--t3);">(within 30s)</span></span>';
+      h += '<span style="font-size:13px;font-weight:700;"><span style="color:'+TEAM_US_COLOR+';">'+tScores.usG+'-'+tScores.usP+'</span>'
+        + '<span style="color:var(--t3);font-weight:400;"> / </span>'
+        + '<span style="color:'+TEAM_OPP_COLOR+';">'+tScores.oppG+'-'+tScores.oppP+'</span></span>';
+      h += '</div>';
+    }
     const twPlayers = Object.values(pstats).filter(p=>p.twon+p.tlost>0).sort((a,b)=>(b.twon-b.tlost)-(a.twon-a.tlost)||a.name.localeCompare(b.name));
     if (twPlayers.length) {
       h += '<div style="border-top:.5px solid var(--b);margin-top:10px;padding-top:6px;">';

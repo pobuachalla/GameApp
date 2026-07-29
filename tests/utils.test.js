@@ -44,7 +44,7 @@ ctx.window = ctx;
 createContext(ctx);
 
 // Load modules in dependency order (mirrors the <script> order in index.html)
-['constants', 'state', 'wakelock', 'persistence', 'ui-core', 'players'].forEach(m =>
+['constants', 'game-utils', 'state', 'wakelock', 'persistence', 'ui-core', 'players'].forEach(m =>
   runInContext(src(m), ctx)
 );
 
@@ -205,5 +205,94 @@ describe('serializeState — only persisted keys are included', () => {
     for (const [k, v] of Object.entries(s2)) {
       assert.equal(JSON.stringify(s1[k]), JSON.stringify(v), `key "${k}" changed after round-trip`);
     }
+  });
+});
+
+describe('computeTurnoverScores — score attribution within time window', () => {
+  // fn() returns objects from the vm realm, whose Object.prototype differs
+  // from this realm's — assert/strict's deepEqual checks prototype identity,
+  // so compare structurally via JSON instead (same approach as the
+  // serializeState round-trip test above).
+  const cts = evts => fn('computeTurnoverScores')(evts, 'Ratoath');
+  const assertScores = (r, expected) => assert.equal(JSON.stringify(r), JSON.stringify(expected));
+
+  it('credits us when a score follows our turnover within 30s', () => {
+    const r = cts([
+      { action: 'Turnover Won', slot: 5, time: '10:00', desc: '' },
+      { action: 'Point', slot: 7, time: '10:20', desc: '' },
+    ]);
+    assertScores(r, { usG: 0, usP: 1, oppG: 0, oppP: 0 });
+  });
+
+  it('credits opposition when a score follows our lost turnover within 30s', () => {
+    const r = cts([
+      { action: 'Turnover Lost', slot: 5, time: '10:00', desc: '' },
+      { badge: 'OPP', action: 'Goal', time: '10:15', desc: 'Ratoath Goal added' },
+    ]);
+    assertScores(r, { usG: 0, usP: 0, oppG: 1, oppP: 0 });
+  });
+
+  it('does not credit a score outside the 30s window', () => {
+    const r = cts([
+      { action: 'Turnover Won', slot: 5, time: '10:00', desc: '' },
+      { action: 'Point', slot: 7, time: '10:31', desc: '' },
+    ]);
+    assertScores(r, { usG: 0, usP: 0, oppG: 0, oppP: 0 });
+  });
+
+  it('does not credit a mismatched team (their turnover, our score)', () => {
+    const r = cts([
+      { action: 'Turnover Lost', slot: 5, time: '10:00', desc: '' },
+      { action: 'Point', slot: 7, time: '10:10', desc: '' },
+    ]);
+    assertScores(r, { usG: 0, usP: 0, oppG: 0, oppP: 0 });
+  });
+
+  it('ignores wides — they do not consume or satisfy a pending turnover', () => {
+    const r = cts([
+      { action: 'Turnover Won', slot: 5, time: '10:00', desc: '' },
+      { action: 'Wide', slot: 7, time: '10:05', desc: '' },
+      { action: 'Point', slot: 7, time: '10:20', desc: '' },
+    ]);
+    assertScores(r, { usG: 0, usP: 1, oppG: 0, oppP: 0 });
+  });
+
+  it('only the most recent turnover can be credited — an earlier one is superseded', () => {
+    const r = cts([
+      { action: 'Turnover Won', slot: 5, time: '10:00', desc: '' },
+      { action: 'Turnover Lost', slot: 6, time: '10:05', desc: '' },
+      { action: 'Point', slot: 7, time: '10:15', desc: '' },
+    ]);
+    // The Turnover Lost at 10:05 is the most recent, but the Point is ours —
+    // team mismatch, so nothing is credited even though the Turnover Won
+    // (10:00) is also within 30s of the score.
+    assertScores(r, { usG: 0, usP: 0, oppG: 0, oppP: 0 });
+  });
+
+  it('a score consumes the pending turnover so a later score needs its own', () => {
+    const r = cts([
+      { action: 'Turnover Won', slot: 5, time: '10:00', desc: '' },
+      { action: 'Point', slot: 7, time: '10:10', desc: '' },
+      { action: 'Point', slot: 7, time: '10:20', desc: '' },
+    ]);
+    assertScores(r, { usG: 0, usP: 1, oppG: 0, oppP: 0 });
+  });
+
+  it('handles half-time offset via 1H/2H badges', () => {
+    const r = cts([
+      { badge: '1H', time: '30:00', desc: 'First half ended' },
+      { badge: '2H', time: '0:00', desc: 'Second half started' },
+      { action: 'Turnover Won', slot: 5, time: '0:05', desc: '' },
+      { action: 'Goal', slot: 7, time: '0:25', desc: '' },
+    ]);
+    assertScores(r, { usG: 1, usP: 0, oppG: 0, oppP: 0 });
+  });
+
+  it('counts 2-pointers as 2 points', () => {
+    const r = cts([
+      { action: 'Turnover Won', slot: 5, time: '10:00', desc: '' },
+      { action: '2 Point', slot: 7, time: '10:10', desc: '' },
+    ]);
+    assertScores(r, { usG: 0, usP: 2, oppG: 0, oppP: 0 });
   });
 });
