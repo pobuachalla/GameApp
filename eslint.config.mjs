@@ -74,6 +74,8 @@ const appGlobals = {
   matchDisplayDate: 'writable',
   applyScoreBadge: 'writable',
   aggregateMatchStats: 'writable',
+  computeTurnoverScores: 'writable',
+  computeOppScoreBreakdown: 'writable',
   getScorers: 'writable',
   getDiscPlayers: 'writable',
   calculateMomentum: 'writable',
