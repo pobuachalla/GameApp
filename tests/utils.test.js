@@ -409,3 +409,229 @@ describe('aggregateMatchStats — team-level score-adjust-drawer entries', () =>
     assert.equal(r.ptCount, 15);
   });
 });
+
+describe('computeTransitionOutcomes — turnover → shot/score funnel', () => {
+  const slotp = { 5: 5, 6: 6, 7: 7 };
+  const names = { 5: 'Alice', 6: 'Bob', 7: 'Carol' };
+  const getName = pi => names[pi] || `#${pi}`;
+  const cto = evts => fn('computeTransitionOutcomes')(evts, slotp, getName);
+
+  it('Turnover Won -> Point = Score', () => {
+    const { transitions, positive, negative } = cto([
+      { action: 'Turnover Won', slot: 5, time: '10:00', sec: 'First to the Ball' },
+      { action: 'Point', slot: 7, time: '10:10' },
+    ]);
+    assert.equal(transitions.length, 1);
+    assert.equal(transitions[0].team, 'us');
+    assert.equal(transitions[0].outcome, 'Score');
+    assert.equal(transitions[0].turnoverType, 'First to the Ball');
+    assert.equal(JSON.stringify(transitions[0].playersInvolved), JSON.stringify([5]));
+    assert.equal(positive.total, 1);
+    assert.equal(positive.ledToScore, 1);
+    assert.equal(negative.total, 0);
+  });
+
+  it('Turnover Won -> Wide = Shot', () => {
+    const { transitions, positive } = cto([
+      { action: 'Turnover Won', slot: 5, time: '10:00' },
+      { action: 'Wide', slot: 7, time: '10:05' },
+    ]);
+    assert.equal(transitions[0].outcome, 'Shot');
+    assert.equal(positive.ledToShot, 1);
+    assert.equal(positive.ledToScore, 0);
+  });
+
+  it('Turnover Won -> Turnover Lost = NoOutcome, and the lost turnover starts its own transition', () => {
+    const { transitions, positive, negative } = cto([
+      { action: 'Turnover Won', slot: 5, time: '10:00' },
+      { action: 'Turnover Lost', slot: 6, time: '10:05', sec: 'Poor Pass' },
+    ]);
+    assert.equal(transitions.length, 2);
+    assert.equal(transitions[0].team, 'us');
+    assert.equal(transitions[0].outcome, 'NoOutcome');
+    assert.equal(transitions[0].endingEventId, 1);
+    assert.equal(transitions[1].team, 'opp');
+    assert.equal(transitions[1].turnoverType, 'Poor Pass');
+    assert.equal(transitions[1].outcome, 'Recovered'); // nothing follows it in the log
+    assert.equal(positive.noOutcome, 1);
+    assert.equal(negative.recovered, 1);
+  });
+
+  it('Turnover Lost -> opposition Goal = ConcededScore', () => {
+    const { transitions, negative } = cto([
+      { action: 'Turnover Lost', slot: 5, time: '10:00' },
+      { badge: 'OPP', action: 'Goal', time: '10:10', desc: 'Opposition Goal added' },
+    ]);
+    assert.equal(transitions[0].team, 'opp');
+    assert.equal(transitions[0].outcome, 'ConcededScore');
+    assert.equal(negative.concededScore, 1);
+  });
+
+  it('Turnover Lost -> opposition Wide = ConcededShot', () => {
+    const { transitions, negative } = cto([
+      { action: 'Turnover Lost', slot: 5, time: '10:00' },
+      { badge: 'OPP', action: 'Wide', time: '10:05', desc: 'Opposition Wide' },
+    ]);
+    assert.equal(transitions[0].outcome, 'ConcededShot');
+    assert.equal(negative.concededShot, 1);
+  });
+
+  it('Turnover Lost -> our GK Save = ConcededShot (opposition shot our keeper stopped)', () => {
+    // 'GK Save' is logged against our own goalkeeper's slot/badge when Track GK
+    // Performance is on, but it represents an opposition shot attempt — it must
+    // not be misread as one of our own player's actions.
+    const { transitions, negative } = cto([
+      { action: 'Turnover Lost', slot: 6, time: '10:00' },
+      { action: 'GK Save', slot: 1, time: '10:08', gkOutcome: 'save' },
+    ]);
+    assert.equal(transitions[0].outcome, 'ConcededShot');
+    assert.equal(negative.concededShot, 1);
+  });
+
+  it('Turnover Lost -> Turnover Won = Recovered, and the won turnover starts its own transition', () => {
+    const { transitions, negative } = cto([
+      { action: 'Turnover Lost', slot: 5, time: '10:00' },
+      { action: 'Turnover Won', slot: 6, time: '10:05' },
+    ]);
+    assert.equal(transitions.length, 2);
+    assert.equal(transitions[0].outcome, 'Recovered');
+    assert.equal(transitions[1].team, 'us');
+    assert.equal(negative.recovered, 1);
+  });
+
+  it('merges consecutive same-team turnovers into one transition (attacking)', () => {
+    const { transitions, positive } = cto([
+      { action: 'Turnover Won', slot: 5, time: '10:00', sec: 'First to the Ball' },
+      { action: 'Turnover Won', slot: 6, time: '10:05', sec: 'Interception' },
+      { action: 'Goal', slot: 7, time: '10:15' },
+    ]);
+    assert.equal(transitions.length, 1);
+    assert.equal(transitions[0].outcome, 'Score');
+    assert.equal(transitions[0].chainLength, 2);
+    assert.equal(JSON.stringify(transitions[0].playersInvolved), JSON.stringify([5, 6]));
+    assert.equal(positive.total, 1); // not 2 — avoids inflating conversion %
+  });
+
+  it('merges consecutive same-team turnovers into one transition (defensive) and credits each player', () => {
+    const { transitions, negative, playerBreakdown } = cto([
+      { action: 'Turnover Lost', slot: 5, time: '10:00', sec: 'Poor Pass' },
+      { action: 'Turnover Lost', slot: 6, time: '10:05', sec: 'Second to the Ball' },
+      { action: 'Turnover Lost', slot: 7, time: '10:10', sec: 'Lost in Tackle' },
+      { badge: 'OPP', action: 'Goal', time: '10:20', desc: 'Opposition Goal added' },
+    ]);
+    assert.equal(transitions.length, 1);
+    assert.equal(transitions[0].chainLength, 3);
+    assert.equal(negative.total, 1); // ONE conceded-score sequence, not three
+    assert.equal(negative.concededScore, 1);
+    assert.equal(playerBreakdown[5].scoresConceded, 1);
+    assert.equal(playerBreakdown[6].scoresConceded, 1);
+    assert.equal(playerBreakdown[7].scoresConceded, 1);
+  });
+
+  it('a restart ends the window with no outcome for a positive transition', () => {
+    const { transitions } = cto([
+      { action: 'Turnover Won', slot: 5, time: '10:00' },
+      { badge: 'RSTR', time: '10:20', desc: 'Own Restart: Won' },
+    ]);
+    assert.equal(transitions[0].outcome, 'NoOutcome');
+  });
+
+  it('half-time ends the window as Recovered for a negative transition', () => {
+    const { transitions } = cto([
+      { action: 'Turnover Lost', slot: 5, time: '29:50' },
+      { badge: '1H', time: '30:00', desc: '1st Half ended' },
+    ]);
+    assert.equal(transitions[0].outcome, 'Recovered');
+  });
+
+  it('ignores non-terminating events (frees, cards, subs) while walking forward', () => {
+    const { transitions } = cto([
+      { action: 'Turnover Won', slot: 5, time: '10:00' },
+      { action: 'Free', slot: 6, time: '10:02', sec: 'Push' },
+      { action: 'Yellow Card', slot: 6, time: '10:03' },
+      { action: 'Point', slot: 7, time: '10:10' },
+    ]);
+    assert.equal(transitions[0].outcome, 'Score');
+  });
+
+  it('reaching the end of the log with no resolution defaults to NoOutcome/Recovered', () => {
+    const won = cto([{ action: 'Turnover Won', slot: 5, time: '10:00' }]);
+    assert.equal(won.transitions[0].outcome, 'NoOutcome');
+    const lost = cto([{ action: 'Turnover Lost', slot: 5, time: '10:00' }]);
+    assert.equal(lost.transitions[0].outcome, 'Recovered');
+  });
+
+  it('computes team-level conversion percentages', () => {
+    const { positive, negative } = cto([
+      { action: 'Turnover Won', slot: 5, time: '1:00' }, { action: 'Point', slot: 5, time: '1:05' },
+      { action: 'Turnover Won', slot: 5, time: '2:00' }, { action: 'Wide', slot: 5, time: '2:05' },
+      { action: 'Turnover Won', slot: 5, time: '3:00' }, { action: 'Turnover Lost', slot: 6, time: '3:05' },
+      { badge: 'OPP', action: 'Goal', time: '3:10', desc: 'x' },
+      { action: 'Turnover Lost', slot: 6, time: '4:00' }, // no further events — resolves as Recovered
+    ]);
+    assert.equal(positive.total, 3);
+    assert.equal(positive.scoreConversion, pctHelper(1, 3));
+    assert.equal(positive.shotConversion, pctHelper(2, 3));
+    assert.equal(negative.total, 2);
+    assert.equal(negative.scoreAgainstPct, pctHelper(1, 2));
+    assert.equal(negative.recovered, 1);
+  });
+
+  it('computes per-player scorePct and recoveryPct', () => {
+    const { playerBreakdown } = cto([
+      { action: 'Turnover Won', slot: 5, time: '1:00' }, { action: 'Point', slot: 5, time: '1:05' },
+      { action: 'Turnover Won', slot: 5, time: '2:00' }, { action: 'Wide', slot: 5, time: '2:05' },
+      { action: 'Turnover Won', slot: 5, time: '3:00' }, { action: 'Turnover Lost', slot: 6, time: '3:05' },
+      { badge: 'OPP', action: 'Goal', time: '3:10', desc: 'x' },
+      { action: 'Turnover Lost', slot: 6, time: '4:00' }, // no further events — resolves as Recovered
+    ]);
+    assert.equal(playerBreakdown[5].turnoversWon, 3);
+    assert.equal(playerBreakdown[5].scoresCreated, 1);
+    assert.equal(playerBreakdown[5].scorePct, pctHelper(1, 3));
+    assert.equal(playerBreakdown[6].turnoversLost, 2);
+    assert.equal(playerBreakdown[6].scoresConceded, 1);
+    assert.equal(playerBreakdown[6].recoveryPct, pctHelper(1, 2));
+  });
+
+  function pctHelper(n, d) { return d > 0 ? Math.round(n / d * 100) + '%' : '—'; }
+});
+
+describe('buildTransitionInsights — auto-generated coaching sentences', () => {
+  const slotp = { 5: 5, 6: 6, 7: 7 };
+  const names = { 5: 'Craig Campbell', 6: 'Josh Carolan', 7: 'Daniel Daly' };
+  const getName = pi => names[pi] || `#${pi}`;
+  const insights = evts => {
+    const data = fn('computeTransitionOutcomes')(evts, slotp, getName);
+    return fn('buildTransitionInsights')(data, 'Us', 'Them');
+  };
+
+  it('returns no insights when there are no turnovers', () => {
+    assert.equal(insights([]).length, 0);
+  });
+
+  it('summarises positive turnovers, shots and scores', () => {
+    const lines = insights([
+      { action: 'Turnover Won', slot: 5, time: '1:00' }, { action: 'Point', slot: 5, time: '1:05' },
+      { action: 'Turnover Won', slot: 5, time: '2:00' }, { action: 'Wide', slot: 5, time: '2:05' },
+    ]);
+    assert.ok(lines.some(l => l.includes('2 positive turnovers generated 2 shots and 1 score')));
+  });
+
+  it('flags a merged chain that led to a score', () => {
+    const lines = insights([
+      { action: 'Turnover Lost', slot: 5, time: '1:00' },
+      { action: 'Turnover Lost', slot: 6, time: '1:05' },
+      { action: 'Turnover Lost', slot: 7, time: '1:10' },
+      { badge: 'OPP', action: 'Goal', time: '1:20', desc: 'x' },
+    ]);
+    assert.ok(lines.some(l => l.includes('3 consecutive defensive turnovers created one score for Them')));
+  });
+
+  it('names the top scoring-transition initiator', () => {
+    const lines = insights([
+      { action: 'Turnover Won', slot: 5, time: '1:00' }, { action: 'Point', slot: 5, time: '1:05' },
+      { action: 'Turnover Won', slot: 5, time: '2:00' }, { action: 'Point', slot: 5, time: '2:05' },
+    ]);
+    assert.ok(lines.some(l => l.includes('Craig Campbell initiated 2 scoring transitions')));
+  });
+});

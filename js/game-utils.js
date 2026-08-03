@@ -205,6 +205,214 @@ function computeOppScoreBreakdown(evts, oppN) {
   return { goals, twoPt, pts, wides };
 }
 
+// ─── TRANSITION OUTCOME ANALYSIS ──────────────────────────────────────────────
+// Classifies every turnover into a "transition": the passage of play from the
+// moment possession changes hands until it resolves into a score, a shot,
+// another turnover, a restart, or the end of a half/match. Consecutive
+// turnovers by the SAME team (e.g. Poor Pass -> Second to the Ball -> Lost in
+// Tackle -> Goal) are merged into a single transition so conversion rates
+// aren't inflated by re-counting the same breakdown three times.
+//
+// Sport-agnostic by construction: the walk only ever keys off the action name
+// (Turnover Won/Lost, Goal/Point/2 Point, Wide/Short/Saved) — it never matches
+// on ev.sec (the turnover sub-type), so any future sub-type — hurling, ladies
+// football, camogie, or one that doesn't exist yet — classifies correctly
+// without a code change.
+const TRANSITION_SCORE_ACTS = new Set(['Goal', 'Point', '2 Point']);
+// 'GK Save' is its own action (tracked via the goalkeeper's own player sheet
+// when Track GK Performance is on) rather than an opposition Wide/Saved event
+// — but it IS an opposition shot attempt (one our keeper stopped), so it must
+// count as a shot for transition purposes even though it carries our own
+// player's badge/slot.
+const TRANSITION_SHOT_ACTS = new Set(['Wide', 'Short', 'Saved']);
+
+// 'us' | 'opp' for a score/shot event. Player-attributed events (logged via
+// the on-pitch action sheet) are always our own player's action; OPP events
+// and ADJ corrections tagged side:'opp' belong to the opposition. 'GK Save'
+// is the one exception — always an opposition shot, despite being logged
+// against our own goalkeeper.
+function _transitionEventTeam(ev) {
+  if (ev.action === 'GK Save') return 'opp';
+  if (ev.badge === 'OPP') return 'opp';
+  if (ev.badge === 'ADJ') return ev.side === 'opp' ? 'opp' : 'us';
+  return 'us';
+}
+
+// evts: state.evts. slotp: slot->pi mapping. getPlayerName: pi => display name.
+function computeTransitionOutcomes(evts, slotp, getPlayerName) {
+  const transitions = [];
+  const consumed = new Array(evts.length).fill(false);
+  const playerOf = ev => {
+    const pi = ev.pi != null ? ev.pi : (ev.slot != null ? slotp[ev.slot] : null);
+    return pi || null;
+  };
+  const addPlayer = (list, pi) => { if (pi != null && !list.includes(pi)) list.push(pi); };
+
+  for (let i = 0; i < evts.length; i++) {
+    if (consumed[i]) continue;
+    const ev = evts[i];
+    const isWon  = ev.action === 'Turnover Won';
+    const isLost = ev.action === 'Turnover Lost';
+    if (!isWon && !isLost) continue;
+
+    const ownTeam = isWon ? 'us' : 'opp';
+    // Outcome vocabulary differs for the two sides of a transition even
+    // though the walk logic below is identical.
+    const NAMES = isWon
+      ? { score: 'Score', shot: 'Shot', settled: 'NoOutcome' }
+      : { score: 'ConcededScore', shot: 'ConcededShot', settled: 'Recovered' };
+
+    const t = {
+      id: transitions.length + 1,
+      team: ownTeam,
+      startEventId: i,
+      turnoverType: ev.sec || null,
+      playersInvolved: [],
+      events: [i],
+      outcome: null,
+      endingEventId: null,
+      chainLength: 1, // number of merged consecutive same-team turnover events
+    };
+    addPlayer(t.playersInvolved, playerOf(ev));
+
+    for (let j = i + 1; j < evts.length; j++) {
+      const e = evts[j];
+      if (e.badge === '1H' || e.badge === '2H' || e.badge === 'END' || e.badge === 'RSTR') {
+        t.outcome = NAMES.settled; t.endingEventId = j; break;
+      }
+      if (e.action === 'Turnover Won' || e.action === 'Turnover Lost') {
+        if ((e.action === 'Turnover Won') === isWon) {
+          // Consecutive turnover by the same team — extends this transition.
+          addPlayer(t.playersInvolved, playerOf(e));
+          t.events.push(j);
+          t.chainLength++;
+          consumed[j] = true;
+          continue;
+        }
+        // Possession changed hands the other way before any shot/score — this
+        // transition resolves with no outcome. The new turnover event is left
+        // unconsumed so the outer loop starts its own transition there.
+        t.outcome = NAMES.settled; t.endingEventId = j; break;
+      }
+      const isShot = TRANSITION_SHOT_ACTS.has(e.action) || e.action === 'GK Save';
+      if (!e.action || (!TRANSITION_SCORE_ACTS.has(e.action) && !isShot)) {
+        continue; // frees, cards, substitutions, etc. don't end the sequence
+      }
+      const isScore = TRANSITION_SCORE_ACTS.has(e.action);
+      const evTeam  = _transitionEventTeam(e);
+      t.events.push(j);
+      t.endingEventId = j;
+      // A score/shot by the other side without a logged turnover in between
+      // means possession must already have changed — resolve as if it had.
+      t.outcome = evTeam === ownTeam ? (isScore ? NAMES.score : NAMES.shot) : NAMES.settled;
+      break;
+    }
+    if (t.outcome === null) { t.outcome = NAMES.settled; t.endingEventId = null; }
+    transitions.push(t);
+  }
+
+  return _summariseTransitions(transitions, getPlayerName);
+}
+
+// Rolls a transitions array up into team totals and a per-player breakdown.
+// Player counts are keyed on distinct transitions a player took part in (not
+// raw turnover events), so a player's own won/lost/created/conceded figures
+// always sum to 100% of their involvements — see computeTransitionOutcomes'
+// chainLength for how many raw turnovers a merged chain actually contained.
+function _summariseTransitions(transitions, getPlayerName) {
+  const positive = { total: 0, ledToShot: 0, ledToScore: 0, noOutcome: 0 };
+  const negative = { total: 0, concededShot: 0, concededScore: 0, recovered: 0 };
+  const playerBreakdown = {};
+  const ensure = pi => playerBreakdown[pi] || (playerBreakdown[pi] = {
+    pi, name: getPlayerName(pi),
+    turnoversWon: 0, shotsCreated: 0, scoresCreated: 0,
+    turnoversLost: 0, shotsConceded: 0, scoresConceded: 0,
+  });
+
+  transitions.forEach(t => {
+    if (t.team === 'us') {
+      positive.total++;
+      if      (t.outcome === 'Score') positive.ledToScore++;
+      else if (t.outcome === 'Shot')  positive.ledToShot++;
+      else                            positive.noOutcome++;
+      t.playersInvolved.forEach(pi => {
+        const p = ensure(pi);
+        p.turnoversWon++;
+        if      (t.outcome === 'Score') p.scoresCreated++;
+        else if (t.outcome === 'Shot')  p.shotsCreated++;
+      });
+    } else {
+      negative.total++;
+      if      (t.outcome === 'ConcededScore') negative.concededScore++;
+      else if (t.outcome === 'ConcededShot')  negative.concededShot++;
+      else                                     negative.recovered++;
+      t.playersInvolved.forEach(pi => {
+        const p = ensure(pi);
+        p.turnoversLost++;
+        if      (t.outcome === 'ConcededScore') p.scoresConceded++;
+        else if (t.outcome === 'ConcededShot')  p.shotsConceded++;
+      });
+    }
+  });
+
+  positive.shotConversion  = pct(positive.ledToShot + positive.ledToScore, positive.total);
+  positive.scoreConversion = pct(positive.ledToScore, positive.total);
+  negative.shotAgainstPct  = pct(negative.concededShot + negative.concededScore, negative.total);
+  negative.scoreAgainstPct = pct(negative.concededScore, negative.total);
+
+  Object.values(playerBreakdown).forEach(p => {
+    p.scorePct    = pct(p.scoresCreated, p.turnoversWon);
+    p.recoveryPct = pct(p.turnoversLost - p.shotsConceded - p.scoresConceded, p.turnoversLost);
+  });
+
+  return { transitions, positive, negative, playerBreakdown };
+}
+
+// Turns a computeTransitionOutcomes() result into short coaching sentences.
+// Plain text (no HTML/escaping) — callers embed it via esc()/html`` (stats.js,
+// print.js) or drop it straight into the AI prompt (ai-config.js) as-is.
+function buildTransitionInsights(data, usN, oppN) {
+  const { transitions, positive, negative, playerBreakdown } = data;
+  const lines = [];
+
+  if (positive.total > 0) {
+    const shots = positive.ledToShot + positive.ledToScore;
+    lines.push(`${usN}'s ${positive.total} positive turnover${positive.total!==1?'s':''} generated ${shots} shot${shots!==1?'s':''} and ${positive.ledToScore} score${positive.ledToScore!==1?'s':''}.`);
+    if (positive.ledToScore > 0) {
+      lines.push(`${Math.round(positive.ledToScore/positive.total*100)}% of regains became scores.`);
+    }
+  }
+
+  if (negative.total > 0 && negative.recovered > 0) {
+    lines.push(`${Math.round(negative.recovered/negative.total*100)}% of lost possessions were recovered before ${oppN} produced a shot.`);
+  }
+
+  // Longest merged turnover chain that ended in a score — the clearest single
+  // example of a recurring breakdown (or reward) worth raising with the group.
+  const chains = transitions.filter(t => t.chainLength >= 3 && (t.outcome === 'Score' || t.outcome === 'ConcededScore'));
+  if (chains.length) {
+    const worst = chains.sort((a, b) => b.chainLength - a.chainLength)[0];
+    const who = worst.team === 'us' ? usN : oppN;
+    lines.push(`${worst.chainLength} consecutive ${worst.team === 'us' ? 'attacking' : 'defensive'} turnovers created one score for ${who}.`);
+  }
+
+  const players = Object.values(playerBreakdown);
+  const topCreator = players.filter(p => p.scoresCreated >= 2).sort((a, b) => b.scoresCreated - a.scoresCreated)[0];
+  if (topCreator) lines.push(`${topCreator.name} initiated ${topCreator.scoresCreated} scoring transitions.`);
+
+  const conversionLeader = players.filter(p => p.turnoversWon >= 3 && p.scoresCreated > 0)
+    .sort((a, b) => (b.scoresCreated / b.turnoversWon) - (a.scoresCreated / a.turnoversWon))[0];
+  if (conversionLeader && (!topCreator || conversionLeader.pi !== topCreator.pi)) {
+    lines.push(`${conversionLeader.name} produced the highest score conversion.`);
+  }
+
+  const mixed = players.filter(p => p.turnoversWon >= 3 && p.turnoversLost >= 2)
+    .sort((a, b) => (b.turnoversWon + b.turnoversLost) - (a.turnoversWon + a.turnoversLost))[0];
+  if (mixed) lines.push(`${mixed.name} was heavily involved offensively but also featured in multiple negative transitions.`);
+
+  return lines;
+}
+
 // ─── PLAYER FILTERING ─────────────────────────────────────────────────────────
 function getScorers(pstats) {
   return Object.values(pstats).filter(p =>
@@ -355,6 +563,25 @@ function buildTurnoverDonut(title, entries, colorMap, fallback) {
     <div style="font-size:11px;font-weight:700;color:var(--t2);text-align:center;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">${esc(title)}</div>
     ${svg}${legend}
   </div>`;
+}
+
+// ─── TRANSITION FUNNEL (shared render helper for stats.js & print.js) ────────
+// steps: [{value, label}, ...] rendered as a vertical funnel joined by
+// down-arrows, first step emphasised in accentColor. Colors are passed in
+// (rather than read from CSS vars) so the in-app renderer can use
+// var(--x) tokens while the print renderer passes plain hex.
+function buildTransitionFunnelHTML(title, steps, accentColor, textColor, subColor) {
+  let h = `<div style="text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:${subColor};margin-bottom:8px;">${esc(title)}</div>`;
+  h += '<div style="display:flex;flex-direction:column;align-items:center;">';
+  steps.forEach((s, i) => {
+    if (i > 0) h += `<i class="fas fa-arrow-down" style="font-size:12px;color:${subColor};margin:2px 0;"></i>`;
+    h += '<div style="text-align:center;">';
+    h += `<div style="font-size:${i===0?'26px':'20px'};font-weight:700;color:${i===0?accentColor:textColor};line-height:1.1;">${esc(String(s.value))}</div>`;
+    h += `<div style="font-size:10px;color:${subColor};margin-top:1px;">${esc(s.label)}</div>`;
+    h += '</div>';
+  });
+  h += '</div>';
+  return h;
 }
 
 // ─── GK RATING ────────────────────────────────────────────────────────────────

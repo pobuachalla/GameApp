@@ -512,6 +512,9 @@ function buildStatsHTML() {
     h += '</div></div>';
   }
 
+  // Transition Efficiency
+  h += buildTransitionEfficiencyHTML();
+
   // Frees Won
   if (freesWon > 0) {
     const fwPlayers = Object.values(pstats).filter(p=>p.freesWon>0).sort((a,b)=>b.freesWon-a.freesWon||a.name.localeCompare(b.name));
@@ -605,6 +608,58 @@ function buildStatsHTML() {
   // Play Time
   h += buildPlayTimeHTML();
 
+  return h;
+}
+
+// ─── TRANSITION EFFICIENCY ────────────────────────────────────────────────────
+function buildTransitionEfficiencyHTML() {
+  const data = computeTransitionOutcomes(state.evts, state.slotp, pl);
+  const { positive, negative } = data;
+  if (positive.total === 0 && negative.total === 0) return '';
+
+  let h = '<div class="stat-section"><div class="stat-section-title">Transition Efficiency</div><div class="stat-card">';
+  h += '<div style="display:flex;gap:10px;justify-content:space-around;flex-wrap:wrap;">';
+  if (positive.total > 0) {
+    h += '<div style="flex:1;min-width:130px;">' + buildTransitionFunnelHTML('Positive Turnovers', [
+      { value: positive.total, label: 'Turnovers Won' },
+      { value: positive.ledToShot + positive.ledToScore, label: 'Shots' },
+      { value: positive.ledToScore, label: 'Scores' },
+      { value: positive.scoreConversion, label: 'Score Conversion' },
+    ], TEAM_US_COLOR, 'var(--t1)', 'var(--t2)') + '</div>';
+  }
+  if (negative.total > 0) {
+    h += '<div style="flex:1;min-width:130px;">' + buildTransitionFunnelHTML('Negative Turnovers', [
+      { value: negative.total, label: 'Turnovers Lost' },
+      { value: negative.concededShot + negative.concededScore, label: 'Opposition Shots' },
+      { value: negative.concededScore, label: 'Opposition Scores' },
+      { value: negative.scoreAgainstPct, label: 'Score Against' },
+    ], TEAM_OPP_COLOR, 'var(--t1)', 'var(--t2)') + '</div>';
+  }
+  h += '</div>';
+
+  const players = Object.values(data.playerBreakdown)
+    .sort((a, b) => (b.turnoversWon + b.turnoversLost) - (a.turnoversWon + a.turnoversLost) || a.name.localeCompare(b.name));
+  if (players.length) {
+    h += '<div style="border-top:.5px solid var(--b);margin-top:12px;padding-top:6px;">';
+    players.forEach(p => {
+      h += html`<div class="stat-prow"><div class="stat-pname">${p.name}</div><div class="stat-ptags">`;
+      if      (p.scoresCreated  > 0) h += `<span class="stat-tag green">${p.scoresCreated} score${p.scoresCreated!==1?'s':''} created</span>`;
+      else if (p.shotsCreated   > 0) h += `<span class="stat-tag green">${p.shotsCreated} shot${p.shotsCreated!==1?'s':''} created</span>`;
+      if      (p.scoresConceded > 0) h += `<span class="stat-tag red">${p.scoresConceded} conceded</span>`;
+      else if (p.shotsConceded  > 0) h += `<span class="stat-tag red">${p.shotsConceded} shot${p.shotsConceded!==1?'s':''} against</span>`;
+      h += '</div></div>';
+    });
+    h += '</div>';
+  }
+
+  const insights = buildTransitionInsights(data, state.usN, state.oppN);
+  if (insights.length) {
+    h += '<div style="border-top:.5px solid var(--b);margin-top:12px;padding-top:10px;">';
+    insights.forEach(line => { h += html`<div style="font-size:12px;color:var(--t2);padding:3px 0;">${line}</div>`; });
+    h += '</div>';
+  }
+
+  h += '</div></div>';
   return h;
 }
 
