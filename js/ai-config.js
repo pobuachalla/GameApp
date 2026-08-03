@@ -128,6 +128,7 @@ ${ageCtx ? ageCtx + '\n\n' : ''}COVER THE FOLLOWING (analytical prose, short par
 Momentum Map — phases, triggers, and the single most decisive swing and what caused it.
 Scoring Patterns — runs and droughts, their triggers. Classify in-play wides/saves by zone; distinguish selection errors from execution misses. Never flag placed ball wides as selection errors.
 Possession & Pressure — chained turnovers, pressure clusters, recurring breakdown zones. Quantify.
+Transition Efficiency — how often regains became shots/scores and how often lost possessions were recovered before conceding. Use the TRANSITION OUTCOME DATA figures below directly rather than re-deriving your own from the event log.
 Restarts — structural patterns and link to scoring sequences.
 Discipline — time/zone/situation clusters; name repeating individuals.
 Substitutions — scoreline and momentum context; evidence of impact in event sequence.
@@ -164,6 +165,9 @@ ${payload.eventLog}`;
     }
     if (payload.assessContext) {
       prompt += '\n\nCOACH ASSESSMENT (subjective 1–5 ratings entered by the coach after the match — use these as context for the coach\'s own read of the game, but ground every observation in the event log rather than accepting these ratings uncritically; note any significant divergence between the coach\'s assessment and what the data shows):\n' + payload.assessContext;
+    }
+    if (payload.transitionContext) {
+      prompt += '\n\nTRANSITION OUTCOME DATA (turnover → shot/score conversion, computed from the event log — use these figures directly rather than re-deriving your own):\n' + payload.transitionContext;
     }
     return prompt;
   },
@@ -313,6 +317,15 @@ ${payload.eventLog}`;
       }
     }
 
+    // Transition outcome context — only surface when there's turnover data to summarise
+    let transitionContext = null;
+    const td = computeTransitionOutcomes(state.evts || [], state.slotp || {},
+      pi => ((state.pnames && state.pnames[pi]) || '').trim() || `#${pi}`);
+    if (td.positive.total > 0 || td.negative.total > 0) {
+      const lines = buildTransitionInsights(td, state.usN || 'Us', state.oppN || 'Opposition');
+      if (lines.length) transitionContext = lines.join(' ');
+    }
+
     return {
       fixture,
       ageGrade:   state.ageGrade || '',
@@ -323,6 +336,7 @@ ${payload.eventLog}`;
       gkContext,
       oppScorerContext,
       assessContext,
+      transitionContext,
     };
   }
 

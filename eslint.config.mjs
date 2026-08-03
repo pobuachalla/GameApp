@@ -84,6 +84,9 @@ const appGlobals = {
   isPlacedBall: 'writable',
   pct: 'writable',
   calculateGKRating: 'writable',
+  computeTransitionOutcomes: 'writable',
+  buildTransitionInsights: 'writable',
+  buildTransitionFunnelHTML: 'writable',
 
   // ── wakelock.js ──
   wakeLock: 'writable',
@@ -275,12 +278,14 @@ const appGlobals = {
   buildStatsHTML: 'writable',
   buildShotMapHTML: 'writable',
   setShotMapFilter: 'writable',
+  buildTransitionEfficiencyHTML: 'writable',
 
   // ── print.js ──
   buildPrintTimelineHTML: 'writable',
   buildPrintLineupHTML: 'writable',
   buildPrintHTML: 'writable',
   buildPrintShotMapHTML: 'writable',
+  buildPrintTransitionEfficiencyHTML: 'writable',
   printStats: 'writable',
 
   // ── gk.js ──
