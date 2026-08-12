@@ -36,8 +36,7 @@ function openLayout() {
   document.getElementById('layout-opp-crest').innerHTML = _resolveCrestHTML(oppName);
   document.getElementById('layout-team-name').textContent = state.usN;
 
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  const dateStr = matchDisplayDate().toLocaleDateString('en-IE', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
   // eslint-disable-next-line no-restricted-syntax -- safe: all user values through esc()
   document.getElementById('layout-vs').innerHTML =
     (oppName ? 'vs ' + esc(oppName) + '<br>' : '') +
