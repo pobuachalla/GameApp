@@ -18,7 +18,7 @@ function buildPrintTimelineHTML() {
     ({usG, usP, oppG, oppP} = sc);
     if (!_res) {
       if      (ev.action === 'sub')        subs.push({secs:t});
-      else if (ev.action === 'Red Card')   reds.push({secs:t});
+      else if (ev.action === 'Red Card' || ev.action === 'Second Yellow Card') reds.push({secs:t});
       else if (ev.action === 'Black Card') blacks.push({secs:t});
     }
     const curUs=usG*3+usP, curOpp=oppG*3+oppP;
@@ -146,7 +146,7 @@ function buildPrintLineupHTML() {
   }
 
   // Right column: personnel events (subs + cards), ruled fallback if none yet
-  const CARD_COLS = {'Yellow Card': CARD_YELLOW, 'Black Card': CARD_BLACK, 'Red Card': CARD_RED};
+  const CARD_COLS = {'Yellow Card': CARD_YELLOW, 'Black Card': CARD_BLACK, 'Red Card': CARD_RED, 'Second Yellow Card': CARD_RED};
   const personnelEvts = state.evts.filter(ev => ev.action === 'sub' || ev.action in CARD_COLS);
   let personnelRows = '';
   if (!personnelEvts.length) {

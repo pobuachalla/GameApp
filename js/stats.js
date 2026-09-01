@@ -18,7 +18,7 @@ function buildTimelineHTML() {
     ({usG, usP, oppG, oppP} = sc);
     if (!_res) {
       if      (ev.action === 'sub')        subs.push({secs:t});
-      else if (ev.action === 'Red Card')   reds.push({secs:t});
+      else if (ev.action === 'Red Card' || ev.action === 'Second Yellow Card') reds.push({secs:t});
       else if (ev.action === 'Black Card') blacks.push({secs:t});
     }
     const curUs=usG*3+usP, curOpp=oppG*3+oppP;
@@ -363,7 +363,8 @@ function buildStatsHTML() {
   const ownTotal = ownWon + ownLost + ownUnclear;
   const oppTotal = oppWon + oppLost + oppUnclear;
 
-  if (!totalAttempts && !ownTotal && !oppTotal && !state.og && !state.op_) {
+  const hasCards = state.evts.some(ev => ev.action && ev.action.indexOf('Card') >= 0);
+  if (!totalAttempts && !ownTotal && !oppTotal && !state.og && !state.op_ && !hasCards) {
     return '<div style="text-align:center;padding:48px 0 20px;font-size:14px;color:var(--t2);">No stats to show yet<br><span style="font-size:12px;">Start recording events to see stats here.</span></div>';
   }
 
