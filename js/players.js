@@ -217,12 +217,17 @@ function psAction(a) {
   }
   if (a === 'Card') {
     const _pi = state.slotp[selSlot];
+    // A player already on a yellow can't be shown a second, standalone one —
+    // any further bookable offence is a dismissal, so swap the option in
+    // place rather than offering both and risking the yellow-only mistake.
+    const alreadyYellow = (state.ycarded[_pi]||0) > 0;
     const opts = [
-      {val:'Yellow Card', label:'Yellow Card', pre:'<i class="fas fa-square ps-card-y"></i>'},
+      alreadyYellow
+        ? {val:'Second Yellow Card', label:'2nd Yellow', pre:'<span style="display:inline-flex;gap:1px;align-items:center;"><i class="fas fa-square ps-card-y" style="font-size:9px;"></i><i class="fas fa-square ps-card-y" style="font-size:9px;"></i></span>'}
+        : {val:'Yellow Card', label:'Yellow Card', pre:'<i class="fas fa-square ps-card-y"></i>'},
       {val:'Black Card',  label:'Black Card',  pre:'<i class="fas fa-square ps-card-b"></i>'},
       {val:'Red Card',    label:'Red Card',    pre:'<i class="fas fa-square ps-card-r"></i>'},
     ];
-    if ((state.ycarded[_pi]||0) > 0) opts.push({val:'Second Yellow Card', label:'2nd Yellow', pre:'<span style="display:inline-flex;gap:1px;align-items:center;"><i class="fas fa-square ps-card-y" style="font-size:9px;"></i><i class="fas fa-square ps-card-y" style="font-size:9px;"></i></span>'});
     showPSOpts('Card — colour?', opts, colour => { logEv(colour, null); closePlayerSheetAndReset(); }, 'grid');
     return;
   }
