@@ -708,12 +708,11 @@ function printStats() {
   const area = document.getElementById('print-area');
   // eslint-disable-next-line no-restricted-syntax -- safe: buildPrintHTML() passes all user data through esc()
   area.innerHTML = buildPrintHTML();
-  const imgs = Array.from(area.querySelectorAll('img'));
-  if (!imgs.length) { window.print(); return; }
-  let pending = imgs.length;
-  const done = () => { if (--pending === 0) window.print(); };
-  imgs.forEach(img => {
-    if (img.complete) { done(); }
-    else { img.addEventListener('load', done); img.addEventListener('error', done); }
-  });
+  // Call print() synchronously, in the same tick as the click — waiting on
+  // crest <img> load/error events first (as this used to) pushes the call
+  // past the click's user-activation window, so Safari/iOS silently drops
+  // it with no dialog and no error whenever a crest isn't already cached.
+  // The print engine still renders any images that finish loading after
+  // the dialog opens, so nothing is lost by not waiting.
+  window.print();
 }
