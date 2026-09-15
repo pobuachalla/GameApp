@@ -94,6 +94,23 @@ init();
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
+    navigator.serviceWorker.register('/sw.js').then(reg => {
+      // An iOS home-screen app resumes instead of re-navigating, so the
+      // browser's own update check on load never runs for it — ask
+      // explicitly whenever the app comes back to the foreground.
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') reg.update().catch(() => {});
+      });
+    }).catch(() => {});
+  });
+
+  // sw.js calls skipWaiting()/clients.claim(), so a new version takes over
+  // an already-open tab or standalone app without waiting for the next
+  // full relaunch — reload once so the new bundle.js actually gets used.
+  let swRefreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (swRefreshing) return;
+    swRefreshing = true;
+    window.location.reload();
   });
 }
