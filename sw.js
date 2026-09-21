@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE = 'gaa-tracker-e6105ff2e0'; // build.cjs rewrites this with a content hash
+const CACHE = 'gaa-tracker-b54e474e68'; // build.cjs rewrites this with a content hash
 
 // App shell — everything needed to run offline.
 // Every page plus the scripts/data each one loads; crests/ (9MB) is left to
@@ -22,8 +22,7 @@ const SHELL = [
   '/tokens.css',
   '/style.css',
   '/js/bundle.js',
-  '/js/vendor/html2canvas.min.js',
-  '/js/vendor/jspdf.umd.min.js',
+  '/js/vendor/html2pdf.bundle.min.js',
   '/js/age-grade.js',
   '/js/constants.js',
   '/js/game-utils.js',

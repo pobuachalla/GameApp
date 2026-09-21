@@ -361,6 +361,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   html,body{height:auto!important;overflow:visible!important;}
   body{background:#fff;display:block;}
   #app{display:none!important;}
+  #print-area-host{position:static!important;}
   #print-area{display:block!important;}
   #print-area .pr-hdr{margin-bottom:20px;}
   #print-area .pr-section{page-break-inside:avoid;break-inside:avoid;}
@@ -370,10 +371,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   #print-area .pr-section-flow{page-break-inside:auto!important;break-inside:auto!important;}
   #print-area .pr-section-flow .pr-card{page-break-inside:auto!important;break-inside:auto!important;}
 }
+/* #print-area-host is permanently fixed off-screen, regardless of capture
+   state, so #print-area never has to be position:fixed itself — html2pdf
+   clones #print-area's *computed* style into its own auto-height wrapper,
+   and a fixed-position clone contributes nothing to that wrapper's height
+   (a fixed/absolute box never sizes an ancestor), which left it capturing
+   nothing. Keeping the off-screen positioning one level up, on a host that
+   html2pdf never touches, means #print-area itself can stay a plain static
+   block — safe for html2pdf's auto-sizing and inert in body's flex layout
+   either way, since the host already removed it from that flow. */
+#print-area-host{position:fixed;top:0;left:-10000px;}
 #print-area{display:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:680px;margin:0 auto;padding:24px;color:#1F1F1F;background:#fff;}
-/* Rendered off-screen (not display:none, which has no layout for html2canvas
-   to capture) at a fixed width while shareMatchReport() rasterizes it. */
-#print-area.capturing{display:block;position:fixed;top:0;left:-10000px;width:680px;max-width:none;margin:0;}
+#print-area.capturing{display:block;width:680px;max-width:none;margin:0;}
 #print-area .pr-hdr{text-align:center;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #2E7D32;}
 #print-area .pr-title{font-size:22px;font-weight:700;color:#2E7D32;}
 #print-area .pr-score{font-size:36px;font-weight:700;margin:8px 0 4px;letter-spacing:-1px;}

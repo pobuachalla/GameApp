@@ -707,40 +707,24 @@ function buildPrintShotMapHTML() {
 // window.print() is unreliable on iOS at the best of times, and a documented
 // silent no-op once a site is running as a standalone home-screen app (no
 // Safari chrome left to host a print sheet) — not something fixable by
-// calling it at the right moment. Render the report to a canvas instead,
-// page it into a real PDF, and hand it to the OS share sheet via the Web
-// Share API — the same mechanism shareCSV() already relies on and which
-// works in standalone mode.
+// calling it at the right moment. Render the report to a paginated PDF
+// instead, via html2pdf.js (bundles html2canvas + jsPDF), and hand it to the
+// OS share sheet via the Web Share API — the same mechanism shareCSV()
+// already relies on and which works in standalone mode.
+//
+// Pagination is handled by html2pdf.js's own pagebreak option rather than
+// hand-rolled canvas slicing — a first attempt at slicing a single tall
+// canvas into fixed-height pages got this wrong (a page shortened to dodge
+// a mid-card break still bled that card's content onto the next page too,
+// since a jsPDF page is a fixed physical size regardless of how much of the
+// source image you intend to place on it). html2pdf.js's `avoid` mode
+// crops real per-page canvas slices, which is the actual fix.
 function _downloadBlob(blob, filename) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = filename;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-}
-
-// Slices a tall canvas into A4-height pages by drawing the same full image
-// on each page shifted progressively further up — each page only shows
-// what falls within its own bounds, so this crops for free without having
-// to re-render or copy per-page canvas chunks.
-function _canvasToPdfBlob(canvas) {
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({orientation: 'p', unit: 'mm', format: 'a4'});
-  const pageW = pdf.internal.pageSize.getWidth();
-  const pageH = pdf.internal.pageSize.getHeight();
-  const imgW = pageW;
-  const imgH = canvas.height * imgW / canvas.width;
-  const imgData = canvas.toDataURL('image/jpeg', 0.95);
-
-  let heightLeft = imgH, position = 0, first = true;
-  while (heightLeft > 0) {
-    if (!first) pdf.addPage();
-    pdf.addImage(imgData, 'JPEG', 0, position, imgW, imgH);
-    heightLeft -= pageH;
-    position -= pageH;
-    first = false;
-  }
-  return pdf.output('blob');
 }
 
 function shareMatchReport() {
@@ -756,15 +740,30 @@ function shareMatchReport() {
     img.addEventListener('error', res, {once: true});
   })));
 
+  const filename = _buildFilenameBase() + '.pdf';
+
   imagesReady
-    .then(() => html2canvas(area, {backgroundColor: '#fff', scale: 2, useCORS: true}))
-    .then(canvas => {
-      area.classList.remove('capturing');
-      return _canvasToPdfBlob(canvas);
-    })
+    .then(() => html2pdf().set({
+      margin: 0,
+      image: {type: 'jpeg', quality: 0.95},
+      html2canvas: {backgroundColor: '#fff', scale: 2, useCORS: true},
+      jsPDF: {unit: 'mm', format: 'a4', orientation: 'portrait'},
+      // .pr-row, .pr-card and .pr-section must not be split across a page
+      // break — except inside .pr-section-flow (Player Scoring,
+      // Substitutions, Play Time — long lists meant to flow across pages;
+      // their .pr-rows still avoid splitting individually). The whole
+      // .pr-section (not just its .pr-card) is kept together so a section
+      // title never gets orphaned alone at the bottom of a page. Mirrors
+      // what the old @media print CSS gave these same elements for real
+      // browser printing.
+      pagebreak: {
+        mode: 'css',
+        avoid: ['.pr-row', '.pr-card:not(.pr-section-flow .pr-card)', '.pr-section:not(.pr-section-flow)'],
+      },
+    }).from(area).outputPdf('blob'))
     .then(blob => {
+      area.classList.remove('capturing');
       if (!blob) { toast("Couldn't generate the report PDF"); return; }
-      const filename = _buildFilenameBase() + '.pdf';
       const file = new File([blob], filename, {type: 'application/pdf'});
       if (navigator.share && navigator.canShare && navigator.canShare({files: [file]})) {
         // Rendering above is async and can take a moment, which risks losing
