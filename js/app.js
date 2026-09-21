@@ -93,24 +93,56 @@ function init() {
 init();
 
 if ('serviceWorker' in navigator) {
+  // sw.js calls skipWaiting()/clients.claim(), so a new version can take
+  // control of an already-open tab or standalone app at any moment —
+  // including mid-match. Reloading right then would silently drop a
+  // running clock back to paused (see restoreUI() above), so only apply
+  // it once no half is actively running; otherwise wait for the next safe
+  // moment (app foregrounded, or a half ending) instead of forcing it.
+  const midMatch = () => state.matchState === 'RUNNING_FIRST_HALF' || state.matchState === 'RUNNING_SECOND_HALF';
+  let swRefreshing = false, updateReady = false;
+  const applyUpdateIfSafe = () => {
+    if (swRefreshing || !updateReady || midMatch()) return;
+    swRefreshing = true;
+    window.location.reload();
+  };
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').then(reg => {
       // An iOS home-screen app resumes instead of re-navigating, so the
       // browser's own update check on load never runs for it — ask
       // explicitly whenever the app comes back to the foreground.
       document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') reg.update().catch(() => {});
+        if (document.visibilityState === 'visible') {
+          reg.update().catch(() => {});
+          applyUpdateIfSafe();
+        }
       });
     }).catch(() => {});
   });
 
-  // sw.js calls skipWaiting()/clients.claim(), so a new version takes over
-  // an already-open tab or standalone app without waiting for the next
-  // full relaunch — reload once so the new bundle.js actually gets used.
-  let swRefreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (swRefreshing) return;
-    swRefreshing = true;
-    window.location.reload();
+    updateReady = true;
+    applyUpdateIfSafe();
+  });
+}
+
+// ─── KEYBOARD SCROLL-SHIFT RECOVERY ────────────────────────────────────────────
+// iOS Safari (especially in standalone/home-screen mode) can leave the page
+// visually scrolled/shifted after the on-screen keyboard closes, even though
+// html/body are overflow:hidden here — a long-standing WebKit quirk with
+// focus-driven "scroll input into view" on a fixed-position layout, which it
+// doesn't undo on its own. Snap back to the top once nothing is focused, so
+// this recovers on its own instead of needing the app closed and reopened.
+document.addEventListener('focusout', () => {
+  setTimeout(() => {
+    const a = document.activeElement;
+    if ((!a || a === document.body) && (window.scrollX || window.scrollY)) window.scrollTo(0, 0);
+  }, 50);
+}, true);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', () => {
+    const a = document.activeElement;
+    if ((!a || a === document.body) && (window.scrollX || window.scrollY)) window.scrollTo(0, 0);
   });
 }
