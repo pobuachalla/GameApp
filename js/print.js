@@ -704,7 +704,21 @@ function buildPrintShotMapHTML() {
   return h;
 }
 
+// iOS has no print UI to show once a site is running as a standalone
+// home-screen app (no Safari chrome to host the print sheet) — window.print()
+// is a silent no-op there on every iOS version, not something callable at
+// the right moment can work around. Tell the user instead of doing nothing.
+function _isIOSStandalone() {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const standalone = navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+  return isIOS && standalone;
+}
+
 function printStats() {
+  if (_isIOSStandalone()) {
+    toast("Can't print from the home-screen app — open this site in Safari to share the report");
+    return;
+  }
   const area = document.getElementById('print-area');
   // eslint-disable-next-line no-restricted-syntax -- safe: buildPrintHTML() passes all user data through esc()
   area.innerHTML = buildPrintHTML();
