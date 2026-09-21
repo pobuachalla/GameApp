@@ -521,7 +521,13 @@ function buildTurnoverDonut(title, entries, colorMap, fallback) {
 
   const CX = 54, CY = 54, R = 46, IR = 24;
   const GAP = 0.025;
-  let svg = `<svg width="108" height="108" viewBox="0 0 108 108" style="display:block;margin:0 auto;">`;
+  // No display/margin styling on the svg itself — html2canvas miscalculates
+  // margin:0 auto centering on it (confirmed in isolation: the ring's right
+  // edge gets clipped by a hard vertical cut, as if the auto-margin shifted
+  // the element right and the excess ran off the end of its container).
+  // Centering via text-align:center on the wrapping div below instead is a
+  // plain, unambiguous mechanism that renders identically either way.
+  let svg = `<svg width="108" height="108" viewBox="0 0 108 108">`;
 
   let angle = -Math.PI / 2;
   entries.forEach(([cat, n]) => {
@@ -565,9 +571,14 @@ function buildTurnoverDonut(title, entries, colorMap, fallback) {
   });
   legend += '</div>';
 
+  // text-align:center wraps only the svg, not the whole card — putting it on
+  // the outer div (which also holds the flex-row legend below) made
+  // html2canvas mis-lay-out the legend rows too, a second knock-on quirk
+  // from the same inherited-property class of bug as the svg's margin:auto.
   return `<div style="flex:1;min-width:120px;max-width:160px;">
     <div style="font-size:11px;font-weight:700;color:var(--t2);text-align:center;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">${esc(title)}</div>
-    ${svg}${legend}
+    <div style="text-align:center;">${svg}</div>
+    ${legend}
   </div>`;
 }
 
