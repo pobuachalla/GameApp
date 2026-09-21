@@ -354,6 +354,12 @@ function buildPrintHTML() {
     h += '<div class="pr-row"><span>Lost</span><span style="color:'+TEAM_OPP_COLOR+';font-weight:600;">'+turnoversLost+' ('+(100-wonPct)+'%)</span></div>';
     const twPlayers = Object.values(pstats).filter(p=>p.twon+p.tlost>0).sort((a,b)=>(b.twon-b.tlost)-(a.twon-a.tlost)||a.name.localeCompare(b.name));
     twPlayers.forEach(p => {
+      // Wrapped together (not just the name/count line) so a page break in
+      // an oversized Turnovers card — more players or categories than
+      // usual, so the whole card doesn't fit on one page and .pr-card's own
+      // avoid can't help — can't land between a player's name and their own
+      // category tags.
+      h += '<div class="pr-row-group">';
       h += html`<div class="pr-row"><span>${p.name}</span><span>`;
       if (p.twon  > 0) h += `<span class="pr-tag" style="margin-right:4px;">+${p.twon}</span>`;
       if (p.tlost > 0) h += `<span class="pr-tag" style="background:#F8D7D7;color:#991B1B;">-${p.tlost}</span>`;
@@ -368,6 +374,7 @@ function buildPrintHTML() {
           h += '</div>';
         }
       }
+      h += '</div>';
     });
     if (state.trackTurnovers) {
       const wonEntries  = Object.entries(wonCategories);
@@ -748,17 +755,27 @@ function shareMatchReport() {
       image: {type: 'jpeg', quality: 0.95},
       html2canvas: {backgroundColor: '#fff', scale: 2, useCORS: true},
       jsPDF: {unit: 'mm', format: 'a4', orientation: 'portrait'},
-      // .pr-row, .pr-card and .pr-section must not be split across a page
-      // break — except inside .pr-section-flow (Player Scoring,
-      // Substitutions, Play Time — long lists meant to flow across pages;
-      // their .pr-rows still avoid splitting individually). The whole
-      // .pr-section (not just its .pr-card) is kept together so a section
-      // title never gets orphaned alone at the bottom of a page. Mirrors
-      // what the old @media print CSS gave these same elements for real
-      // browser printing.
+      // .pr-row, .pr-row-group, .pr-card and .pr-section must not be split
+      // across a page break — except inside .pr-section-flow (Player
+      // Scoring, Substitutions, Play Time — long lists meant to flow across
+      // pages; their .pr-rows still avoid splitting individually). The
+      // whole .pr-section (not just its .pr-card) is kept together so a
+      // section title never gets orphaned alone at the bottom of a page.
+      // .pr-row-group covers the one spot (Turnovers' per-player entries)
+      // where a name/count line has a second, visually-attached line of
+      // category tags below it that isn't itself a .pr-row — without this,
+      // a card too tall to fit on one page (more players or turnover
+      // categories than usual, so .pr-card's own avoid can't help either)
+      // could break between a player's name and their own tags. Mirrors
+      // what the old @media print CSS gave .pr-row/.pr-card/.pr-section for
+      // real browser printing.
       pagebreak: {
         mode: 'css',
-        avoid: ['.pr-row', '.pr-card:not(.pr-section-flow .pr-card)', '.pr-section:not(.pr-section-flow)'],
+        avoid: [
+          '.pr-row', '.pr-row-group',
+          '.pr-card:not(.pr-section-flow .pr-card)',
+          '.pr-section:not(.pr-section-flow)',
+        ],
       },
     }).from(area).outputPdf('blob'))
     .then(blob => {
