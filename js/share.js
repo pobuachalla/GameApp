@@ -477,6 +477,7 @@ function renderShareMainOpts() {
     { v:'ht',   icon:'fas fa-hourglass-half',    label:'Half Time Score Card', bg:'#FFFDE7', fg:'#E65100', guard:hasHT },
     { v:'ft',   icon:'fas fa-flag-checkered',    label:'Full Time Score Card', bg:'#FFEBEE', fg:TEAM_OPP_COLOR, guard:hasFT },
     { v:'story',icon:'fas fa-newspaper',         label:'Match Story',          bg:'#E0F2F1', fg:'#00695C', guard:hasFT },
+    { v:'report',icon:'fas fa-file-lines',       label:'Full Match Report',    bg:'#FBE9E7', fg:'#BF360C', guard:hasEvts },
     { v:'ai',   icon:'fas fa-brain',             label:'Analyse with AI',      bg:'#EDE7F6', fg:'#6A1B9A', guard:hasEvts },
   ];
 
@@ -505,6 +506,7 @@ function renderShareMainOpts() {
     if (v === 'ht')   showScoreGraphic('HT');
     if (v === 'ft')   showScoreGraphic('FT');
     if (v === 'story') showMatchStoryGraphic();
+    if (v === 'report') printStats();
   };
 }
 
