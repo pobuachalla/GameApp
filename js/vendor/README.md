@@ -1,16 +1,16 @@
-# Vendored third-party code
-
 Not part of the app bundle (see `build.cjs`'s `FILES` list) — loaded as its
 own `<script>` tag in `index.html` so it's cached offline via `sw.js`
 without being concatenated into `js/bundle.js`.
 
-- **html2canvas.min.js** — v1.4.1, MIT License, <https://html2canvas.hertzen.com>.
-  Renders the match report to a canvas for the PDF export below, since
-  `window.print()` doesn't work in an iOS home-screen app. Update by running
-  `npm pack html2canvas@<version>` and copying `dist/html2canvas.min.js` here.
-- **jspdf.umd.min.js** — v2.5.2, MIT License, <https://github.com/parallax/jsPDF>.
-  Wraps the html2canvas render into a paginated PDF for sharing. Exposes
-  `window.jspdf.jsPDF`. Update by running `npm pack jspdf@<version>` and
-  copying `dist/jspdf.umd.min.js` here (not `jspdf.umd.js`, which is
-  unminified, or the polyfills bundle, which isn't needed for our supported
-  browsers).
+- **html2pdf.bundle.min.js** — v0.14.0, MIT License,
+  <https://github.com/eKoopmans/html2pdf.js>. Renders the match report to a
+  paginated PDF for sharing, since `window.print()` doesn't work in an iOS
+  home-screen app. This is the self-contained bundle (includes html2canvas
+  and jsPDF internally) rather than hand-rolling canvas rasterization and
+  page-break math ourselves — that was tried first and got the pagination
+  wrong (content bleeding across page boundaries). html2pdf.js's own
+  `pagebreak: {mode:'css', avoid:[...]}` option handles keeping report cards
+  and table rows intact across page breaks correctly. Exposes
+  `window.html2pdf`. Update by running `npm pack html2pdf.js@<version>` and
+  copying `dist/html2pdf.bundle.min.js` here (not `html2pdf.js`/
+  `html2pdf.min.js`, which expect html2canvas/jsPDF loaded separately).

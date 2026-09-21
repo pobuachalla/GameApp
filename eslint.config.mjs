@@ -287,12 +287,10 @@ const appGlobals = {
   buildPrintShotMapHTML: 'writable',
   buildPrintTransitionEfficiencyHTML: 'writable',
   _downloadBlob: 'writable',
-  _canvasToPdfBlob: 'writable',
   shareMatchReport: 'writable',
 
-  // ── js/vendor/html2canvas.min.js, js/vendor/jspdf.umd.min.js ──
-  html2canvas: 'readonly',
-  jspdf: 'readonly',
+  // ── js/vendor/html2pdf.bundle.min.js ──
+  html2pdf: 'readonly',
 
   // ── gk.js ──
   openGKSaveFlow: 'writable',
