@@ -506,7 +506,7 @@ function renderShareMainOpts() {
     if (v === 'ht')   showScoreGraphic('HT');
     if (v === 'ft')   showScoreGraphic('FT');
     if (v === 'story') showMatchStoryGraphic();
-    if (v === 'report') printStats();
+    if (v === 'report') shareMatchReport();
   };
 }
 
