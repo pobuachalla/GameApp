@@ -751,7 +751,13 @@ function shareMatchReport() {
 
   imagesReady
     .then(() => html2pdf().set({
-      margin: 0,
+      // Content used to run flush to the physical page edge on every side
+      // (margin: 0) — no breathing room at all, which made every page
+      // boundary look like content had been chopped off rather than
+      // deliberately paginated. A real page margin gives every page (not
+      // just the very top/bottom of the whole document, which is all
+      // #print-area's own CSS padding covers) consistent edges to land in.
+      margin: [12, 12],
       image: {type: 'jpeg', quality: 0.95},
       html2canvas: {backgroundColor: '#fff', scale: 2, useCORS: true},
       jsPDF: {unit: 'mm', format: 'a4', orientation: 'portrait'},
