@@ -173,13 +173,26 @@ function buildPrintLineupHTML() {
       personnelRows +
     '</div>';
 
-  // Notes — full width below, only rendered when content exists
-  const notesSection = state.matchNotes && state.matchNotes.trim()
-    ? '<div style="margin-bottom:28px;">' +
-        prTitle('Match Notes') +
-        html`<div style="font-size:11px;color:#1F1F1F;line-height:1.6;white-space:pre-wrap;">${state.matchNotes.trim()}</div>` +
-      '</div>'
-    : '';
+  // Notes — full width below, only rendered when content exists.
+  // Rendered as one block per blank-line-separated paragraph (each wrapped
+  // in .pr-row-group) rather than one giant div: html2pdf's canvas-based
+  // pagination only keeps an element intact across a page break when it's
+  // short enough to reposition whole — a single multi-paragraph block is
+  // almost always taller than that, so a break falls mid-paragraph and the
+  // raw pixel-row slice ghosts/duplicates a sliver of text at the seam.
+  // Paragraph-sized chunks stay under that threshold, so breaks land cleanly
+  // between paragraphs instead.
+  let notesSection = '';
+  if (state.matchNotes && state.matchNotes.trim()) {
+    const paras = state.matchNotes.trim().split(/\n\s*\n/);
+    notesSection = '<div style="margin-bottom:28px;">' + prTitle('Match Notes');
+    paras.forEach(p => {
+      notesSection += '<div class="pr-row-group">' +
+        html`<div style="font-size:11px;color:#1F1F1F;line-height:1.6;white-space:pre-wrap;margin-bottom:10px;">${p}</div>` +
+      '</div>';
+    });
+    notesSection += '</div>';
+  }
 
   let h = '<div style="display:flex;gap:24px;align-items:flex-start;margin-bottom:' + (notesSection ? '16' : '28') + 'px;">';
   h += '<div style="flex:1;min-width:0;">';
@@ -767,14 +780,16 @@ function shareMatchReport() {
       // pages; their .pr-rows still avoid splitting individually). The
       // whole .pr-section (not just its .pr-card) is kept together so a
       // section title never gets orphaned alone at the bottom of a page.
-      // .pr-row-group covers the one spot (Turnovers' per-player entries)
-      // where a name/count line has a second, visually-attached line of
-      // category tags below it that isn't itself a .pr-row — without this,
-      // a card too tall to fit on one page (more players or turnover
-      // categories than usual, so .pr-card's own avoid can't help either)
-      // could break between a player's name and their own tags. Mirrors
-      // what the old @media print CSS gave .pr-row/.pr-card/.pr-section for
-      // real browser printing.
+      // .pr-row-group covers two spots: Turnovers' per-player entries, where
+      // a name/count line has a second, visually-attached line of category
+      // tags below it that isn't itself a .pr-row (without this, a card too
+      // tall to fit on one page — more players or categories than usual, so
+      // .pr-card's own avoid can't help either — could break between a
+      // player's name and their own tags); and each Match Notes paragraph,
+      // so a break lands between paragraphs rather than raw-slicing the
+      // canvas mid-paragraph, which ghosts/duplicates a sliver of text at
+      // the seam. Mirrors what the old @media print CSS gave
+      // .pr-row/.pr-card/.pr-section for real browser printing.
       pagebreak: {
         mode: 'css',
         avoid: [
