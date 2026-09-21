@@ -525,7 +525,13 @@ function buildTurnoverDonut(title, entries, colorMap, fallback) {
 
   let angle = -Math.PI / 2;
   entries.forEach(([cat, n]) => {
-    const sweep = (n / total) * 2 * Math.PI - (entries.length > 1 ? GAP : 0);
+    // A single-category (100%) donut sweeps a full 2π, which makes the
+    // arc's start and end points coincide — SVG can't express a true circle
+    // in one arc command, so that segment silently collapses to nothing
+    // (browsers vary on exactly how — Chromium omits it, WebKit has been
+    // seen distorting it). Clamp just short of a full turn so it's always a
+    // well-formed, visually-indistinguishable-from-solid ring instead.
+    const sweep = Math.min((n / total) * 2 * Math.PI - (entries.length > 1 ? GAP : 0), 2 * Math.PI - 0.001);
     const a1 = angle + (entries.length > 1 ? GAP / 2 : 0);
     const a2 = a1 + sweep;
     const x1 = CX + R  * Math.cos(a1), y1 = CY + R  * Math.sin(a1);
