@@ -704,29 +704,53 @@ function buildPrintShotMapHTML() {
   return h;
 }
 
-// iOS has no print UI to show once a site is running as a standalone
-// home-screen app (no Safari chrome to host the print sheet) — window.print()
-// is a silent no-op there on every iOS version, not something callable at
-// the right moment can work around. Tell the user instead of doing nothing.
-function _isIOSStandalone() {
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  const standalone = navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
-  return isIOS && standalone;
+// window.print() is unreliable on iOS at the best of times, and a documented
+// silent no-op once a site is running as a standalone home-screen app (no
+// Safari chrome left to host a print sheet) — not something fixable by
+// calling it at the right moment. Render the report to an image instead and
+// hand it to the OS share sheet via the Web Share API, the same mechanism
+// shareCSV() already relies on and which works in standalone mode.
+function _downloadBlob(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
 }
 
-function printStats() {
-  if (_isIOSStandalone()) {
-    toast("Can't print from the home-screen app — open this site in Safari to share the report");
-    return;
-  }
+function shareMatchReport() {
   const area = document.getElementById('print-area');
   // eslint-disable-next-line no-restricted-syntax -- safe: buildPrintHTML() passes all user data through esc()
   area.innerHTML = buildPrintHTML();
-  // Call print() synchronously, in the same tick as the click — waiting on
-  // crest <img> load/error events first (as this used to) pushes the call
-  // past the click's user-activation window, so Safari/iOS silently drops
-  // it with no dialog and no error whenever a crest isn't already cached.
-  // The print engine still renders any images that finish loading after
-  // the dialog opens, so nothing is lost by not waiting.
-  window.print();
+  area.classList.add('capturing'); // display:none has no layout — html2canvas needs one to capture
+  toast('Preparing report…');
+
+  const imgs = Array.from(area.querySelectorAll('img'));
+  const imagesReady = Promise.all(imgs.map(img => img.complete ? null : new Promise(res => {
+    img.addEventListener('load', res, {once: true});
+    img.addEventListener('error', res, {once: true});
+  })));
+
+  imagesReady
+    .then(() => html2canvas(area, {backgroundColor: '#fff', scale: 2, useCORS: true}))
+    .then(canvas => new Promise(resolve => canvas.toBlob(resolve, 'image/png')))
+    .then(blob => {
+      area.classList.remove('capturing');
+      if (!blob) { toast("Couldn't generate the report image"); return; }
+      const filename = _buildFilenameBase() + '.png';
+      const file = new File([blob], filename, {type: 'image/png'});
+      if (navigator.share && navigator.canShare && navigator.canShare({files: [file]})) {
+        // Rendering above is async and can take a moment, which risks losing
+        // the click's user-activation window the same way window.print() did
+        // — fall back to a direct download so a slow render still ends in a
+        // usable file rather than a share sheet that silently never opens.
+        navigator.share({files: [file], title: filename}).catch(() => _downloadBlob(blob, filename));
+      } else {
+        _downloadBlob(blob, filename);
+      }
+    })
+    .catch(() => {
+      area.classList.remove('capturing');
+      toast("Couldn't generate the report image");
+    });
 }

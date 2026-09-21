@@ -371,6 +371,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   #print-area .pr-section-flow .pr-card{page-break-inside:auto!important;break-inside:auto!important;}
 }
 #print-area{display:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:680px;margin:0 auto;padding:24px;color:#1F1F1F;background:#fff;}
+/* Rendered off-screen (not display:none, which has no layout for html2canvas
+   to capture) at a fixed width while shareMatchReport() rasterizes it. */
+#print-area.capturing{display:block;position:fixed;top:0;left:-10000px;width:680px;max-width:none;margin:0;}
 #print-area .pr-hdr{text-align:center;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #2E7D32;}
 #print-area .pr-title{font-size:22px;font-weight:700;color:#2E7D32;}
 #print-area .pr-score{font-size:36px;font-weight:700;margin:8px 0 4px;letter-spacing:-1px;}
